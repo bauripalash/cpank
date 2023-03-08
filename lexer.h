@@ -32,6 +32,7 @@ typedef enum {
   T_NIL,
   T_TRUE,
   T_FALSE,
+  T_RETURN,
 
   T_ERR,
   T_EOF,

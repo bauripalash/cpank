@@ -1,2 +1,10 @@
 hello ()
+১০০
 আপেল
+let name = "palash";
+ধরি নাম = "পলাশ"; 
+
+jodi (x > 100) then 
+	show x;
+else 
+	show z;

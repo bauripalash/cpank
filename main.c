@@ -73,11 +73,13 @@ void runcode(char *fpath) {
   setlocale(LC_CTYPE, "");
   Srcfile src = read_file(fpath);
   wchar_t *s = (wchar_t *)malloc(sizeof(wchar_t) * src.size);
-  //https://stackoverflow.com/a/13438980/7917825
+  // https://stackoverflow.com/a/13438980/7917825
   mbstowcs(s, src.source, src.size);
   // wprintf(L"READ -> %ls\n" , s);
   // printf("SRC-> %s\n", src);
   run(s);
+  // wprintf(L"SOURCE_AFTER -> %ls\n\nSOURCE_ORIGINAL -> %s\n\n" , s ,
+  // src.source);
   free(src.source);
   free(s);
 }
