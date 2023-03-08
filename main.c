@@ -1,56 +1,62 @@
 #include "lexer.h"
 #include <locale.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
 #include <wctype.h>
 wchar_t *y = L"নাম";
-wchar_t *x = L"(hello) world";
-
-/*
+wchar_t *x = L"(){};,-+/*>>=<<=\n\
+             \"hello\"\
+             ";
 typedef struct {
-  // start of source
-  wchar_t *start;
-  // current chars being read;
-  wchar_t *current;
-  int curpos;
-  int line;
+  char *source;
+  size_t size;
+} Srcfile;
 
-} Lex;
+Srcfile read_file(char *fpath) {
 
-Lex lx;
+  // setlocale(LC_CTYPE, "");
+  FILE *fl = fopen(fpath, "rb");
+  if (fl == NULL) {
+    fprintf(stderr, "Failed to open file %s\n", fpath);
+    exit(1);
+  }
+  fseek(fl, 0L, SEEK_END);
+  size_t fsz = ftell(fl);
+  rewind(fl);
+  // wprintf(L"size -> %d\n", fsz);
+  char *buff = (char *)malloc(fsz + 1);
+  if (buff == NULL) {
+    fprintf(stderr, "Not enough memory to read file '%s'\n", fpath);
+    exit(1);
+  }
 
+  size_t byteread = fread(buff, sizeof(char), fsz, fl);
 
-void start_lex(wchar_t *s) {
-  lx.start = s;
-  lx.current = s;
-  lx.curpos = 0;
-  lx.line = 0;
-  // return lx;
+  // setlocale(LC_CTYPE, "");
+  // wprintf(L"C-> %d\n", byteread);
+  if (byteread < fsz) {
+    fprintf(stderr, "Byteread -> Failed to read the file at '%s'\n", fpath);
+    fclose(fl);
+    free(buff);
+    exit(1);
+  }
+  buff[byteread] = '\0';
+  fclose(fl);
+  Srcfile src;
+  src.source = buff;
+  src.size = fsz;
+  return src;
 }
 
-static Token mtok(TokType tt) {
-  Token token;
-  token.type = tt;
-  token.start = lx.start;
-  token.length = lx.current - lx.start;
-  token.line = lx.line;
-  return token;
-}
-
-wchar_t advance() {
-  // lx.curpos++;
-  lx.current++;
-  return lx.current[-1];
-}
-*/
-
-int main() {
+void run(wchar_t *src) {
 
   setlocale(LC_CTYPE, "");
-  boot_lexer(y);
+  boot_lexer(src);
   while (!is_eof()) {
     Token tk = get_tok();
     if (tk.type != T_ERR) {
@@ -60,29 +66,25 @@ int main() {
       wprintf(L"E[] '%ls'\n", tk.start);
     }
   }
-  // printf("L->%d" , is_eof());
-  // Token tk = get_token();
-  // wprintf(L"TOKEN-> %ls" , tk.start);
-  // Lx l = start_lex(y);
-  //  printf("%s" , eof(&l) ? "true" : "false");
-  // while (!eof(&l)) {
-  //   Token tk = get_token(&l);
-  //   printf("T -> %s\n" , tk.start);
-  // printf("TOK-> %s %d\n", toktype_to_string(tk.type), tk.length);
-  // printf("TOK->%s\n", token_to_string(&tk));
-  //}
-  // printf("-> %s\n" , advance(&l) );
+}
 
-  // printf("-> %s\n" , advance(&l) );
+void runcode(char *fpath) {
 
-  // char * s = x;
-  // size_t ret , off;
-  // wprintf("%lc\n" , y);
-  // printf("%lc" , y);
-  // wprintf(L"LEN-> %ld\n" ,wcslen(y) );
-  // wprintf(L"%lc\n" , y[0]);
+  setlocale(LC_CTYPE, "");
+  Srcfile src = read_file(fpath);
+  wchar_t *s = (wchar_t *)malloc(sizeof(wchar_t) * src.size);
+  //https://stackoverflow.com/a/13438980/7917825
+  mbstowcs(s, src.source, src.size);
+  // wprintf(L"READ -> %ls\n" , s);
+  // printf("SRC-> %s\n", src);
+  run(s);
+  free(src.source);
+  free(s);
+}
 
-  // wprintf(L"%lc\n" , y[1]);
+int main() {
 
-  // wprintf(L"%lc\n" , y[2]);
+  // setlocale(LC_CTYPE, "en-US.UTF-8");
+
+  runcode("./sample.txt");
 }

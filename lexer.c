@@ -100,6 +100,11 @@ bool match_char(wchar_t c) {
 }
 
 wchar_t peek() { return *lexer.current; }
+wchar_t peek_next() {
+  if (is_eof())
+    return '\0';
+  return lexer.current[1];
+}
 
 void boot_lexer(wchar_t *src) {
   lexer.start = src;
@@ -118,7 +123,7 @@ Token mktok(TokType type) {
   return tok;
 }
 
-static Token err_tok(wchar_t *msg) {
+Token err_tok(wchar_t *msg) {
   Token tk;
   tk.type = T_ERR;
   tk.start = msg;
@@ -140,15 +145,35 @@ void skip_ws() {
       lexer.line++;
       next();
       break;
+    case '#':
+      while (peek() != '\n' && !is_eof()) {
+        next();
+      }
     default:
       return;
     }
   }
 }
 
-static wchar_t next() {
+wchar_t next() {
   lexer.current++;
   return lexer.current[-1];
+}
+
+Token get_str_tok() {
+  while (peek() != '"' && !is_eof()) {
+    if (peek() == '\n') {
+      lexer.line++;
+    }
+
+    next();
+  }
+
+  if (is_eof()) {
+    return err_tok(L"String is not terminated!");
+  }
+  next();
+  return mktok(T_STR);
 }
 
 Token get_tok() {
@@ -168,21 +193,48 @@ Token get_tok() {
     return mktok(T_LBRACE);
   case '}':
     return mktok(T_RBRACE);
+  case '-':
+    return mktok(T_MINUS);
+  case '+':
+    return mktok(T_PLUS);
+  case '/':
+    return mktok(T_DIV);
+  case '*':
+    return mktok(T_ASTR);
   case ';':
     return mktok(T_SEMICOLON);
   case ',':
     return mktok(T_COMMA);
+  case '=':
+    if (match_char('=')) {
+      return mktok(T_EQEQ);
+    } else {
+      return mktok(T_EQ);
+    }
   case '>':
-    return mktok(T_GT);
+    if (match_char('=')) {
+      return mktok(T_GTE);
+    } else {
+      return mktok(T_GT);
+    }
   case '<':
-    return mktok(T_LT);
+    if (match_char('=')) {
+      return mktok(T_LTE);
+    } else {
+      return mktok(T_LT);
+    }
+
+  case '"':
+    return get_str_tok();
   default:
     if (is_bn_num(c)) {
-      wprintf(L"is bn num\n");
+      wprintf(L"is bn num -> ");
     } else if (is_bn_char(c)) {
-      wprintf(L"is bn char\n");
+      wprintf(L"is bn char -> ");
     }
   }
+
+  // wprintf(L"L-> %lc ", c);
 
   return err_tok(L"Unknown character");
 }

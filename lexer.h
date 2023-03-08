@@ -62,8 +62,8 @@ bool is_eof();
 
 // Given a type craetes a token;
 Token mktok(TokType type);
-static Token err_tok(wchar_t *msg);
-static wchar_t next();
+Token err_tok(wchar_t *msg);
+wchar_t next();
 Token get_tok();
 /*
 void init_lexer(const char * source);
