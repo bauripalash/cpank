@@ -53,6 +53,8 @@ const char *toktype_to_string(TokType t) {
     return "T_NUM";
   case T_LET:
     return "T_LET";
+  case T_RETURN:
+    return "T_RETURN";
   case T_AND:
     return "T_AND";
   case T_OR:
