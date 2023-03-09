@@ -14,8 +14,12 @@ int main() {
   int con = add_const(&ins, 3.14);
   write_ins(&ins, OP_CONST, 10);
   write_ins(&ins, con, 10);
+  //  write_ins(&ins, OP_NEG, 10);
+  write_ins(&ins, OP_CONST, 10);
+  write_ins(&ins, add_const(&ins, 100), 10);
+  write_ins(&ins, OP_ADD, 100);
   write_ins(&ins, OP_RETURN, 10);
-  dissm_ins_chunk(&ins, "<main>");
+  // dissm_ins_chunk(&ins, "<main>");
   interpret(&ins);
   // printf("%s\n" , ins.code);
   free_ins(&ins);

@@ -36,6 +36,16 @@ int dissm_ins(Instruction *ins, int offset) {
   switch (is) {
   case OP_RETURN:
     return simple_ins("OP_RETURN", offset);
+  case OP_NEG:
+    return simple_ins("OP_NEG", offset);
+  case OP_ADD:
+    return simple_ins("OP_ADD", offset);
+  case OP_SUB:
+    return simple_ins("OP_SUB", offset);
+  case OP_MUL:
+    return simple_ins("OP_MUL", offset);
+  case OP_DIV:
+    return simple_ins("OP_DIV", offset);
   case OP_CONST:
     return const_ins("OP_CONST", ins, offset);
   default:
