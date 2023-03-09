@@ -7,9 +7,9 @@
 #include <wchar.h>
 #include <wctype.h>
 
-#include "bn.h"
-#include "lexer.h"
-#include "token.h"
+#include "include/bn.h"
+#include "include/lexer.h"
+#include "include/token.h"
 
 const char *toktype_to_string(TokType t) {
   switch (t) {

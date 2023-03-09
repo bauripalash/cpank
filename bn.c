@@ -1,4 +1,4 @@
-#include "bn.h"
+#include "include/bn.h"
 #include <stdbool.h>
 #include <string.h>
 #include <wchar.h>
