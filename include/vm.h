@@ -4,6 +4,7 @@
 #include "instruction.h"
 #include "value.h"
 #include <stdint.h>
+#include <wchar.h>
 #define STACK_SIZE 256
 
 typedef struct {
@@ -21,7 +22,7 @@ typedef enum {
 
 void boot_vm();
 void free_vm();
-IResult interpret(Instruction *ins);
+IResult interpret(wchar_t *source);
 void push(Value value);
 Value pop();
 

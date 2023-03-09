@@ -1,5 +1,6 @@
 #include "include/vm.h"
 #include "include/common.h"
+#include "include/compiler.h"
 #include "include/debug.h"
 #include "include/instruction.h"
 #include "include/value.h"
@@ -99,9 +100,18 @@ IResult run_vm() {
   return INTRP_RUNTIME_ERR;
 }
 
-IResult interpret(Instruction *ins) {
+IResult interpret(wchar_t *source) {
+  Instruction ins;
+  init_instruction(&ins);
 
-  vm.ins = ins;
+  if (!compile(source, &ins)) {
+    free_ins(&ins);
+    return INTRP_COMPILE_ERR;
+  }
+
+  vm.ins = &ins;
   vm.ip = vm.ins->code;
-  return run_vm();
+  IResult res = run_vm();
+  free_ins(&ins);
+  return res;
 }
