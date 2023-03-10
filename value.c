@@ -61,6 +61,27 @@ bool get_as_bool(Value val) { return val.as.boolean; }
 
 double get_as_number(Value val) { return val.as.num; }
 
+bool is_falsey(Value val) {
+  return is_nil(val) || (is_bool(val) && !get_as_bool(val));
+}
+
+bool is_equal(Value left, Value right) {
+  if (left.type != right.type) {
+    return false;
+  }
+
+  switch (left.type) {
+  case V_BOOL:
+    return get_as_bool(left) == get_as_bool(right);
+  case V_NIL:
+    return true;
+  case V_NUM:
+    return get_as_number(left) == get_as_number(right);
+  default:
+    return false;
+  }
+}
+
 Value make_num(double num) {
   Value v;
   v.type = V_NUM;

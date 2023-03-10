@@ -98,6 +98,28 @@ bool bin_div() {
   return true;
 }
 
+bool bin_gt() {
+  if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
+    runtime_err(L"Operands must be numbers for binary operation");
+    return false;
+  }
+  double r = get_as_number(pop());
+  double l = get_as_number(pop());
+  push(make_bool(l > r));
+  return true;
+}
+
+bool bin_lt() {
+  if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
+    runtime_err(L"Operands must be numbers for binary operation");
+    return false;
+  }
+  double r = get_as_number(pop());
+  double l = get_as_number(pop());
+  push(make_bool(l < r));
+  return true;
+}
+
 IResult run_vm() {
   for (;;) {
 #ifdef DEBUG_TRACE
@@ -134,10 +156,8 @@ IResult run_vm() {
     }
     case OP_ADD:
       if (!bin_add()) {
-        // runtime_err(L"Failed to + operation" , L"x");
         return INTRP_RUNTIME_ERR;
       }
-      // bin_add();
       break;
     case OP_SUB:
       if (!bin_sub()) {
@@ -158,10 +178,30 @@ IResult run_vm() {
       push(make_nil());
       break;
     case OP_TRUE: {
-      // Value tv = make_bool(true);
-      // wprintf(L"\nTV-> %d\n" , tv.as.boolean);
-      // print_val(tv);
       push(make_bool(true));
+      break;
+    }
+    case OP_NOT: {
+      bool b_val = is_falsey(pop());
+      push(make_bool(b_val));
+      break;
+    }
+    case OP_EQ: {
+      Value r = pop();
+      Value l = pop();
+      push(make_bool(is_equal(l, r)));
+      break;
+    }
+    case OP_GT: {
+      if (!bin_gt()) {
+        return INTRP_RUNTIME_ERR;
+      }
+      break;
+    }
+    case OP_LT: {
+      if (!bin_lt()) {
+        return INTRP_RUNTIME_ERR;
+      }
       break;
     }
     case OP_FALSE:

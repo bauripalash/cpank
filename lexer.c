@@ -347,6 +347,12 @@ Token get_tok() {
     return mktok(T_SEMICOLON);
   case ',':
     return mktok(T_COMMA);
+  case '!':
+    if (match_char('=')) {
+      return mktok(T_NOTEQ);
+    } else {
+      return mktok(T_BANG);
+    }
   case '=':
     if (match_char('=')) {
       return mktok(T_EQEQ);

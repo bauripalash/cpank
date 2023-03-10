@@ -20,6 +20,8 @@ typedef struct {
 bool is_bool(Value val);
 bool is_nil(Value val);
 bool is_num(Value val);
+bool is_falsey(Value val);
+bool is_equal(Value left, Value right);
 
 bool get_as_bool(Value val);
 double get_as_number(Value val);

@@ -123,6 +123,8 @@ void read_unary() {
   switch (op) {
   case T_MINUS:
     emit_bt(OP_NEG);
+  case T_BANG:
+    emit_bt(OP_NOT);
   default:
     return;
   }
@@ -144,6 +146,24 @@ void read_binary() {
     break;
   case T_DIV:
     emit_bt(OP_DIV);
+    break;
+  case T_NOTEQ:
+    emit_two(OP_EQ, OP_NOT);
+    break;
+  case T_EQEQ:
+    emit_bt(OP_EQ);
+    break;
+  case T_GT:
+    emit_bt(OP_GT);
+    break;
+  case T_GTE:
+    emit_two(OP_LT, OP_NOT);
+    break;
+  case T_LT:
+    emit_bt(OP_LT);
+    break;
+  case T_LTE:
+    emit_two(OP_GT, OP_NOT);
     break;
   default:
     return;
@@ -178,14 +198,14 @@ ParseRule parse_rules[] = {
     [T_SEMICOLON] = {NULL, NULL, PREC_NONE},
     [T_DIV] = {NULL, read_binary, PREC_FACT},
     [T_ASTR] = {NULL, read_binary, PREC_FACT},
-    [T_BANG] = {NULL, NULL, PREC_NONE},
-    [T_NOTEQ] = {NULL, NULL, PREC_NONE},
+    [T_BANG] = {read_unary, NULL, PREC_NONE},
+    [T_NOTEQ] = {NULL, read_binary, PREC_EQ},
     [T_EQ] = {NULL, NULL, PREC_NONE},
-    [T_EQEQ] = {NULL, NULL, PREC_NONE},
-    [T_GT] = {NULL, NULL, PREC_NONE},
-    [T_GTE] = {NULL, NULL, PREC_NONE},
-    [T_LT] = {NULL, NULL, PREC_NONE},
-    [T_LTE] = {NULL, NULL, PREC_NONE},
+    [T_EQEQ] = {NULL, read_binary, PREC_EQ},
+    [T_GT] = {NULL, read_binary, PREC_COMP},
+    [T_GTE] = {NULL, read_binary, PREC_COMP},
+    [T_LT] = {NULL, read_binary, PREC_COMP},
+    [T_LTE] = {NULL, read_binary, PREC_COMP},
     [T_ID] = {NULL, NULL, PREC_NONE},
     [T_STR] = {NULL, NULL, PREC_NONE},
     [T_NUM] = {read_number, NULL, PREC_NONE},

@@ -54,6 +54,14 @@ int dissm_ins(Instruction *ins, int offset) {
     return simple_ins("OP_TRUE", offset);
   case OP_FALSE:
     return simple_ins("OP_FALSE", offset);
+  case OP_NOT:
+    return simple_ins("OP_NOT", offset);
+  case OP_EQ:
+    return simple_ins("OP_EQ", offset);
+  case OP_GT:
+    return simple_ins("OP_GT", offset);
+  case OP_LT:
+    return simple_ins("OP_LT", offset);
   default:
     printf("Unknown op %d\n", is);
     return offset + 1;
