@@ -1,6 +1,7 @@
 #include "include/obj.h"
 #include "include/mem.h"
 #include "include/value.h"
+#include "include/vm.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
@@ -11,6 +12,8 @@
 Obj *alloc_obj(size_t size, ObjType type) {
   Obj *obj = (Obj *)rallc(NULL, 0, size);
   obj->type = type;
+  obj->next = vm.objs;
+  vm.objs = obj;
   return obj;
 }
 
@@ -45,6 +48,10 @@ ObjString *copy_string(wchar_t *chars, int len) {
   heap_chars[len] = '\0';
 
   return allocate_str(heap_chars, len);
+}
+
+ObjString *take_string(wchar_t *chars, int len) {
+  return allocate_str(chars, len);
 }
 
 void print_obj(Value val) {

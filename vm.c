@@ -1,8 +1,9 @@
-#include "include/vm.h"
 #include "include/common.h"
 #include "include/compiler.h"
 #include "include/debug.h"
 #include "include/instruction.h"
+#include "include/mem.h"
+#include "include/obj.h"
 #include "include/value.h"
 #include <locale.h>
 #include <stdarg.h>
@@ -12,16 +13,21 @@
 #include <stdio.h>
 #include <wchar.h>
 
-#define DEBUG_STACK
-#define DEBUG_TRACE
+#include "include/vm.h"
 
 Vm vm;
 
+#define DEBUG_STACK
+#define DEBUG_TRACE
+
 void reset_stack() { vm.stack_top = vm.stack; }
 
-void boot_vm() { reset_stack(); }
+void boot_vm() {
+  reset_stack();
+  vm.objs = NULL;
+}
 
-void free_vm() {}
+void free_vm() { free_objs(); }
 
 void push(Value value) {
   *vm.stack_top = value;
@@ -54,15 +60,34 @@ void runtime_err(wchar_t *format, ...) {
 uint8_t read_bt() { return *vm.ip++; }
 Value read_const() { return vm.ins->consts.values[read_bt()]; }
 
+void add_string() {
+  ObjString *r = get_as_string(pop());
+  ObjString *l = get_as_string(pop());
+
+  int newlen = l->len + r->len;
+  wchar_t *newchars = ALLOC(wchar_t, newlen + 1);
+  wmemcpy(newchars, l->chars, l->len);
+  wmemcpy(newchars + l->len, r->chars, r->len);
+  newchars[newlen] = '\0';
+  ObjString *new_obj = take_string(newchars, newlen);
+  push(make_obj_val(new_obj));
+}
+
 bool bin_add() {
-  if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
+  if (is_str_obj(peek_vm(0)) && is_str_obj(peek_vm(1))) {
+    add_string();
+    return true;
+
+  } else if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
+    double r = get_as_number(pop());
+    double l = get_as_number(pop());
+    push(make_num(l + r));
+    return true;
+
+  } else {
     runtime_err(L"Operands must be numbers for binary operation");
     return false;
   }
-  double r = get_as_number(pop());
-  double l = get_as_number(pop());
-  push(make_num(l + r));
-  return true;
 }
 
 bool bin_sub() {

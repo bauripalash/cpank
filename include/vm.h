@@ -12,6 +12,7 @@ typedef struct {
   uint8_t *ip;
   Value stack[STACK_SIZE];
   Value *stack_top;
+  Obj *objs;
 } Vm;
 
 typedef enum {
@@ -19,6 +20,8 @@ typedef enum {
   INTRP_COMPILE_ERR,
   INTRP_RUNTIME_ERR,
 } IResult;
+
+extern Vm vm;
 
 void boot_vm();
 void free_vm();

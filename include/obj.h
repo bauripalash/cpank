@@ -12,6 +12,7 @@ typedef enum {
 
 struct Obj {
   ObjType type;
+  struct Obj *next;
 };
 
 struct ObjString {
@@ -26,6 +27,7 @@ bool is_str_obj(Value val);
 ObjString *get_as_string(Value val);
 wchar_t *get_as_native_string(Value val);
 ObjString *copy_string(wchar_t *chars, int len);
+ObjString *take_string(wchar_t *chars, int len);
 void print_obj(Value val);
 
 #endif

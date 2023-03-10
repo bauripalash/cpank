@@ -11,7 +11,9 @@
   (type *)rallc(ptr, sizeof(type) * (oc), sizeof(type) * (nc))
 
 #define FREE_ARR(type, ptr, oc) rallc(ptr, sizeof(type) * (oc), 0)
+#define FREE(type, ptr) rallc(ptr, sizeof(type), 0)
 
 void *rallc(void *ptr, size_t osize, size_t nsize);
+void free_objs();
 
 #endif

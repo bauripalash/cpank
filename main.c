@@ -46,7 +46,8 @@ int main() {
   // interpret(&ins);
   // printf("%s\n" , ins.code);
   // free_ins(&ins);
-  free(srcfile.source);
+  free_vm(); // <<---- IMPORTANT
   free(s);
+  free(srcfile.source);
   exit(errcode);
 }

@@ -1,6 +1,11 @@
 #include "include/mem.h"
+#include "include/obj.h"
+#include "include/value.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <wchar.h>
+
+#include "include/vm.h"
 
 void *rallc(void *ptr, size_t os, size_t ns) {
   if (ns == 0) {
@@ -14,4 +19,24 @@ void *rallc(void *ptr, size_t os, size_t ns) {
     exit(1);
   }
   return result;
+}
+
+void free_single_obj(Obj *obj) {
+  switch (obj->type) {
+  case OBJ_STR: {
+    ObjString *str = (ObjString *)obj;
+    FREE_ARR(wchar_t, str->chars, str->len + 1);
+    FREE(ObjString, obj);
+    break;
+  }
+  }
+}
+
+void free_objs() {
+  Obj *object = vm.objs;
+  while (object != NULL) {
+    Obj *next = object->next;
+    free_single_obj(object);
+    object = next;
+  }
 }
