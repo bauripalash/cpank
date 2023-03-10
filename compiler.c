@@ -16,7 +16,6 @@ Parser parser;
 Instruction *compins;
 
 Instruction *cur_ins() { return compins; }
-
 void err_at(Token *tok, wchar_t *msg) {
   if (parser.panic_mode) {
     return;
@@ -105,7 +104,7 @@ void read_number() {
   // wprintf(L"NUMBER -> %ls\n" , parser.prev.start);
   // double val = strtod(, NULL);
   double val = wcstod(parser.prev.start, NULL);
-  emit_const(val);
+  emit_const(make_num(val));
 }
 
 void read_expr() { parse_prec(PREC_ASSIGN); }

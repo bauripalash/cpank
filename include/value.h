@@ -1,8 +1,31 @@
 #ifndef cpank_value_h
 #define cpank_value_h
-
 #include "common.h"
-typedef double Value;
+
+typedef enum { V_BOOL, V_NIL, V_NUM } ValType;
+
+// typedef double Value;
+//
+
+typedef struct {
+  ValType type;
+  union {
+    bool boolean;
+    double num;
+  } as;
+} Value;
+
+bool is_bool(Value val);
+bool is_nil(Value val);
+bool is_num(Value val);
+
+bool get_as_bool(Value val);
+double get_as_number(Value val);
+
+Value make_bool(bool value);
+Value make_nil();
+Value make_num(double num);
+Value make_neg(Value value);
 
 typedef struct {
   int cap;

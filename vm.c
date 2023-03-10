@@ -4,7 +4,11 @@
 #include "include/debug.h"
 #include "include/instruction.h"
 #include "include/value.h"
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <wchar.h>
 
 Vm vm;
@@ -25,31 +29,66 @@ Value pop() {
   return *vm.stack_top;
 }
 
+Value peek_vm(int dist) { return vm.stack_top[-1 - dist]; }
+
+void runtime_err(wchar_t *format, ...) {
+  va_list args;
+  va_start(args, format);
+  vfwprintf(stderr, format, args);
+  va_end(args);
+  fputwc('\n', stderr);
+
+  size_t inst = vm.ip - vm.ins->code - 1;
+  int line = vm.ins->lines[inst];
+  fwprintf(stderr, L"[line %d] in script", line);
+  reset_stack();
+}
+
 uint8_t read_bt() { return *vm.ip++; }
 Value read_const() { return vm.ins->consts.values[read_bt()]; }
 
-void bin_add() {
-  double r = pop();
-  double l = pop();
-  push(l + r);
+bool bin_add() {
+  if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
+    runtime_err(L"Operands must be numbers for binary operation");
+    return false;
+  }
+  double r = get_as_number(pop());
+  double l = get_as_number(pop());
+  push(make_num(l + r));
+  return true;
 }
 
-void bin_sub() {
-  double r = pop();
-  double l = pop();
-  push(l - r);
+bool bin_sub() {
+  if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
+    runtime_err(L"Operands must be numbers for binary operation");
+    return false;
+  }
+  double r = get_as_number(pop());
+  double l = get_as_number(pop());
+  push(make_num(l - r));
+  return true;
 }
 
-void bin_mul() {
-  double r = pop();
-  double l = pop();
-  push(l * r);
+bool bin_mul() {
+  if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
+    runtime_err(L"Operands must be numbers for binary operation");
+    return false;
+  }
+  double r = get_as_number(pop());
+  double l = get_as_number(pop());
+  push(make_num(l * r));
+  return true;
 }
 
-void bin_div() {
-  double r = pop();
-  double l = pop();
-  push(l / r);
+bool bin_div() {
+  if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
+    runtime_err(L"Operands must be numbers for binary operation");
+    return false;
+  }
+  double r = get_as_number(pop());
+  double l = get_as_number(pop());
+  push(make_num(l / r));
+  return true;
 }
 
 IResult run_vm() {
@@ -80,7 +119,7 @@ IResult run_vm() {
       break;
     }
     case OP_NEG: {
-      push(-pop());
+      push(make_neg(pop()));
       break;
     }
     case OP_ADD:
