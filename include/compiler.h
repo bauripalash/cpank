@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <wchar.h>
 
+#define DEBUG_PRINT_CODE
+
 typedef struct {
   Token cur;
   Token prev;
@@ -27,14 +29,15 @@ typedef enum {
   PREC_DEFAULT,
 } Prec;
 
-typedef void (*ParseFn)() ;
+typedef void (*ParseFn)();
 
 typedef struct {
-  ParseFn prefix; 
+  ParseFn prefix;
   ParseFn infix;
   Prec prec;
-}ParseRule;
+} ParseRule;
 
+ParseRule *get_parse_rule(TokType tt);
 
 bool compile(wchar_t *source, Instruction *ins);
 

@@ -77,6 +77,12 @@ const char *toktype_to_string(TokType t) {
     return "T_TRUE";
   case T_FALSE:
     return "T_FALSE";
+  case T_FUNC:
+    return "T_FUNC";
+  case T_BANG:
+    return "T_BANG";
+  case T_NOTEQ:
+    return "T_NOTEQ";
   case T_EOF:
     return "T_EOF";
   case T_ERR:
@@ -207,6 +213,9 @@ TokType get_ident_tok_type(wchar_t *input, int len) {
   } else if (wcscmp(tc, L"false") == 0 || wcscmp(tc, L"mittha") == 0 ||
              wcscmp(tc, BN_KW_FALSE) == 0) {
     tt = T_FALSE;
+  } else if (wcscmp(tc, L"fun") == 0 || wcscmp(tc, L"kaj") == 0)
+  /*wcscmp(tc, BN_KW_FALSE) == 0 <------ TODO */ {
+    tt = T_FUNC;
   } else if (wcscmp(tc, L"nil") == 0 || wcscmp(tc, L"nil") == 0 ||
              wcscmp(tc, BN_KW_NIL) == 0) {
     tt = T_NIL;

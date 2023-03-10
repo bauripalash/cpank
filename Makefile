@@ -9,14 +9,14 @@ run:
 	./$(OUTPUT)
 
 build_uo:
-	echo "Building Unoptimized $(OUTPUT)"
+	@echo "Building Unoptimized $(OUTPUT)"
 	$(CC) $(CFLAGS) -o $(OUTPUT) $(SRC)
-	echo "Finished building unoptimized $(OUTPUT)"
+	@echo "Finished building unoptimized $(OUTPUT)"
 
 build:
-	echo "Building optimized $(OUTPUT)"
+	@echo "Building optimized $(OUTPUT)"
 	$(CC) -O3 $(CFLAGS) -o $(OUTPUT) $(SRC)
-	echo "Finished building optimized $(OUTPUT)"
+	@echo "Finished building optimized $(OUTPUT)"
 
 memcheck: build_uo
 	valgrind ./$(OUTPUT)

@@ -64,7 +64,7 @@ IResult run_vm() {
     }
     wprintf(L"--- END STACK ---\n");
 #endif
-    dissm_ins(vm.ins, (int)(vm.ip - vm.ins->code));
+    // dissm_ins(vm.ins, (int)(vm.ip - vm.ins->code));
 
 #endif
     uint8_t ins;
