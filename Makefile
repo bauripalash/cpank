@@ -1,7 +1,7 @@
 CC=clang
 CFLAGS=-std=c11 -Wall
 LINKS=-static -lgrapheme
-SRC=main.c lexer.c bn.c runfile.c instruction.c mem.c debug.c value.c vm.c compiler.c obj.c
+SRC=main.c lexer.c bn.c runfile.c instruction.c mem.c debug.c value.c vm.c compiler.c obj.c htable.c
 OUTPUT=cpank
 
 run:

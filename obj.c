@@ -4,6 +4,7 @@
 #include "include/vm.h"
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 #include <wchar.h>
 
@@ -33,25 +34,38 @@ wchar_t *get_as_native_string(Value val) {
   return os->chars;
 }
 
-ObjString *allocate_str(wchar_t *chars, int len) {
+ObjString *allocate_str(wchar_t *chars, int len, uint32_t hash) {
   ObjString *string = ALLOCATE_OBJ(ObjString, OBJ_STR);
   string->len = len;
   string->chars = chars;
+  string->hash = hash;
   return string;
 }
 
+static uint32_t get_hash(const wchar_t *key, int len) {
+  uint32_t hash = 2166136261u;
+  for (int i = 0; i < len; i++) {
+    hash ^= (uint8_t)key[i];
+    hash *= 16777619;
+  }
+  return hash;
+}
+
 ObjString *copy_string(wchar_t *chars, int len) {
+  uint32_t hash = get_hash(chars, len);
   wchar_t *heap_chars = ALLOC(wchar_t, len + 1);
 
   wmemcpy(heap_chars, chars, len);
 
   heap_chars[len] = '\0';
 
-  return allocate_str(heap_chars, len);
+  return allocate_str(heap_chars, len, hash);
 }
 
 ObjString *take_string(wchar_t *chars, int len) {
-  return allocate_str(chars, len);
+
+  uint32_t hash = get_hash(chars, len);
+  return allocate_str(chars, len, hash);
 }
 
 void print_obj(Value val) {

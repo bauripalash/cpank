@@ -4,6 +4,7 @@
 #include "common.h"
 #include "value.h"
 #include <stdbool.h>
+#include <stdint.h>
 #include <wchar.h>
 
 typedef enum {
@@ -19,6 +20,7 @@ struct ObjString {
   Obj obj;
   int len;
   wchar_t *chars;
+  uint32_t hash;
 };
 
 ObjType get_obj_type(Value val);
