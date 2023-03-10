@@ -21,9 +21,9 @@ int const_ins(const char *name, Instruction *ins, int off) {
   wprintf(L"\n");
   return off + 2;
 }
-int simple_ins(const char *name, int off) {
+int simple_ins(const char *name, int offset) {
   wprintf(L"%s\n", name);
-  return off + 1;
+  return offset + 1;
 }
 int dissm_ins(Instruction *ins, int offset) {
   wprintf(L"%04d ", offset);
@@ -48,6 +48,12 @@ int dissm_ins(Instruction *ins, int offset) {
     return simple_ins("OP_DIV", offset);
   case OP_CONST:
     return const_ins("OP_CONST", ins, offset);
+  case OP_NIL:
+    return simple_ins("OP_NIL", offset);
+  case OP_TRUE:
+    return simple_ins("OP_TRUE", offset);
+  case OP_FALSE:
+    return simple_ins("OP_FALSE", offset);
   default:
     printf("Unknown op %d\n", is);
     return offset + 1;

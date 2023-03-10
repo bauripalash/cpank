@@ -1,5 +1,6 @@
 #include "include/compiler.h"
 #include "include/common.h"
+#include "include/instruction.h"
 #include "include/value.h"
 
 #ifdef DEBUG_PRINT_CODE
@@ -149,6 +150,22 @@ void read_binary() {
   }
 }
 
+void literal() {
+  switch (parser.prev.type) {
+  case T_FALSE:
+    emit_bt(OP_FALSE);
+    break;
+  case T_NIL:
+    emit_bt(OP_NIL);
+    break;
+  case T_TRUE:
+    emit_bt(OP_TRUE);
+    break;
+  default:
+    return;
+  }
+}
+
 ParseRule parse_rules[] = {
     [T_LPAREN] = {read_group, NULL, PREC_NONE},
     [T_RPAREN] = {NULL, NULL, PREC_NONE},
@@ -174,14 +191,14 @@ ParseRule parse_rules[] = {
     [T_NUM] = {read_number, NULL, PREC_NONE},
     [T_AND] = {NULL, NULL, PREC_NONE},
     [T_ELSE] = {NULL, NULL, PREC_NONE},
-    [T_FALSE] = {NULL, NULL, PREC_NONE},
+    [T_FALSE] = {literal, NULL, PREC_NONE},
     [T_FUNC] = {NULL, NULL, PREC_NONE},
     [T_IF] = {NULL, NULL, PREC_NONE},
-    [T_NIL] = {NULL, NULL, PREC_NONE},
+    [T_NIL] = {literal, NULL, PREC_NONE},
     [T_OR] = {NULL, NULL, PREC_NONE},
     [T_SHOW] = {NULL, NULL, PREC_NONE},
     [T_RETURN] = {NULL, NULL, PREC_NONE},
-    [T_TRUE] = {NULL, NULL, PREC_NONE},
+    [T_TRUE] = {literal, NULL, PREC_NONE},
     [T_LET] = {NULL, NULL, PREC_NONE},
     [T_WHILE] = {NULL, NULL, PREC_NONE},
     [T_ERR] = {NULL, NULL, PREC_NONE},

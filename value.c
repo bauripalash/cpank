@@ -3,6 +3,17 @@
 #include <stdbool.h>
 #include <wchar.h>
 
+void print_val_type(ValType vt) {
+  switch (vt) {
+  case V_NIL:
+    wprintf(L"NIL");
+  case V_BOOL:
+    wprintf(L"BOOL");
+  case V_NUM:
+    wprintf(L"NUM");
+  }
+}
+
 void init_valarr(Valarr *array) {
   array->values = NULL;
   array->cap = 0;
@@ -25,7 +36,20 @@ void free_valarr(Valarr *array) {
   init_valarr(array);
 }
 
-void print_val(Value val) { wprintf(L"%g", get_as_number(val)); }
+void print_val(Value val) {
+  // print_val_type(val.type);
+  switch (val.type) {
+  case V_NUM:
+    wprintf(L"%g", get_as_number(val));
+    break;
+  case V_BOOL:
+    wprintf(L"%s", get_as_bool(val) ? "true" : "false");
+    break;
+  case V_NIL:
+    wprintf(L"nil");
+    break;
+  }
+}
 
 bool is_bool(Value val) { return val.type == V_BOOL; }
 

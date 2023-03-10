@@ -4,6 +4,8 @@
 
 typedef enum { V_BOOL, V_NIL, V_NUM } ValType;
 
+void print_val_type(ValType vt);
+
 // typedef double Value;
 //
 

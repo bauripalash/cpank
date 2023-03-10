@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <wchar.h>
 
+#define DEBUG_STACK
+#define DEBUG_TRACE
+
 Vm vm;
 
 void reset_stack() { vm.stack_top = vm.stack; }
@@ -32,6 +35,7 @@ Value pop() {
 Value peek_vm(int dist) { return vm.stack_top[-1 - dist]; }
 
 void runtime_err(wchar_t *format, ...) {
+  // wprintf(format);
   va_list args;
   va_start(args, format);
   vfwprintf(stderr, format, args);
@@ -99,7 +103,7 @@ IResult run_vm() {
     for (Value *slt = vm.stack; slt < vm.stack_top; slt++) {
       wprintf(L"[ ");
       print_val(*slt);
-      wprintf(L" ]");
+      wprintf(L" ]\n");
     }
     wprintf(L"--- END STACK ---\n");
 #endif
@@ -119,20 +123,46 @@ IResult run_vm() {
       break;
     }
     case OP_NEG: {
+      if (!is_num(peek_vm(0))) {
+        return INTRP_RUNTIME_ERR;
+      }
       push(make_neg(pop()));
       break;
     }
     case OP_ADD:
-      bin_add();
+      if (!bin_add()) {
+        // runtime_err(L"Failed to + operation" , L"x");
+        return INTRP_RUNTIME_ERR;
+      }
+      // bin_add();
       break;
     case OP_SUB:
-      bin_sub();
+      if (!bin_sub()) {
+        return INTRP_RUNTIME_ERR;
+      }
       break;
     case OP_MUL:
-      bin_mul();
+      if (!bin_mul()) {
+        return INTRP_RUNTIME_ERR;
+      }
       break;
     case OP_DIV:
-      bin_div();
+      if (!bin_div()) {
+        return INTRP_RUNTIME_ERR;
+      }
+      break;
+    case OP_NIL:
+      push(make_nil());
+      break;
+    case OP_TRUE: {
+      // Value tv = make_bool(true);
+      // wprintf(L"\nTV-> %d\n" , tv.as.boolean);
+      // print_val(tv);
+      push(make_bool(true));
+      break;
+    }
+    case OP_FALSE:
+      push(make_bool(false));
       break;
     }
   }
