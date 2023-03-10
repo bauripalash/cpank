@@ -2,6 +2,9 @@
 #define cpank_mem_h
 
 #include "common.h"
+
+#define ALLOC(type, count) (type *)rallc(NULL, 0, sizeof(type) * (count))
+
 #define GROW_CAP(cap) ((cap) < 8 ? 8 : (cap)*2)
 
 #define GROW_ARR(type, ptr, oc, nc)                                            \

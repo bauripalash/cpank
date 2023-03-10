@@ -1,6 +1,7 @@
 #include "include/compiler.h"
 #include "include/common.h"
 #include "include/instruction.h"
+#include "include/obj.h"
 #include "include/value.h"
 
 #ifdef DEBUG_PRINT_CODE
@@ -108,6 +109,12 @@ void read_number() {
   emit_const(make_num(val));
 }
 
+void read_string() {
+  Value v =
+      make_obj_val(copy_string(parser.prev.start + 1, parser.prev.length - 2));
+  emit_const(v);
+}
+
 void read_expr() { parse_prec(PREC_ASSIGN); }
 
 void read_group() {
@@ -207,7 +214,7 @@ ParseRule parse_rules[] = {
     [T_LT] = {NULL, read_binary, PREC_COMP},
     [T_LTE] = {NULL, read_binary, PREC_COMP},
     [T_ID] = {NULL, NULL, PREC_NONE},
-    [T_STR] = {NULL, NULL, PREC_NONE},
+    [T_STR] = {read_string, NULL, PREC_NONE},
     [T_NUM] = {read_number, NULL, PREC_NONE},
     [T_AND] = {NULL, NULL, PREC_NONE},
     [T_ELSE] = {NULL, NULL, PREC_NONE},

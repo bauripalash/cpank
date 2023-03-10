@@ -1,5 +1,6 @@
 #include "include/value.h"
 #include "include/mem.h"
+#include "include/obj.h"
 #include <stdbool.h>
 #include <wchar.h>
 
@@ -11,6 +12,8 @@ void print_val_type(ValType vt) {
     wprintf(L"BOOL");
   case V_NUM:
     wprintf(L"NUM");
+  case V_OBJ:
+    wprintf(L"OBJ");
   }
 }
 
@@ -48,6 +51,9 @@ void print_val(Value val) {
   case V_NIL:
     wprintf(L"nil");
     break;
+  case V_OBJ:
+    print_obj(val);
+    break;
   }
 }
 
@@ -56,6 +62,8 @@ bool is_bool(Value val) { return val.type == V_BOOL; }
 bool is_num(Value val) { return val.type == V_NUM; }
 
 bool is_nil(Value val) { return val.type == V_NIL; }
+
+bool is_obj(Value val) { return val.type == V_OBJ; }
 
 bool get_as_bool(Value val) { return val.as.boolean; }
 
@@ -77,6 +85,12 @@ bool is_equal(Value left, Value right) {
     return true;
   case V_NUM:
     return get_as_number(left) == get_as_number(right);
+  case V_OBJ: {
+    ObjString *l_string = get_as_string(left);
+    ObjString *r_string = get_as_string(right);
+    return l_string->len == r_string->len &&
+           wmemcmp(l_string->chars, r_string->chars, l_string->len) == 0;
+  }
   default:
     return false;
   }

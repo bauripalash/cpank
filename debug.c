@@ -16,9 +16,9 @@ int const_ins(const char *name, Instruction *ins, int off) {
   //
   //	ins->code[off] => the offcode itself
   uint8_t con = ins->code[off + 1];
-  wprintf(L"%-16s %4d ", name, con);
+  wprintf(L"%-16s %4d '", name, con);
   print_val(ins->consts.values[con]);
-  wprintf(L"\n");
+  wprintf(L"'\n");
   return off + 2;
 }
 int simple_ins(const char *name, int offset) {

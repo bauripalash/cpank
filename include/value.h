@@ -2,7 +2,9 @@
 #define cpank_value_h
 #include "common.h"
 
-typedef enum { V_BOOL, V_NIL, V_NUM } ValType;
+typedef struct Obj Obj;
+typedef struct ObjString ObjString;
+typedef enum { V_BOOL, V_NIL, V_NUM, V_OBJ } ValType;
 
 void print_val_type(ValType vt);
 
@@ -14,14 +16,18 @@ typedef struct {
   union {
     bool boolean;
     double num;
+    Obj *obj;
   } as;
 } Value;
 
+#define get_as_obj(value) ((value).as.obj)
+#define make_obj_val(object) ((Value){V_OBJ, {.obj = (Obj *)object}})
 bool is_bool(Value val);
 bool is_nil(Value val);
 bool is_num(Value val);
 bool is_falsey(Value val);
 bool is_equal(Value left, Value right);
+bool is_obj(Value val);
 
 bool get_as_bool(Value val);
 double get_as_number(Value val);
