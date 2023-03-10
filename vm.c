@@ -4,6 +4,7 @@
 #include "include/debug.h"
 #include "include/instruction.h"
 #include "include/value.h"
+#include <locale.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -35,16 +36,18 @@ Value pop() {
 Value peek_vm(int dist) { return vm.stack_top[-1 - dist]; }
 
 void runtime_err(wchar_t *format, ...) {
+  setlocale(LC_CTYPE, "");
   // wprintf(format);
   va_list args;
   va_start(args, format);
   vfwprintf(stderr, format, args);
+
   va_end(args);
   fputwc('\n', stderr);
 
   size_t inst = vm.ip - vm.ins->code - 1;
   int line = vm.ins->lines[inst];
-  fwprintf(stderr, L"[line %d] in script", line);
+  fwprintf(stderr, L"Error [line %d] in script\n", line);
   reset_stack();
 }
 

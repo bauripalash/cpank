@@ -8,12 +8,29 @@
 #include "include/runfile.h"
 #include "include/vm.h"
 int main() {
+  int errcode = 0;
   setlocale(LC_CTYPE, "");
   boot_vm();
   Srcfile srcfile = read_file("sample/2.txt");
   wchar_t *s = (wchar_t *)malloc(sizeof(wchar_t) * srcfile.size);
   mbstowcs(s, srcfile.source, srcfile.size);
-  interpret(s);
+  IResult res = interpret(s);
+  switch (res) {
+  case INTRP_RUNTIME_ERR:
+    wprintf(L"Runtime error occured!");
+    errcode = 1;
+    break;
+    ;
+  case INTRP_COMPILE_ERR:
+    wprintf(L"Compiler error occured!");
+    errcode = 1;
+    break;
+    ;
+  case INTRP_OK:
+    wprintf(L"OK");
+    break;
+  }
+  wprintf(L"\n");
   // runcode("sample/sample.txt");
   // Instruction ins;
   // init_instruction(&ins);
@@ -31,4 +48,5 @@ int main() {
   // free_ins(&ins);
   free(srcfile.source);
   free(s);
+  exit(errcode);
 }

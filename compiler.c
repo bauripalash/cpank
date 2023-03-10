@@ -23,17 +23,17 @@ void err_at(Token *tok, wchar_t *msg) {
 
     parser.had_err = true;
   }
-  fprintf(stderr, "[l %d] Error ", tok->line);
+  fwprintf(stderr, L"[l %d] Error ", tok->line);
 
   if (tok->type == T_EOF) {
-    fprintf(stderr, "at end");
+    fwprintf(stderr, L"at end");
   } else if (tok->type == T_ERR) {
 
   } else {
-    fprintf(stderr, " at %.*ls", tok->length, tok->start);
+    fwprintf(stderr, L" at %.*ls", tok->length, tok->start);
   }
 
-  fprintf(stderr, " : %ls\n", msg);
+  fwprintf(stderr, L" : %ls\n\n", msg);
 }
 
 void err(wchar_t *msg) { err_at(&parser.prev, msg); }
@@ -228,7 +228,7 @@ bool compile(wchar_t *source, Instruction *ins) {
   // wprintf(L"CUR->%s\n" , toktype_to_string(parser.cur.type));
   read_expr();
   // advance();
-  eat_tok(T_EOF, L"Expected end of expr");
+  // eat_tok(T_EOF, L"Expected end of expr");
   end_compiler();
   return !parser.had_err;
 }
