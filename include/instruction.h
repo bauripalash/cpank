@@ -29,6 +29,7 @@ typedef enum {
   OP_SET_LOCAL,
   OP_JMP_IF_FALSE,
   OP_JMP,
+  OP_LOOP,
 
 } Op;
 

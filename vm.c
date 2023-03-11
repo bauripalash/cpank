@@ -308,6 +308,11 @@ IResult run_vm() {
       vm.ip += offset;
       break;
     }
+    case OP_LOOP: {
+      uint16_t offset = read_u16();
+      vm.ip -= offset;
+      break;
+    }
     }
   }
   return INTRP_RUNTIME_ERR;

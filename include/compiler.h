@@ -54,6 +54,10 @@ void mark_init();
 void read_if_stmt();
 int emit_jump(uint8_t ins);
 void patch_jump(int offset);
+void read_and(bool can_assign);
+void read_or(bool can_assign);
+void read_while_stmt();
+void emit_loop(int ls);
 
 typedef void (*ParseFn)(bool can_assign);
 

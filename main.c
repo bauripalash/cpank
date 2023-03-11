@@ -20,9 +20,11 @@ int main() {
   // wchar_t *s = (wchar_t *)malloc(sizeof(wchar_t) * srcfile.size);
   // mbstowcs(s, srcfile.source, srcfile.size);
 
-  wchar_t *s = L"if (1 < 2){ \
-      show 100;\
-    } else show 200;\
+  wchar_t *s = L" let a = 1;\
+    while (a <= 10) { \
+      show a; \
+      a = a+1;  \
+    }\
     show 1;";
   IResult res = interpret(s);
   // wprintf(L"INTRP RESULT -> %d\n" , res);

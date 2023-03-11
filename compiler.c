@@ -168,6 +168,8 @@ void read_stmt() {
     read_print_stmt();
   } else if (match_tok(T_IF)) {
     read_if_stmt();
+  } else if (match_tok(T_WHILE)) {
+    read_while_stmt();
 
   } else if (match_tok(T_LBRACE)) {
     start_scope();
@@ -327,6 +329,46 @@ void read_if_stmt() {
   patch_jump(else_jmp);
 }
 
+void read_while_stmt() {
+  int ls = cur_ins()->len;
+  eat_tok(T_LPAREN, L"expected '(' after 'while'");
+  read_expr();
+  eat_tok(T_RPAREN, L"expected ')' after expression");
+  int exitjmp = emit_jump(OP_JMP_IF_FALSE);
+  emit_bt(OP_POP);
+  read_stmt();
+  emit_loop(ls);
+  patch_jump(exitjmp);
+  emit_bt(OP_POP);
+}
+
+void emit_loop(int ls) {
+  emit_bt(OP_LOOP);
+  int offset = cur_ins()->len - ls + 2;
+  if (offset > UINT16_MAX) {
+    err(L"loop body too big");
+  }
+  emit_bt((offset >> 8) & 0xFF);
+  emit_bt(offset & 0xFF);
+}
+
+void read_and(bool can_assign) {
+  int ej = emit_jump(OP_JMP_IF_FALSE);
+  emit_bt(OP_POP);
+  parse_prec(PREC_AND);
+  patch_jump(ej);
+}
+
+void read_or(bool can_assign) {
+  int else_jmp = emit_jump(OP_JMP_IF_FALSE);
+  int endjmp = emit_jump(OP_JMP);
+
+  patch_jump(else_jmp);
+  emit_bt(OP_POP);
+  parse_prec(PREC_OR);
+  patch_jump(endjmp);
+}
+
 int emit_jump(uint8_t ins) {
   emit_bt(ins);
   emit_two(0xFF, 0xFF);
@@ -466,13 +508,13 @@ ParseRule parse_rules[] = {
     [T_ID] = {read_var, NULL, PREC_NONE},
     [T_STR] = {read_string, NULL, PREC_NONE},
     [T_NUM] = {read_number, NULL, PREC_NONE},
-    [T_AND] = {NULL, NULL, PREC_NONE},
+    [T_AND] = {NULL, read_and, PREC_AND},
     [T_ELSE] = {NULL, NULL, PREC_NONE},
     [T_FALSE] = {literal, NULL, PREC_NONE},
     [T_FUNC] = {NULL, NULL, PREC_NONE},
     [T_IF] = {NULL, NULL, PREC_NONE},
     [T_NIL] = {literal, NULL, PREC_NONE},
-    [T_OR] = {NULL, NULL, PREC_NONE},
+    [T_OR] = {NULL, read_or, PREC_OR},
     [T_SHOW] = {NULL, NULL, PREC_NONE},
     [T_RETURN] = {NULL, NULL, PREC_NONE},
     [T_TRUE] = {literal, NULL, PREC_NONE},

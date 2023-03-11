@@ -95,6 +95,8 @@ int dissm_ins(Instruction *ins, int offset) {
     return jmp_ins("OP_JMP", 1, ins, offset);
   case OP_JMP_IF_FALSE:
     return jmp_ins("OP_JMP_IF_FALSE", 1, ins, offset);
+  case OP_LOOP:
+    return jmp_ins("OP_LOOP", -1, ins, offset);
   default:
     printf("Unknown op %d\n", is);
     return offset + 1;
