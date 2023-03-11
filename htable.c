@@ -4,6 +4,7 @@
 #include "include/value.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include <wchar.h>
 
 #define TABLE_MAX_LD 0.75
 
@@ -108,4 +109,37 @@ bool table_del(Htable *table, ObjString *key) {
   entry->key = NULL;
   entry->val = make_bool(true);
   return true;
+}
+
+void copy_table(Htable *from, Htable *to) {
+  for (int i = 0; i < from->cap; i++) {
+    Entry *entry = &from->entries[i];
+    if (entry->key != NULL) {
+      table_set(to, entry->key, entry->val);
+    }
+  }
+}
+
+ObjString *table_find_str(Htable *table, wchar_t *chars, int len,
+                          uint32_t hash) {
+  if (table->len == 0) {
+    return NULL;
+  }
+
+  uint32_t index = hash % table->cap;
+
+  for (;;) {
+    Entry *entry = &table->entries[index];
+    if (entry->key == NULL) {
+      if (is_nil(entry->val)) {
+        return NULL;
+      }
+    } else if (entry->key->len == len && entry->key->hash == hash &&
+               wmemcpy(entry->key->chars, chars, len) == 0) {
+
+      return entry->key;
+    }
+
+    index = (index + 1) % table->cap;
+  }
 }

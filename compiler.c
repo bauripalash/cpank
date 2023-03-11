@@ -64,6 +64,17 @@ void eat_tok(TokType tt, wchar_t *errmsg) {
   err_at_cur(errmsg);
 }
 
+bool check_tok(TokType tt) { return parser.cur.type == tt; }
+
+bool match_tok(TokType tt) {
+  if (!check_tok(tt)) {
+    return false;
+  } else {
+    advance();
+    return true;
+  }
+}
+
 void emit_bt(uint8_t bt) { write_ins(cur_ins(), bt, parser.prev.line); }
 
 void emit_two(uint8_t bt_1, uint8_t bt_2) {
@@ -116,6 +127,27 @@ void read_string() {
 }
 
 void read_expr() { parse_prec(PREC_ASSIGN); }
+void read_stmt() {
+  if (match_tok(T_SHOW)) {
+    read_print_stmt();
+  } else {
+    read_expr_stmt();
+  }
+}
+
+void read_expr_stmt() {
+  read_expr();
+  eat_tok(T_SEMICOLON, L"Expected ';' after expression");
+  emit_bt(OP_POP);
+}
+
+void read_print_stmt() {
+  read_expr();
+  eat_tok(T_SEMICOLON, L"expected ';' after show stmt");
+  emit_bt(OP_SHOW);
+}
+
+void read_declr() { read_stmt(); }
 
 void read_group() {
   read_expr();
@@ -251,11 +283,14 @@ bool compile(wchar_t *source, Instruction *ins) {
   parser.panic_mode = false;
   // advance();
   advance();
+  while (!match_tok(T_EOF)) {
+    read_declr();
+  }
 
   // wprintf(L"CUR->%s\n" , toktype_to_string(parser.cur.type));
-  read_expr();
+  // read_expr();
   // advance();
-  // eat_tok(T_EOF, L"Expected end of expr");
+  eat_tok(T_EOF, L"Expected end of expr");
   end_compiler();
   return !parser.had_err;
 }

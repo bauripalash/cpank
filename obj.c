@@ -39,6 +39,7 @@ ObjString *allocate_str(wchar_t *chars, int len, uint32_t hash) {
   string->len = len;
   string->chars = chars;
   string->hash = hash;
+  table_set(&vm.strings, string, make_nil());
   return string;
 }
 
@@ -53,6 +54,10 @@ static uint32_t get_hash(const wchar_t *key, int len) {
 
 ObjString *copy_string(wchar_t *chars, int len) {
   uint32_t hash = get_hash(chars, len);
+  ObjString *interned = table_find_str(&vm.strings, chars, len, hash);
+  if (interned != NULL) {
+    return interned;
+  }
   wchar_t *heap_chars = ALLOC(wchar_t, len + 1);
 
   wmemcpy(heap_chars, chars, len);
@@ -65,6 +70,14 @@ ObjString *copy_string(wchar_t *chars, int len) {
 ObjString *take_string(wchar_t *chars, int len) {
 
   uint32_t hash = get_hash(chars, len);
+
+  ObjString *interned = table_find_str(&vm.strings, chars, len, hash);
+
+  if (interned != NULL) {
+    FREE_ARR(wchar_t, chars, len + 1);
+    return interned;
+  }
+
   return allocate_str(chars, len, hash);
 }
 

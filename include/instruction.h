@@ -20,6 +20,8 @@ typedef enum {
   OP_EQ,
   OP_GT,
   OP_LT,
+  OP_SHOW,
+  OP_POP,
 } Op;
 
 typedef struct {

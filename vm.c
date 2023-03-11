@@ -11,6 +11,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <wchar.h>
 
 #include "include/vm.h"
@@ -25,9 +26,13 @@ void reset_stack() { vm.stack_top = vm.stack; }
 void boot_vm() {
   reset_stack();
   vm.objs = NULL;
+  init_table(&vm.strings);
 }
 
-void free_vm() { free_objs(); }
+void free_vm() {
+  free_table(&vm.strings);
+  free_objs();
+}
 
 void push(Value value) {
   *vm.stack_top = value;
@@ -78,14 +83,16 @@ bool bin_add() {
     add_string();
     return true;
 
-  } else if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
+  } else if (is_num(peek_vm(0)) && is_num(peek_vm(1))) {
     double r = get_as_number(pop());
     double l = get_as_number(pop());
     push(make_num(l + r));
     return true;
 
   } else {
-    runtime_err(L"Operands must be numbers for binary operation");
+
+    runtime_err(
+        L"Operands must be numbers or string for binary addition operation");
     return false;
   }
 }
@@ -163,8 +170,8 @@ IResult run_vm() {
     uint8_t ins;
     switch (ins = read_bt()) {
     case OP_RETURN: {
-      print_val(pop());
-      wprintf(L"\n");
+      //  print_val(pop());
+      //  wprintf(L"\n");
       return INTRP_OK;
     }
     case OP_CONST: {
@@ -172,6 +179,9 @@ IResult run_vm() {
       push(con);
       break;
     }
+    case OP_POP:
+      pop();
+      break;
     case OP_NEG: {
       if (!is_num(peek_vm(0))) {
         return INTRP_RUNTIME_ERR;
@@ -232,6 +242,11 @@ IResult run_vm() {
     case OP_FALSE:
       push(make_bool(false));
       break;
+    case OP_SHOW:
+      wprintf(L"p~ ");
+      print_val(pop());
+      wprintf(L"\n");
+      break;
     }
   }
   return INTRP_RUNTIME_ERR;
@@ -250,5 +265,6 @@ IResult interpret(wchar_t *source) {
   vm.ip = vm.ins->code;
   IResult res = run_vm();
   free_ins(&ins);
+  // free(source);
   return res;
 }

@@ -86,10 +86,11 @@ bool is_equal(Value left, Value right) {
   case V_NUM:
     return get_as_number(left) == get_as_number(right);
   case V_OBJ: {
-    ObjString *l_string = get_as_string(left);
-    ObjString *r_string = get_as_string(right);
-    return l_string->len == r_string->len &&
-           wmemcmp(l_string->chars, r_string->chars, l_string->len) == 0;
+    return get_as_obj(left) == get_as_obj(right);
+    // ObjString *l_string = get_as_string(left);
+    // ObjString *r_string = get_as_string(right);
+    // return l_string->len == r_string->len &&
+    //        wmemcmp(l_string->chars, r_string->chars, l_string->len) == 0;
   }
   default:
     return false;

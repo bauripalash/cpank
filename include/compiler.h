@@ -40,5 +40,11 @@ typedef struct {
 ParseRule *get_parse_rule(TokType tt);
 
 bool compile(wchar_t *source, Instruction *ins);
+void read_expr();
+void read_stmt();
+void read_declr();
+bool match_tok(TokType tt);
+void read_print_stmt();
+void read_expr_stmt();
 
 #endif

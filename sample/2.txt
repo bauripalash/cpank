@@ -1,1 +1,1 @@
-"st" + "ri" + "ng"
+show "st" + "ri" + "ng";

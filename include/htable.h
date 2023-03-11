@@ -1,5 +1,6 @@
 #include "value.h"
 #include <stdbool.h>
+#include <stdint.h>
 #ifndef cpank_htable_h
 #define cpank_htable_h
 
@@ -20,5 +21,7 @@ void copy_table(Htable *from, Htable *to);
 bool table_set(Htable *table, ObjString *key, Value value);
 bool table_get(Htable *table, ObjString *key, Value *value);
 bool table_del(Htable *table, ObjString *key);
+ObjString *table_find_str(Htable *table, wchar_t *chars, int len,
+                          uint32_t hash);
 
 #endif

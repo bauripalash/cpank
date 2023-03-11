@@ -1,6 +1,7 @@
 #ifndef cpank_vm_h
 #define cpank_vm_h
 
+#include "htable.h"
 #include "instruction.h"
 #include "value.h"
 #include <stdint.h>
@@ -12,6 +13,7 @@ typedef struct {
   uint8_t *ip;
   Value stack[STACK_SIZE];
   Value *stack_top;
+  Htable strings;
   Obj *objs;
 } Vm;
 

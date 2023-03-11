@@ -11,9 +11,16 @@ int main() {
   int errcode = 0;
   setlocale(LC_CTYPE, "");
   boot_vm();
-  Srcfile srcfile = read_file("sample/2.txt");
-  wchar_t *s = (wchar_t *)malloc(sizeof(wchar_t) * srcfile.size);
-  mbstowcs(s, srcfile.source, srcfile.size);
+
+  // TODO:
+  //  Read Files; fix memory leak;
+  //
+
+  // Srcfile srcfile = read_file("sample/2.txt");
+  // wchar_t *s = (wchar_t *)malloc(sizeof(wchar_t) * srcfile.size);
+  // mbstowcs(s, srcfile.source, srcfile.size);
+
+  wchar_t *s = L"1+2;";
   IResult res = interpret(s);
   switch (res) {
   case INTRP_RUNTIME_ERR:
@@ -47,7 +54,8 @@ int main() {
   // printf("%s\n" , ins.code);
   // free_ins(&ins);
   free_vm(); // <<---- IMPORTANT
-  free(s);
-  free(srcfile.source);
+
+  // free(srcfile.source);
+  // free(s);
   exit(errcode);
 }

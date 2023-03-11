@@ -19,7 +19,7 @@ build:
 	@echo "Finished building optimized $(OUTPUT)"
 
 memcheck: build_uo
-	valgrind ./$(OUTPUT)
+	valgrind --leak-check=full --show-leak-kinds=all ./$(OUTPUT)
 
 clean:
 	rm cpank

@@ -268,6 +268,7 @@ void skip_ws() {
       while (peek() != '\n' && !is_eof()) {
         next();
       }
+      break;
     default:
       return;
     }
@@ -326,6 +327,13 @@ Token get_tok() {
     return mktok(T_EOF);
 
   wchar_t c = next();
+  if (is_bn_num(c) || is_en_num(c)) {
+    return get_num_tok();
+    // wprintf(L"is number ");
+  }
+  if (is_bn_char(c) || is_en_alpha(c)) {
+    return get_ident_tok();
+  }
   switch (c) {
   case '(':
     return mktok(T_LPAREN);
@@ -374,13 +382,6 @@ Token get_tok() {
 
   case '"':
     return get_str_tok();
-  default:
-    if (is_bn_num(c) || is_en_num(c)) {
-      return get_num_tok();
-      // wprintf(L"is number ");
-    } else if (is_bn_char(c) || is_en_alpha(c)) {
-      return get_ident_tok();
-    }
   }
 
   // wprintf(L"L-> %lc ", c);

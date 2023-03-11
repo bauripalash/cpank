@@ -37,8 +37,10 @@ Srcfile read_file(char *fpath) {
   buff[byteread] = '\0';
   fclose(fl);
   Srcfile src;
+
   src.source = buff;
   src.size = fsz;
+  // free(buff);
   return src;
 }
 
