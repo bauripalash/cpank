@@ -66,6 +66,12 @@ int dissm_ins(Instruction *ins, int offset) {
     return simple_ins("OP_SHOW", offset);
   case OP_POP:
     return simple_ins("OP_POP", offset);
+  case OP_DEF_GLOB:
+    return const_ins("OP_DEF_GLOB", ins, offset);
+  case OP_GET_GLOB:
+    return const_ins("OP_GET_GLOB", ins, offset);
+  case OP_SET_GLOB:
+    return const_ins("OP_SET_GLOB", ins, offset);
   default:
     printf("Unknown op %d\n", is);
     return offset + 1;

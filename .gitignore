@@ -1,2 +1,6 @@
 cpank
 .ccls-cache
+gmon.out
+cpank.perf
+perf.data
+perf.data.old

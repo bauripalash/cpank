@@ -20,8 +20,11 @@ int main() {
   // wchar_t *s = (wchar_t *)malloc(sizeof(wchar_t) * srcfile.size);
   // mbstowcs(s, srcfile.source, srcfile.size);
 
-  wchar_t *s = L"1+2;";
+  wchar_t *s = L"let s = 1; \
+    s = 2;  \
+    show s;";
   IResult res = interpret(s);
+  // wprintf(L"INTRP RESULT -> %d\n" , res);
   switch (res) {
   case INTRP_RUNTIME_ERR:
     wprintf(L"Runtime error occured!");

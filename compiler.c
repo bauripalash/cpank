@@ -8,6 +8,8 @@
 #include "include/debug.h"
 #endif
 
+// #define DEBUG_LEXER
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -20,10 +22,11 @@ Instruction *compins;
 Instruction *cur_ins() { return compins; }
 void err_at(Token *tok, wchar_t *msg) {
   if (parser.panic_mode) {
-    return;
 
-    parser.had_err = true;
+    return;
   }
+
+  parser.panic_mode = true;
   fwprintf(stderr, L"[l %d] Error ", tok->line);
 
   if (tok->type == T_EOF) {
@@ -35,6 +38,7 @@ void err_at(Token *tok, wchar_t *msg) {
   }
 
   fwprintf(stderr, L" : %ls\n\n", msg);
+  parser.had_err = true;
 }
 
 void err(wchar_t *msg) { err_at(&parser.prev, msg); }
@@ -53,6 +57,27 @@ void advance() {
   }
 
   // wprintf(L"CUR->%s\n" , toktype_to_string(parser.cur.type));
+}
+
+void sync_errors() {
+  parser.panic_mode = false;
+  while (parser.cur.type != T_EOF) {
+    if (parser.prev.type == T_SEMICOLON) {
+      return;
+    }
+
+    switch (parser.cur.type) {
+    case T_FUNC:
+    case T_LET:
+    case T_IF:
+    case T_WHILE:
+    case T_SHOW:
+    case T_RETURN:
+      return;
+    default:;
+    }
+    advance();
+  }
 }
 
 void eat_tok(TokType tt, wchar_t *errmsg) {
@@ -103,24 +128,28 @@ void parse_prec(Prec prec) {
     err(L"Expected expression");
     return;
   }
-
-  pref_rule();
+  bool can_assign = prec <= PREC_ASSIGN;
+  pref_rule(can_assign);
 
   while (prec <= get_parse_rule(parser.cur.type)->prec) {
     advance();
     ParseFn infix_rule = get_parse_rule(parser.prev.type)->infix;
-    infix_rule();
+    infix_rule(can_assign);
+  }
+
+  if (can_assign && match_tok(T_EQ)) {
+    err(L"Invalid asssignment");
   }
 }
 
-void read_number() {
+void read_number(bool can_assign) {
   // wprintf(L"NUMBER -> %ls\n" , parser.prev.start);
   // double val = strtod(, NULL);
   double val = wcstod(parser.prev.start, NULL);
   emit_const(make_num(val));
 }
 
-void read_string() {
+void read_string(bool can_assign) {
   Value v =
       make_obj_val(copy_string(parser.prev.start + 1, parser.prev.length - 2));
   emit_const(v);
@@ -137,7 +166,7 @@ void read_stmt() {
 
 void read_expr_stmt() {
   read_expr();
-  eat_tok(T_SEMICOLON, L"Expected ';' after expression");
+  eat_tok(T_SEMICOLON, L"Expected ';' after expression stmt");
   emit_bt(OP_POP);
 }
 
@@ -147,14 +176,59 @@ void read_print_stmt() {
   emit_bt(OP_SHOW);
 }
 
-void read_declr() { read_stmt(); }
+void read_declr() {
+  if (match_tok(T_LET)) {
+    let_declr();
+  } else {
+    read_stmt();
+  }
+  if (parser.panic_mode) {
+    sync_errors();
+  }
+}
 
-void read_group() {
+void let_declr() {
+  uint8_t global = parse_var(L"Expected variable name after let");
+  if (match_tok(T_EQ)) {
+    read_expr();
+  } else {
+    emit_bt(OP_NIL);
+  }
+
+  eat_tok(T_SEMICOLON, L"expected ';' after variable declr");
+  define_var(global);
+}
+
+uint8_t parse_var(wchar_t *errmsg) {
+  eat_tok(T_ID, errmsg);
+  return make_id_const(&parser.prev);
+}
+
+void define_var(uint8_t global) { emit_two(OP_DEF_GLOB, global); }
+
+void read_var(bool can_assign) { named_var(parser.prev, can_assign); }
+
+void named_var(Token name, bool can_assign) {
+  uint8_t arg = make_id_const(&name);
+  // wprintf(L"NAMED_VAR -> %s\n" , can_assign ? "true" : false);
+  if (can_assign && match_tok(T_EQ)) {
+    read_expr();
+    emit_two(OP_SET_GLOB, arg);
+  } else {
+    emit_two(OP_GET_GLOB, arg);
+  }
+}
+
+uint8_t make_id_const(Token *name) {
+  return make_const(make_obj_val(copy_string(name->start, name->length)));
+}
+
+void read_group(bool can_assign) {
   read_expr();
   eat_tok(T_RPAREN, L"Expected ')' after group expression");
 }
 
-void read_unary() {
+void read_unary(bool can_assign) {
   TokType op = parser.prev.type;
 
   // read_expr();
@@ -169,7 +243,7 @@ void read_unary() {
   }
 }
 
-void read_binary() {
+void read_binary(bool can_assign) {
   TokType op = parser.prev.type;
   ParseRule *prule = get_parse_rule(op);
   parse_prec((Prec)(prule->prec + 1));
@@ -209,7 +283,7 @@ void read_binary() {
   }
 }
 
-void literal() {
+void literal(bool can_assign) {
   switch (parser.prev.type) {
   case T_FALSE:
     emit_bt(OP_FALSE);
@@ -245,7 +319,7 @@ ParseRule parse_rules[] = {
     [T_GTE] = {NULL, read_binary, PREC_COMP},
     [T_LT] = {NULL, read_binary, PREC_COMP},
     [T_LTE] = {NULL, read_binary, PREC_COMP},
-    [T_ID] = {NULL, NULL, PREC_NONE},
+    [T_ID] = {read_var, NULL, PREC_NONE},
     [T_STR] = {read_string, NULL, PREC_NONE},
     [T_NUM] = {read_number, NULL, PREC_NONE},
     [T_AND] = {NULL, NULL, PREC_NONE},
@@ -281,6 +355,15 @@ bool compile(wchar_t *source, Instruction *ins) {
   compins = ins;
   parser.had_err = false;
   parser.panic_mode = false;
+#ifdef DEBUG_LEXER
+  Token tk = get_tok();
+  while (tk.type != T_EOF) {
+    wprintf(L"TOK[%s][%.*ls]\n", toktype_to_string(tk.type), tk.length,
+            tk.start);
+    tk = get_tok();
+  }
+  boot_lexer(source);
+#endif
   // advance();
   advance();
   while (!match_tok(T_EOF)) {
@@ -290,7 +373,7 @@ bool compile(wchar_t *source, Instruction *ins) {
   // wprintf(L"CUR->%s\n" , toktype_to_string(parser.cur.type));
   // read_expr();
   // advance();
-  eat_tok(T_EOF, L"Expected end of expr");
+  // eat_tok(T_EOF, L"Expected end of expr");
   end_compiler();
   return !parser.had_err;
 }

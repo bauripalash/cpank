@@ -14,6 +14,7 @@ typedef struct {
   Value stack[STACK_SIZE];
   Value *stack_top;
   Htable strings;
+  Htable globals;
   Obj *objs;
 } Vm;
 

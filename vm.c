@@ -18,7 +18,7 @@
 
 Vm vm;
 
-#define DEBUG_STACK
+// #define DEBUG_STACK
 #define DEBUG_TRACE
 
 void reset_stack() { vm.stack_top = vm.stack; }
@@ -27,10 +27,12 @@ void boot_vm() {
   reset_stack();
   vm.objs = NULL;
   init_table(&vm.strings);
+  init_table(&vm.globals);
 }
 
 void free_vm() {
   free_table(&vm.strings);
+  free_table(&vm.globals);
   free_objs();
 }
 
@@ -64,7 +66,7 @@ void runtime_err(wchar_t *format, ...) {
 
 uint8_t read_bt() { return *vm.ip++; }
 Value read_const() { return vm.ins->consts.values[read_bt()]; }
-
+ObjString *read_str_const() { return get_as_string(read_const()); }
 void add_string() {
   ObjString *r = get_as_string(pop());
   ObjString *l = get_as_string(pop());
@@ -247,6 +249,37 @@ IResult run_vm() {
       print_val(pop());
       wprintf(L"\n");
       break;
+    case OP_DEF_GLOB: {
+      ObjString *nm = read_str_const();
+      // wprintf(L"Def global -> %ls\n" , nm->chars);
+      // print_val(peek_vm(0));
+      table_set(&vm.globals, nm, peek_vm(0));
+      pop();
+      break;
+    }
+    case OP_GET_GLOB: {
+      ObjString *name = read_str_const();
+      // wprintf(L"GET_GLOB name -> %ls\n" , name->chars);
+      // print_table(&vm.globals , "global");
+      // print_obj();
+      Value val;
+      if (!table_get(&vm.globals, name, &val)) {
+        runtime_err(L"Get Global -> Undefined variable '%ls'.", name->chars);
+        return INTRP_RUNTIME_ERR;
+      }
+      push(val);
+      break;
+    }
+
+    case OP_SET_GLOB: {
+      ObjString *name = read_str_const();
+      if (table_set(&vm.globals, name, peek_vm(0))) {
+        table_del(&vm.globals, name);
+        runtime_err(L"Set Global -> Undefined var '%ls'", name->chars);
+        return INTRP_RUNTIME_ERR;
+      }
+      break;
+    }
     }
   }
   return INTRP_RUNTIME_ERR;
@@ -255,9 +288,12 @@ IResult run_vm() {
 IResult interpret(wchar_t *source) {
   Instruction ins;
   init_instruction(&ins);
-
+  // wprintf(L"COMPILER _> %s" , compile(source, &ins) ? "true" : "false");
+  // return 0;
   if (!compile(source, &ins)) {
+    dissm_ins_chunk(&ins, "BEFORE");
     free_ins(&ins);
+    // wprintf(L"COMPILEERR\n");
     return INTRP_COMPILE_ERR;
   }
 

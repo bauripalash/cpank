@@ -21,6 +21,13 @@ build:
 memcheck: build_uo
 	valgrind --leak-check=full --show-leak-kinds=all ./$(OUTPUT)
 
+perf:
+	@echo "Building optimized with -g"
+	$(CC) -O3 $(CFLAGS) -o $(OUTPUT) $(SRC) -g -pg
+	perf record -g -F 999 ./cpank
+	perf script -F +pid > cpank.perf
+
+
 clean:
 	rm cpank
 

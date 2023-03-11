@@ -8,6 +8,12 @@
 
 #define TABLE_MAX_LD 0.75
 
+void debug_entry(Entry *entry) {
+  wprintf(L"ENTRY[ K(%ls); V(", entry->key->chars);
+  print_val(entry->val);
+  wprintf(L"); H(%d)\n", entry->key->hash);
+}
+
 void init_table(Htable *table) {
   table->len = 0;
   table->cap = 0;
@@ -20,10 +26,12 @@ void free_table(Htable *table) {
 }
 
 static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
-  uint32_t index = key->hash % cap;
+  uint32_t index = key->hash % (cap - 1);
   Entry *tombstone = NULL;
   for (;;) {
     Entry *entry = &entries[index];
+    //    print_val(entry->val);
+    // debug_entry(entry);
     if (entry->key == NULL) {
       if (is_nil(entry->val)) {
         return tombstone != NULL ? tombstone : entry;
@@ -32,11 +40,12 @@ static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
           tombstone = entry;
         }
       }
-    } else if (entry->key == key) {
+    } else if (wmemcmp(entry->key->chars, key->chars, key->len) == 0) {
+
       return entry;
     }
 
-    index = (index + 1) % cap;
+    index = (index + 1) % (cap - 1);
   }
 }
 
@@ -59,6 +68,7 @@ static void adjust_cap(Htable *table, int cap) {
     dest->val = entry->val;
     table->len++;
   }
+  FREE_ARR(Entry, table->entries, table->cap);
 
   table->entries = entries;
   table->cap = cap;
@@ -66,7 +76,7 @@ static void adjust_cap(Htable *table, int cap) {
 
 bool table_set(Htable *table, ObjString *key, Value value) {
 
-  if (table->len + 1 > table->cap + TABLE_MAX_LD) {
+  if (table->len + 1 > table->cap * TABLE_MAX_LD) {
     int cap = GROW_CAP(table->cap);
     adjust_cap(table, cap);
   }
@@ -79,7 +89,11 @@ bool table_set(Htable *table, ObjString *key, Value value) {
   }
 
   entry->key = key;
+  // wmemcpy(entry->key->chars, key->chars, key->len);
   entry->val = value;
+  // wprintf(L"setting to table KEY->'%ls'\n VALUE -> " , entry->key->chars);
+  // print_val(value);
+  // wprintf(L"\n");
   return is_new_key;
 }
 
@@ -92,7 +106,10 @@ bool table_get(Htable *table, ObjString *key, Value *value) {
   if (entry->key == NULL) {
     return false;
   }
+
   *value = entry->val;
+
+  // debug_entry(entry);
   return true;
 }
 
@@ -118,6 +135,20 @@ void copy_table(Htable *from, Htable *to) {
       table_set(to, entry->key, entry->val);
     }
   }
+}
+
+void print_table(Htable *table, char *name) {
+  wprintf(L"<- TABLE (%s)->\n", name);
+  for (int i = 0; i < table->cap; i++) {
+    Entry *entry = &table->entries[i];
+    if (entry->key != NULL) {
+      wprintf(L"[ key -> '%ls' | val -> ", entry->key->chars);
+      print_val(entry->val);
+      wprintf(L" ]\n");
+    }
+  }
+
+  wprintf(L"<- END TABLE ->\n");
 }
 
 ObjString *table_find_str(Htable *table, wchar_t *chars, int len,

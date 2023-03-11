@@ -15,6 +15,7 @@ typedef struct {
   Entry *entries;
 } Htable;
 
+void debug_entry(Entry *entry);
 void init_table(Htable *table);
 void free_table(Htable *table);
 void copy_table(Htable *from, Htable *to);
@@ -23,5 +24,7 @@ bool table_get(Htable *table, ObjString *key, Value *value);
 bool table_del(Htable *table, ObjString *key);
 ObjString *table_find_str(Htable *table, wchar_t *chars, int len,
                           uint32_t hash);
+
+void print_table(Htable *table, char *name);
 
 #endif

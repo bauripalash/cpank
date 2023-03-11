@@ -22,6 +22,9 @@ typedef enum {
   OP_LT,
   OP_SHOW,
   OP_POP,
+  OP_DEF_GLOB,
+  OP_SET_GLOB,
+  OP_GET_GLOB,
 } Op;
 
 typedef struct {
