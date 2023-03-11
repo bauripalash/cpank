@@ -17,7 +17,14 @@
 #include <wchar.h>
 
 Parser parser;
+Compiler *current = NULL;
 Instruction *compins;
+
+void init_comiler(Compiler *compiler) {
+  compiler->local_count = 0;
+  compiler->scope_depth = 0;
+  current = compiler;
+}
 
 Instruction *cur_ins() { return compins; }
 void err_at(Token *tok, wchar_t *msg) {
@@ -159,6 +166,13 @@ void read_expr() { parse_prec(PREC_ASSIGN); }
 void read_stmt() {
   if (match_tok(T_SHOW)) {
     read_print_stmt();
+  } else if (match_tok(T_IF)) {
+    read_if_stmt();
+
+  } else if (match_tok(T_LBRACE)) {
+    start_scope();
+    read_block();
+    end_scope();
   } else {
     read_expr_stmt();
   }
@@ -201,22 +215,132 @@ void let_declr() {
 
 uint8_t parse_var(wchar_t *errmsg) {
   eat_tok(T_ID, errmsg);
+  declare_var();
+  if (current->scope_depth > 0) {
+    return 0;
+  }
   return make_id_const(&parser.prev);
 }
 
-void define_var(uint8_t global) { emit_two(OP_DEF_GLOB, global); }
+void define_var(uint8_t global) {
+  if (current->scope_depth > 0) {
+    mark_init();
+    return;
+  }
+  emit_two(OP_DEF_GLOB, global);
+}
+
+void mark_init() {
+  current->locals[current->local_count - 1].depth = current->scope_depth;
+}
+
+void declare_var() {
+  if (current->scope_depth == 0) {
+    return;
+  }
+
+  Token *name = &parser.prev;
+  for (int i = current->local_count - 1; i >= 0; i--) {
+    Local *local = &current->locals[i];
+    if (local->depth != -1 && local->depth < current->scope_depth) {
+      break;
+    }
+
+    if (id_eq(name, &local->name)) {
+      err(L"already a variable with this name in the current scope");
+    }
+  }
+  add_local(*name);
+}
+
+bool id_eq(Token *l, Token *r) {
+  if (l->length != r->length) {
+    return false;
+  }
+
+  return wmemcmp(l->start, r->start, l->length) == 0;
+}
+
+void add_local(Token name) {
+  if (current->local_count == UINT8_COUNT) {
+    err(L"too many local vars");
+    return;
+  }
+  Local *local = &current->locals[current->local_count++];
+  local->name = name;
+  local->depth = -1;
+  local->depth = current->scope_depth;
+}
 
 void read_var(bool can_assign) { named_var(parser.prev, can_assign); }
 
 void named_var(Token name, bool can_assign) {
-  uint8_t arg = make_id_const(&name);
+  // uint8_t arg = make_id_const(&name);
+  uint8_t get_op, set_op;
+  int arg = resolve_local(current, &name);
+  if (arg != -1) {
+    get_op = OP_GET_LOCAL;
+    set_op = OP_SET_LOCAL;
+  } else {
+    arg = make_id_const(&name);
+    get_op = OP_GET_GLOB;
+    set_op = OP_SET_GLOB;
+  }
+
   // wprintf(L"NAMED_VAR -> %s\n" , can_assign ? "true" : false);
   if (can_assign && match_tok(T_EQ)) {
     read_expr();
-    emit_two(OP_SET_GLOB, arg);
+    emit_two(set_op, (uint8_t)arg);
   } else {
-    emit_two(OP_GET_GLOB, arg);
+    emit_two(get_op, (uint8_t)arg);
   }
+}
+
+int resolve_local(Compiler *compiler, Token *token) {
+  for (int i = compiler->local_count - 1; i >= 0; i--) {
+    Local *local = &compiler->locals[i];
+    if (id_eq(token, &local->name)) {
+      if (local->depth == -1) {
+        err(L"Can't read local var in its own initializer.");
+      }
+      return i;
+    }
+  }
+  return -1;
+}
+
+void read_if_stmt() {
+  eat_tok(T_LPAREN, L"Expected '(' after 'if'");
+  read_expr();
+  eat_tok(T_RPAREN, L"Expected ')' after condition");
+
+  int then_jump = emit_jump(OP_JMP_IF_FALSE);
+  emit_bt(OP_POP);
+  read_stmt();
+  int else_jmp = emit_jump(OP_JMP);
+  patch_jump(then_jump);
+  emit_bt(OP_POP);
+  if (match_tok(T_ELSE)) {
+    read_stmt();
+  }
+
+  patch_jump(else_jmp);
+}
+
+int emit_jump(uint8_t ins) {
+  emit_bt(ins);
+  emit_two(0xFF, 0xFF);
+  return cur_ins()->len - 2;
+}
+
+void patch_jump(int offset) {
+  int jmp = cur_ins()->len - offset - 2;
+  if (jmp > UINT16_MAX) {
+    err(L"too big jump");
+  }
+
+  cur_ins()->code[offset] = (jmp >> 8) & 0xFF;
+  cur_ins()->code[offset + 1] = jmp & 0xFF;
 }
 
 uint8_t make_id_const(Token *name) {
@@ -299,6 +423,26 @@ void literal(bool can_assign) {
   }
 }
 
+void read_block() {
+  while (!check_tok(T_RBRACE) && !check_tok(T_EOF)) {
+    read_declr();
+  }
+
+  eat_tok(T_RBRACE, L"Expected '}' after block stmts");
+}
+
+void start_scope() { current->scope_depth++; }
+
+void end_scope() {
+  current->scope_depth--;
+  while (current->local_count > 0 &&
+         current->locals[current->local_count - 1].depth >
+             current->scope_depth) {
+    emit_bt(OP_POP);
+    current->local_count--;
+  }
+}
+
 ParseRule parse_rules[] = {
     [T_LPAREN] = {read_group, NULL, PREC_NONE},
     [T_RPAREN] = {NULL, NULL, PREC_NONE},
@@ -352,6 +496,8 @@ void end_compiler() {
 
 bool compile(wchar_t *source, Instruction *ins) {
   boot_lexer(source);
+  Compiler compiler;
+  init_comiler(&compiler);
   compins = ins;
   parser.had_err = false;
   parser.panic_mode = false;

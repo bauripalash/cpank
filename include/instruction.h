@@ -25,6 +25,11 @@ typedef enum {
   OP_DEF_GLOB,
   OP_SET_GLOB,
   OP_GET_GLOB,
+  OP_GET_LOCAL,
+  OP_SET_LOCAL,
+  OP_JMP_IF_FALSE,
+  OP_JMP,
+
 } Op;
 
 typedef struct {

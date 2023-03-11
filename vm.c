@@ -65,6 +65,10 @@ void runtime_err(wchar_t *format, ...) {
 }
 
 uint8_t read_bt() { return *vm.ip++; }
+uint16_t read_u16() {
+  vm.ip += 2;
+  return (uint16_t)((vm.ip[-2] << 8) | vm.ip[-1]);
+}
 Value read_const() { return vm.ins->consts.values[read_bt()]; }
 ObjString *read_str_const() { return get_as_string(read_const()); }
 void add_string() {
@@ -278,6 +282,30 @@ IResult run_vm() {
         runtime_err(L"Set Global -> Undefined var '%ls'", name->chars);
         return INTRP_RUNTIME_ERR;
       }
+      break;
+    }
+
+    case OP_GET_LOCAL: {
+      uint8_t slot = read_bt();
+      push(vm.stack[slot]);
+      break;
+    }
+    case OP_SET_LOCAL: {
+      uint8_t slot = read_bt();
+      vm.stack[slot] = peek_vm(0);
+      break;
+    }
+    case OP_JMP_IF_FALSE: {
+      uint16_t offset = read_u16();
+      // wprintf(L"JIF -> %d\n" , offset);
+      if (is_falsey(peek_vm(0))) {
+        vm.ip += offset;
+      }
+      break;
+    }
+    case OP_JMP: {
+      uint16_t offset = read_u16();
+      vm.ip += offset;
       break;
     }
     }

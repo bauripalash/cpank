@@ -1,6 +1,7 @@
 #ifndef cpank_compiler_h
 #define cpank_compiler_h
 
+#include "common.h"
 #include "instruction.h"
 #include "lexer.h"
 #include <stdbool.h>
@@ -29,6 +30,30 @@ typedef enum {
   PREC_CALL,
   PREC_DEFAULT,
 } Prec;
+
+typedef struct {
+  Token name;
+  int depth;
+} Local;
+
+typedef struct {
+  Local locals[UINT8_COUNT];
+  int local_count;
+  int scope_depth;
+} Compiler;
+
+void init_comiler(Compiler *compiler);
+void start_scope();
+void end_scope();
+void read_block();
+void declare_var();
+void add_local(Token name);
+bool id_eq(Token *l, Token *r);
+int resolve_local(Compiler *compiler, Token *token);
+void mark_init();
+void read_if_stmt();
+int emit_jump(uint8_t ins);
+void patch_jump(int offset);
 
 typedef void (*ParseFn)(bool can_assign);
 

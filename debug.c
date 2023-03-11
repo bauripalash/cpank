@@ -25,6 +25,21 @@ int simple_ins(const char *name, int offset) {
   wprintf(L"%s\n", name);
   return offset + 1;
 }
+
+int bt_ins(const char *name, Instruction *ins, int offset) {
+  uint8_t slot = ins->code[offset + 1];
+  wprintf(L"%-16s %4d\n", name, slot);
+  return offset + 2;
+}
+
+int jmp_ins(const char *name, int sign, Instruction *ins, int offset) {
+
+  uint16_t jmp = (uint16_t)(ins->code[offset + 1] << 8);
+  jmp |= ins->code[offset + 2];
+  wprintf(L"%-16s %4d -> %d\n", name, offset, offset + 3 + sign * jmp);
+  return offset + 3;
+}
+
 int dissm_ins(Instruction *ins, int offset) {
   wprintf(L"%04d ", offset);
   if (offset > 0 && ins->lines[offset] == ins->lines[offset - 1]) {
@@ -72,6 +87,14 @@ int dissm_ins(Instruction *ins, int offset) {
     return const_ins("OP_GET_GLOB", ins, offset);
   case OP_SET_GLOB:
     return const_ins("OP_SET_GLOB", ins, offset);
+  case OP_GET_LOCAL:
+    return bt_ins("OP_GET_LOCAL", ins, offset);
+  case OP_SET_LOCAL:
+    return bt_ins("OP_SET_LOCAL", ins, offset);
+  case OP_JMP:
+    return jmp_ins("OP_JMP", 1, ins, offset);
+  case OP_JMP_IF_FALSE:
+    return jmp_ins("OP_JMP_IF_FALSE", 1, ins, offset);
   default:
     printf("Unknown op %d\n", is);
     return offset + 1;
