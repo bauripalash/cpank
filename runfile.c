@@ -1,12 +1,78 @@
 #include "include/runfile.h"
-#include "include/common.h"
-#include "include/lexer.h"
+#include "include/vm.h"
 #include <locale.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
-#include <wctype.h>
 
+wchar_t *read_file(const char *path) {
+  FILE *file = fopen(path, "r");
+  if (file == NULL) {
+    fwprintf(stderr, L"Failed to open file %s\n", path);
+    exit(1);
+  }
+  // fseek(file, 0L, SEEK_END);
+  size_t file_size = 120;
+  // rewind(file);
+
+  char *buff = (char *)malloc(file_size + 1);
+  if (buff == NULL) {
+    fwprintf(stderr, L"not enough memory %s\n", path);
+    exit(1);
+  }
+  size_t br = fread(buff, sizeof(char), file_size, file);
+  if (br < file_size) {
+    fwprintf(stderr, L"failed to read file %s\n", path);
+    exit(1);
+  }
+  buff[br] = '\0';
+  fclose(file);
+
+  wchar_t *result = (wchar_t *)malloc(file_size + 1);
+  if (result == NULL) {
+    fwprintf(stderr, L"not enough memory %s\n", path);
+    exit(1);
+  }
+
+  setlocale(LC_CTYPE, "");
+  swprintf(result, file_size + 1, L"%s", buff);
+  // mbstowcs(result, buff, file_size + 1);
+  free(buff);
+
+  return result;
+}
+
+int run_file(const char *filepath) {
+  wchar_t *src = read_file(filepath);
+  wprintf(L"SOURCE -> %ls", src);
+  int errcode = 0;
+  boot_vm();
+  IResult res = interpret(src);
+
+  switch (res) {
+  case INTRP_RUNTIME_ERR:
+    wprintf(L"Runtime error occured!");
+    errcode = 1;
+    break;
+    ;
+  case INTRP_COMPILE_ERR:
+    wprintf(L"Compiler error occured!");
+    errcode = 1;
+    break;
+    ;
+  case INTRP_OK:
+    wprintf(L"OK");
+    break;
+  }
+  wprintf(L"\n");
+
+  // free(src);
+  free_vm();
+  return errcode;
+}
+
+/*
 Srcfile read_file(char *fpath) {
 
   FILE *fl = fopen(fpath, "rb");
@@ -74,3 +140,4 @@ void runcode(char *fpath) {
   free(src.source);
   free(s);
 }
+*/

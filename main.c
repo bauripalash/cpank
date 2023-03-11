@@ -8,9 +8,13 @@
 #include "include/runfile.h"
 #include "include/vm.h"
 int main() {
-  int errcode = 0;
   setlocale(LC_CTYPE, "");
-  boot_vm();
+  return run_file("sample/2.txt");
+  // wchar_t *content = read_file("sample/2.txt");
+  // wprintf(L"FILE -> %ls\n", content);
+  // free(content);
+
+  // boot_vm();
 
   // TODO:
   //  Read Files; fix memory leak;
@@ -20,7 +24,7 @@ int main() {
   // wchar_t *s = (wchar_t *)malloc(sizeof(wchar_t) * srcfile.size);
   // mbstowcs(s, srcfile.source, srcfile.size);
 
-  wchar_t *s = L" let a = 1;\
+  /*wchar_t *s = L" let a = 1;\
     while (a <= 10) { \
       show a; \
       a = a+1;  \
@@ -61,7 +65,8 @@ int main() {
   // free_ins(&ins);
   free_vm(); // <<---- IMPORTANT
 
-  // free(srcfile.source);
-  // free(s);
+  //free(srcfile.source);
+  //free(s);
   exit(errcode);
+  */
 }

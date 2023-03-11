@@ -1,4 +1,5 @@
 #include "include/mem.h"
+#include "include/instruction.h"
 #include "include/obj.h"
 #include "include/value.h"
 #include <stdio.h>
@@ -27,6 +28,12 @@ void free_single_obj(Obj *obj) {
     ObjString *str = (ObjString *)obj;
     FREE_ARR(wchar_t, str->chars, str->len + 1);
     FREE(ObjString, obj);
+    break;
+  }
+  case OBJ_FUNC: {
+    ObjFunc *func = (ObjFunc *)obj;
+    free_ins(&func->ins);
+    FREE(ObjFunc, obj);
     break;
   }
   }

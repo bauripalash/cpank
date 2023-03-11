@@ -7,6 +7,5 @@ typedef struct {
 
 } Srcfile;
 
-Srcfile read_file(char *filepath);
-void run(wchar_t *source);
-void runcode(char *filepath);
+wchar_t *read_file(const char *filepath);
+int run_file(const char *filepath);

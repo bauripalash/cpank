@@ -1,1 +1,6 @@
-show "st" + "ri" + "ng";
+let a = 1;
+while (a <= 10) {
+      show a;
+      a = a+1;
+    }
+show 1;

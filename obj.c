@@ -1,4 +1,5 @@
 #include "include/obj.h"
+#include "include/instruction.h"
 #include "include/mem.h"
 #include "include/value.h"
 #include "include/vm.h"
@@ -25,9 +26,10 @@ bool is_obj_type(Value val, ObjType ot) {
 }
 
 bool is_str_obj(Value val) { return is_obj_type(val, OBJ_STR); }
+bool is_func_obj(Value val) { return is_obj_type(val, OBJ_FUNC); }
 
 ObjString *get_as_string(Value val) { return (ObjString *)get_as_obj(val); }
-
+ObjFunc *get_as_func(Value val) { return (ObjFunc *)get_as_obj(val); }
 wchar_t *get_as_native_string(Value val) {
   Obj *o = get_as_obj(val);
   ObjString *os = (ObjString *)(o);
@@ -81,10 +83,23 @@ ObjString *take_string(wchar_t *chars, int len) {
   return allocate_str(chars, len, hash);
 }
 
+void print_function(ObjFunc *func) { wprintf(L"<fn %ls>", func->name->chars); }
+
 void print_obj(Value val) {
   switch (get_obj_type(val)) {
   case OBJ_STR:
     wprintf(L"%ls", get_as_native_string(val));
     break;
+  case OBJ_FUNC:
+    print_function(get_as_func(val));
+    break;
   }
+}
+
+ObjFunc *new_func() {
+  ObjFunc *func = ALLOCATE_OBJ(ObjFunc, OBJ_FUNC);
+  func->arity = 0;
+  func->name = NULL;
+  init_instruction(&func->ins);
+  return func;
 }

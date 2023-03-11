@@ -2,6 +2,7 @@
 #define cpank_obj_h
 
 #include "common.h"
+#include "instruction.h"
 #include "value.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -9,12 +10,20 @@
 
 typedef enum {
   OBJ_STR,
+  OBJ_FUNC,
 } ObjType;
 
 struct Obj {
   ObjType type;
   struct Obj *next;
 };
+
+typedef struct {
+  Obj obj;
+  int arity;
+  Instruction ins;
+  ObjString *name;
+} ObjFunc;
 
 struct ObjString {
   Obj obj;
@@ -23,9 +32,12 @@ struct ObjString {
   uint32_t hash;
 };
 
+ObjFunc *new_func();
 ObjType get_obj_type(Value val);
 bool is_obj_type(Value val, ObjType ot);
 bool is_str_obj(Value val);
+bool is_func_obj(Value val);
+ObjFunc *get_as_func(Value val);
 ObjString *get_as_string(Value val);
 wchar_t *get_as_native_string(Value val);
 ObjString *copy_string(wchar_t *chars, int len);
