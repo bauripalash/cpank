@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <wchar.h>
 
-void dissm_ins_chunk(Instruction *ins, const char *name) {
-  wprintf(L"----> %s <----\n", name);
+void dissm_ins_chunk(Instruction *ins, const wchar_t *name) {
+  wprintf(L"----> %ls <----\n", name);
 
   for (int off = 0; off < ins->len;) {
     off = dissm_ins(ins, off);

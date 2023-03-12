@@ -18,9 +18,10 @@
 
 Parser parser;
 Compiler *current = NULL;
-//Instruction *compins;
+// Instruction *compins;
 
-void init_comiler(Compiler *compiler , FuncType type) {
+void init_comiler(Compiler *compiler, FuncType type) {
+  compiler->enclosing = current;
   compiler->func = NULL;
   compiler->type = type;
   compiler->local_count = 0;
@@ -28,16 +29,17 @@ void init_comiler(Compiler *compiler , FuncType type) {
   compiler->func = new_func();
   current = compiler;
 
-  Local * local = &current->locals[current->local_count++];
+  if (type != FTYPE_SCRIPT) {
+    current->func->name = copy_string(parser.prev.start, parser.prev.length);
+  }
+
+  Local *local = &current->locals[current->local_count++];
   local->depth = 0;
   local->name.start = L"";
   local->name.length = 0;
-
 }
 
-Instruction *cur_ins() { 
-  return &current->func->ins;
-}
+Instruction *cur_ins() { return &current->func->ins; }
 void err_at(Token *tok, wchar_t *msg) {
   if (parser.panic_mode) {
 
@@ -209,6 +211,8 @@ void read_print_stmt() {
 void read_declr() {
   if (match_tok(T_LET)) {
     let_declr();
+  } else if (match_tok(T_FUNC)) {
+    funct_declr();
   } else {
     read_stmt();
   }
@@ -229,6 +233,38 @@ void let_declr() {
   define_var(global);
 }
 
+void funct_declr() {
+  uint8_t global = parse_var(L"Expected function name");
+  mark_init();
+  build_func(FTYPE_FUNC);
+  define_var(global);
+}
+
+void build_func(FuncType type) {
+  Compiler new_compiler;
+  init_comiler(&new_compiler, type);
+  start_scope();
+  eat_tok(T_LPAREN, L"expected '(' after func name");
+
+  /*if (!check_tok(T_RPAREN)) {
+    do {
+      current->func->arity++;
+      if (current->func->arity > 256) {
+        err_at_cur(L"too many function params");
+      }
+      uint8_t con = parse_var(L"Expected param name");
+      define_var(con);
+    } while (match_tok(T_COMMA));
+  }*/
+
+  eat_tok(T_RPAREN, L"expected ')' after func params");
+  // TODO: END
+  eat_tok(T_LBRACE, L"expected '{' before func body");
+  read_block();
+  ObjFunc *fn = end_compiler();
+  emit_two(OP_CONST, make_const(make_obj_val(fn)));
+}
+
 uint8_t parse_var(wchar_t *errmsg) {
   eat_tok(T_ID, errmsg);
   declare_var();
@@ -239,6 +275,7 @@ uint8_t parse_var(wchar_t *errmsg) {
 }
 
 void define_var(uint8_t global) {
+
   if (current->scope_depth > 0) {
     mark_init();
     return;
@@ -247,6 +284,9 @@ void define_var(uint8_t global) {
 }
 
 void mark_init() {
+  if (current->scope_depth == 0) {
+    return;
+  }
   current->locals[current->local_count - 1].depth = current->scope_depth;
 }
 
@@ -569,22 +609,24 @@ ParseRule parse_rules[] = {
 
 ParseRule *get_parse_rule(TokType tt) { return &parse_rules[tt]; }
 
-ObjFunc * end_compiler() {
+ObjFunc *end_compiler() {
   emit_return();
-  ObjFunc * func = current->func;
+  ObjFunc *func = current->func;
 #ifdef DEBUG_PRINT_CODE
   if (!parser.had_err) {
-    dissm_ins_chunk(cur_ins(), func->name != NULL ? func->name->chars : "<script>");
+    dissm_ins_chunk(cur_ins(),
+                    func->name != NULL ? func->name->chars : L"<script>");
   }
 #endif
+  current = current->enclosing;
   return func;
 }
 
-ObjFunc * compile(wchar_t *source) {
+ObjFunc *compile(wchar_t *source) {
   boot_lexer(source);
   Compiler compiler;
-  init_comiler(&compiler , FTYPE_SCRIPT);
-  //compins = ins;
+  init_comiler(&compiler, FTYPE_SCRIPT);
+  // compins = ins;
   parser.had_err = false;
   parser.panic_mode = false;
 #ifdef DEBUG_LEXER
@@ -606,6 +648,6 @@ ObjFunc * compile(wchar_t *source) {
   // read_expr();
   // advance();
   // eat_tok(T_EOF, L"Expected end of expr");
-  ObjFunc * fn = end_compiler();
+  ObjFunc *fn = end_compiler();
   return parser.had_err ? NULL : fn;
 }

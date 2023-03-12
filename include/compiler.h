@@ -38,18 +38,18 @@ typedef struct {
 typedef enum {
   FTYPE_FUNC,
   FTYPE_SCRIPT,
-}FuncType;
+} FuncType;
 
-typedef struct {
-  ObjFunc * func;
+typedef struct Compiler {
+  ObjFunc *func;
   FuncType type;
-  
+  struct Compiler *enclosing;
   Local locals[UINT8_COUNT];
   int local_count;
   int scope_depth;
 } Compiler;
 
-void init_comiler(Compiler *compiler , FuncType type);
+void init_comiler(Compiler *compiler, FuncType type);
 void start_scope();
 void end_scope();
 void read_block();
@@ -76,7 +76,7 @@ typedef struct {
 
 ParseRule *get_parse_rule(TokType tt);
 
-ObjFunc * compile(wchar_t *source);
+ObjFunc *compile(wchar_t *source);
 void read_expr();
 void read_stmt();
 void read_declr();
@@ -86,8 +86,10 @@ void read_expr_stmt();
 uint8_t make_id_const(Token *name);
 uint8_t parse_var(wchar_t *errmsg);
 void let_declr();
+void funct_declr();
+void build_func(FuncType type);
 void define_var(uint8_t global);
 void read_var(bool can_assign);
 void named_var(Token name, bool can_assign);
-ObjFunc * end_compiler();
+ObjFunc *end_compiler();
 #endif

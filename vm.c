@@ -19,7 +19,10 @@
 Vm vm;
 Value last_pop;
 
-void reset_stack() { vm.stack_top = vm.stack; }
+void reset_stack() {
+  vm.stack_top = vm.stack;
+  vm.frame_count = 0;
+}
 
 void boot_vm() {
   reset_stack();
@@ -60,19 +63,23 @@ void runtime_err(wchar_t *format, ...) {
 
   va_end(args);
   fputwc('\n', stderr);
-
-  size_t inst = vm.ip - vm.ins->code - 1;
-  int line = vm.ins->lines[inst];
+  CallFrame *frm = &vm.frames[vm.frame_count - 1];
+  size_t inst = frm->ip - frm->func->ins.code - 1; // vm.ip - vm.ins->code - 1;
+  int line = frm->func->ins.lines[inst];           // vm.ins->lines[inst];
   fwprintf(stderr, L"Error [line %d] in script\n", line);
   reset_stack();
 }
 
-uint8_t read_bt() { return *vm.ip++; }
+CallFrame *get_cur_farme() { return &vm.frames[vm.frame_count - 1]; }
+uint8_t read_bt() { return *get_cur_farme()->ip++; }
 uint16_t read_u16() {
-  vm.ip += 2;
-  return (uint16_t)((vm.ip[-2] << 8) | vm.ip[-1]);
+  CallFrame *cf = get_cur_farme();
+  cf->ip += 2;
+  return (uint16_t)((cf->ip[-2] << 8) | cf->ip[-1]);
 }
-Value read_const() { return vm.ins->consts.values[read_bt()]; }
+Value read_const() {
+  return get_cur_farme()->func->ins.consts.values[read_bt()];
+}
 ObjString *read_str_const() { return get_as_string(read_const()); }
 void add_string() {
   ObjString *r = get_as_string(pop());
@@ -162,6 +169,7 @@ bool bin_lt() {
 }
 
 IResult run_vm() {
+  CallFrame *frame = &vm.frames[vm.frame_count - 1];
   for (;;) {
 #ifdef DEBUG_TRACE
 #ifdef DEBUG_STACK
@@ -173,7 +181,7 @@ IResult run_vm() {
     }
     wprintf(L"--- END STACK ---\n");
 #endif
-    dissm_ins(vm.ins, (int)(vm.ip - vm.ins->code));
+    dissm_ins(&frame->func.ins, (int)(frame->ip - frame->func.ins.code));
 
 #endif
     uint8_t ins;
@@ -290,30 +298,31 @@ IResult run_vm() {
 
     case OP_GET_LOCAL: {
       uint8_t slot = read_bt();
-      push(vm.stack[slot]);
+      // push(vm.stack[slot]);
+      push(frame->slots[slot]);
       break;
     }
     case OP_SET_LOCAL: {
       uint8_t slot = read_bt();
-      vm.stack[slot] = peek_vm(0);
+      frame->slots[slot] = peek_vm(0);
       break;
     }
     case OP_JMP_IF_FALSE: {
       uint16_t offset = read_u16();
       // wprintf(L"JIF -> %d\n" , offset);
       if (is_falsey(peek_vm(0))) {
-        vm.ip += offset;
+        frame->ip += offset;
       }
       break;
     }
     case OP_JMP: {
       uint16_t offset = read_u16();
-      vm.ip += offset;
+      frame->ip += offset;
       break;
     }
     case OP_LOOP: {
       uint16_t offset = read_u16();
-      vm.ip -= offset;
+      frame->ip -= offset;
       break;
     }
     }
@@ -322,28 +331,35 @@ IResult run_vm() {
 }
 
 IResult interpret(wchar_t *source) {
-  //init_instruction(&ins);
-  // wprintf(L"COMPILER _> %s" , compile(source, &ins) ? "true" : "false");
-  // return 0;
+  // init_instruction(&ins);
+  //  wprintf(L"COMPILER _> %s" , compile(source, &ins) ? "true" : "false");
+  //  return 0;
 
-  //Instruction ins 
-  ObjFunc * fn = compile(source);
+  // Instruction ins
+  ObjFunc *fn = compile(source);
   if (fn == NULL) {
-  return INTRP_COMPILE_ERR ;
+    return INTRP_COMPILE_ERR;
   }
-  //if (ins == NULL) {
-  //  dissm_ins_chunk(&ins, "BEFORE");
-  //  free_ins(&ins);
-    // wprintf(L"COMPILEERR\n");
+
+  push(make_obj_val(fn));
+  CallFrame *frame = &vm.frames[vm.frame_count++];
+  frame->func = fn;
+  frame->ip = fn->ins.code;
+  frame->slots = vm.stack;
+
+  // if (ins == NULL) {
+  //   dissm_ins_chunk(&ins, "BEFORE");
+  //   free_ins(&ins);
+  //  wprintf(L"COMPILEERR\n");
   //  return INTRP_COMPILE_ERR;
   //}
   //
 
-
-  vm.ins = &fn->ins;
-  vm.ip = vm.ins->code;
-  IResult res = run_vm();
-  free_ins(&fn->ins);
-  // free(source);
-  return res;
+  // vm.ins = &fn->ins;
+  // vm.ip = vm.ins->code;
+  // IResult res = run_vm();
+  // free_ins(&fn->ins);
+  //  free(source);
+  // return res;
+  return run_vm();
 }

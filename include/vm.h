@@ -1,12 +1,22 @@
 #ifndef cpank_vm_h
 #define cpank_vm_h
 
+#include "common.h"
 #include "htable.h"
 #include "instruction.h"
+#include "obj.h"
 #include "value.h"
 #include <stdint.h>
 #include <wchar.h>
-#define STACK_SIZE 256
+
+#define FRAME_SIZE 64
+#define STACK_SIZE (FRAME_SIZE * UINT8_COUNT)
+
+typedef struct {
+  ObjFunc *func;
+  uint8_t *ip;
+  Value *slots;
+} CallFrame;
 
 typedef struct {
   Instruction *ins;
@@ -16,6 +26,8 @@ typedef struct {
   Htable strings;
   Htable globals;
   Obj *objs;
+  CallFrame frames[FRAME_SIZE];
+  int frame_count;
 } Vm;
 
 typedef enum {
