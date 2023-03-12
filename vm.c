@@ -17,7 +17,7 @@
 #include "include/vm.h"
 
 Vm vm;
-
+Value last_pop;
 // #define DEBUG_STACK
 #define DEBUG_TRACE
 
@@ -26,15 +26,19 @@ void reset_stack() { vm.stack_top = vm.stack; }
 void boot_vm() {
   reset_stack();
   vm.objs = NULL;
+  last_pop = make_nil();
   init_table(&vm.strings);
   init_table(&vm.globals);
 }
 
 void free_vm() {
+  last_pop = make_nil();
   free_table(&vm.strings);
   free_table(&vm.globals);
   free_objs();
 }
+
+Value get_last_pop() { return last_pop; }
 
 void push(Value value) {
   *vm.stack_top = value;
@@ -43,6 +47,7 @@ void push(Value value) {
 
 Value pop() {
   vm.stack_top--;
+  last_pop = *vm.stack_top;
   return *vm.stack_top;
 }
 

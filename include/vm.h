@@ -31,5 +31,6 @@ void free_vm();
 IResult interpret(wchar_t *source);
 void push(Value value);
 Value pop();
+Value get_last_pop();
 
 #endif
