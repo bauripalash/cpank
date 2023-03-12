@@ -244,7 +244,7 @@ Token err_tok(wchar_t *msg) {
   tk.type = T_ERR;
   tk.start = msg;
   tk.length = (int)wcslen(msg);
-  tk.length = lexer.line;
+  tk.line = lexer.line;
   return tk;
 }
 

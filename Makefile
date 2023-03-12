@@ -6,10 +6,14 @@ MAIN=main.c
 TESTMAIN=testmain.c
 OUTPUT=cpank
 TESTOUTPUT=test_cpank
+INCLUDE_DIR=include/
 
 run:
 	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC)
 	./$(OUTPUT)
+
+check:
+	cppcheck -I $(INCLUDE_DIR) --enable=all $(MAIN) $(SRC)
 
 build_test:
 	@echo "Building for testing"
