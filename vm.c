@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <wchar.h>
 
 #include "include/vm.h"
@@ -30,6 +31,7 @@ void boot_vm() {
   last_pop = make_nil();
   init_table(&vm.strings);
   init_table(&vm.globals);
+  define_native(L"clock", clock_ntv_fn);
 }
 
 void free_vm() {
@@ -63,10 +65,20 @@ void runtime_err(wchar_t *format, ...) {
 
   va_end(args);
   fputwc('\n', stderr);
-  CallFrame *frm = &vm.frames[vm.frame_count - 1];
-  size_t inst = frm->ip - frm->func->ins.code - 1; // vm.ip - vm.ins->code - 1;
-  int line = frm->func->ins.lines[inst];           // vm.ins->lines[inst];
-  fwprintf(stderr, L"Error [line %d] in script\n", line);
+
+  for (int i = vm.frame_count - 1; i >= 0; i--) {
+    CallFrame *frm = &vm.frames[i];
+    ObjFunc *fn = frm->func;
+    size_t inst = frm->ip - fn->ins.code - 1; // vm.ip - vm.ins->code - 1;
+    int line = fn->ins.lines[inst];           // vm.ins->lines[inst];
+    fwprintf(stderr, L"Error [line %d] in \n", line);
+    if (fn->name == NULL) {
+      fwprintf(stderr, L"script\n");
+    } else {
+      fwprintf(stderr, L"%.*ls()", fn->name->len, fn->name->chars);
+    }
+  }
+
   reset_stack();
 }
 
@@ -187,9 +199,20 @@ IResult run_vm() {
     uint8_t ins;
     switch (ins = read_bt()) {
     case OP_RETURN: {
+      Value res = pop();
+      vm.frame_count--;
+      if (vm.frame_count == 0) {
+        pop();
+        return INTRP_OK;
+      }
+
+      vm.stack_top = frame->slots;
+      push(res);
+      frame = &vm.frames[vm.frame_count - 1];
+      break;
       //  print_val(pop());
       //  wprintf(L"\n");
-      return INTRP_OK;
+      // return INTRP_OK;
     }
     case OP_CONST: {
       Value con = read_const();
@@ -325,9 +348,68 @@ IResult run_vm() {
       frame->ip -= offset;
       break;
     }
+    case OP_CALL: {
+      int argc = read_bt();
+      if (!call_val(peek_vm(argc), argc)) {
+        return INTRP_RUNTIME_ERR;
+      }
+
+      frame = &vm.frames[vm.frame_count - 1];
+      break;
+    }
     }
   }
   return INTRP_RUNTIME_ERR;
+}
+
+void define_native(wchar_t *name, NativeFn func) {
+  push(make_obj_val(copy_string(name, (int)wcslen(name))));
+  push(make_obj_val(new_native(func)));
+  table_set(&vm.globals, get_as_string(vm.stack[0]), vm.stack[1]);
+  pop();
+  pop();
+}
+
+Value clock_ntv_fn(int argc, Value *args) {
+  return make_num((double)clock() / CLOCKS_PER_SEC);
+}
+
+bool call_val(Value calle, int argc) {
+  if (is_obj(calle)) {
+    switch (get_obj_type(calle)) {
+    case OBJ_FUNC:
+      return call(get_as_func(calle), argc);
+    case OBJ_NATIVE: {
+      NativeFn native = get_as_native(calle);
+      Value result = native(argc, vm.stack_top - argc);
+      vm.stack_top -= argc + 1;
+      push(result);
+      return true;
+    }
+    default:
+      break;
+    }
+  }
+  runtime_err(L"can only call functions");
+  return false;
+}
+
+bool call(ObjFunc *func, int argc) {
+  if (func->arity != argc) {
+    runtime_err(L"Expected %d args but got %d", func->arity, argc);
+    return false;
+  }
+
+  if (vm.frame_count == FRAME_SIZE) {
+    runtime_err(L"Too many frames! Stack overflow");
+    return false;
+  }
+
+  CallFrame *frame = &vm.frames[vm.frame_count++];
+  frame->func = func;
+  frame->ip = func->ins.code;
+  frame->slots = vm.stack_top - argc - 1;
+  return true;
 }
 
 IResult interpret(wchar_t *source) {
@@ -342,10 +424,11 @@ IResult interpret(wchar_t *source) {
   }
 
   push(make_obj_val(fn));
-  CallFrame *frame = &vm.frames[vm.frame_count++];
-  frame->func = fn;
-  frame->ip = fn->ins.code;
-  frame->slots = vm.stack;
+  call(fn, 0);
+  // CallFrame *frame = &vm.frames[vm.frame_count++];
+  // frame->func = fn;
+  // frame->ip = fn->ins.code;
+  // frame->slots = vm.stack;
 
   // if (ins == NULL) {
   //   dissm_ins_chunk(&ins, "BEFORE");

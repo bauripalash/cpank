@@ -65,7 +65,8 @@ void read_and(bool can_assign);
 void read_or(bool can_assign);
 void read_while_stmt();
 void emit_loop(int ls);
-
+void read_call(bool can_assign);
+uint8_t read_arg_list();
 typedef void (*ParseFn)(bool can_assign);
 
 typedef struct {
@@ -91,5 +92,6 @@ void build_func(FuncType type);
 void define_var(uint8_t global);
 void read_var(bool can_assign);
 void named_var(Token name, bool can_assign);
+void return_stmt();
 ObjFunc *end_compiler();
 #endif

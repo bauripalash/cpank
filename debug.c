@@ -91,6 +91,8 @@ int dissm_ins(Instruction *ins, int offset) {
     return bt_ins("OP_GET_LOCAL", ins, offset);
   case OP_SET_LOCAL:
     return bt_ins("OP_SET_LOCAL", ins, offset);
+  case OP_CALL:
+    return bt_ins("OP_CALL", ins, offset);
   case OP_JMP:
     return jmp_ins("OP_JMP", 1, ins, offset);
   case OP_JMP_IF_FALSE:

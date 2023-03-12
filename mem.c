@@ -36,6 +36,10 @@ void free_single_obj(Obj *obj) {
     FREE(ObjFunc, obj);
     break;
   }
+  case OBJ_NATIVE: {
+    FREE(ObjNative, obj);
+    break;
+  }
   }
 }
 

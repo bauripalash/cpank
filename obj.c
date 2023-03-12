@@ -27,6 +27,7 @@ bool is_obj_type(Value val, ObjType ot) {
 
 bool is_str_obj(Value val) { return is_obj_type(val, OBJ_STR); }
 bool is_func_obj(Value val) { return is_obj_type(val, OBJ_FUNC); }
+bool is_native_obj(Value val) { return is_obj_type(val, OBJ_NATIVE); }
 
 ObjString *get_as_string(Value val) { return (ObjString *)get_as_obj(val); }
 ObjFunc *get_as_func(Value val) { return (ObjFunc *)get_as_obj(val); }
@@ -34,6 +35,10 @@ wchar_t *get_as_native_string(Value val) {
   Obj *o = get_as_obj(val);
   ObjString *os = (ObjString *)(o);
   return os->chars;
+}
+
+NativeFn get_as_native(Value val) {
+  return ((ObjNative *)get_as_obj(val))->func;
 }
 
 ObjString *allocate_str(wchar_t *chars, int len, uint32_t hash) {
@@ -93,6 +98,9 @@ void print_obj(Value val) {
   case OBJ_FUNC:
     print_function(get_as_func(val));
     break;
+  case OBJ_NATIVE:
+    wprintf(L"<native_fn>");
+    break;
   }
 }
 
@@ -102,4 +110,10 @@ ObjFunc *new_func() {
   func->name = NULL;
   init_instruction(&func->ins);
   return func;
+}
+
+ObjNative *new_native(NativeFn fn) {
+  ObjNative *native = ALLOCATE_OBJ(ObjNative, OBJ_NATIVE);
+  native->func = fn;
+  return native;
 }

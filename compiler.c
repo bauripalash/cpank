@@ -130,7 +130,10 @@ void emit_two(uint8_t bt_1, uint8_t bt_2) {
   emit_bt(bt_2);
 }
 
-void emit_return() { emit_bt(OP_RETURN); }
+void emit_return() {
+  emit_bt(OP_NIL);
+  emit_bt(OP_RETURN);
+}
 
 uint8_t make_const(Value val) {
   int con = add_const(cur_ins(), val);
@@ -186,13 +189,29 @@ void read_stmt() {
     read_if_stmt();
   } else if (match_tok(T_WHILE)) {
     read_while_stmt();
-
+  } else if (match_tok(T_RETURN)) {
+    return_stmt();
   } else if (match_tok(T_LBRACE)) {
     start_scope();
     read_block();
     end_scope();
   } else {
     read_expr_stmt();
+  }
+}
+
+void return_stmt() {
+
+  if (current->type == FTYPE_SCRIPT) {
+    err(L"cannot return from top-level code");
+  }
+
+  if (match_tok(T_SEMICOLON)) {
+    emit_return();
+  } else {
+    read_expr();
+    eat_tok(T_SEMICOLON, L"expected ';' after return value");
+    emit_bt(OP_RETURN);
   }
 }
 
@@ -246,7 +265,7 @@ void build_func(FuncType type) {
   start_scope();
   eat_tok(T_LPAREN, L"expected '(' after func name");
 
-  /*if (!check_tok(T_RPAREN)) {
+  if (!check_tok(T_RPAREN)) {
     do {
       current->func->arity++;
       if (current->func->arity > 256) {
@@ -255,7 +274,7 @@ void build_func(FuncType type) {
       uint8_t con = parse_var(L"Expected param name");
       define_var(con);
     } while (match_tok(T_COMMA));
-  }*/
+  }
 
   eat_tok(T_RPAREN, L"expected ')' after func params");
   // TODO: END
@@ -450,6 +469,28 @@ void read_or(bool can_assign) {
   patch_jump(endjmp);
 }
 
+void read_call(bool can_assign) {
+  uint8_t arg_count = read_arg_list();
+  emit_two(OP_CALL, arg_count);
+}
+
+uint8_t read_arg_list() {
+  uint8_t argc = 0;
+  if (!check_tok(T_RPAREN)) {
+    do {
+      read_expr();
+      if (argc == 255) {
+        err(L"Too many arguments; more than 255");
+      }
+      argc++;
+    } while (match_tok(T_COMMA));
+  }
+
+  eat_tok(T_RPAREN, L"Expected ')' after arguments");
+  return argc;
+  ;
+}
+
 int emit_jump(uint8_t ins) {
   emit_bt(ins);
   emit_two(0xFF, 0xFF);
@@ -569,7 +610,7 @@ void end_scope() {
 }
 
 ParseRule parse_rules[] = {
-    [T_LPAREN] = {read_group, NULL, PREC_NONE},
+    [T_LPAREN] = {read_group, read_call, PREC_CALL},
     [T_RPAREN] = {NULL, NULL, PREC_NONE},
     [T_LBRACE] = {NULL, NULL, PREC_NONE},
     [T_RBRACE] = {NULL, NULL, PREC_NONE},

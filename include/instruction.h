@@ -30,6 +30,7 @@ typedef enum {
   OP_JMP_IF_FALSE,
   OP_JMP,
   OP_LOOP,
+  OP_CALL,
 
 } Op;
 
