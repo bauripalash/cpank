@@ -6,3 +6,4 @@ else
 end
 
 show 1;
+show 0;

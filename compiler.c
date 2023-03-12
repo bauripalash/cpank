@@ -432,8 +432,10 @@ void read_unary(bool can_assign) {
   switch (op) {
   case T_MINUS:
     emit_bt(OP_NEG);
+    break;
   case T_BANG:
     emit_bt(OP_NOT);
+    break;
   default:
     return;
   }

@@ -23,7 +23,7 @@ Value fetch_last_pop(wchar_t *src) {
   return result;
 }
 
-void test_vm(const char *test_name, wchar_t *src, Value expected) {
+bool test_vm(const char *test_name, wchar_t *src, Value expected) {
   Value got = fetch_last_pop(src);
   bool result = is_equal(got, expected);
 
@@ -34,22 +34,32 @@ void test_vm(const char *test_name, wchar_t *src, Value expected) {
     wprintf(L"\nGot : ");
     print_val(got);
     wprintf(L"\n---------\n");
+    return false;
   } else {
     wprintf(L"[OK] passed test: %s\n", test_name);
+    return true;
   }
 }
 
 int main() {
+  bool fail = false;
   T testcases[] = {
       tc("1+2", L"show 1+2;", make_num(3)),
       tc("3+5", L"show 3+5;", make_num(8)),
-
+      tc("-1 + 1 - 1", L"show -1 + 1 - 1;", make_num(-1)),
       tc("100+200", L"show 100+200;", make_num(300)),
+      tc("3.14+1.24", L"show 3.14+1.24;", make_num(4.38)),
 
   };
 
   int tc_len = sizeof(testcases) / sizeof(T);
   for (int i = 0; i < tc_len; i++) {
-    test_vm(testcases[i].name, testcases[i].src, testcases[i].expected);
+    bool failed =
+        !test_vm(testcases[i].name, testcases[i].src, testcases[i].expected);
+    if (!fail) {
+      fail = failed;
+    }
   }
+
+  return fail ? 1 : 0;
 }

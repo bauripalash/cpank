@@ -8,8 +8,6 @@
 #include <stdint.h>
 #include <wchar.h>
 
-#define DEBUG_PRINT_CODE
-
 typedef struct {
   Token cur;
   Token prev;

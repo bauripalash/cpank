@@ -165,8 +165,10 @@ Token mk_num_tok() {
   tok.start = lexer.start;
   tok.length = (int)(lexer.current - lexer.start);
   tok.line = lexer.line;
+
   btoe(tok.start, tok.length);
-  // convert_bn_num_to_en(tok.start, tok.length);
+  // wprintf(L"NUMBER-> %.*ls\n", tok.length, tok.start);
+  //  convert_bn_num_to_en(tok.start, tok.length);
   return tok;
 }
 
@@ -309,7 +311,7 @@ Token get_num_tok() {
     next();
   }
 
-  if (peek() == '.' && (is_bn_num(peek()) || is_en_num(peek()))) {
+  if (peek() == '.' && (is_bn_num(peek_next()) || is_en_num(peek_next()))) {
     next();
     while (is_bn_num(peek()) || is_en_num(peek())) {
       next();
