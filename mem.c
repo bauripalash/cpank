@@ -40,6 +40,10 @@ void free_single_obj(Obj *obj) {
     FREE(ObjNative, obj);
     break;
   }
+  case OBJ_CLOUSRE: {
+    FREE(ObjClosure, obj);
+    break;
+  }
   }
 }
 

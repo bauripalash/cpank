@@ -13,7 +13,7 @@
 #define STACK_SIZE (FRAME_SIZE * UINT8_COUNT)
 
 typedef struct {
-  ObjFunc *func;
+  ObjClosure *closure;
   uint8_t *ip;
   Value *slots;
 } CallFrame;
@@ -45,7 +45,7 @@ void push(Value value);
 Value pop();
 Value get_last_pop();
 bool call_val(Value calle, int argc);
-bool call(ObjFunc *func, int argc);
+bool call(ObjClosure *closure, int argc);
 void define_native(wchar_t *name, NativeFn func);
 Value clock_ntv_fn(int argc, Value *args);
 

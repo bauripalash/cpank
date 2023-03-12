@@ -31,6 +31,9 @@ typedef enum {
   OP_JMP,
   OP_LOOP,
   OP_CALL,
+  OP_CLOSURE,
+  OP_GET_UP,
+  OP_SET_UP,
 
 } Op;
 

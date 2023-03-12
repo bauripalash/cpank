@@ -281,7 +281,7 @@ void build_func(FuncType type) {
   eat_tok(T_LBRACE, L"expected '{' before func body");
   read_block();
   ObjFunc *fn = end_compiler();
-  emit_two(OP_CONST, make_const(make_obj_val(fn)));
+  emit_two(OP_CLOSURE, make_const(make_obj_val(fn)));
 }
 
 uint8_t parse_var(wchar_t *errmsg) {
@@ -291,6 +291,38 @@ uint8_t parse_var(wchar_t *errmsg) {
     return 0;
   }
   return make_id_const(&parser.prev);
+}
+
+int resolve_upval(Compiler *compiler, Token *name) {
+  if (compiler->enclosing == NULL) {
+    return -1;
+  }
+
+  int local = resolve_local(compiler->enclosing, name);
+  if (local != -1) {
+    return add_upval(compiler, (uint8_t)local, true);
+  }
+  return -1;
+}
+
+int add_upval(Compiler *compiler, uint8_t index, bool is_local) {
+  int upc = compiler->func->up_count;
+
+  for (int i = 0; i < upc; i++) {
+    Upval *upv = &compiler->upvs[i];
+    if (upv->index == index && upv->is_local == is_local) {
+      return i;
+    }
+  }
+
+  if (upc == UINT8_COUNT) {
+    err(L"Too many closure vars");
+    return 0;
+  }
+
+  compiler->upvs[upc].is_local = is_local;
+  compiler->upvs[upc].index = index;
+  return compiler->func->up_count++;
 }
 
 void define_var(uint8_t global) {
@@ -356,6 +388,9 @@ void named_var(Token name, bool can_assign) {
   if (arg != -1) {
     get_op = OP_GET_LOCAL;
     set_op = OP_SET_LOCAL;
+  } else if ((arg = resolve_upval(current, &name)) != -1) {
+    get_op = OP_GET_UP;
+    set_op = OP_SET_UP;
   } else {
     arg = make_id_const(&name);
     get_op = OP_GET_GLOB;

@@ -35,6 +35,11 @@ typedef struct {
   int depth;
 } Local;
 
+typedef struct {
+  uint8_t index;
+  bool is_local;
+} Upval;
+
 typedef enum {
   FTYPE_FUNC,
   FTYPE_SCRIPT,
@@ -47,6 +52,7 @@ typedef struct Compiler {
   Local locals[UINT8_COUNT];
   int local_count;
   int scope_depth;
+  Upval upvs[UINT8_COUNT];
 } Compiler;
 
 void init_comiler(Compiler *compiler, FuncType type);
@@ -93,5 +99,7 @@ void define_var(uint8_t global);
 void read_var(bool can_assign);
 void named_var(Token name, bool can_assign);
 void return_stmt();
+int resolve_upval(Compiler *compiler, Token *name);
+int add_upval(Compiler *compiler, uint8_t index, bool is_local);
 ObjFunc *end_compiler();
 #endif

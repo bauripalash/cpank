@@ -28,7 +28,7 @@ bool is_obj_type(Value val, ObjType ot) {
 bool is_str_obj(Value val) { return is_obj_type(val, OBJ_STR); }
 bool is_func_obj(Value val) { return is_obj_type(val, OBJ_FUNC); }
 bool is_native_obj(Value val) { return is_obj_type(val, OBJ_NATIVE); }
-
+bool is_closure_obj(Value val) { return is_obj_type(val, OBJ_CLOUSRE); }
 ObjString *get_as_string(Value val) { return (ObjString *)get_as_obj(val); }
 ObjFunc *get_as_func(Value val) { return (ObjFunc *)get_as_obj(val); }
 wchar_t *get_as_native_string(Value val) {
@@ -40,6 +40,8 @@ wchar_t *get_as_native_string(Value val) {
 NativeFn get_as_native(Value val) {
   return ((ObjNative *)get_as_obj(val))->func;
 }
+
+ObjClosure *get_as_closure(Value val) { return (ObjClosure *)get_as_obj(val); }
 
 ObjString *allocate_str(wchar_t *chars, int len, uint32_t hash) {
   ObjString *string = ALLOCATE_OBJ(ObjString, OBJ_STR);
@@ -101,6 +103,9 @@ void print_obj(Value val) {
   case OBJ_NATIVE:
     wprintf(L"<native_fn>");
     break;
+  case OBJ_CLOUSRE:
+    print_function(get_as_closure(val)->func);
+    break;
   }
 }
 
@@ -108,6 +113,7 @@ ObjFunc *new_func() {
   ObjFunc *func = ALLOCATE_OBJ(ObjFunc, OBJ_FUNC);
   func->arity = 0;
   func->name = NULL;
+  func->up_count = 0;
   init_instruction(&func->ins);
   return func;
 }
@@ -116,4 +122,10 @@ ObjNative *new_native(NativeFn fn) {
   ObjNative *native = ALLOCATE_OBJ(ObjNative, OBJ_NATIVE);
   native->func = fn;
   return native;
+}
+
+ObjClosure *new_closure(ObjFunc *func) {
+  ObjClosure *cls = ALLOCATE_OBJ(ObjClosure, OBJ_CLOUSRE);
+  cls->func = func;
+  return cls;
 }

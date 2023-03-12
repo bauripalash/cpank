@@ -99,6 +99,13 @@ int dissm_ins(Instruction *ins, int offset) {
     return jmp_ins("OP_JMP_IF_FALSE", 1, ins, offset);
   case OP_LOOP:
     return jmp_ins("OP_LOOP", -1, ins, offset);
+  case OP_CLOSURE:
+    offset++;
+    uint8_t con = ins->code[offset++];
+    wprintf(L"%-16s %4d", "OP_CLOSURE", con);
+    print_val(ins->consts.values[con]);
+    wprintf(L"\n");
+    return offset;
   default:
     printf("Unknown op %d\n", is);
     return offset + 1;

@@ -68,7 +68,7 @@ void runtime_err(wchar_t *format, ...) {
 
   for (int i = vm.frame_count - 1; i >= 0; i--) {
     CallFrame *frm = &vm.frames[i];
-    ObjFunc *fn = frm->func;
+    ObjFunc *fn = frm->closure->func;
     size_t inst = frm->ip - fn->ins.code - 1; // vm.ip - vm.ins->code - 1;
     int line = fn->ins.lines[inst];           // vm.ins->lines[inst];
     fwprintf(stderr, L"Error [line %d] in \n", line);
@@ -90,7 +90,7 @@ uint16_t read_u16() {
   return (uint16_t)((cf->ip[-2] << 8) | cf->ip[-1]);
 }
 Value read_const() {
-  return get_cur_farme()->func->ins.consts.values[read_bt()];
+  return get_cur_farme()->closure->func->ins.consts.values[read_bt()];
 }
 ObjString *read_str_const() { return get_as_string(read_const()); }
 void add_string() {
@@ -348,6 +348,12 @@ IResult run_vm() {
       frame->ip -= offset;
       break;
     }
+    case OP_CLOSURE: {
+      ObjFunc *func = get_as_func(read_const());
+      ObjClosure *cls = new_closure(func);
+      push(make_obj_val(cls));
+      break;
+    }
     case OP_CALL: {
       int argc = read_bt();
       if (!call_val(peek_vm(argc), argc)) {
@@ -377,8 +383,8 @@ Value clock_ntv_fn(int argc, Value *args) {
 bool call_val(Value calle, int argc) {
   if (is_obj(calle)) {
     switch (get_obj_type(calle)) {
-    case OBJ_FUNC:
-      return call(get_as_func(calle), argc);
+    case OBJ_CLOUSRE:
+      return call(get_as_closure(calle), argc);
     case OBJ_NATIVE: {
       NativeFn native = get_as_native(calle);
       Value result = native(argc, vm.stack_top - argc);
@@ -394,9 +400,9 @@ bool call_val(Value calle, int argc) {
   return false;
 }
 
-bool call(ObjFunc *func, int argc) {
-  if (func->arity != argc) {
-    runtime_err(L"Expected %d args but got %d", func->arity, argc);
+bool call(ObjClosure *closure, int argc) {
+  if (closure->func->arity != argc) {
+    runtime_err(L"Expected %d args but got %d", closure->func->arity, argc);
     return false;
   }
 
@@ -406,8 +412,8 @@ bool call(ObjFunc *func, int argc) {
   }
 
   CallFrame *frame = &vm.frames[vm.frame_count++];
-  frame->func = func;
-  frame->ip = func->ins.code;
+  frame->closure = closure;
+  frame->ip = closure->func->ins.code;
   frame->slots = vm.stack_top - argc - 1;
   return true;
 }
@@ -424,7 +430,10 @@ IResult interpret(wchar_t *source) {
   }
 
   push(make_obj_val(fn));
-  call(fn, 0);
+  ObjClosure *cls = new_closure(fn);
+  pop();
+  push(make_obj_val(cls));
+  call(cls, 0);
   // CallFrame *frame = &vm.frames[vm.frame_count++];
   // frame->func = fn;
   // frame->ip = fn->ins.code;
