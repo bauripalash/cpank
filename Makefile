@@ -19,7 +19,7 @@ build:
 	@echo "Finished building optimized $(OUTPUT)"
 
 memcheck: build_uo
-	valgrind --leak-check=full --show-leak-kinds=all ./$(OUTPUT)
+	valgrind -s --leak-check=full --show-leak-kinds=all ./$(OUTPUT)
 
 perf:
 	@echo "Building optimized with -g"

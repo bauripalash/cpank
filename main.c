@@ -9,7 +9,7 @@
 #include "include/vm.h"
 int main() {
   setlocale(LC_CTYPE, "");
-  return run_file("sample/2.txt");
+  return run_file("sample/3.txt");
   // wchar_t *content = read_file("sample/2.txt");
   // wprintf(L"FILE -> %ls\n", content);
   // free(content);

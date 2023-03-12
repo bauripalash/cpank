@@ -87,6 +87,7 @@ void sync_errors() {
   }
 }
 
+// eat current token;
 void eat_tok(TokType tt, wchar_t *errmsg) {
   if (parser.cur.type == tt) {
     advance();
@@ -96,8 +97,10 @@ void eat_tok(TokType tt, wchar_t *errmsg) {
   err_at_cur(errmsg);
 }
 
+// Checks 'current' token;
 bool check_tok(TokType tt) { return parser.cur.type == tt; }
 
+// Matches 'current' token
 bool match_tok(TokType tt) {
   if (!check_tok(tt)) {
     return false;
@@ -311,19 +314,43 @@ int resolve_local(Compiler *compiler, Token *token) {
   return -1;
 }
 
+void read_to_end() {
+
+  while (!check_tok(T_END) && !check_tok(T_EOF)) {
+    read_declr();
+  }
+
+  eat_tok(T_END, L"Expected 'end' after stmts");
+}
+
+/*got end?*/
+void read_if_block() {
+  start_scope();
+  while (!check_tok(T_END) && !check_tok(T_ELSE) && !check_tok(T_EOF)) {
+    read_declr();
+  }
+
+  end_scope();
+}
+
 void read_if_stmt() {
-  eat_tok(T_LPAREN, L"Expected '(' after 'if'");
   read_expr();
-  eat_tok(T_RPAREN, L"Expected ')' after condition");
+  eat_tok(T_THEN, L"expected 'then'  after if expression");
 
   int then_jump = emit_jump(OP_JMP_IF_FALSE);
   emit_bt(OP_POP);
-  read_stmt();
+
+  read_if_block();
+
   int else_jmp = emit_jump(OP_JMP);
   patch_jump(then_jump);
   emit_bt(OP_POP);
   if (match_tok(T_ELSE)) {
-    read_stmt();
+    start_scope();
+    read_to_end();
+    end_scope();
+  } else {
+    eat_tok(T_END, L"Expected end after if without else");
   }
 
   patch_jump(else_jmp);
@@ -336,7 +363,10 @@ void read_while_stmt() {
   eat_tok(T_RPAREN, L"expected ')' after expression");
   int exitjmp = emit_jump(OP_JMP_IF_FALSE);
   emit_bt(OP_POP);
-  read_stmt();
+  start_scope();
+  read_to_end();
+  end_scope();
+  // read_stmt();
   emit_loop(ls);
   patch_jump(exitjmp);
   emit_bt(OP_POP);

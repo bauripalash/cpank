@@ -1,0 +1,8 @@
+dhori age = 19;
+jodi age > 18 tahole
+	show "sabalok";
+else 
+	show "nabalok";
+end
+
+show 1;

@@ -1,6 +1,6 @@
-let a = 1;
-while (a <= 10) {
+dhori a = 1;
+jotokkhon (a <= 10) 
       show a;
       a = a+1;
-    }
-show 1;
+    end
+show "hello world";
