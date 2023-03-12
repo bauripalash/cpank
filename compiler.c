@@ -18,15 +18,26 @@
 
 Parser parser;
 Compiler *current = NULL;
-Instruction *compins;
+//Instruction *compins;
 
-void init_comiler(Compiler *compiler) {
+void init_comiler(Compiler *compiler , FuncType type) {
+  compiler->func = NULL;
+  compiler->type = type;
   compiler->local_count = 0;
   compiler->scope_depth = 0;
+  compiler->func = new_func();
   current = compiler;
+
+  Local * local = &current->locals[current->local_count++];
+  local->depth = 0;
+  local->name.start = L"";
+  local->name.length = 0;
+
 }
 
-Instruction *cur_ins() { return compins; }
+Instruction *cur_ins() { 
+  return &current->func->ins;
+}
 void err_at(Token *tok, wchar_t *msg) {
   if (parser.panic_mode) {
 
@@ -558,21 +569,22 @@ ParseRule parse_rules[] = {
 
 ParseRule *get_parse_rule(TokType tt) { return &parse_rules[tt]; }
 
-void end_compiler() {
+ObjFunc * end_compiler() {
   emit_return();
-
+  ObjFunc * func = current->func;
 #ifdef DEBUG_PRINT_CODE
   if (!parser.had_err) {
-    dissm_ins_chunk(cur_ins(), "code");
+    dissm_ins_chunk(cur_ins(), func->name != NULL ? func->name->chars : "<script>");
   }
 #endif
+  return func;
 }
 
-bool compile(wchar_t *source, Instruction *ins) {
+ObjFunc * compile(wchar_t *source) {
   boot_lexer(source);
   Compiler compiler;
-  init_comiler(&compiler);
-  compins = ins;
+  init_comiler(&compiler , FTYPE_SCRIPT);
+  //compins = ins;
   parser.had_err = false;
   parser.panic_mode = false;
 #ifdef DEBUG_LEXER
@@ -594,6 +606,6 @@ bool compile(wchar_t *source, Instruction *ins) {
   // read_expr();
   // advance();
   // eat_tok(T_EOF, L"Expected end of expr");
-  end_compiler();
-  return !parser.had_err;
+  ObjFunc * fn = end_compiler();
+  return parser.had_err ? NULL : fn;
 }

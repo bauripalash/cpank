@@ -322,21 +322,28 @@ IResult run_vm() {
 }
 
 IResult interpret(wchar_t *source) {
-  Instruction ins;
-  init_instruction(&ins);
+  //init_instruction(&ins);
   // wprintf(L"COMPILER _> %s" , compile(source, &ins) ? "true" : "false");
   // return 0;
-  if (!compile(source, &ins)) {
-    dissm_ins_chunk(&ins, "BEFORE");
-    free_ins(&ins);
-    // wprintf(L"COMPILEERR\n");
-    return INTRP_COMPILE_ERR;
-  }
 
-  vm.ins = &ins;
+  //Instruction ins 
+  ObjFunc * fn = compile(source);
+  if (fn == NULL) {
+  return INTRP_COMPILE_ERR ;
+  }
+  //if (ins == NULL) {
+  //  dissm_ins_chunk(&ins, "BEFORE");
+  //  free_ins(&ins);
+    // wprintf(L"COMPILEERR\n");
+  //  return INTRP_COMPILE_ERR;
+  //}
+  //
+
+
+  vm.ins = &fn->ins;
   vm.ip = vm.ins->code;
   IResult res = run_vm();
-  free_ins(&ins);
+  free_ins(&fn->ins);
   // free(source);
   return res;
 }

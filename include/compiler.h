@@ -4,6 +4,7 @@
 #include "common.h"
 #include "instruction.h"
 #include "lexer.h"
+#include "obj.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <wchar.h>
@@ -34,13 +35,21 @@ typedef struct {
   int depth;
 } Local;
 
+typedef enum {
+  FTYPE_FUNC,
+  FTYPE_SCRIPT,
+}FuncType;
+
 typedef struct {
+  ObjFunc * func;
+  FuncType type;
+  
   Local locals[UINT8_COUNT];
   int local_count;
   int scope_depth;
 } Compiler;
 
-void init_comiler(Compiler *compiler);
+void init_comiler(Compiler *compiler , FuncType type);
 void start_scope();
 void end_scope();
 void read_block();
@@ -67,7 +76,7 @@ typedef struct {
 
 ParseRule *get_parse_rule(TokType tt);
 
-bool compile(wchar_t *source, Instruction *ins);
+ObjFunc * compile(wchar_t *source);
 void read_expr();
 void read_stmt();
 void read_declr();
@@ -80,5 +89,5 @@ void let_declr();
 void define_var(uint8_t global);
 void read_var(bool can_assign);
 void named_var(Token name, bool can_assign);
-
+ObjFunc * end_compiler();
 #endif
