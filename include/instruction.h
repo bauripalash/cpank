@@ -34,6 +34,7 @@ typedef enum {
   OP_CLOSURE,
   OP_GET_UP,
   OP_SET_UP,
+  OP_CLS_UP,
 
 } Op;
 

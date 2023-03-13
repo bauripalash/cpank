@@ -9,5 +9,5 @@
 #include "include/vm.h"
 int main() {
   setlocale(LC_CTYPE, "");
-  return run_file("sample/fib.txt");
+  return run_file("sample/closure.txt");
 }

@@ -1,5 +1,6 @@
 #include "include/debug.h"
 #include "include/instruction.h"
+#include "include/obj.h"
 #include "include/value.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -99,12 +100,27 @@ int dissm_ins(Instruction *ins, int offset) {
     return jmp_ins("OP_JMP_IF_FALSE", 1, ins, offset);
   case OP_LOOP:
     return jmp_ins("OP_LOOP", -1, ins, offset);
+  case OP_GET_UP:
+    return bt_ins("OP_GET_UP", ins, offset);
+  case OP_SET_UP:
+    return bt_ins("OP_SET_UP", ins, offset);
+  case OP_CLS_UP:
+    return simple_ins("OP_CLS_UPV", offset);
   case OP_CLOSURE:
     offset++;
     uint8_t con = ins->code[offset++];
     wprintf(L"%-16s %4d", "OP_CLOSURE", con);
     print_val(ins->consts.values[con]);
     wprintf(L"\n");
+
+    ObjFunc *func = get_as_func(ins->consts.values[con]);
+    for (int x = 0; x < func->up_count; x++) {
+      int is_local = ins->code[offset++];
+      int index = ins->code[offset++];
+      wprintf(L"%04d  |   -> %s %d\n", offset - 2,
+              is_local ? "local" : "upvalue", index);
+    }
+
     return offset;
   default:
     printf("Unknown op %d\n", is);

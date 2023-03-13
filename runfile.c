@@ -45,8 +45,8 @@ int run_file(const char *filepath) {
   wchar_t *src = (wchar_t *)malloc(sizeof(wchar_t) * raw.size);
   // wprintf(L"sizes: wchar_t -> %d | char -> %d\n" , sizeof(wchar_t) ,
   setlocale(LC_CTYPE, "");
-  mbstowcs(src, raw.source, raw.size);
-  free(raw.source);
+  mbstowcs(src, raw.source, raw.size + 1);
+
   boot_vm();
 
   // wprintf(L"SOURCE_W -> %ls", src);
@@ -71,6 +71,9 @@ int run_file(const char *filepath) {
 
   // free(src);
   free_vm();
+
   free(src);
+
+  free(raw.source);
   return errcode;
 }

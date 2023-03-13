@@ -28,6 +28,10 @@ typedef struct {
   Obj *objs;
   CallFrame frames[FRAME_SIZE];
   int frame_count;
+  ObjUpVal *open_upvs;
+  int gray_count;
+  int gray_cap;
+  Obj **gray_stack;
 } Vm;
 
 typedef enum {
@@ -48,5 +52,7 @@ bool call_val(Value calle, int argc);
 bool call(ObjClosure *closure, int argc);
 void define_native(wchar_t *name, NativeFn func);
 Value clock_ntv_fn(int argc, Value *args);
+ObjUpVal *capture_upv(Value *local);
+void close_upval(Value *last);
 
 #endif

@@ -1,6 +1,7 @@
 #include "include/compiler.h"
 #include "include/common.h"
 #include "include/instruction.h"
+#include "include/mem.h"
 #include "include/obj.h"
 #include "include/value.h"
 
@@ -282,6 +283,11 @@ void build_func(FuncType type) {
   read_block();
   ObjFunc *fn = end_compiler();
   emit_two(OP_CLOSURE, make_const(make_obj_val(fn)));
+
+  for (int i = 0; i < fn->up_count; i++) {
+    emit_bt(new_compiler.upvs[i].is_local ? 1 : 0);
+    emit_bt(new_compiler.upvs[i].index);
+  }
 }
 
 uint8_t parse_var(wchar_t *errmsg) {
@@ -300,8 +306,15 @@ int resolve_upval(Compiler *compiler, Token *name) {
 
   int local = resolve_local(compiler->enclosing, name);
   if (local != -1) {
+    compiler->enclosing->locals[local].is_captd = true;
     return add_upval(compiler, (uint8_t)local, true);
   }
+
+  int upv = resolve_upval(compiler->enclosing, name);
+  if (upv != -1) {
+    return add_upval(compiler, (uint8_t)upv, false);
+  }
+
   return -1;
 }
 
@@ -376,6 +389,7 @@ void add_local(Token name) {
   Local *local = &current->locals[current->local_count++];
   local->name = name;
   local->depth = -1;
+  local->is_captd = false;
   local->depth = current->scope_depth;
 }
 
@@ -639,7 +653,11 @@ void end_scope() {
   while (current->local_count > 0 &&
          current->locals[current->local_count - 1].depth >
              current->scope_depth) {
-    emit_bt(OP_POP);
+    if (current->locals[current->local_count - 1].is_captd) {
+      emit_bt(OP_CLS_UP);
+    } else {
+      emit_bt(OP_POP);
+    }
     current->local_count--;
   }
 }
@@ -726,4 +744,12 @@ ObjFunc *compile(wchar_t *source) {
   // eat_tok(T_EOF, L"Expected end of expr");
   ObjFunc *fn = end_compiler();
   return parser.had_err ? NULL : fn;
+}
+
+void mark_compiler_roots() {
+  Compiler *compiler = current;
+  while (compiler != NULL) {
+    mark_obj((Obj *)compiler->func);
+    compiler = compiler->enclosing;
+  }
 }

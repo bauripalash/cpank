@@ -31,7 +31,9 @@ static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
   for (;;) {
     Entry *entry = &entries[index];
 
-//       wprintf(L"->L-> %.*ls R-> %.ls" , entry->key->len ,get_string_from_objs(entry->key), key->len , get_string_from_objs(key));
+    //       wprintf(L"->L-> %.*ls R-> %.ls" , entry->key->len
+    //       ,get_string_from_objs(entry->key), key->len ,
+    //       get_string_from_objs(key));
     //    print_val(entry->val);
     // debug_entry(entry);
     if (entry->key == NULL) {
@@ -42,19 +44,18 @@ static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
           tombstone = entry;
         }
       }
-    } else if ( entry->key->len == key->len ){
-    //} else if ((entry->key->len == key->len) && ( wmemcmp(entry->key->chars ,key->chars , entry->key->len))) {
+    } else if (entry->key->len == key->len) {
+      //} else if ((entry->key->len == key->len) && ( wmemcmp(entry->key->chars
+      //,key->chars , entry->key->len))) {
       if (wcscmp(entry->key->chars, key->chars) == 0) {
-      
-      return entry;
+
+        return entry;
       }
-  } 
+    }
 
     index = (index + 1) % (cap - 1);
   }
 }
-
-
 
 static void adjust_cap(Htable *table, int cap) {
   Entry *entries = ALLOC(Entry, cap);
@@ -179,5 +180,13 @@ ObjString *table_find_str(Htable *table, wchar_t *chars, int len,
     }
 
     index = (index + 1) % table->cap;
+  }
+}
+
+void mark_table(Htable *table) {
+  for (int i = 0; i < table->cap; i++) {
+    Entry *entry = &table->entries[i];
+    mark_obj((Obj *)entry->key);
+    mark_val(entry->val);
   }
 }

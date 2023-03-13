@@ -1,0 +1,38 @@
+fun outer(){
+	let x = "outside";
+	fun inner(){
+		show x;
+	}
+
+	inner();
+}
+
+outer();
+
+
+let gone;
+let gtwo;
+
+fun main(){
+	{
+		let a = "one";
+		fun onee(){
+			show a;
+		}
+		gone = onee;
+	}
+
+	{
+
+		let a = "two";
+		fun two(){
+			show a;
+		}
+
+		gtwo = two;
+	}
+}
+
+main();
+gone();
+gtwo();

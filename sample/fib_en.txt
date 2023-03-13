@@ -1,5 +1,5 @@
 fun fib(n){
-	if ( n < 2) then 
+	if ( n < 2) then
 		return n;
 	end
 
@@ -7,5 +7,5 @@ fun fib(n){
 }
 
 let start = clock();
-show fib(20);
+show fib(10);
 show clock() - start;

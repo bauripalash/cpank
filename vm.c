@@ -23,12 +23,18 @@ Value last_pop;
 void reset_stack() {
   vm.stack_top = vm.stack;
   vm.frame_count = 0;
+  vm.open_upvs = NULL;
 }
 
 void boot_vm() {
   reset_stack();
   vm.objs = NULL;
   last_pop = make_nil();
+
+  vm.gray_cap = 0;
+  vm.gray_count = 0;
+  vm.gray_stack = NULL;
+
   init_table(&vm.strings);
   init_table(&vm.globals);
   define_native(L"clock", clock_ntv_fn);
@@ -200,6 +206,7 @@ IResult run_vm() {
     switch (ins = read_bt()) {
     case OP_RETURN: {
       Value res = pop();
+      close_upval(frame->slots);
       vm.frame_count--;
       if (vm.frame_count == 0) {
         pop();
@@ -352,6 +359,31 @@ IResult run_vm() {
       ObjFunc *func = get_as_func(read_const());
       ObjClosure *cls = new_closure(func);
       push(make_obj_val(cls));
+      for (int i = 0; i < cls->upv_count; i++) {
+        uint16_t is_local = read_bt();
+        uint8_t index = read_bt();
+        if (is_local) {
+          cls->upv[i] = capture_upv(frame->slots + index);
+          // capture
+        } else {
+          cls->upv[i] = frame->closure->upv[index];
+        }
+      }
+      break;
+    }
+    case OP_GET_UP: {
+      uint8_t slot = read_bt();
+      push(*frame->closure->upv[slot]->location);
+      break;
+    }
+    case OP_SET_UP: {
+      uint8_t slot = read_bt();
+      *frame->closure->upv[slot]->location = peek_vm(0);
+      break;
+    }
+    case OP_CLS_UP: {
+      close_upval(vm.stack_top - 1);
+      pop();
       break;
     }
     case OP_CALL: {
@@ -368,12 +400,43 @@ IResult run_vm() {
   return INTRP_RUNTIME_ERR;
 }
 
+void close_upval(Value *last) {
+  while (vm.open_upvs != NULL && vm.open_upvs->location >= last) {
+    ObjUpVal *upval = vm.open_upvs;
+    upval->closed = *upval->location;
+    upval->location = &upval->closed;
+    vm.open_upvs = upval->next;
+  }
+}
+
 void define_native(wchar_t *name, NativeFn func) {
   push(make_obj_val(copy_string(name, (int)wcslen(name))));
   push(make_obj_val(new_native(func)));
   table_set(&vm.globals, get_as_string(vm.stack[0]), vm.stack[1]);
   pop();
   pop();
+}
+
+ObjUpVal *capture_upv(Value *local) {
+  ObjUpVal *prev = NULL;
+  ObjUpVal *upv = vm.open_upvs;
+  while (upv != NULL && upv->location > local) {
+    prev = upv;
+    upv = upv->next;
+  }
+
+  if (upv != NULL && upv->location == local) {
+    return upv;
+    ;
+  }
+  ObjUpVal *new_upv = new_up_val(local);
+  new_upv->next = upv;
+  if (prev == NULL) {
+    vm.open_upvs = new_upv;
+  } else {
+    prev->next = new_upv;
+  }
+  return new_upv;
 }
 
 Value clock_ntv_fn(int argc, Value *args) {

@@ -33,6 +33,7 @@ typedef enum {
 typedef struct {
   Token name;
   int depth;
+  bool is_captd;
 } Local;
 
 typedef struct {
@@ -102,4 +103,5 @@ void return_stmt();
 int resolve_upval(Compiler *compiler, Token *name);
 int add_upval(Compiler *compiler, uint8_t index, bool is_local);
 ObjFunc *end_compiler();
+void mark_compiler_roots();
 #endif

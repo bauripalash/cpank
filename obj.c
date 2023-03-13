@@ -1,4 +1,5 @@
 #include "include/obj.h"
+#include "include/common.h"
 #include "include/instruction.h"
 #include "include/mem.h"
 #include "include/value.h"
@@ -15,8 +16,20 @@ Obj *alloc_obj(size_t size, ObjType type) {
   Obj *obj = (Obj *)rallc(NULL, 0, size);
   obj->type = type;
   obj->next = vm.objs;
+  obj->is_marked = false;
   vm.objs = obj;
+#ifdef DEBUG_LOG_GC
+  wprintf(L"%p allocate %zu for %d\n", (void *)obj, size, type);
+#endif
   return obj;
+}
+
+ObjUpVal *new_up_val(Value *val) {
+  ObjUpVal *upv = ALLOCATE_OBJ(ObjUpVal, OBJ_UPVAL);
+  upv->location = val;
+  upv->next = NULL;
+  upv->closed = make_nil();
+  return upv;
 }
 
 ObjType get_obj_type(Value val) { return get_as_obj(val)->type; }
@@ -36,8 +49,6 @@ wchar_t *get_as_native_string(Value val) {
   ObjString *os = (ObjString *)(o);
   return os->chars;
 }
-
-
 
 NativeFn get_as_native(Value val) {
   return ((ObjNative *)get_as_obj(val))->func;
@@ -108,6 +119,9 @@ void print_obj(Value val) {
   case OBJ_CLOUSRE:
     print_function(get_as_closure(val)->func);
     break;
+  case OBJ_UPVAL:
+    wprintf(L"upval");
+    break;
   }
 }
 
@@ -127,7 +141,13 @@ ObjNative *new_native(NativeFn fn) {
 }
 
 ObjClosure *new_closure(ObjFunc *func) {
+  ObjUpVal **upvs = ALLOC(ObjUpVal *, func->up_count);
+  for (int i = 0; i < func->up_count; i++) {
+    upvs[i] = NULL;
+  }
   ObjClosure *cls = ALLOCATE_OBJ(ObjClosure, OBJ_CLOUSRE);
   cls->func = func;
+  cls->upv = upvs;
+  cls->upv_count = func->up_count;
   return cls;
 }

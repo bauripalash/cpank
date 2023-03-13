@@ -2,6 +2,7 @@
 #define cpank_mem_h
 
 #include "common.h"
+#include "value.h"
 
 #define ALLOC(type, count) (type *)rallc(NULL, 0, sizeof(type) * (count))
 
@@ -14,6 +15,9 @@
 #define FREE(type, ptr) rallc(ptr, sizeof(type), 0)
 
 void *rallc(void *ptr, size_t osize, size_t nsize);
+void collect_garbage();
 void free_objs();
+void mark_val(Value val);
+void mark_obj(Obj *obj);
 
 #endif

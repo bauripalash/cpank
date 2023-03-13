@@ -9,7 +9,22 @@
 
 #include "include/bn.h"
 #include "include/lexer.h"
-#include "include/token.h"
+// #include "include/token.h"
+
+static wchar_t BN_KW_LET[] = L"ধরি";
+static wchar_t BN_KW_SHOW[] = L"দেখাও";
+static wchar_t BN_KW_RETURN[] = L"ফেরাও";
+static wchar_t BN_KW_AND[] = L"এবং";
+static wchar_t BN_KW_OR[] = L"বা";
+static wchar_t BN_KW_IF[] = L"যদি";
+static wchar_t BN_KW_THEN[] = L"তাহলে";
+static wchar_t BN_KW_ELSE[] = L"নাহলে";
+static wchar_t BN_KW_END[] = L"শেষ";
+static wchar_t BN_KW_WHILE[] = L"যতক্ষণ";
+static wchar_t BN_KW_TRUE[] = L"সত্যি";
+static wchar_t BN_KW_FALSE[] = L"মিথ্যা";
+static wchar_t BN_KW_NIL[] = L"শূন্য";
+static wchar_t BN_KW_FUNC[] = L"কাজ";
 
 const char *toktype_to_string(TokType t) {
   switch (t) {
@@ -215,8 +230,8 @@ TokType get_ident_tok_type(wchar_t *input, int len) {
   } else if (wcscmp(tc, L"false") == 0 || wcscmp(tc, L"mittha") == 0 ||
              wcscmp(tc, BN_KW_FALSE) == 0) {
     tt = T_FALSE;
-  } else if (wcscmp(tc, L"fun") == 0 || wcscmp(tc, L"kaj") == 0)
-  /*wcscmp(tc, BN_KW_FALSE) == 0 <------ TODO */ {
+  } else if (wcscmp(tc, L"fun") == 0 || wcscmp(tc, L"kaj") == 0 ||
+             wcscmp(tc, BN_KW_FUNC) == 0) {
     tt = T_FUNC;
   } else if (wcscmp(tc, L"nil") == 0 || wcscmp(tc, L"nil") == 0 ||
              wcscmp(tc, BN_KW_NIL) == 0) {

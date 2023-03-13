@@ -26,5 +26,6 @@ ObjString *table_find_str(Htable *table, wchar_t *chars, int len,
                           uint32_t hash);
 
 void print_table(Htable *table, char *name);
+void mark_table(Htable *table);
 
 #endif
