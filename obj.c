@@ -37,6 +37,8 @@ wchar_t *get_as_native_string(Value val) {
   return os->chars;
 }
 
+
+
 NativeFn get_as_native(Value val) {
   return ((ObjNative *)get_as_obj(val))->func;
 }

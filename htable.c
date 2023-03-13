@@ -30,6 +30,8 @@ static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
   Entry *tombstone = NULL;
   for (;;) {
     Entry *entry = &entries[index];
+
+//       wprintf(L"->L-> %.*ls R-> %.ls" , entry->key->len ,get_string_from_objs(entry->key), key->len , get_string_from_objs(key));
     //    print_val(entry->val);
     // debug_entry(entry);
     if (entry->key == NULL) {
@@ -40,14 +42,19 @@ static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
           tombstone = entry;
         }
       }
-    } else if (wmemcmp(entry->key->chars, key->chars, key->len) == 0) {
-
+    } else if ( entry->key->len == key->len ){
+    //} else if ((entry->key->len == key->len) && ( wmemcmp(entry->key->chars ,key->chars , entry->key->len))) {
+      if (wcscmp(entry->key->chars, key->chars) == 0) {
+      
       return entry;
-    }
+      }
+  } 
 
     index = (index + 1) % (cap - 1);
   }
 }
+
+
 
 static void adjust_cap(Htable *table, int cap) {
   Entry *entries = ALLOC(Entry, cap);
@@ -166,7 +173,7 @@ ObjString *table_find_str(Htable *table, wchar_t *chars, int len,
         return NULL;
       }
     } else if (entry->key->len == len && entry->key->hash == hash &&
-               wmemcpy(entry->key->chars, chars, len) == 0) {
+               wcscmp(entry->key->chars, chars) == 0) {
 
       return entry->key;
     }
