@@ -143,6 +143,28 @@ void trace_refs() {
   }
 }
 
+void sweep() {
+  Obj *prev = NULL;
+  Obj *obj = vm.objs;
+  while (obj != NULL) {
+    if (obj->is_marked) {
+      obj->is_marked = false;
+      prev = obj;
+      obj = obj->next;
+    } else {
+      Obj *unreached = obj;
+      obj = obj->next;
+      if (prev != NULL) {
+        prev->next = obj;
+      } else {
+        vm.objs = obj;
+      }
+
+      free_single_obj(unreached);
+    }
+  }
+}
+
 void mark_val(Value val) {
   if (is_obj(val)) {
     mark_obj(get_as_obj(val));
@@ -183,6 +205,7 @@ void collect_garbage() {
 
   mark_roots();
   trace_refs();
+  sweep();
 
 #ifdef DEBUG_LOG_GC
   wprintf(L"-- gc end\n");
