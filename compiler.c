@@ -390,7 +390,7 @@ void add_local(Token name) {
   local->name = name;
   local->depth = -1;
   local->is_captd = false;
-  local->depth = current->scope_depth;
+  //local->depth = current->scope_depth;
 }
 
 void read_var(bool can_assign) { named_var(parser.prev, can_assign); }

@@ -15,6 +15,8 @@
 
 // #define  DEBUG_LOG_GC
 
+//#define NOGC
+
 #ifdef DEBUG_LOG_GC
 #include "include/debug.h"
 #endif
@@ -25,7 +27,7 @@ void *rallc(void *ptr, size_t os, size_t ns) {
   vm.bts_allocated += ns - os;
   if (ns > os) {
 #ifdef DEBUG_STRES_GC
-    collect_garbage();
+    //collect_garbage();
 #endif
     if (vm.bts_allocated > vm.next_gc) {
       collect_garbage();
@@ -82,9 +84,9 @@ void free_single_obj(Obj *obj) {
 void free_objs() {
   Obj *object = vm.objs;
   while (object != NULL) {
-    Obj *next = object->next;
+    Obj *next_obj = object->next;
     free_single_obj(object);
-    object = next;
+    object = next_obj;
   }
 
   free(vm.gray_stack);
@@ -237,7 +239,7 @@ void mark_obj(Obj *obj) {
 
   obj->is_marked = true;
   if (vm.gray_cap < vm.gray_count + 1) {
-    wprintf(L"++ growing gstack cap \n");
+    //wprintf(L"++ growing gstack cap \n");
     vm.gray_cap = GROW_CAP(vm.gray_cap);
     vm.gray_stack = (Obj **)realloc(vm.gray_stack, sizeof(Obj *) * vm.gray_cap);
     if (vm.gray_stack == NULL) {
@@ -249,6 +251,7 @@ void mark_obj(Obj *obj) {
 }
 
 void collect_garbage() {
+#ifndef NOGC
   setlocale(LC_CTYPE, "");
 #ifdef DEBUG_LOG_GC
   wprintf(L"-- gc start\n");
@@ -274,5 +277,6 @@ void collect_garbage() {
   wprintf(L"-- gc end\n");
   wprintf(L"  collected %zu bytes (from %zu to %zu) next at %zu",
           before - vm.bts_allocated, before, vm.bts_allocated, vm.next_gc);
+#endif
 #endif
 }

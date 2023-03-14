@@ -82,6 +82,8 @@ wchar_t *get_obj_type_as_string(ObjType o) {
   case OBJ_NATIVE:
     return L"OBJ_NATIVE";
   }
+
+  return L"OBJ_UNKNOWN";
 }
 
 static uint32_t get_hash(const wchar_t *key, int len) {

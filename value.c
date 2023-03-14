@@ -40,7 +40,7 @@ void free_valarr(Valarr *array) {
 }
 
 void print_val(Value val) {
-  // print_val_type(val.type);
+//  print_val_type(val.type);
   switch (val.type) {
   case V_NUM:
     wprintf(L"%g", get_as_number(val));

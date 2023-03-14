@@ -34,6 +34,7 @@ typedef struct {
   Obj **gray_stack;
   size_t bts_allocated;
   size_t next_gc;
+  Value last_pop;
 } Vm;
 
 typedef enum {

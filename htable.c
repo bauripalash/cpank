@@ -11,7 +11,7 @@
 void debug_entry(Entry *entry) {
   wprintf(L"ENTRY[ K(%ls); V(", entry->key->chars);
   print_val(entry->val);
-  wprintf(L"); H(%d)\n", entry->key->hash);
+  wprintf(L"); H(%u)\n", entry->key->hash);
 }
 
 void init_table(Htable *table) {
@@ -26,7 +26,7 @@ void free_table(Htable *table) {
 }
 
 static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
-  uint32_t index = key->hash % (cap - 1);
+  uint32_t index = key->hash & (cap - 1);
   Entry *tombstone = NULL;
   for (;;) {
     Entry *entry = &entries[index];
@@ -53,7 +53,7 @@ static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
       }
     }
 
-    index = (index + 1) % (cap - 1);
+    index = (index + 1) & (cap - 1);
   }
 }
 
@@ -165,7 +165,7 @@ ObjString *table_find_str(Htable *table, wchar_t *chars, int len,
     return NULL;
   }
 
-  uint32_t index = hash % table->cap;
+  uint32_t index = hash & (table->cap - 1);
 
   for (;;) {
     Entry *entry = &table->entries[index];
@@ -179,7 +179,7 @@ ObjString *table_find_str(Htable *table, wchar_t *chars, int len,
       return entry->key;
     }
 
-    index = (index + 1) % table->cap;
+    index = (index + 1) & (table->cap - 1);
   }
 }
 

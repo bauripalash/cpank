@@ -12,13 +12,13 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <wchar.h>
 
 #include "include/vm.h"
 
 Vm vm;
-Value last_pop;
 
 void reset_stack() {
   vm.stack_top = vm.stack;
@@ -29,7 +29,10 @@ void reset_stack() {
 void boot_vm() {
   reset_stack();
   vm.objs = NULL;
-  last_pop = make_nil();
+  //last_pop = make_nil();
+  //vm.last_pop = make_nil();
+  //v//m.last_pop = (Value*)malloc(sizeof(Value));
+  vm.last_pop = make_nil();
 
   vm.bts_allocated = 0;
   vm.next_gc = 1024 * 1024;
@@ -43,13 +46,14 @@ void boot_vm() {
 }
 
 void free_vm() {
-  last_pop = make_nil();
+  //free(vm.last_pop);
+  //vm.last_pop = make_nil();
   free_table(&vm.strings);
   free_table(&vm.globals);
   free_objs();
 }
 
-Value get_last_pop() { return last_pop; }
+Value get_last_pop() { return vm.last_pop; }
 
 void push(Value value) {
   *vm.stack_top = value;
@@ -58,7 +62,10 @@ void push(Value value) {
 
 Value pop() {
   vm.stack_top--;
-  last_pop = *vm.stack_top;
+  //vm.last_pop = *vm.stack_top;
+  
+  
+  //print_val_type(last_pop.type);
   return *vm.stack_top;
 }
 
@@ -295,7 +302,12 @@ IResult run_vm() {
       break;
     case OP_SHOW:
       wprintf(L"p~ ");
-      print_val(pop());
+
+      Value to_show = pop();
+
+      //memcpy(vm.last_pop, to_show, sizeof(Value));
+      vm.last_pop = to_show;
+      print_val(to_show);
       wprintf(L"\n");
       break;
     case OP_DEF_GLOB: {

@@ -39,8 +39,16 @@ memcheck: build_uo
 perf:
 	@echo "Building optimized with -g"
 	$(CC) -O3 $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g -pg
-	perf record -g -F 999 ./cpank
+	@echo "Running Perf"
+	perf record -g -F 999 $(OUTPUT)
 	perf script -F +pid > cpank.perf
+
+prof:
+	@echo "Building optimized with -g"
+	$(CC) -O3 $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g -pg
+	@echo "Running gprof"
+	gprof $(OUTPUT) > cpank.gmon.txt
+
 
 
 clean:
