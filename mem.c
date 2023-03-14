@@ -6,22 +6,30 @@
 #include "include/value.h"
 #include <locale.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
 
 #include "include/vm.h"
 
+// #define  DEBUG_LOG_GC
+
 #ifdef DEBUG_LOG_GC
 #include "include/debug.h"
 #endif
 
-void *rallc(void *ptr, size_t os, size_t ns) {
+#define GC_HEAD_GROW_FACT 2
 
+void *rallc(void *ptr, size_t os, size_t ns) {
+  vm.bts_allocated += ns - os;
   if (ns > os) {
 #ifdef DEBUG_STRES_GC
-    // collect_garbage();
+    collect_garbage();
 #endif
+    if (vm.bts_allocated > vm.next_gc) {
+      collect_garbage();
+    }
   }
 
   if (ns == 0) {
@@ -91,12 +99,14 @@ void mark_array(Valarr *arr) {
 void blacken_obj(Obj *obj) {
 #ifdef DEBUG_LOG_GC
   setlocale(LC_CTYPE, "");
-  wprintf(L"%p blacken ", (void *)obj);
+  wprintf(L"%p blacken -> %ls", (void *)obj, get_obj_type_as_string(obj->type));
+
   print_val(make_obj_val(obj));
   wprintf(L"\n");
 #endif
   switch (obj->type) {
   case OBJ_NATIVE:
+    break;
   case OBJ_STR:
     break;
   case OBJ_UPVAL:
@@ -120,20 +130,52 @@ void blacken_obj(Obj *obj) {
 }
 
 void mark_roots() {
+#ifdef DEBUG_LOG_GCC
+  wprintf(L"marking stack slots -> \n");
+#endif
   for (Value *slot = vm.stack; slot < vm.stack_top; slot++) {
     mark_val(*slot);
   }
-
+#ifdef DEBUG_LOG_GCC
+  wprintf(L"finished marking slots -> \n");
+#endif
+#ifdef DEBUG_LOG_GCC
+  wprintf(L"marking roots - frame closures -> \n");
+#endif
   for (int i = 0; i < vm.frame_count; i++) {
     mark_obj((Obj *)vm.frames[i].closure);
   }
 
+#ifdef DEBUG_LOG_GCC
+  wprintf(L"finished marking frame closures -> \n");
+#endif
+
+#ifdef DEBUG_LOG_GCC
+  wprintf(L"gc marking open upvalues -> \n");
+#endif
   for (ObjUpVal *upv = vm.open_upvs; upv != NULL; upv = upv->next) {
     mark_obj((Obj *)upv);
   }
 
+#ifdef DEBUG_LOG_GCC
+  wprintf(L"finished marking open upvalues -> \n");
+#endif
+
+#ifdef DEBUG_LOG_GCC
+  wprintf(L"gc marking table -> gloals -> \n");
+#endif
+
   mark_table(&vm.globals);
+#ifdef DEBUG_LOG_GCC
+  wprintf(L"finished marking global table -> \n");
+#endif
+#ifdef DEBUG_LOG_GCC
+  wprintf(L"marking compiler roots -> \n");
+#endif
   mark_compiler_roots();
+#ifdef DEBUG_LOG_GCC
+  wprintf(L"finished marking compiler roots -> \n");
+#endif
 }
 
 void trace_refs() {
@@ -182,32 +224,55 @@ void mark_obj(Obj *obj) {
 
 #ifdef DEBUG_LOG_GC
   setlocale(LC_CTYPE, "");
-  wprintf(L"%p mark ", (void *)obj);
-  print_val(make_obj_val(obj));
+  wprintf(L"%p mark  -> ", (void *)obj);
+  //  Value v = make_obj_val(obj);
+
+  wprintf(L"%ls\n", get_obj_type_as_string(obj->type));
+  // ObjFunc * f = (ObjFunc *)obj;
+  // dissm_ins_chunk(&f->ins, L"debug");
+  // print_val(make_obj_val(obj));
+  // print_obj(make_obj_val(obj));
   wprintf(L"\n");
 #endif
 
   obj->is_marked = true;
   if (vm.gray_cap < vm.gray_count + 1) {
+    wprintf(L"++ growing gstack cap \n");
     vm.gray_cap = GROW_CAP(vm.gray_cap);
     vm.gray_stack = (Obj **)realloc(vm.gray_stack, sizeof(Obj *) * vm.gray_cap);
     if (vm.gray_stack == NULL) {
       exit(1);
     }
   }
+
+  vm.gray_stack[vm.gray_count++] = obj;
 }
 
 void collect_garbage() {
   setlocale(LC_CTYPE, "");
 #ifdef DEBUG_LOG_GC
   wprintf(L"-- gc start\n");
+  size_t before = vm.bts_allocated;
+#endif
+
+#ifdef DEBUG_LOG_GC
+  wprintf(L"gc marking roots -> \n");
 #endif
 
   mark_roots();
+
+#ifdef DEBUG_LOG_GC
+  wprintf(L"finished marking roots -> \n");
+#endif
   trace_refs();
+  table_remove_white(&vm.strings);
   sweep();
+
+  vm.next_gc = vm.bts_allocated * GC_HEAD_GROW_FACT;
 
 #ifdef DEBUG_LOG_GC
   wprintf(L"-- gc end\n");
+  wprintf(L"  collected %zu bytes (from %zu to %zu) next at %zu",
+          before - vm.bts_allocated, before, vm.bts_allocated, vm.next_gc);
 #endif
 }

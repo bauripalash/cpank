@@ -31,6 +31,8 @@ void boot_vm() {
   vm.objs = NULL;
   last_pop = make_nil();
 
+  vm.bts_allocated = 0;
+  vm.next_gc = 1024 * 1024;
   vm.gray_cap = 0;
   vm.gray_count = 0;
   vm.gray_stack = NULL;
@@ -100,8 +102,8 @@ Value read_const() {
 }
 ObjString *read_str_const() { return get_as_string(read_const()); }
 void add_string() {
-  ObjString *r = get_as_string(pop());
-  ObjString *l = get_as_string(pop());
+  ObjString *r = get_as_string(peek_vm(0));
+  ObjString *l = get_as_string(peek_vm(1));
 
   int newlen = l->len + r->len;
   wchar_t *newchars = ALLOC(wchar_t, newlen + 1);
@@ -109,6 +111,8 @@ void add_string() {
   wmemcpy(newchars + l->len, r->chars, r->len);
   newchars[newlen] = '\0';
   ObjString *new_obj = take_string(newchars, newlen);
+  pop();
+  pop();
   push(make_obj_val(new_obj));
 }
 

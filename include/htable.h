@@ -27,5 +27,6 @@ ObjString *table_find_str(Htable *table, wchar_t *chars, int len,
 
 void print_table(Htable *table, char *name);
 void mark_table(Htable *table);
+void table_remove_white(Htable *table);
 
 #endif

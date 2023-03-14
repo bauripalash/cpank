@@ -32,6 +32,8 @@ typedef struct {
   int gray_count;
   int gray_cap;
   Obj **gray_stack;
+  size_t bts_allocated;
+  size_t next_gc;
 } Vm;
 
 typedef enum {

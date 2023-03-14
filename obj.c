@@ -61,8 +61,27 @@ ObjString *allocate_str(wchar_t *chars, int len, uint32_t hash) {
   string->len = len;
   string->chars = chars;
   string->hash = hash;
+
+  push(make_obj_val(string));
+
   table_set(&vm.strings, string, make_nil());
+  pop();
   return string;
+}
+
+wchar_t *get_obj_type_as_string(ObjType o) {
+  switch (o) {
+  case OBJ_STR:
+    return L"OBJ_STR";
+  case OBJ_FUNC:
+    return L"OBJ_FUNC";
+  case OBJ_CLOUSRE:
+    return L"OBJ_CLOUSRE";
+  case OBJ_UPVAL:
+    return L"OBJ_UPVAL";
+  case OBJ_NATIVE:
+    return L"OBJ_NATIVE";
+  }
 }
 
 static uint32_t get_hash(const wchar_t *key, int len) {
@@ -109,16 +128,32 @@ void print_obj(Value val) {
   switch (get_obj_type(val)) {
   case OBJ_STR:
     wprintf(L"%ls", get_as_native_string(val));
+    // wprintf(L"str");
     break;
-  case OBJ_FUNC:
-    print_function(get_as_func(val));
+  case OBJ_FUNC: {
+    ObjFunc *f = get_as_func(val);
+
+    if (f != NULL && f->name != NULL) {
+
+      print_function(get_as_func(val));
+    } else {
+      wprintf(L"<fn <%p>>", f);
+    }
     break;
+  }
   case OBJ_NATIVE:
     wprintf(L"<native_fn>");
     break;
-  case OBJ_CLOUSRE:
-    print_function(get_as_closure(val)->func);
+  case OBJ_CLOUSRE: {
+    ObjClosure *cls = get_as_closure(val);
+    if (cls != NULL && cls->func != NULL && cls->func->name != NULL) {
+
+      print_function(cls->func);
+    } else {
+      wprintf(L"<closure <%p>>", cls);
+    }
     break;
+  }
   case OBJ_UPVAL:
     wprintf(L"upval");
     break;

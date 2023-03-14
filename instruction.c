@@ -1,6 +1,7 @@
 #include "include/instruction.h"
 #include "include/mem.h"
 #include "include/value.h"
+#include "include/vm.h"
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -33,6 +34,8 @@ void write_ins(Instruction *ins, uint8_t bt, int lines) {
 }
 
 int add_const(Instruction *ins, Value val) {
+  push(val);
   write_valarr(&ins->consts, val);
+  pop();
   return ins->consts.len - 1;
 }

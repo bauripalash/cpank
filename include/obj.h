@@ -9,7 +9,7 @@
 #include <wchar.h>
 
 typedef enum {
-  OBJ_STR,
+  OBJ_STR = 0,
   OBJ_FUNC,
   OBJ_NATIVE,
   OBJ_CLOUSRE,
@@ -77,6 +77,7 @@ NativeFn get_as_native(Value val);
 ObjString *copy_string(wchar_t *chars, int len);
 ObjString *take_string(wchar_t *chars, int len);
 void print_obj(Value val);
+wchar_t *get_obj_type_as_string(ObjType o);
 
 /*
 #define get_as_native(value) \

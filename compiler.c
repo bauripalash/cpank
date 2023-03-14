@@ -749,7 +749,18 @@ ObjFunc *compile(wchar_t *source) {
 void mark_compiler_roots() {
   Compiler *compiler = current;
   while (compiler != NULL) {
+#ifdef DEBUG_LOG_GC
+
+    wprintf(L">>>>marking compiler function<<<<<\n");
+
+#endif
     mark_obj((Obj *)compiler->func);
+
+#ifdef DEBUG_LOG_GC
+
+    wprintf(L">>>>finished marking compiler function<<<<<\n");
+
+#endif
     compiler = compiler->enclosing;
   }
 }

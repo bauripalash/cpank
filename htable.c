@@ -190,3 +190,12 @@ void mark_table(Htable *table) {
     mark_val(entry->val);
   }
 }
+
+void table_remove_white(Htable *table) {
+  for (int i = 0; i < table->cap; i++) {
+    Entry *entry = &table->entries[i];
+    if (entry->key != NULL && !entry->key->obj.is_marked) {
+      table_del(table, entry->key);
+    }
+  }
+}
