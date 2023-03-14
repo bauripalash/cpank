@@ -6,8 +6,7 @@
 #include <stdio.h>
 #include <wchar.h>
 
-
-//disassemble instructions set
+// disassemble instructions set
 void dissm_ins_chunk(Instruction *ins, const wchar_t *name) {
   wprintf(L"----> %ls <----\n", name);
 
@@ -32,7 +31,7 @@ int simple_ins(const char *name, int offset) {
   return offset + 1;
 }
 
-// debug set/get type instructions 
+// debug set/get type instructions
 // OP_GET_LOCAL , OP_SET_LOCAL
 int bt_ins(const char *name, Instruction *ins, int offset) {
   uint8_t slot = ins->code[offset + 1];
@@ -51,7 +50,7 @@ int jmp_ins(const char *name, int sign, Instruction *ins, int offset) {
   return offset + 3;
 }
 
-//disassemble single instruction
+// disassemble single instruction
 int dissm_ins(Instruction *ins, int offset) {
   wprintf(L"%04d ", offset);
   if (offset > 0 && ins->lines[offset] == ins->lines[offset - 1]) {
@@ -126,7 +125,7 @@ int dissm_ins(Instruction *ins, int offset) {
 
     ObjFunc *func = get_as_func(ins->consts.values[con]);
 
-    // read up values after closure declaration 
+    // read up values after closure declaration
     for (int x = 0; x < func->up_count; x++) {
       int is_local = ins->code[offset++];
       int index = ins->code[offset++];

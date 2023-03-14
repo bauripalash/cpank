@@ -29,9 +29,9 @@ void reset_stack() {
 void boot_vm() {
   reset_stack();
   vm.objs = NULL;
-  //last_pop = make_nil();
-  //vm.last_pop = make_nil();
-  //v//m.last_pop = (Value*)malloc(sizeof(Value));
+  // last_pop = make_nil();
+  // vm.last_pop = make_nil();
+  // v//m.last_pop = (Value*)malloc(sizeof(Value));
   vm.last_pop = make_nil();
 
   vm.bts_allocated = 0;
@@ -46,8 +46,8 @@ void boot_vm() {
 }
 
 void free_vm() {
-  //free(vm.last_pop);
-  //vm.last_pop = make_nil();
+  // free(vm.last_pop);
+  // vm.last_pop = make_nil();
   free_table(&vm.strings);
   free_table(&vm.globals);
   free_objs();
@@ -62,10 +62,9 @@ void push(Value value) {
 
 Value pop() {
   vm.stack_top--;
-  //vm.last_pop = *vm.stack_top;
-  
-  
-  //print_val_type(last_pop.type);
+  // vm.last_pop = *vm.stack_top;
+
+  // print_val_type(last_pop.type);
   return *vm.stack_top;
 }
 
@@ -305,7 +304,7 @@ IResult run_vm() {
 
       Value to_show = pop();
 
-      //memcpy(vm.last_pop, to_show, sizeof(Value));
+      // memcpy(vm.last_pop, to_show, sizeof(Value));
       vm.last_pop = to_show;
       print_val(to_show);
       wprintf(L"\n");

@@ -19,16 +19,16 @@ Value fetch_last_pop(wchar_t *src) {
   interpret(src);
 
   Value result = get_last_pop();
-  //free_vm();
+  // free_vm();
   return result;
 }
 
 bool test_vm(const char *test_name, wchar_t *src, Value expected) {
   Value got = fetch_last_pop(src);
 
-  //print_val_type(vm.stack_top->type);
-  //print_val(*got);
-  //wprintf(L"---> %ls" ,get_obj_type_as_string(get_as_obj(*got)->type));
+  // print_val_type(vm.stack_top->type);
+  // print_val(*got);
+  // wprintf(L"---> %ls" ,get_obj_type_as_string(get_as_obj(*got)->type));
 
   bool result = is_equal(got, expected);
 
@@ -39,7 +39,7 @@ bool test_vm(const char *test_name, wchar_t *src, Value expected) {
     wprintf(L"\nGot : ");
     print_val(got);
 
-    //wprintf(L"-> %d" , got.type );
+    // wprintf(L"-> %d" , got.type );
     wprintf(L"\n---------\n");
     return false;
   } else {

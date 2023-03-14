@@ -19,7 +19,6 @@
 
 Parser parser;
 Compiler *current = NULL;
-// Instruction *compins;
 
 void init_comiler(Compiler *compiler, FuncType type) {
   compiler->enclosing = current;
@@ -40,7 +39,10 @@ void init_comiler(Compiler *compiler, FuncType type) {
   local->name.length = 0;
 }
 
+// get instruction set from current compiler
 Instruction *cur_ins() { return &current->func->ins; }
+
+// helper function for err(..) and err_at_cur(..)
 void err_at(Token *tok, wchar_t *msg) {
   if (parser.panic_mode) {
 
@@ -62,8 +64,10 @@ void err_at(Token *tok, wchar_t *msg) {
   parser.had_err = true;
 }
 
+// Throw error for previous token
 void err(wchar_t *msg) { err_at(&parser.prev, msg); }
 
+// Throw error for current function
 void err_at_cur(wchar_t *msg) { err_at(&parser.cur, msg); }
 
 void advance() {
@@ -76,8 +80,6 @@ void advance() {
       err_at_cur(parser.cur.start);
     }
   }
-
-  // wprintf(L"CUR->%s\n" , toktype_to_string(parser.cur.type));
 }
 
 void sync_errors() {
@@ -102,6 +104,8 @@ void sync_errors() {
 }
 
 // eat current token;
+// Matches current token
+// if true advance else throw error
 void eat_tok(TokType tt, wchar_t *errmsg) {
   if (parser.cur.type == tt) {
     advance();
@@ -124,27 +128,24 @@ bool match_tok(TokType tt) {
   }
 }
 
-
 // emit bytecode
 void emit_bt(uint8_t bt) { write_ins(cur_ins(), bt, parser.prev.line); }
 
-
-// emit two bytecode or anything which is 
-// uint8_t 
+// emit two bytecode or anything which is
+// uint8_t
 void emit_two(uint8_t bt_1, uint8_t bt_2) {
   emit_bt(bt_1);
   emit_bt(bt_2);
 }
 
-// emit 'nil' opcode and 
+// emit 'nil' opcode and
 // then 'return' opcode
 void emit_return() {
   emit_bt(OP_NIL);
   emit_bt(OP_RETURN);
 }
 
-
-// add a constant to current instruction 
+// add a constant to current instruction
 // and return its index at constant array
 // of the instruction set
 uint8_t make_const(Value val) {
@@ -182,14 +183,14 @@ void parse_prec(Prec prec) {
   }
 }
 
-// parse numbers 
-// double 
+// parse numbers
+// double
 void read_number(bool can_assign) {
   double val = wcstod(parser.prev.start, NULL);
   emit_const(make_num(val));
 }
 
-// read strings 
+// read strings
 // "...."
 void read_string(bool can_assign) {
   Value v =
@@ -198,21 +199,21 @@ void read_string(bool can_assign) {
 }
 
 // read expression
-// alias for 
+// alias for
 // parse_prec(PREC_ASSIGN)
 void read_expr() { parse_prec(PREC_ASSIGN); }
 
-
 // read statement
-// 
+//
 // * Show/print statement
-// * If Else 
-// * While 
+// * If Else
+// * While
 // * Return statement
 // * Block statement {...}
 // * Expression statement
 //   example : 1 + 2 + 3;
 void read_stmt() {
+
   if (match_tok(T_SHOW)) {
     read_print_stmt();
   } else if (match_tok(T_IF)) {
@@ -230,25 +231,24 @@ void read_stmt() {
   }
 }
 
-// parse and compile 
+// parse and compile
 // return statements
 void return_stmt() {
-  
 
-  // top level script must not have 
+  // top level script must not have
   // return statement
   if (current->type == FTYPE_SCRIPT) {
-    err(L"cannot return from top-level code");
+    err(L"cannot return from top-level code/script");
   }
-  
+
   // if there is a semicolon just after
-  // 'return'; emit nil and return 
+  // 'return'; emit nil and return
   if (match_tok(T_SEMICOLON)) {
     emit_return();
   } else {
-  
+
     // if expression after return is present
-    // parse the expression and emit return 
+    // parse the expression and emit return
     read_expr();
     eat_tok(T_SEMICOLON, L"expected ';' after return value");
     emit_bt(OP_RETURN);
@@ -256,7 +256,7 @@ void return_stmt() {
 }
 
 // read expression statement
-// bare expressions without any 
+// bare expressions without any
 // statements or keywords
 // 1 + 2;
 void read_expr_stmt() {
@@ -433,7 +433,7 @@ void add_local(Token name) {
   local->name = name;
   local->depth = -1;
   local->is_captd = false;
-  //local->depth = current->scope_depth;
+  // local->depth = current->scope_depth;
 }
 
 void read_var(bool can_assign) { named_var(parser.prev, can_assign); }
@@ -668,8 +668,8 @@ void read_binary(bool can_assign) {
   }
 }
 
-// read and emit 
-// TRUE / FALSE / NIL 
+// read and emit
+// TRUE / FALSE / NIL
 void literal(bool can_assign) {
   switch (parser.prev.type) {
   case T_FALSE:

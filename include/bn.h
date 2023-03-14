@@ -13,17 +13,16 @@
 #define BN_NUM_EIGHT 0x09EE
 #define BN_NUM_NINE 0x09EF
 
-
-// Bengali unicode range start 
-// including numbers 
+// Bengali unicode range start
+// including numbers
 #define BN_RANGE_START 0x0980
-//end of bengali unicode range 
+// end of bengali unicode range
 #define BN_RANGE_END 0x09FE
 
-// check if `c` is a bengali numbers 
+// check if `c` is a bengali numbers
 // 0 to 9
 bool is_bn_num(wchar_t c);
 
-// check if `c` is a bengali char 
-// including numbers 
+// check if `c` is a bengali char
+// including numbers
 bool is_bn_char(wchar_t c);
