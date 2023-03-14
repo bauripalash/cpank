@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <wchar.h>
 
+
+//disassemble instructions set
 void dissm_ins_chunk(Instruction *ins, const wchar_t *name) {
   wprintf(L"----> %ls <----\n", name);
 
@@ -13,26 +15,34 @@ void dissm_ins_chunk(Instruction *ins, const wchar_t *name) {
     off = dissm_ins(ins, off);
   }
 }
+
+// debug constant instruction
 int const_ins(const char *name, Instruction *ins, int off) {
-  //
-  //	ins->code[off] => the offcode itself
   uint8_t con = ins->code[off + 1];
   wprintf(L"%-16s %4d '", name, con);
   print_val(ins->consts.values[con]);
   wprintf(L"'\n");
   return off + 2;
 }
+
+// debug instruction with no operands
+// such as OP_ADD , OP_SUB etc etc.
 int simple_ins(const char *name, int offset) {
   wprintf(L"%s\n", name);
   return offset + 1;
 }
 
+// debug set/get type instructions 
+// OP_GET_LOCAL , OP_SET_LOCAL
 int bt_ins(const char *name, Instruction *ins, int offset) {
   uint8_t slot = ins->code[offset + 1];
   wprintf(L"%-16s %4d\n", name, slot);
   return offset + 2;
 }
 
+// debug jump instructions
+// OP_JMP_IF_FALSE , OP_LOOP
+// OP_JMP
 int jmp_ins(const char *name, int sign, Instruction *ins, int offset) {
 
   uint16_t jmp = (uint16_t)(ins->code[offset + 1] << 8);
@@ -41,6 +51,7 @@ int jmp_ins(const char *name, int sign, Instruction *ins, int offset) {
   return offset + 3;
 }
 
+//disassemble single instruction
 int dissm_ins(Instruction *ins, int offset) {
   wprintf(L"%04d ", offset);
   if (offset > 0 && ins->lines[offset] == ins->lines[offset - 1]) {
@@ -114,6 +125,8 @@ int dissm_ins(Instruction *ins, int offset) {
     wprintf(L"\n");
 
     ObjFunc *func = get_as_func(ins->consts.values[con]);
+
+    // read up values after closure declaration 
     for (int x = 0; x < func->up_count; x++) {
       int is_local = ins->code[offset++];
       int index = ins->code[offset++];

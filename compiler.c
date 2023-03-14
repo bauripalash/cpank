@@ -124,18 +124,29 @@ bool match_tok(TokType tt) {
   }
 }
 
+
+// emit bytecode
 void emit_bt(uint8_t bt) { write_ins(cur_ins(), bt, parser.prev.line); }
 
+
+// emit two bytecode or anything which is 
+// uint8_t 
 void emit_two(uint8_t bt_1, uint8_t bt_2) {
   emit_bt(bt_1);
   emit_bt(bt_2);
 }
 
+// emit 'nil' opcode and 
+// then 'return' opcode
 void emit_return() {
   emit_bt(OP_NIL);
   emit_bt(OP_RETURN);
 }
 
+
+// add a constant to current instruction 
+// and return its index at constant array
+// of the instruction set
 uint8_t make_const(Value val) {
   int con = add_const(cur_ins(), val);
   if (con > UINT8_MAX) {
@@ -146,6 +157,8 @@ uint8_t make_const(Value val) {
   return (uint8_t)con;
 }
 
+// make a constant (uint8_t make_const(Value))
+// and emit const opcode
 void emit_const(Value value) { emit_two(OP_CONST, make_const(value)); }
 
 void parse_prec(Prec prec) {
@@ -169,20 +182,36 @@ void parse_prec(Prec prec) {
   }
 }
 
+// parse numbers 
+// double 
 void read_number(bool can_assign) {
-  // wprintf(L"NUMBER -> %ls\n" , parser.prev.start);
-  // double val = strtod(, NULL);
   double val = wcstod(parser.prev.start, NULL);
   emit_const(make_num(val));
 }
 
+// read strings 
+// "...."
 void read_string(bool can_assign) {
   Value v =
       make_obj_val(copy_string(parser.prev.start + 1, parser.prev.length - 2));
   emit_const(v);
 }
 
+// read expression
+// alias for 
+// parse_prec(PREC_ASSIGN)
 void read_expr() { parse_prec(PREC_ASSIGN); }
+
+
+// read statement
+// 
+// * Show/print statement
+// * If Else 
+// * While 
+// * Return statement
+// * Block statement {...}
+// * Expression statement
+//   example : 1 + 2 + 3;
 void read_stmt() {
   if (match_tok(T_SHOW)) {
     read_print_stmt();
@@ -201,24 +230,38 @@ void read_stmt() {
   }
 }
 
+// parse and compile 
+// return statements
 void return_stmt() {
+  
 
+  // top level script must not have 
+  // return statement
   if (current->type == FTYPE_SCRIPT) {
     err(L"cannot return from top-level code");
   }
-
+  
+  // if there is a semicolon just after
+  // 'return'; emit nil and return 
   if (match_tok(T_SEMICOLON)) {
     emit_return();
   } else {
+  
+    // if expression after return is present
+    // parse the expression and emit return 
     read_expr();
     eat_tok(T_SEMICOLON, L"expected ';' after return value");
     emit_bt(OP_RETURN);
   }
 }
 
+// read expression statement
+// bare expressions without any 
+// statements or keywords
+// 1 + 2;
 void read_expr_stmt() {
   read_expr();
-  eat_tok(T_SEMICOLON, L"Expected ';' after expression stmt");
+  eat_tok(T_SEMICOLON, L"Expected ';' after expression statement");
   emit_bt(OP_POP);
 }
 
@@ -582,6 +625,9 @@ void read_unary(bool can_assign) {
   }
 }
 
+// read binary operations
+// add , sub , multiply , divide
+// not eq (!=) , eqaul (==)
 void read_binary(bool can_assign) {
   TokType op = parser.prev.type;
   ParseRule *prule = get_parse_rule(op);
@@ -622,6 +668,8 @@ void read_binary(bool can_assign) {
   }
 }
 
+// read and emit 
+// TRUE / FALSE / NIL 
 void literal(bool can_assign) {
   switch (parser.prev.type) {
   case T_FALSE:
