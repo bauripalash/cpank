@@ -9,14 +9,14 @@
 #include <stdint.h>
 #include <wchar.h>
 
-typedef struct {
+typedef struct Parser {
   Token cur;
   Token prev;
   bool had_err;
   bool panic_mode;
 } Parser;
 
-typedef enum {
+typedef enum Prec {
   PREC_NONE,
   PREC_ASSIGN,
   PREC_OR,
@@ -30,18 +30,18 @@ typedef enum {
   PREC_DEFAULT,
 } Prec;
 
-typedef struct {
+typedef struct Local {
   Token name;
   int depth;
   bool is_captd;
 } Local;
 
-typedef struct {
+typedef struct Upval {
   uint8_t index;
   bool is_local;
 } Upval;
 
-typedef enum {
+typedef enum FuncType {
   FTYPE_FUNC,
   FTYPE_SCRIPT,
 } FuncType;
@@ -57,51 +57,8 @@ typedef struct Compiler {
 } Compiler;
 
 void init_comiler(Compiler *compiler, FuncType type);
-void start_scope();
-void end_scope();
-void read_block();
-void declare_var();
-void add_local(Token name);
-bool id_eq(Token *l, Token *r);
-int resolve_local(Compiler *compiler, Token *token);
-void mark_init();
-void read_if_stmt();
-int emit_jump(uint8_t ins);
-void patch_jump(int offset);
-void read_and(bool can_assign);
-void read_or(bool can_assign);
-void read_while_stmt();
-void emit_loop(int ls);
-void read_call(bool can_assign);
-uint8_t read_arg_list();
-typedef void (*ParseFn)(bool can_assign);
-
-typedef struct {
-  ParseFn prefix;
-  ParseFn infix;
-  Prec prec;
-} ParseRule;
-
-ParseRule *get_parse_rule(TokType tt);
 
 ObjFunc *compile(wchar_t *source);
-void read_expr();
-void read_stmt();
-void read_declr();
-bool match_tok(TokType tt);
-void read_print_stmt();
-void read_expr_stmt();
-uint8_t make_id_const(Token *name);
-uint8_t parse_var(wchar_t *errmsg);
-void let_declr();
-void funct_declr();
-void build_func(FuncType type);
-void define_var(uint8_t global);
-void read_var(bool can_assign);
-void named_var(Token name, bool can_assign);
-void return_stmt();
-int resolve_upval(Compiler *compiler, Token *name);
-int add_upval(Compiler *compiler, uint8_t index, bool is_local);
 ObjFunc *end_compiler();
 void mark_compiler_roots();
 #endif

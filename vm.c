@@ -185,6 +185,18 @@ bool bin_gt() {
   return true;
 }
 
+bool bin_gte() {
+  if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
+    runtime_err(L"Operands must be numbers for greater than equal operation");
+    return false;
+  }
+
+  double r = get_as_number(pop());
+  double l = get_as_number(pop());
+  push(make_bool(l >= r));
+  return true;
+}
+
 bool bin_lt() {
   if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
     runtime_err(L"Operands must be numbers for binary operation");
@@ -193,6 +205,17 @@ bool bin_lt() {
   double r = get_as_number(pop());
   double l = get_as_number(pop());
   push(make_bool(l < r));
+  return true;
+}
+
+bool bin_lte() {
+  if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
+    runtime_err(L"Operands must be numbers for less than equal operation");
+    return false;
+  }
+  double r = get_as_number(pop());
+  double l = get_as_number(pop());
+  push(make_bool(l <= r));
   return true;
 }
 
@@ -290,8 +313,21 @@ IResult run_vm() {
       }
       break;
     }
+    case OP_GTE: {
+      if (!bin_gte()) {
+        return INTRP_RUNTIME_ERR;
+      }
+      break;
+    }
     case OP_LT: {
       if (!bin_lt()) {
+        return INTRP_RUNTIME_ERR;
+      }
+      break;
+    }
+
+    case OP_LTE: {
+      if (!bin_lte()) {
         return INTRP_RUNTIME_ERR;
       }
       break;

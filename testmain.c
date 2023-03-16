@@ -56,6 +56,10 @@ int main() {
       tc("-1 + 1 - 1", L"show -1 + 1 - 1;", make_num(-1)),
       tc("100+200", L"show 100+200;", make_num(300)),
       tc("3.14+1.24", L"show 3.14+1.24;", make_num(4.38)),
+      tc("1>2", L"show 1>2;", make_bool(false)),
+      tc("1<2", L"show 1<2;", make_bool(true)),
+      tc("2<=2", L"show 2<=2;", make_bool(true)),
+      tc("2>=2", L"show 2>=2;", make_bool(true)),
 
   };
 
