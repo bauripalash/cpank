@@ -96,6 +96,8 @@ const char *toktype_to_string(TokType t) {
     return "T_FUNC";
   case T_BANG:
     return "T_BANG";
+  case T_IMPORT:
+    return "T_IMPORT";
   case T_NOTEQ:
     return "T_NOTEQ";
   case T_EOF:
@@ -188,7 +190,7 @@ Token mk_num_tok() {
 }
 
 TokType get_ident_tok_type(wchar_t *input, int len) {
-  TokType tt;
+  TokType tt = T_LET;
   wchar_t *tc = (wchar_t *)malloc(sizeof(wchar_t) * wcslen(input));
   swprintf(tc, (size_t)len + 1, input);
   // wprintf(L"TO_CHECK-> %ls\n" , tc);
@@ -236,6 +238,9 @@ TokType get_ident_tok_type(wchar_t *input, int len) {
   } else if (wcscmp(tc, L"nil") == 0 || wcscmp(tc, L"nil") == 0 ||
              wcscmp(tc, BN_KW_NIL) == 0) {
     tt = T_NIL;
+  } else if (wcscmp(tc, L"import") == 0) {
+    tt = T_IMPORT;
+
   } else {
     tt = T_ID;
   }

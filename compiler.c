@@ -5,6 +5,8 @@
 #include "include/obj.h"
 #include "include/value.h"
 
+#define DEBUG_PRINT_CODE
+
 #ifdef DEBUG_PRINT_CODE
 #include "include/debug.h"
 #endif
@@ -742,6 +744,12 @@ static void read_while_stmt() {
   emit_bt(OP_POP);
 }
 
+static void read_import_stmt() {
+  read_expr();
+  eat_tok(T_SEMICOLON, L"Expected semicolon after import file name");
+  emit_bt(OP_IMPORT_NONAME);
+}
+
 static void read_block() {
   while (!check_tok(T_RBRACE) && !check_tok(T_EOF)) {
     read_declr();
@@ -769,6 +777,8 @@ static void read_stmt() {
     read_while_stmt();
   } else if (match_tok(T_RETURN)) {
     return_stmt();
+  } else if (match_tok(T_IMPORT)) {
+    read_import_stmt();
   } else if (match_tok(T_LBRACE)) {
     start_scope();
     read_block();
@@ -818,6 +828,7 @@ ObjFunc *compile(wchar_t *source) {
   // advance();
   // eat_tok(T_EOF, L"Expected end of expr");
   ObjFunc *fn = end_compiler();
+
   return parser.had_err ? NULL : fn;
 }
 

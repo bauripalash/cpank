@@ -37,6 +37,7 @@ typedef enum {
   OP_GET_UP,
   OP_SET_UP,
   OP_CLS_UP,
+  OP_IMPORT_NONAME,
 
 } Op;
 

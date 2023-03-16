@@ -6,6 +6,7 @@
 #include "include/obj.h"
 #include "include/value.h"
 #include <locale.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -19,6 +20,8 @@
 #include "include/vm.h"
 
 Vm vm;
+
+// #define DEBUG_STACK
 
 void reset_stack() {
   vm.stack_top = vm.stack;
@@ -219,10 +222,70 @@ bool bin_lte() {
   return true;
 }
 
+void define_stdlib_fn(wchar_t *name, NativeFn func) {
+  // push(make_obj_val(copy_string(name, (int)wcslen(name))));
+  // push(;
+  Value k = make_obj_val(copy_string(name, (int)wcslen(name)));
+  Value fn = make_obj_val(new_native(func));
+#ifdef DEBUG_STACK
+  wprintf(L"------ STACK in Define native----\n");
+  for (Value *slt = vm.stack; slt < vm.stack_top; slt++) {
+    wprintf(L"[ ");
+    print_val(*slt);
+    wprintf(L" ]\n");
+  }
+  wprintf(L"--- END STACK ---\n");
+#endif
+  table_set(&vm.globals, get_as_string(k), fn);
+  // pop();
+  // pop();
+}
+
+Value math_add_stdlib(int argc, Value *args) {
+  if (argc != 2) {
+    runtime_err(L"add function only takes two arguments");
+    return make_nil();
+  }
+
+  if (is_num(args[0]) && is_num(args[1])) {
+    double l = get_as_number(args[0]);
+    double r = get_as_number(args[1]);
+    return make_num(l + r);
+  } else {
+    runtime_err(L"add function only works on numbers");
+    return make_nil();
+  }
+}
+Value math_pow_stdlib(int argc, Value *args) {
+  if (argc != 2) {
+    runtime_err(L"pow function only takes two arguments");
+    return make_nil();
+  }
+
+  if (is_num(args[0]) && is_num(args[1])) {
+    double l = get_as_number(args[0]);
+    double r = get_as_number(args[1]);
+
+    return make_num(pow(l, r));
+  } else {
+    runtime_err(L"pow function only works on numbers");
+    return make_nil();
+  }
+}
+
+static bool import_file(wchar_t *import_name) {
+  if (wcscmp(import_name, L"math") == 0) {
+    define_stdlib_fn(L"add", math_add_stdlib);
+    define_stdlib_fn(L"pow", math_pow_stdlib);
+    return true;
+  } else {
+    return false;
+  }
+}
+
 IResult run_vm() {
   CallFrame *frame = &vm.frames[vm.frame_count - 1];
   for (;;) {
-#ifdef DEBUG_TRACE
 #ifdef DEBUG_STACK
     wprintf(L"------ STACK ----\n");
     for (Value *slt = vm.stack; slt < vm.stack_top; slt++) {
@@ -232,7 +295,10 @@ IResult run_vm() {
     }
     wprintf(L"--- END STACK ---\n");
 #endif
-    dissm_ins(&frame->func.ins, (int)(frame->ip - frame->func.ins.code));
+#ifdef DEBUG_TRACE
+
+    dissm_ins(&frame->closure->func->ins,
+              (int)(frame->ip - frame->closure->func->ins.code));
 
 #endif
     uint8_t ins;
@@ -446,6 +512,22 @@ IResult run_vm() {
       frame = &vm.frames[vm.frame_count - 1];
       break;
     }
+    case OP_IMPORT_NONAME: {
+      Value raw_file_name = pop();
+      if (!is_str_obj(raw_file_name)) {
+        runtime_err(L"import file name must be string");
+        return INTRP_RUNTIME_ERR;
+      }
+      ObjString *filename = get_as_string(raw_file_name);
+      if (!import_file(filename->chars)) {
+        runtime_err(L"local file importing does not work yet;\
+        only a subset of stdlib is available\n");
+        return INTRP_RUNTIME_ERR;
+      }
+
+      // print_val(import_file_name);
+      break;
+    }
     }
   }
   return INTRP_RUNTIME_ERR;
@@ -463,6 +545,15 @@ void close_upval(Value *last) {
 void define_native(wchar_t *name, NativeFn func) {
   push(make_obj_val(copy_string(name, (int)wcslen(name))));
   push(make_obj_val(new_native(func)));
+#ifdef DEBUG_STACK
+  wprintf(L"------ STACK in Define native----\n");
+  for (Value *slt = vm.stack; slt < vm.stack_top; slt++) {
+    wprintf(L"[ ");
+    print_val(*slt);
+    wprintf(L" ]\n");
+  }
+  wprintf(L"--- END STACK ---\n");
+#endif
   table_set(&vm.globals, get_as_string(vm.stack[0]), vm.stack[1]);
   pop();
   pop();

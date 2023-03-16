@@ -43,7 +43,7 @@ void print_val(Value val) {
   //  print_val_type(val.type);
   switch (val.type) {
   case V_NUM:
-    wprintf(L"%g", get_as_number(val));
+    wprintf(L"%f", get_as_number(val));
     break;
   case V_BOOL:
     wprintf(L"%s", get_as_bool(val) ? "true" : "false");

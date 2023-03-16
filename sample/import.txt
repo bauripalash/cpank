@@ -1,0 +1,3 @@
+import "math";
+show add(1,2);
+show pow(99 , 99);

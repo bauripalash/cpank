@@ -73,6 +73,8 @@ typedef enum {
   // !
   T_BANG,
 
+  T_IMPORT,
+
   // !=
   T_NOTEQ,
 

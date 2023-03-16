@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-std=c11 -Wall
+CFLAGS+=-std=c11 -Wall -lm
 LINKS=-static -lgrapheme
 SRC=lexer.c bn.c runfile.c instruction.c mem.c debug.c value.c vm.c compiler.c obj.c htable.c
 MAIN=main.c
