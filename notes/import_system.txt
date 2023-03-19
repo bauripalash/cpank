@@ -117,6 +117,10 @@ we look for in __default table (which is actually just my_math's temporary
 table). This way bad_pi() creates error as the variable 'my_pi'  doesn't exist 
 in its global table. 
 
+We can even give each call frame it's own global table, that way it will still be able go up till it's parent global pool to look up variables.
+
+Each file will be a module and have a global poll of it's own, like __default for the main one
+
 But what happens when we pass a variable to a imported function. how will it 
 access it. we need to somehow create a link between importer supplied variable 
 and import's global table to look for local variable in function scope ???
