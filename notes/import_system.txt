@@ -90,18 +90,18 @@ import. As a result, this is theoretically valid from __default:
 I am thinking what if every file was a module struct with its own global table 
 which gets pushed into the global pool (global table of table).
 
-┌─────────────────────────────────┐        
-│globalpool                       │        
-└┬────────────┬───────┬──────────┬┘        
-┌▽──────────┐┌▽─────┐┌▽────────┐┌▽───┐     
-│[__default]││[math]││[my_math]││[os]│     
-└───────────┘└┬─────┘└┬────────┘└────┘     
-┌─────────────▽┐┌─────▽──┐                 
-│pi()          ││bad_pi()│                 
-└┬─────────────┘└┬───────┘                 
-┌▽─────────────┐┌▽────────────────────────┐
-│'return 3.14;'││'my_pi = 3; return 3.14;'│
-└──────────────┘└─────────────────────────┘
+
+Global Pool
+ +-__default table
+ +-
+ +-math table
+ |   `-
+ |       `-pi() -> return 3.14;
+ +-my_math table
+ |   `-
+ |       `-bad_pi() -> my_pi = 2; return 3.14;
+ `-os
+
 
 when in __default , if we call my_math.bad_pi()
 
