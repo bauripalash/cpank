@@ -6,6 +6,7 @@
 #include "instruction.h"
 #include "obj.h"
 #include "value.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <wchar.h>
 
@@ -25,11 +26,13 @@ typedef struct {
   int frame_count;
   wchar_t *name;
   ObjUpVal *open_upvs;
+  bool is_default;
 
 } Module;
 
 void init_module(Module *mod, const wchar_t *name);
 Module *get_cur_mod();
+bool is_default(Module *mod);
 
 typedef struct {
   Instruction *ins;

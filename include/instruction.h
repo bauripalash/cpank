@@ -38,6 +38,8 @@ typedef enum {
   OP_SET_UP,
   OP_CLS_UP,
   OP_IMPORT_NONAME,
+  OP_SET_MOD_PROP,
+  OP_GET_MOD_PROP,
 
 } Op;
 

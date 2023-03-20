@@ -73,6 +73,9 @@ typedef enum {
   // !
   T_BANG,
 
+  // . (dot) (full stop) (period)
+  T_DOT,
+
   T_IMPORT,
 
   // !=

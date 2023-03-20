@@ -96,6 +96,8 @@ const char *toktype_to_string(TokType t) {
     return "T_FUNC";
   case T_BANG:
     return "T_BANG";
+  case T_DOT:
+    return "T_DOT";
   case T_IMPORT:
     return "T_IMPORT";
   case T_NOTEQ:
@@ -373,6 +375,8 @@ Token get_tok() {
     return mktok(T_DIV);
   case '*':
     return mktok(T_ASTR);
+  case '.':
+    return mktok(T_DOT);
   case ';':
     return mktok(T_SEMICOLON);
   case ',':

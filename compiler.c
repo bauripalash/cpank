@@ -442,13 +442,25 @@ void named_var(Token name, bool can_assign) {
 
 void read_var(bool can_assign) { named_var(parser.prev, can_assign); }
 
+void read_dot(bool can_assign) {
+  eat_tok(T_ID, L"expected function or field name after module name");
+  uint8_t name = make_id_const(&parser.prev);
+
+  if (can_assign && match_tok(T_EQ)) {
+    read_expr();
+    emit_two(OP_SET_MOD_PROP, name);
+  } else {
+    emit_two(OP_GET_MOD_PROP, name);
+  }
+}
+
 ParseRule parse_rules[] = {
     [T_LPAREN] = {read_group, read_call, PREC_CALL},
     [T_RPAREN] = {NULL, NULL, PREC_NONE},
     [T_LBRACE] = {NULL, NULL, PREC_NONE},
     [T_RBRACE] = {NULL, NULL, PREC_NONE},
     [T_COMMA] = {NULL, NULL, PREC_NONE},
-    // T_DOT
+    [T_DOT] = {NULL, read_dot, PREC_CALL},
     [T_MINUS] = {read_unary, read_binary, PREC_TERM},
     [T_PLUS] = {NULL, read_binary, PREC_TERM},
     [T_SEMICOLON] = {NULL, NULL, PREC_NONE},

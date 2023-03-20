@@ -32,9 +32,6 @@ void reset_stack() {
 void boot_vm() {
   reset_stack();
   vm.objs = NULL;
-  // last_pop = make_nil();
-  // vm.last_pop = make_nil();
-  // v//m.last_pop = (Value*)malloc(sizeof(Value));
   vm.last_pop = make_nil();
 
   vm.bts_allocated = 0;
@@ -47,6 +44,7 @@ void boot_vm() {
   init_table(&vm.strings);
   Module *dmod = &vm.modules[vm.mod_count++];
   init_module(dmod, default_mod);
+  dmod->is_default = true;
   vm.mod_names[vm.mod_count] = get_hash(default_mod, wcslen(default_mod));
   // init_table(&vm.globals);
   define_native(L"clock", clock_ntv_fn);
@@ -60,9 +58,23 @@ void init_module(Module *mod, const wchar_t *name) {
   mod->open_upvs = NULL;
 }
 
+bool is_default(Module *mod) {
+  return wcscmp(mod->name, default_mod) == 0 && mod->is_default;
+}
+
+Module *get_mod_by_hash(uint32_t hash) {
+  for (int i = 0; i < vm.mod_count; i++) {
+    if (vm.mod_names[i] == hash) {
+      return &vm.modules[i];
+    }
+  }
+  return NULL;
+}
+
 void free_module(Module *mod) {
   setlocale(LC_CTYPE, "");
-  wprintf(L"freeing module -> %ls\n", mod->name);
+  wprintf(L"freeing module -> %ls -> is default -> %s\n", mod->name,
+          is_default(mod) ? "true" : "false");
   free_table(&mod->globals);
   free(mod->name);
   /*for (int i = 0; i < mod->frame_count; i++) {
@@ -85,7 +97,7 @@ void free_vm() {
 }
 
 Value get_last_pop() { return vm.last_pop; }
-Module *get_cur_mod() { return &vm.modules[vm.mod_count - 1]; }
+Module *get_cur_mod() { return &vm.modules[0]; }
 
 void push(Value value) {
   *vm.stack_top = value;
@@ -311,7 +323,12 @@ static bool import_file(wchar_t *import_name) {
     define_stdlib_fn(L"pow", math_pow_stdlib);
     return true;
   } else {
-    return false;
+    Module *mod = &vm.modules[vm.mod_count++];
+    init_module(mod, import_name);
+    // push()
+    // init_table(&mod->globals);
+
+    return true;
   }
 }
 
@@ -560,6 +577,27 @@ IResult run_vm() {
 
       // print_val(import_file_name);
       break;
+    }
+    case OP_GET_MOD_PROP: {
+      ObjString *modname = get_as_string(peek_vm(0));
+      ObjString *prop = read_str_const();
+      Value value;
+
+      Module *mod = get_mod_by_hash(modname->hash);
+      if (mod == NULL) {
+        runtime_err(L"module not found %ls\n", modname->hash);
+        return INTRP_RUNTIME_ERR;
+      }
+
+      if (table_get(&mod->globals, prop, &value)) {
+        pop();
+        push(value);
+        break;
+      } else {
+        runtime_err(L"Error method or variable %ls not found for module %ls",
+                    prop->chars, modname->chars);
+        return INTRP_RUNTIME_ERR;
+      }
     }
     }
   }
