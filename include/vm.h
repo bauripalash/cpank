@@ -10,6 +10,7 @@
 #include <wchar.h>
 
 #define FRAME_SIZE 64
+#define MODULES_MAX 10
 #define STACK_SIZE (FRAME_SIZE * UINT8_COUNT)
 
 typedef struct {
@@ -19,16 +20,31 @@ typedef struct {
 } CallFrame;
 
 typedef struct {
+  Htable globals;
+  CallFrame frames[FRAME_SIZE];
+  int frame_count;
+  wchar_t *name;
+  ObjUpVal *open_upvs;
+
+} Module;
+
+void init_module(Module *mod, const wchar_t *name);
+Module *get_cur_mod();
+
+typedef struct {
   Instruction *ins;
   uint8_t *ip;
   Value stack[STACK_SIZE];
   Value *stack_top;
   Htable strings;
-  Htable globals;
+  Module modules[MODULES_MAX];
+  uint32_t mod_names[MODULES_MAX];
+  int mod_count;
+  // Htable globals;
   Obj *objs;
-  CallFrame frames[FRAME_SIZE];
-  int frame_count;
-  ObjUpVal *open_upvs;
+  // CallFrame frames[FRAME_SIZE];
+  // int frame_count;
+  // ObjUpVal *open_upvs;
   int gray_count;
   int gray_cap;
   Obj **gray_stack;

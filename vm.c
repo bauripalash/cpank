@@ -20,13 +20,13 @@
 #include "include/vm.h"
 
 Vm vm;
-
+const wchar_t *default_mod = L"__default__";
 // #define DEBUG_STACK
 
 void reset_stack() {
   vm.stack_top = vm.stack;
-  vm.frame_count = 0;
-  vm.open_upvs = NULL;
+  // vm.frame_count = 0;
+  // vm.open_upvs = NULL;
 }
 
 void boot_vm() {
@@ -42,21 +42,50 @@ void boot_vm() {
   vm.gray_cap = 0;
   vm.gray_count = 0;
   vm.gray_stack = NULL;
+  vm.mod_count = 0;
 
   init_table(&vm.strings);
-  init_table(&vm.globals);
+  Module *dmod = &vm.modules[vm.mod_count++];
+  init_module(dmod, default_mod);
+  vm.mod_names[vm.mod_count] = get_hash(default_mod, wcslen(default_mod));
+  // init_table(&vm.globals);
   define_native(L"clock", clock_ntv_fn);
+}
+
+void init_module(Module *mod, const wchar_t *name) {
+  init_table(&mod->globals);
+  mod->frame_count = 0;
+  mod->name = malloc(sizeof(wchar_t) * (wcslen(name) + 1));
+  wmemcpy(mod->name, name, wcslen(name) + 1);
+  mod->open_upvs = NULL;
+}
+
+void free_module(Module *mod) {
+  setlocale(LC_CTYPE, "");
+  wprintf(L"freeing module -> %ls\n", mod->name);
+  free_table(&mod->globals);
+  free(mod->name);
+  /*for (int i = 0; i < mod->frame_count; i++) {
+    CallFrame * frame = &mod->frames[i];
+    FREE(ObjClosure, frame->closure);
+    free_single_obj((Obj *)frame->closure);
+
+  }*/
 }
 
 void free_vm() {
   // free(vm.last_pop);
   // vm.last_pop = make_nil();
   free_table(&vm.strings);
-  free_table(&vm.globals);
+  // free_table(&vm.globals);
+  for (int i = 0; i < vm.mod_count; i++) {
+    free_module(&vm.modules[i]);
+  }
   free_objs();
 }
 
 Value get_last_pop() { return vm.last_pop; }
+Module *get_cur_mod() { return &vm.modules[vm.mod_count - 1]; }
 
 void push(Value value) {
   *vm.stack_top = value;
@@ -83,8 +112,9 @@ void runtime_err(wchar_t *format, ...) {
   va_end(args);
   fputwc('\n', stderr);
 
-  for (int i = vm.frame_count - 1; i >= 0; i--) {
-    CallFrame *frm = &vm.frames[i];
+  for (int i = get_cur_mod()->frame_count - 1; i >= 0; i--) {
+    CallFrame *frm = &get_cur_mod()->frames[i];
+    //&vm.frames[i];
     ObjFunc *fn = frm->closure->func;
     size_t inst = frm->ip - fn->ins.code - 1; // vm.ip - vm.ins->code - 1;
     int line = fn->ins.lines[inst];           // vm.ins->lines[inst];
@@ -99,7 +129,9 @@ void runtime_err(wchar_t *format, ...) {
   reset_stack();
 }
 
-CallFrame *get_cur_farme() { return &vm.frames[vm.frame_count - 1]; }
+CallFrame *get_cur_farme() {
+  return &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
+}
 uint8_t read_bt() { return *get_cur_farme()->ip++; }
 uint16_t read_u16() {
   CallFrame *cf = get_cur_farme();
@@ -236,7 +268,7 @@ void define_stdlib_fn(wchar_t *name, NativeFn func) {
   }
   wprintf(L"--- END STACK ---\n");
 #endif
-  table_set(&vm.globals, get_as_string(k), fn);
+  table_set(&get_cur_mod()->globals, get_as_string(k), fn);
   // pop();
   // pop();
 }
@@ -284,7 +316,7 @@ static bool import_file(wchar_t *import_name) {
 }
 
 IResult run_vm() {
-  CallFrame *frame = &vm.frames[vm.frame_count - 1];
+  CallFrame *frame = &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
   for (;;) {
 #ifdef DEBUG_STACK
     wprintf(L"------ STACK ----\n");
@@ -306,15 +338,16 @@ IResult run_vm() {
     case OP_RETURN: {
       Value res = pop();
       close_upval(frame->slots);
-      vm.frame_count--;
-      if (vm.frame_count == 0) {
+      get_cur_mod()->frame_count--;
+      // vm.frame_count--;
+      if (get_cur_mod()->frame_count == 0) {
         pop();
         return INTRP_OK;
       }
 
       vm.stack_top = frame->slots;
       push(res);
-      frame = &vm.frames[vm.frame_count - 1];
+      frame = &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
       break;
       //  print_val(pop());
       //  wprintf(L"\n");
@@ -415,7 +448,7 @@ IResult run_vm() {
       ObjString *nm = read_str_const();
       // wprintf(L"Def global -> %ls\n" , nm->chars);
       // print_val(peek_vm(0));
-      table_set(&vm.globals, nm, peek_vm(0));
+      table_set(&get_cur_mod()->globals, nm, peek_vm(0));
       pop();
       break;
     }
@@ -425,7 +458,7 @@ IResult run_vm() {
       // print_table(&vm.globals , "global");
       // print_obj();
       Value val;
-      if (!table_get(&vm.globals, name, &val)) {
+      if (!table_get(&get_cur_mod()->globals, name, &val)) {
         runtime_err(L"Get Global -> Undefined variable '%ls'.", name->chars);
         return INTRP_RUNTIME_ERR;
       }
@@ -435,8 +468,8 @@ IResult run_vm() {
 
     case OP_SET_GLOB: {
       ObjString *name = read_str_const();
-      if (table_set(&vm.globals, name, peek_vm(0))) {
-        table_del(&vm.globals, name);
+      if (table_set(&get_cur_mod()->globals, name, peek_vm(0))) {
+        table_del(&get_cur_mod()->globals, name);
         runtime_err(L"Set Global -> Undefined var '%ls'", name->chars);
         return INTRP_RUNTIME_ERR;
       }
@@ -509,7 +542,7 @@ IResult run_vm() {
         return INTRP_RUNTIME_ERR;
       }
 
-      frame = &vm.frames[vm.frame_count - 1];
+      frame = &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
       break;
     }
     case OP_IMPORT_NONAME: {
@@ -534,17 +567,20 @@ IResult run_vm() {
 }
 
 void close_upval(Value *last) {
-  while (vm.open_upvs != NULL && vm.open_upvs->location >= last) {
-    ObjUpVal *upval = vm.open_upvs;
+  while (get_cur_mod()->open_upvs != NULL &&
+         get_cur_mod()->open_upvs->location >= last) {
+    ObjUpVal *upval = get_cur_mod()->open_upvs;
     upval->closed = *upval->location;
     upval->location = &upval->closed;
-    vm.open_upvs = upval->next;
+    get_cur_mod()->open_upvs = upval->next;
   }
 }
 
 void define_native(wchar_t *name, NativeFn func) {
-  push(make_obj_val(copy_string(name, (int)wcslen(name))));
-  push(make_obj_val(new_native(func)));
+  // push(make_obj_val(copy_string(name, (int)wcslen(name))));
+  // push(make_obj_val(new_native(func)));
+  Value k = make_obj_val(copy_string(name, (int)wcslen(name)));
+  Value fn = make_obj_val(new_native(func));
 #ifdef DEBUG_STACK
   wprintf(L"------ STACK in Define native----\n");
   for (Value *slt = vm.stack; slt < vm.stack_top; slt++) {
@@ -554,14 +590,14 @@ void define_native(wchar_t *name, NativeFn func) {
   }
   wprintf(L"--- END STACK ---\n");
 #endif
-  table_set(&vm.globals, get_as_string(vm.stack[0]), vm.stack[1]);
-  pop();
-  pop();
+  table_set(&get_cur_mod()->globals, get_as_string(k), fn);
+  // pop();
+  // pop();
 }
 
 ObjUpVal *capture_upv(Value *local) {
   ObjUpVal *prev = NULL;
-  ObjUpVal *upv = vm.open_upvs;
+  ObjUpVal *upv = get_cur_mod()->open_upvs;
   while (upv != NULL && upv->location > local) {
     prev = upv;
     upv = upv->next;
@@ -574,7 +610,7 @@ ObjUpVal *capture_upv(Value *local) {
   ObjUpVal *new_upv = new_up_val(local);
   new_upv->next = upv;
   if (prev == NULL) {
-    vm.open_upvs = new_upv;
+    get_cur_mod()->open_upvs = new_upv;
   } else {
     prev->next = new_upv;
   }
@@ -611,12 +647,12 @@ bool call(ObjClosure *closure, int argc) {
     return false;
   }
 
-  if (vm.frame_count == FRAME_SIZE) {
+  if (get_cur_mod()->frame_count == FRAME_SIZE) {
     runtime_err(L"Too many frames! Stack overflow");
     return false;
   }
 
-  CallFrame *frame = &vm.frames[vm.frame_count++];
+  CallFrame *frame = &get_cur_mod()->frames[get_cur_mod()->frame_count++];
   frame->closure = closure;
   frame->ip = closure->func->ins.code;
   frame->slots = vm.stack_top - argc - 1;
@@ -638,6 +674,7 @@ IResult interpret(wchar_t *source) {
   ObjClosure *cls = new_closure(fn);
   pop();
   push(make_obj_val(cls));
+
   call(cls, 0);
   // CallFrame *frame = &vm.frames[vm.frame_count++];
   // frame->func = fn;

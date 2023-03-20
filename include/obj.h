@@ -78,6 +78,7 @@ ObjString *copy_string(wchar_t *chars, int len);
 ObjString *take_string(wchar_t *chars, int len);
 void print_obj(Value val);
 wchar_t *get_obj_type_as_string(ObjType o);
+uint32_t get_hash(const wchar_t *key, int len);
 
 /*
 #define get_as_native(value) \

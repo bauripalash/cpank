@@ -1,11 +1,11 @@
-fun outer(){
+fun outer()
 	let x = "outside";
-	fun inner(){
+	fun inner()
 		show x;
-	}
+	end
 
 	inner();
-}
+end
 
 outer();
 
@@ -13,25 +13,25 @@ outer();
 let gone;
 let gtwo;
 
-fun main(){
+fun main()
 	{
 		let a = "one";
-		fun onee(){
+		fun onee()
 			show a;
-		}
+		end 
 		gone = onee;
 	}
 
 	{
 
 		let a = "two";
-		fun two(){
+		fun two()
 			show a;
-		}
+		end
 
 		gtwo = two;
 	}
-}
+end 
 
 main();
 gone();

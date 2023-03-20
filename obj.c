@@ -86,7 +86,7 @@ wchar_t *get_obj_type_as_string(ObjType o) {
   return L"OBJ_UNKNOWN";
 }
 
-static uint32_t get_hash(const wchar_t *key, int len) {
+uint32_t get_hash(const wchar_t *key, int len) {
   uint32_t hash = 2166136261u;
   for (int i = 0; i < len; i++) {
     hash ^= (uint8_t)key[i];

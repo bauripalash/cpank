@@ -19,5 +19,6 @@ void collect_garbage();
 void free_objs();
 void mark_val(Value val);
 void mark_obj(Obj *obj);
+void free_single_obj(Obj *obj);
 
 #endif

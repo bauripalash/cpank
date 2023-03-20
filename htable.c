@@ -30,12 +30,6 @@ static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
   Entry *tombstone = NULL;
   for (;;) {
     Entry *entry = &entries[index];
-
-    //       wprintf(L"->L-> %.*ls R-> %.ls" , entry->key->len
-    //       ,get_string_from_objs(entry->key), key->len ,
-    //       get_string_from_objs(key));
-    //    print_val(entry->val);
-    // debug_entry(entry);
     if (entry->key == NULL) {
       if (is_nil(entry->val)) {
         return tombstone != NULL ? tombstone : entry;
@@ -45,8 +39,6 @@ static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
         }
       }
     } else if (entry->key->len == key->len) {
-      //} else if ((entry->key->len == key->len) && ( wmemcmp(entry->key->chars
-      //,key->chars , entry->key->len))) {
       if (wcscmp(entry->key->chars, key->chars) == 0) {
 
         return entry;
