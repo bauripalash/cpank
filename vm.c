@@ -50,10 +50,11 @@ void boot_vm() {
   dmod->is_default = true;
   vm.mod_names[vm.mod_count] = get_hash(default_mod, wcslen(default_mod));
   // init_table(&vm.globals);
-  // define_native(L"clock", clock_ntv_fn);
+  define_native(L"clock", clock_ntv_fn);
 }
 
 void init_module(Module *mod, const wchar_t *name) {
+
   init_table(&mod->globals);
   mod->frame_count = 0;
   mod->name = malloc(sizeof(wchar_t) * (wcslen(name) + 1));
@@ -172,6 +173,11 @@ CallFrame *get_cur_farme() {
   return &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
 }
 uint8_t read_bt() { return *get_cur_farme()->ip++; }
+uint8_t peek_bt() {
+  uint8_t result = *get_cur_farme()->ip++;
+  get_cur_farme()->ip--;
+  return result;
+}
 uint16_t read_u16() {
   CallFrame *cf = get_cur_farme();
   cf->ip += 2;
@@ -352,7 +358,7 @@ static bool import_file(wchar_t *import_name) {
   } else {
     Module *mod = &vm.modules[vm.mod_count++];
     init_module(mod, import_name);
-    init_table(&mod->globals);
+    // init_table(&mod->globals);
 
     // print_table(&mod->globals, "mod");
 
@@ -368,13 +374,30 @@ static bool import_file(wchar_t *import_name) {
 
     table_set(&get_cur_mod()->globals, strname, make_obj_val(objmod));
     // ObjNative *n = new_native(clock_ntv_fn);
-    ObjString *str = copy_string(L"my name is y", wcslen(L"my name is y"));
-    table_set(&mod->globals, copy_string(L"y", wcslen(L"y")),
-              make_obj_val((Obj *)str));
+    // ObjString *str = copy_string(L"my name is y", wcslen(L"my name is y"));
+    // table_set(&mod->globals, copy_string(L"y", wcslen(L"y")),
+    //          make_obj_val((Obj *)str));
     // print_table(&mod->globals, "globals of mod");
 
     // push()
     // init_table(&mod->globals);
+    //
+    //
+    //
+    vm.current_mod++;
+    ObjFunc *newfn = compile(L"let q  = 1;");
+    write_ins(&newfn->ins, OP_END_MOD, 9999);
+    if (newfn == NULL) {
+      return false;
+    }
+
+    // dissm_ins_chunk(&newfn->ins, L"MODULE");
+
+    push(make_obj_val(newfn));
+    ObjClosure *cls = new_closure(newfn);
+    pop();
+    push(make_obj_val(cls));
+    call(cls, 0);
 
     return true;
   }
@@ -410,11 +433,19 @@ IResult run_vm() {
 #endif
     uint8_t ins;
     switch (ins = read_bt()) {
+    case OP_END_MOD:
+      vm.current_mod--;
+      break;
     case OP_RETURN: {
+
       Value res = pop();
       close_upval(frame->slots);
+      if (peek_bt() == OP_END_MOD) {
+        continue;
+      }
       get_cur_mod()->frame_count--;
       // vm.frame_count--;
+
       if (get_cur_mod()->frame_count == 0) {
         pop();
         return INTRP_OK;

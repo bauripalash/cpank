@@ -1,2 +1,2 @@
 import "x";
-show x.y;
+show "hello";
