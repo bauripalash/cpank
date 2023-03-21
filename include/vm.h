@@ -30,6 +30,14 @@ typedef struct {
 
 } Module;
 
+typedef struct ObjMod {
+  Obj obj;
+  ObjString *name;
+} ObjMod;
+
+ObjMod *get_as_mod(Value val);    // defined in obj.c
+ObjMod *new_mod(ObjString *name); // define in obj.c
+
 void init_module(Module *mod, const wchar_t *name);
 Module *get_cur_mod();
 bool is_default(Module *mod);
@@ -43,6 +51,7 @@ typedef struct {
   Module modules[MODULES_MAX];
   uint32_t mod_names[MODULES_MAX];
   int mod_count;
+  int current_mod;
   // Htable globals;
   Obj *objs;
   // CallFrame frames[FRAME_SIZE];

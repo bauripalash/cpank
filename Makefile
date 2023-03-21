@@ -9,11 +9,15 @@ TESTOUTPUT=test_cpank
 INCLUDE_DIR=include/
 
 run:
-	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC)
+	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g -pg
 	./$(OUTPUT)
 
 check:
 	cppcheck -I $(INCLUDE_DIR) --enable=all $(MAIN) $(SRC)
+
+debug: build_debug
+	gdb $(OUTPUT)
+
 
 build_test:
 	@echo "Building for testing"
@@ -22,6 +26,11 @@ build_test:
 
 test: build_test
 	./$(TESTOUTPUT)
+
+build_debug:
+	@echo "Building Debug+Unoptimized $(OUTPUT)"
+	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g -pg
+	@echo "Finished building Debug+Unoptimized $(OUTPUT)"
 
 build_uo:
 	@echo "Building Unoptimized $(OUTPUT)"

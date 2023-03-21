@@ -17,6 +17,7 @@
 
 // #define NOGC
 
+// #define DEBUG_STRES_GC
 #ifdef DEBUG_LOG_GC
 #include "include/debug.h"
 #endif
@@ -78,6 +79,13 @@ void free_single_obj(Obj *obj) {
     FREE(ObjUpVal, obj);
     break;
   }
+  case OBJ_MOD: {
+
+    ObjMod *mod = (ObjMod *)obj;
+    // free(mod->name->chars);
+    // FREE(ObjString, mod->name);
+    break;
+  }
   }
 }
 
@@ -126,6 +134,11 @@ void blacken_obj(Obj *obj) {
     ObjFunc *func = (ObjFunc *)obj;
     mark_obj((Obj *)func->name);
     mark_array(&func->ins.consts);
+    break;
+  }
+  case OBJ_MOD: {
+    ObjMod *md = (ObjMod *)obj;
+    // mark_obj((Obj*)md->name);
     break;
   }
   }

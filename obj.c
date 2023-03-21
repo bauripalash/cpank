@@ -42,6 +42,7 @@ bool is_str_obj(Value val) { return is_obj_type(val, OBJ_STR); }
 bool is_func_obj(Value val) { return is_obj_type(val, OBJ_FUNC); }
 bool is_native_obj(Value val) { return is_obj_type(val, OBJ_NATIVE); }
 bool is_closure_obj(Value val) { return is_obj_type(val, OBJ_CLOUSRE); }
+bool is_mod_obj(Value val) { return is_obj_type(val, OBJ_MOD); }
 ObjString *get_as_string(Value val) { return (ObjString *)get_as_obj(val); }
 ObjFunc *get_as_func(Value val) { return (ObjFunc *)get_as_obj(val); }
 wchar_t *get_as_native_string(Value val) {
@@ -55,6 +56,8 @@ NativeFn get_as_native(Value val) {
 }
 
 ObjClosure *get_as_closure(Value val) { return (ObjClosure *)get_as_obj(val); }
+
+ObjMod *get_as_mod(Value val) { return (ObjMod *)get_as_obj(val); }
 
 ObjString *allocate_str(wchar_t *chars, int len, uint32_t hash) {
   ObjString *string = ALLOCATE_OBJ(ObjString, OBJ_STR);
@@ -81,6 +84,8 @@ wchar_t *get_obj_type_as_string(ObjType o) {
     return L"OBJ_UPVAL";
   case OBJ_NATIVE:
     return L"OBJ_NATIVE";
+  case OBJ_MOD:
+    return L"OBJ_MOD";
   }
 
   return L"OBJ_UNKNOWN";
@@ -159,6 +164,11 @@ void print_obj(Value val) {
   case OBJ_UPVAL:
     wprintf(L"upval");
     break;
+  case OBJ_MOD: {
+    ObjMod *mod = get_as_mod(val);
+    wprintf(L"<mod %ls>", mod->name->chars);
+    break;
+  }
   }
 }
 
@@ -187,4 +197,10 @@ ObjClosure *new_closure(ObjFunc *func) {
   cls->upv = upvs;
   cls->upv_count = func->up_count;
   return cls;
+}
+
+ObjMod *new_mod(ObjString *name) {
+  ObjMod *mod = ALLOCATE_OBJ(ObjMod, OBJ_MOD);
+  mod->name = name;
+  return mod;
 }

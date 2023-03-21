@@ -14,6 +14,7 @@ typedef enum {
   OBJ_NATIVE,
   OBJ_CLOUSRE,
   OBJ_UPVAL,
+  OBJ_MOD,
 } ObjType;
 
 struct Obj {
@@ -69,6 +70,7 @@ bool is_str_obj(Value val);
 bool is_func_obj(Value val);
 bool is_native_obj(Value val);
 bool is_closure_obj(Value val);
+bool is_mod_obj(Value val);
 ObjFunc *get_as_func(Value val);
 ObjClosure *get_as_closure(Value val);
 ObjString *get_as_string(Value val);

@@ -118,6 +118,8 @@ int dissm_ins(Instruction *ins, int offset) {
     return bt_ins("OP_SET_UP", ins, offset);
   case OP_CLS_UP:
     return simple_ins("OP_CLS_UPV", offset);
+  case OP_GET_MOD_PROP:
+    return const_ins("OP_GET_MOD_PROP", ins, offset);
   case OP_CLOSURE:
     offset++;
     uint8_t con = ins->code[offset++];

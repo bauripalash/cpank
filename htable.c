@@ -50,15 +50,32 @@ static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
 }
 
 static void adjust_cap(Htable *table, int cap) {
+  // wprintf(L"ADJUST CAP -> len->%d | cap->%d | nowcap->%d\n" , table->len ,
+  // table->cap , cap);
+
+  // wprintf(L"loop -> table cap %d\n" , table->cap);
   Entry *entries = ALLOC(Entry, cap);
   for (int i = 0; i < cap; i++) {
     entries[i].key = NULL;
     entries[i].val = make_nil();
+
+    // wprintf(L"loop -> table cap %d\n" , table->cap);
   }
 
+  // wprintf(L"loop -> table cap %d\n" , table->cap);
   table->len = 0;
+
+  // wprintf(L"loop -> table cap %d\n" , table->cap);
   for (int i = 0; i < table->cap; i++) {
+    // wprintf(L"loop -> table cap %d\n" , table->cap);
+
+    // wprintf(L"LOOP_> ADJUST CAP -> len->%d | cap->%d | nowcap->%d\n" ,
+    // table->len , table->cap , cap);
     Entry *entry = &table->entries[i];
+    // if (entry == NULL) {
+    // continue;
+    // }
+    // wprintf(L"ADJUST CAP -> %ls \n" , entry->key->chars);
     if (entry->key == NULL) {
       continue;
     }
@@ -72,12 +89,16 @@ static void adjust_cap(Htable *table, int cap) {
 
   table->entries = entries;
   table->cap = cap;
+
+  // wprintf(L"END CAP -> len->%d | cap->%d | nowcap->%d\n" , table->len ,
+  // table->cap , cap);
 }
 
 bool table_set(Htable *table, ObjString *key, Value value) {
 
   if (table->len + 1 > table->cap * TABLE_MAX_LD) {
     int cap = GROW_CAP(table->cap);
+    // wprintf(L"growing table for -> %ls\n" , key->chars);
     adjust_cap(table, cap);
   }
 

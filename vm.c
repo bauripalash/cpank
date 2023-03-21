@@ -20,7 +20,7 @@
 #include "include/vm.h"
 
 Vm vm;
-const wchar_t *default_mod = L"__default__";
+const wchar_t *default_mod = L"__d__";
 // #define DEBUG_STACK
 
 void reset_stack() {
@@ -35,19 +35,22 @@ void boot_vm() {
   vm.last_pop = make_nil();
 
   vm.bts_allocated = 0;
-  vm.next_gc = 1024 * 1024;
+  vm.next_gc = 10 * 10;
   vm.gray_cap = 0;
   vm.gray_count = 0;
   vm.gray_stack = NULL;
   vm.mod_count = 0;
+  vm.current_mod = 0;
 
   init_table(&vm.strings);
   Module *dmod = &vm.modules[vm.mod_count++];
+  vm.mod_names[vm.mod_count - 1] = 1;
   init_module(dmod, default_mod);
+  // init_table(&dmod->globals);
   dmod->is_default = true;
   vm.mod_names[vm.mod_count] = get_hash(default_mod, wcslen(default_mod));
   // init_table(&vm.globals);
-  define_native(L"clock", clock_ntv_fn);
+  // define_native(L"clock", clock_ntv_fn);
 }
 
 void init_module(Module *mod, const wchar_t *name) {
@@ -64,6 +67,8 @@ bool is_default(Module *mod) {
 
 Module *get_mod_by_hash(uint32_t hash) {
   for (int i = 0; i < vm.mod_count; i++) {
+    // wprintf(L"M| %4d -> %ld -> %ls | %ld \n" , i , vm.mod_names[i] ,
+    // vm.modules[i].name , hash);
     if (vm.mod_names[i] == hash) {
       return &vm.modules[i];
     }
@@ -77,12 +82,34 @@ void free_module(Module *mod) {
           is_default(mod) ? "true" : "false");
   free_table(&mod->globals);
   free(mod->name);
+  // ObjMod *objmod = mod->mod;
+  //  free_single_obj((Obj *)objmod->name);
+  //  FREE(ObjString, objmod->name);
   /*for (int i = 0; i < mod->frame_count; i++) {
     CallFrame * frame = &mod->frames[i];
     FREE(ObjClosure, frame->closure);
     free_single_obj((Obj *)frame->closure);
 
   }*/
+}
+
+void define_native(wchar_t *name, NativeFn func) {
+  push(make_obj_val(copy_string(name, (int)wcslen(name))));
+  push(make_obj_val(new_native(func)));
+  // Value k = make_obj_val(copy_string(name, (int)wcslen(name)));
+  // Value fn = make_obj_val(new_native(func));
+#ifdef DEBUG_STACK
+  wprintf(L"------ STACK in Define native----\n");
+  for (Value *slt = vm.stack; slt < vm.stack_top; slt++) {
+    wprintf(L"[ ");
+    print_val(*slt);
+    wprintf(L" ]\n");
+  }
+  wprintf(L"--- END STACK ---\n");
+#endif
+  table_set(&vm.modules[0].globals, get_as_string(vm.stack[0]), vm.stack[1]);
+  pop();
+  pop();
 }
 
 void free_vm() {
@@ -97,7 +124,7 @@ void free_vm() {
 }
 
 Value get_last_pop() { return vm.last_pop; }
-Module *get_cur_mod() { return &vm.modules[0]; }
+Module *get_cur_mod() { return &vm.modules[vm.current_mod]; }
 
 void push(Value value) {
   *vm.stack_top = value;
@@ -325,11 +352,42 @@ static bool import_file(wchar_t *import_name) {
   } else {
     Module *mod = &vm.modules[vm.mod_count++];
     init_module(mod, import_name);
+    init_table(&mod->globals);
+
+    // print_table(&mod->globals, "mod");
+
+    // wprintf(L"name -> %ls\n" , mod->name);
+    ObjMod *objmod = new_mod(copy_string(import_name, wcslen(import_name)));
+    vm.mod_names[vm.mod_count - 1] = objmod->name->hash;
+
+    // wprintf(L"name -> %ls\n" , objmod->name->chars);
+    // objmod->mod = mod;
+    push(make_obj_val(mod));
+    // mod->mod = objmod;
+    ObjString *strname = copy_string(import_name, wcslen(import_name));
+
+    table_set(&get_cur_mod()->globals, strname, make_obj_val(objmod));
+    // ObjNative *n = new_native(clock_ntv_fn);
+    ObjString *str = copy_string(L"my name is y", wcslen(L"my name is y"));
+    table_set(&mod->globals, copy_string(L"y", wcslen(L"y")),
+              make_obj_val((Obj *)str));
+    // print_table(&mod->globals, "globals of mod");
+
     // push()
     // init_table(&mod->globals);
 
     return true;
   }
+}
+
+void print_stack() {
+  wprintf(L"------ STACK ----\n");
+  for (Value *slt = vm.stack; slt < vm.stack_top; slt++) {
+    wprintf(L"[ ");
+    print_val(*slt);
+    wprintf(L" ]\n");
+  }
+  wprintf(L"--- END STACK ---\n");
 }
 
 IResult run_vm() {
@@ -563,6 +621,7 @@ IResult run_vm() {
       break;
     }
     case OP_IMPORT_NONAME: {
+      // print_stack();
       Value raw_file_name = pop();
       if (!is_str_obj(raw_file_name)) {
         runtime_err(L"import file name must be string");
@@ -579,13 +638,17 @@ IResult run_vm() {
       break;
     }
     case OP_GET_MOD_PROP: {
-      ObjString *modname = get_as_string(peek_vm(0));
+      // print_stack();
+      // print_table(&get_cur_mod()->globals, "curmodglobals");
+      // print_val(peek_vm(0));
+      ObjMod *modname = get_as_mod(peek_vm(0));
       ObjString *prop = read_str_const();
       Value value;
+      // wprintf(L"MODNAME -> %ls\n" , modname->name->chars);
 
-      Module *mod = get_mod_by_hash(modname->hash);
+      Module *mod = get_mod_by_hash(modname->name->hash);
       if (mod == NULL) {
-        runtime_err(L"module not found %ls\n", modname->hash);
+        runtime_err(L"module not found %ls\n", modname->name->chars);
         return INTRP_RUNTIME_ERR;
       }
 
@@ -594,8 +657,8 @@ IResult run_vm() {
         push(value);
         break;
       } else {
-        runtime_err(L"Error method or variable %ls not found for module %ls",
-                    prop->chars, modname->chars);
+        runtime_err(L"Error method or variable '%ls' not found for module %ls",
+                    prop->chars, modname->name->chars);
         return INTRP_RUNTIME_ERR;
       }
     }
@@ -612,25 +675,6 @@ void close_upval(Value *last) {
     upval->location = &upval->closed;
     get_cur_mod()->open_upvs = upval->next;
   }
-}
-
-void define_native(wchar_t *name, NativeFn func) {
-  // push(make_obj_val(copy_string(name, (int)wcslen(name))));
-  // push(make_obj_val(new_native(func)));
-  Value k = make_obj_val(copy_string(name, (int)wcslen(name)));
-  Value fn = make_obj_val(new_native(func));
-#ifdef DEBUG_STACK
-  wprintf(L"------ STACK in Define native----\n");
-  for (Value *slt = vm.stack; slt < vm.stack_top; slt++) {
-    wprintf(L"[ ");
-    print_val(*slt);
-    wprintf(L" ]\n");
-  }
-  wprintf(L"--- END STACK ---\n");
-#endif
-  table_set(&get_cur_mod()->globals, get_as_string(k), fn);
-  // pop();
-  // pop();
 }
 
 ObjUpVal *capture_upv(Value *local) {
