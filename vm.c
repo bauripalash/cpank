@@ -21,6 +21,7 @@
 
 Vm vm;
 const wchar_t *default_mod = L"__d__";
+uint32_t current_owner = 1;
 // #define DEBUG_STACK
 
 void reset_stack() {
@@ -43,8 +44,9 @@ void boot_vm() {
   vm.current_mod = 0;
 
   init_table(&vm.strings);
+
+  vm.mod_names[vm.mod_count] = 0;
   Module *dmod = &vm.modules[vm.mod_count++];
-  vm.mod_names[vm.mod_count - 1] = 1;
   init_module(dmod, default_mod);
   // init_table(&dmod->globals);
   dmod->is_default = true;
@@ -82,10 +84,16 @@ Module *get_mod_by_hash(uint32_t hash) {
   return NULL;
 }
 
+void print_mod_names() {
+  for (int i = 0; i < vm.mod_count; i++) {
+
+    wprintf(L"M| %4d -> %ld -> %ls \n", i, vm.mod_names[i], vm.modules[i].name);
+  }
+}
 void free_module(Module *mod) {
   setlocale(LC_CTYPE, "");
-  wprintf(L"freeing module -> %ls -> is default -> %s\n", mod->name,
-          is_default(mod) ? "true" : "false");
+  // wprintf(L"freeing module -> %ls -> is default -> %s\n", mod->name,
+  //         is_default(mod) ? "true" : "false");
   free_table(&mod->globals);
   free(mod->name);
   // ObjMod *objmod = mod->mod;
@@ -355,62 +363,58 @@ Value math_pow_stdlib(int argc, Value *args) {
   }
 }
 
+static bool import_custom(wchar_t *import_name) {
+  wchar_t *dummy_source_code = NULL;
+  if (wcscmp(import_name, L"x") == 0) {
+
+    dummy_source_code = L"fun hello(x) x=100 ;show 1 + x; end fun dance(name) "
+                        L"show name + \" is dancing\"; end";
+  } else {
+
+    dummy_source_code = L"fun hello(x) show \"hello \" + x; end";
+  }
+  Module *mod = &vm.modules[vm.mod_count++];
+  mod->is_default = false;
+
+  init_module(mod, import_name);
+
+  // wprintf(L"is globals null -> %s\n",
+  //         mod->globals.entries == NULL ? "true" : "false");
+
+  ObjMod *objmod = new_mod(copy_string(import_name, wcslen(import_name)));
+  vm.mod_names[vm.mod_count - 1] = objmod->name->hash;
+  push(make_obj_val(mod));
+  ObjString *strname = copy_string(import_name, wcslen(import_name));
+
+  table_set(&get_cur_mod()->globals, strname, make_obj_val(objmod));
+  vm.current_mod++;
+  ObjFunc *newfn = compile(dummy_source_code);
+  write_ins(&newfn->ins, OP_END_MOD, 9999);
+  if (newfn == NULL) {
+    return false;
+  }
+
+  // dissm_ins_chunk(&newfn->ins, L"MODULE");
+
+  push(make_obj_val(newfn));
+  ObjClosure *cls = new_closure(newfn);
+  cls->global_owner = objmod->name->hash;
+  cls->globals = &mod->globals;
+  pop();
+  push(make_obj_val(cls));
+
+  call(cls, 0);
+
+  return true;
+}
+
 static bool import_file(wchar_t *import_name) {
   if (wcscmp(import_name, L"math") == 0) {
     define_stdlib_fn(L"add", math_add_stdlib);
     define_stdlib_fn(L"pow", math_pow_stdlib);
     return true;
   } else {
-    Module *mod = &vm.modules[vm.mod_count++];
-    mod->is_default = false;
-    // mod->frame_count = 0;
-    // mod->name = import_name;
-    // init_table(&mod->globals);
-    init_module(mod, import_name);
-    // init_table(&mod->globals);
-
-    wprintf(L"is globals null -> %s\n",
-            mod->globals.entries == NULL ? "true" : "false");
-    // print_table(&mod->globals, "mod");
-
-    // wprintf(L"name -> %ls\n" , mod->name);
-    ObjMod *objmod = new_mod(copy_string(import_name, wcslen(import_name)));
-    vm.mod_names[vm.mod_count - 1] = objmod->name->hash;
-
-    // wprintf(L"name -> %ls\n" , objmod->name->chars);
-    // objmod->mod = mod;
-    push(make_obj_val(mod));
-    // mod->mod = objmod;
-    ObjString *strname = copy_string(import_name, wcslen(import_name));
-
-    table_set(&get_cur_mod()->globals, strname, make_obj_val(objmod));
-    // ObjNative *n = new_native(clock_ntv_fn);
-    // ObjString *str = copy_string(L"my name is y", wcslen(L"my name is y"));
-    // table_set(&mod->globals, copy_string(L"y", wcslen(L"y")),
-    //          make_obj_val((Obj *)str));
-    // print_table(&mod->globals, "globals of mod");
-
-    // push()
-    // init_table(&mod->globals);
-    //
-    //
-    //
-    vm.current_mod++;
-    ObjFunc *newfn = compile(L"fun hello(x) a=100;show 1 + x; end");
-    write_ins(&newfn->ins, OP_END_MOD, 9999);
-    if (newfn == NULL) {
-      return false;
-    }
-
-    // dissm_ins_chunk(&newfn->ins, L"MODULE");
-
-    push(make_obj_val(newfn));
-    ObjClosure *cls = new_closure(newfn);
-    pop();
-    push(make_obj_val(cls));
-    call(cls, 0);
-
-    return true;
+    return import_custom(import_name);
   }
 }
 
@@ -451,15 +455,20 @@ IResult run_vm() {
 
       Value res = pop();
       close_upval(frame->slots);
-      if (peek_bt() == OP_END_MOD) {
-        continue;
-      }
+      // if (peek_bt() == OP_END_MOD) {
+      // get_cur_mod()->frame_count--;
+      //  vm.current_mod--;
+      //  break;
+      //}
       get_cur_mod()->frame_count--;
       // vm.frame_count--;
 
-      if (get_cur_mod()->frame_count == 0) {
+      if (get_cur_mod()->frame_count == 0 && vm.current_mod == 0) {
         pop();
         return INTRP_OK;
+      } else if (get_cur_mod()->frame_count == 0) {
+        vm.current_mod--;
+        break;
       }
 
       vm.stack_top = frame->slots;
@@ -563,9 +572,11 @@ IResult run_vm() {
       break;
     case OP_DEF_GLOB: {
       ObjString *nm = read_str_const();
-      // wprintf(L"Def global -> %ls\n" , nm->chars);
-      // print_val(peek_vm(0));
-      print_table(&get_cur_mod()->globals, "mod globals before deg glob");
+
+      // wprintf(L"def global %ld | %ls\n" , frame->global_owner , nm->chars);
+      //  wprintf(L"Def global -> %ls\n" , nm->chars);
+      //  print_val(peek_vm(0));
+      // print_table(frame->globals, "mod globals before deg glob");
       table_set(&get_cur_mod()->globals, nm, peek_vm(0));
       pop();
       break;
@@ -576,7 +587,7 @@ IResult run_vm() {
       // print_table(&vm.globals , "global");
       // print_obj();
       Value val;
-      if (!table_get(&get_cur_mod()->globals, name, &val)) {
+      if (!table_get(frame->globals, name, &val)) {
         runtime_err(L"Get Global -> Undefined variable '%ls'.", name->chars);
         return INTRP_RUNTIME_ERR;
       }
@@ -586,8 +597,10 @@ IResult run_vm() {
 
     case OP_SET_GLOB: {
       ObjString *name = read_str_const();
-      if (table_set(&get_cur_mod()->globals, name, peek_vm(0))) {
-        table_del(&get_cur_mod()->globals, name);
+      wprintf(L"setting global -> %ls -> %ld\n", name->chars,
+              frame->global_owner);
+      if (table_set(frame->globals, name, peek_vm(0))) {
+        table_del(frame->globals, name);
         runtime_err(L"Set Global -> Undefined var '%ls'", name->chars);
         return INTRP_RUNTIME_ERR;
       }
@@ -626,6 +639,8 @@ IResult run_vm() {
     case OP_CLOSURE: {
       ObjFunc *func = get_as_func(read_const());
       ObjClosure *cls = new_closure(func);
+      cls->global_owner = vm.mod_names[vm.current_mod];
+      cls->globals = &vm.modules[vm.current_mod].globals;
       push(make_obj_val(cls));
       for (int i = 0; i < cls->upv_count; i++) {
         uint16_t is_local = read_bt();
@@ -637,6 +652,10 @@ IResult run_vm() {
           cls->upv[i] = frame->closure->upv[index];
         }
       }
+      // frame->globals = cls->globals;
+      // frame->global_owner = cls->global_owner;
+      // wprintf(L"closure -> %ld == %ld\n" , cls->global_owner ,
+      // frame->global_owner);
       break;
     }
     case OP_GET_UP: {
@@ -688,7 +707,7 @@ IResult run_vm() {
       ObjString *prop = read_str_const();
       Value value;
       // wprintf(L"MODNAME -> %ls\n" , modname->name->chars);
-
+      current_owner = modname->name->hash;
       Module *mod = get_mod_by_hash(modname->name->hash);
       if (mod == NULL) {
         runtime_err(L"module not found %ls\n", modname->name->chars);
@@ -781,6 +800,12 @@ bool call(ObjClosure *closure, int argc) {
   frame->closure = closure;
   frame->ip = closure->func->ins.code;
   frame->slots = vm.stack_top - argc - 1;
+  // print_mod_names();
+  frame->global_owner = closure->global_owner;
+  frame->globals = closure->globals;
+
+  // wprintf(L"CALL | current mod argc -> %d | vm -> %ld | frame -> %ld|\n\n" ,
+  // argc, vm.mod_names[vm.current_mod] , frame->global_owner);
   return true;
 }
 
@@ -799,6 +824,8 @@ IResult interpret(wchar_t *source) {
   ObjClosure *cls = new_closure(fn);
   pop();
   push(make_obj_val(cls));
+  cls->global_owner = 0;
+  cls->globals = &vm.modules[0].globals;
 
   call(cls, 0);
   // CallFrame *frame = &vm.frames[vm.frame_count++];

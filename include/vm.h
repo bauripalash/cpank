@@ -18,6 +18,8 @@ typedef struct {
   ObjClosure *closure;
   uint8_t *ip;
   Value *slots;
+  uint32_t global_owner;
+  Htable *globals;
 } CallFrame;
 
 typedef struct {

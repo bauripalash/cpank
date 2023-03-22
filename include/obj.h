@@ -2,6 +2,7 @@
 #define cpank_obj_h
 
 #include "common.h"
+#include "htable.h"
 #include "instruction.h"
 #include "value.h"
 #include <stdbool.h>
@@ -52,6 +53,8 @@ typedef struct {
   ObjFunc *func;
   ObjUpVal **upv;
   int upv_count;
+  uint32_t global_owner;
+  Htable *globals;
 } ObjClosure;
 ObjClosure *new_closure(ObjFunc *function);
 
