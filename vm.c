@@ -97,16 +97,17 @@ void free_module(Module *mod) {
   // wprintf(L"freeing module -> %ls -> is default -> %s\n", mod->name,
   //         is_default(mod) ? "true" : "false");
   free_table(&mod->globals);
+  mod->frame_count = 0;
+
   free(mod->name);
   // ObjMod *objmod = mod->mod;
   //  free_single_obj((Obj *)objmod->name);
   //  FREE(ObjString, objmod->name);
-  /*for (int i = 0; i < mod->frame_count; i++) {
-    CallFrame * frame = &mod->frames[i];
+  for (int i = 0; i < mod->frame_count; i++) {
+    CallFrame *frame = &mod->frames[i];
     FREE(ObjClosure, frame->closure);
-    free_single_obj((Obj *)frame->closure);
-
-  }*/
+    // free_single_obj((Obj *)frame->closure);
+  }
 }
 
 void define_native(wchar_t *name, NativeFn func) {

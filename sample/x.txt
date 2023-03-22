@@ -2,6 +2,3 @@ import "x";
 let pi = 3.14;
 show pi;
 show x.name;
-import "y";
-y.hello("hello");
-show pi;

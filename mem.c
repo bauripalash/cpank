@@ -138,7 +138,7 @@ void blacken_obj(Obj *obj) {
   }
   case OBJ_MOD: {
     ObjMod *md = (ObjMod *)obj;
-    // mark_obj((Obj*)md->name);
+    mark_obj((Obj *)md->name);
     break;
   }
   }
@@ -157,9 +157,12 @@ void mark_roots() {
 #ifdef DEBUG_LOG_GCC
   wprintf(L"marking roots - frame closures -> \n");
 #endif
-  for (int i = 0; i < get_cur_mod()->frame_count; i++) {
-    mark_obj((Obj *)get_cur_mod()->frames[i].closure);
+  // for (int i = 0; i < vm.mod_count; i++) {
+  //   Module *mod = &vm.modules[i];
+  for (int i = 0; i < vm.current_mod->frame_count; i++) {
+    mark_obj((Obj *)vm.current_mod->frames[i].closure);
   }
+  //}
 
 #ifdef DEBUG_LOG_GCC
   wprintf(L"finished marking frame closures -> \n");
@@ -168,9 +171,13 @@ void mark_roots() {
 #ifdef DEBUG_LOG_GCC
   wprintf(L"gc marking open upvalues -> \n");
 #endif
-  for (ObjUpVal *upv = get_cur_mod()->open_upvs; upv != NULL; upv = upv->next) {
+  // for (int i = 0; i < vm.mod_count; i++) {
+  // Module *mod = &vm.modules[i];
+  for (ObjUpVal *upv = vm.current_mod->open_upvs; upv != NULL;
+       upv = upv->next) {
     mark_obj((Obj *)upv);
   }
+  //}
 
 #ifdef DEBUG_LOG_GCC
   wprintf(L"finished marking open upvalues -> \n");
@@ -181,6 +188,10 @@ void mark_roots() {
 #endif
 
   // mark_table(&vm.globals);
+  // for (int i = 0; i < vm.mod_count; i++) {
+  //  Module *mod = &vm.modules[i];
+  mark_table(&vm.current_mod->globals);
+  //}
 #ifdef DEBUG_LOG_GCC
   wprintf(L"finished marking global table -> \n");
 #endif
@@ -282,6 +293,7 @@ void collect_garbage() {
 #endif
   trace_refs();
   table_remove_white(&vm.strings);
+
   sweep();
 
   vm.next_gc = vm.bts_allocated * GC_HEAD_GROW_FACT;
