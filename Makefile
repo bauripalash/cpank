@@ -9,7 +9,7 @@ TESTOUTPUT=test_cpank
 INCLUDE_DIR=include/
 
 run:
-	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g -pg
+	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g
 	./$(OUTPUT)
 
 check:
@@ -29,7 +29,7 @@ test: build_test
 
 build_debug:
 	@echo "Building Debug+Unoptimized $(OUTPUT)"
-	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g -pg
+	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g
 	@echo "Finished building Debug+Unoptimized $(OUTPUT)"
 
 build_uo:

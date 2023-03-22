@@ -2,3 +2,5 @@ let a = 1;
 show a;
 import "x";
 
+x.hello(a);
+show a;

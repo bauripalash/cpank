@@ -162,7 +162,7 @@ void print_table(Htable *table, char *name) {
   wprintf(L"<- TABLE (%s)->\n", name);
   for (int i = 0; i < table->cap; i++) {
     Entry *entry = &table->entries[i];
-    if (entry->key != NULL) {
+    if (entry != NULL && entry->key != NULL) {
       wprintf(L"[ key -> '%ls' | val -> ", entry->key->chars);
       print_val(entry->val);
       wprintf(L" ]\n");

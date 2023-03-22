@@ -35,7 +35,7 @@ void boot_vm() {
   vm.last_pop = make_nil();
 
   vm.bts_allocated = 0;
-  vm.next_gc = 10 * 10;
+  vm.next_gc = 1024 * 1024;
   vm.gray_cap = 0;
   vm.gray_count = 0;
   vm.gray_stack = NULL;
@@ -50,13 +50,18 @@ void boot_vm() {
   dmod->is_default = true;
   vm.mod_names[vm.mod_count] = get_hash(default_mod, wcslen(default_mod));
   // init_table(&vm.globals);
-  define_native(L"clock", clock_ntv_fn);
+  // define_native(L"clock", clock_ntv_fn);
 }
 
 void init_module(Module *mod, const wchar_t *name) {
 
   init_table(&mod->globals);
   mod->frame_count = 0;
+  for (int i = 0; i != FRAME_SIZE; i++) {
+    CallFrame *frm = &mod->frames[i];
+    frm = NULL;
+  }
+
   mod->name = malloc(sizeof(wchar_t) * (wcslen(name) + 1));
   wmemcpy(mod->name, name, wcslen(name) + 1);
   mod->open_upvs = NULL;
@@ -357,9 +362,15 @@ static bool import_file(wchar_t *import_name) {
     return true;
   } else {
     Module *mod = &vm.modules[vm.mod_count++];
+    mod->is_default = false;
+    // mod->frame_count = 0;
+    // mod->name = import_name;
+    // init_table(&mod->globals);
     init_module(mod, import_name);
     // init_table(&mod->globals);
 
+    wprintf(L"is globals null -> %s\n",
+            mod->globals.entries == NULL ? "true" : "false");
     // print_table(&mod->globals, "mod");
 
     // wprintf(L"name -> %ls\n" , mod->name);
@@ -385,7 +396,7 @@ static bool import_file(wchar_t *import_name) {
     //
     //
     vm.current_mod++;
-    ObjFunc *newfn = compile(L"let q  = 1;");
+    ObjFunc *newfn = compile(L"fun hello(x) a=100;show 1 + x; end");
     write_ins(&newfn->ins, OP_END_MOD, 9999);
     if (newfn == NULL) {
       return false;
@@ -554,6 +565,7 @@ IResult run_vm() {
       ObjString *nm = read_str_const();
       // wprintf(L"Def global -> %ls\n" , nm->chars);
       // print_val(peek_vm(0));
+      print_table(&get_cur_mod()->globals, "mod globals before deg glob");
       table_set(&get_cur_mod()->globals, nm, peek_vm(0));
       pop();
       break;
