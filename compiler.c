@@ -844,6 +844,26 @@ ObjFunc *compile(wchar_t *source) {
   return parser.had_err ? NULL : fn;
 }
 
+ObjFunc *compile_module(wchar_t *source) {
+  boot_lexer(source);
+  Compiler modcompiler;
+  init_comiler(&modcompiler, FTYPE_SCRIPT);
+  parser.had_err = false;
+  parser.panic_mode = false;
+  advance();
+  while (!match_tok(T_EOF)) {
+    read_declr();
+  }
+
+  ObjFunc *fn = end_compiler();
+
+  if (!parser.had_err) {
+    make_changes_for_mod(&fn->ins);
+  }
+
+  return parser.had_err ? NULL : fn;
+}
+
 void mark_compiler_roots() {
   Compiler *compiler = current;
   while (compiler != NULL) {

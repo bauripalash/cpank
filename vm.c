@@ -41,7 +41,7 @@ void boot_vm() {
   vm.gray_count = 0;
   vm.gray_stack = NULL;
   vm.mod_count = 0;
-  vm.current_mod = 0;
+  // vm.current_mod = 0;
 
   init_table(&vm.strings);
 
@@ -50,7 +50,9 @@ void boot_vm() {
   init_module(dmod, default_mod);
   // init_table(&dmod->globals);
   dmod->is_default = true;
+  dmod->origin = NULL;
   vm.mod_names[vm.mod_count] = get_hash(default_mod, wcslen(default_mod));
+  vm.current_mod = dmod;
   // init_table(&vm.globals);
   // define_native(L"clock", clock_ntv_fn);
 }
@@ -61,7 +63,7 @@ void init_module(Module *mod, const wchar_t *name) {
   mod->frame_count = 0;
   for (int i = 0; i != FRAME_SIZE; i++) {
     CallFrame *frm = &mod->frames[i];
-    frm = NULL;
+    // frm = NULL;
   }
 
   mod->name = malloc(sizeof(wchar_t) * (wcslen(name) + 1));
@@ -126,7 +128,30 @@ void define_native(wchar_t *name, NativeFn func) {
   pop();
 }
 
+void print_modframes() {
+  for (int i = 0; i < vm.mod_count; i++) {
+    Module *mod = &vm.modules[i];
+    wprintf(L"module %ls has %d frames \n", mod->name, mod->frame_count);
+    for (int f = 0; f < mod->frame_count; f++) {
+      CallFrame *fr = &mod->frames[f];
+      wchar_t *name = L"unknown";
+      if (fr->closure != NULL) {
+        if (fr->closure->func != NULL) {
+          if (fr->closure->func->name != NULL) {
+            if (fr->closure->func->name->chars != NULL) {
+              name = fr->closure->func->name->chars;
+            }
+          }
+        }
+      }
+      wprintf(L"]] FRAME %d | %ls\n", f, name);
+    }
+  }
+}
+
 void free_vm() {
+  wprintf(L"----------FREE VM----------\n");
+  print_modframes();
   // free(vm.last_pop);
   // vm.last_pop = make_nil();
   free_table(&vm.strings);
@@ -135,10 +160,12 @@ void free_vm() {
     free_module(&vm.modules[i]);
   }
   free_objs();
+
+  wprintf(L"----------DONE FREE VM----------\n");
 }
 
 Value get_last_pop() { return vm.last_pop; }
-Module *get_cur_mod() { return &vm.modules[vm.current_mod]; }
+Module *get_cur_mod() { return vm.current_mod; }
 
 void push(Value value) {
   *vm.stack_top = value;
@@ -185,21 +212,27 @@ void runtime_err(wchar_t *format, ...) {
 CallFrame *get_cur_farme() {
   return &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
 }
-uint8_t read_bt() { return *get_cur_farme()->ip++; }
-uint8_t peek_bt() {
-  uint8_t result = *get_cur_farme()->ip++;
-  get_cur_farme()->ip--;
+uint8_t read_bt(CallFrame *frame) {
+  uint8_t result = *frame->ip++;
+  // wprintf(L"<<<<<<<<< BT ->>> %s\n", print_opcode(result));
   return result;
 }
-uint16_t read_u16() {
-  CallFrame *cf = get_cur_farme();
+uint8_t peek_bt(CallFrame *frame) {
+  uint8_t result = read_bt(frame);
+  frame->ip--;
+  return result;
+}
+uint16_t read_u16(CallFrame *frame) {
+  CallFrame *cf = frame; // get_cur_farme();
   cf->ip += 2;
   return (uint16_t)((cf->ip[-2] << 8) | cf->ip[-1]);
 }
-Value read_const() {
-  return get_cur_farme()->closure->func->ins.consts.values[read_bt()];
+Value read_const(CallFrame *frame) {
+  return frame->closure->func->ins.consts.values[read_bt(frame)];
 }
-ObjString *read_str_const() { return get_as_string(read_const()); }
+ObjString *read_str_const(CallFrame *frame) {
+  return get_as_string(read_const(frame));
+}
 void add_string() {
   ObjString *r = get_as_string(peek_vm(0));
   ObjString *l = get_as_string(peek_vm(1));
@@ -367,29 +400,30 @@ static bool import_custom(wchar_t *import_name) {
   wchar_t *dummy_source_code = NULL;
   if (wcscmp(import_name, L"x") == 0) {
 
-    dummy_source_code = L"fun hello(x) x=100 ;show 1 + x; end fun dance(name) "
-                        L"show name + \" is dancing\"; end";
+    dummy_source_code = L"let name = \"palash\";";
   } else {
 
-    dummy_source_code = L"fun hello(x) show \"hello \" + x; end";
+    dummy_source_code = L"fun hello(x) let pi = 100; show \"hello \" + x; end";
   }
   Module *mod = &vm.modules[vm.mod_count++];
   mod->is_default = false;
+  mod->origin = get_cur_mod();
 
   init_module(mod, import_name);
 
   // wprintf(L"is globals null -> %s\n",
   //         mod->globals.entries == NULL ? "true" : "false");
-
+  int origin_caller = get_cur_mod()->frame_count - 1;
   ObjMod *objmod = new_mod(copy_string(import_name, wcslen(import_name)));
   vm.mod_names[vm.mod_count - 1] = objmod->name->hash;
   push(make_obj_val(mod));
   ObjString *strname = copy_string(import_name, wcslen(import_name));
 
   table_set(&get_cur_mod()->globals, strname, make_obj_val(objmod));
-  vm.current_mod++;
-  ObjFunc *newfn = compile(dummy_source_code);
-  write_ins(&newfn->ins, OP_END_MOD, 9999);
+  vm.current_mod = mod; // vm.mod_count - 1;
+  ObjFunc *newfn = compile_module(dummy_source_code);
+  dissm_ins_chunk(&newfn->ins, import_name);
+  // write_ins(&newfn->ins, OP_END_MOD, 9999);
   if (newfn == NULL) {
     return false;
   }
@@ -397,13 +431,16 @@ static bool import_custom(wchar_t *import_name) {
   // dissm_ins_chunk(&newfn->ins, L"MODULE");
 
   push(make_obj_val(newfn));
-  ObjClosure *cls = new_closure(newfn);
+  ObjClosure *cls = new_closure(newfn, objmod->name->hash);
   cls->global_owner = objmod->name->hash;
   cls->globals = &mod->globals;
   pop();
-  push(make_obj_val(cls));
-
-  call(cls, 0);
+  // push(make_obj_val(cls));
+  // wprintf(L"BEFORE MOD CALL\n");
+  // print_modframes();
+  call(cls, origin_caller, 0);
+  // wprintf(L"AFTER MOD CALL\n");
+  // print_modframes();
 
   return true;
 }
@@ -446,41 +483,63 @@ IResult run_vm() {
               (int)(frame->ip - frame->closure->func->ins.code));
 
 #endif
-    uint8_t ins;
-    switch (ins = read_bt()) {
+    // wprintf(L"----------------\nCURMOD ->%ls\n" , get_cur_mod()->name);
+    // wprintf(L"FRAME X -> %ld\n" , get_cur_farme()->global_owner);
+    // wprintf(L"FRAME OWNER ->%ld\n" , frame->global_owner);
+    uint8_t ins = read_bt(frame);
+    // wprintf(L"INS -> %s\n--------------\n" , print_opcode(ins));
+    switch (ins) {
     case OP_END_MOD:
-      vm.current_mod--;
-      break;
+      pop();
+      int oring = frame->origin;
+      get_cur_mod()->frame_count--;
+
+      vm.current_mod = get_cur_mod()->origin;
+
+      frame = &vm.current_mod->frames[vm.current_mod->frame_count - 1];
+      continue;
+      // vm.current_mod--;
+      // frame = &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
+      // break;
     case OP_RETURN: {
+      // int origin = frame->origin;
+
+      // for (int i = 0; i <= vm.mod_count; i++) {
+      //   wprintf(L"R | module %ls has %d frames \n", vm.modules[i].name,
+      //           vm.modules[i].frame_count);
+      // }
 
       Value res = pop();
-      close_upval(frame->slots);
-      // if (peek_bt() == OP_END_MOD) {
+      // Module *mod = get_mod_by_hash(frame->global_owner);
+      // if (peek_bt(frame) == OP_END_MOD) {
+      // read_bt(frame);
+      //  wprintf(L"PEEEEEEK\n");
       // get_cur_mod()->frame_count--;
-      //  vm.current_mod--;
+      // vm.current_mod = mod->origin;
+      // continue;
       //  break;
       //}
+      close_upval(get_cur_mod(), frame->slots);
+
       get_cur_mod()->frame_count--;
       // vm.frame_count--;
 
-      if (get_cur_mod()->frame_count == 0 && vm.current_mod == 0) {
+      if (get_cur_mod()->frame_count == 0 && vm.current_mod->is_default) {
         pop();
         return INTRP_OK;
-      } else if (get_cur_mod()->frame_count == 0) {
-        vm.current_mod--;
-        break;
       }
 
       vm.stack_top = frame->slots;
       push(res);
       frame = &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
+
       break;
       //  print_val(pop());
       //  wprintf(L"\n");
       // return INTRP_OK;
     }
     case OP_CONST: {
-      Value con = read_const();
+      Value con = read_const(frame);
       push(con);
       break;
     }
@@ -571,18 +630,28 @@ IResult run_vm() {
       wprintf(L"\n");
       break;
     case OP_DEF_GLOB: {
-      ObjString *nm = read_str_const();
+      ObjString *nm = read_str_const(frame);
 
-      // wprintf(L"def global %ld | %ls\n" , frame->global_owner , nm->chars);
-      //  wprintf(L"Def global -> %ls\n" , nm->chars);
-      //  print_val(peek_vm(0));
-      // print_table(frame->globals, "mod globals before deg glob");
-      table_set(&get_cur_mod()->globals, nm, peek_vm(0));
+      // wprintf(L"-------->def global %ld | %ls\n", frame->global_owner,
+      //         nm->chars);
+      //   wprintf(L"Def global -> %ls\n" , nm->chars);
+      //   print_val(peek_vm(0));
+      //  print_table(frame->globals, "mod globals before deg glob");
+      table_set(frame->globals, nm, peek_vm(0));
+      /*for (int i = 0; i <= vm.mod_count; i++) {
+        Module * mod = &vm.modules[i];
+        for (int j = 0; j < mod->frame_count ; j++) {
+          Htable * tbl = mod->frames[j].globals;
+          print_table(tbl , "frames");
+         }
+      }*/
+      // wprintf(L"FRAME -> module %ld\n", frame->global_owner);
+      // print_table(frame->globals, "curframe - defglobal");
       pop();
       break;
     }
     case OP_GET_GLOB: {
-      ObjString *name = read_str_const();
+      ObjString *name = read_str_const(frame);
       // wprintf(L"GET_GLOB name -> %ls\n" , name->chars);
       // print_table(&vm.globals , "global");
       // print_obj();
@@ -596,7 +665,7 @@ IResult run_vm() {
     }
 
     case OP_SET_GLOB: {
-      ObjString *name = read_str_const();
+      ObjString *name = read_str_const(frame);
       wprintf(L"setting global -> %ls -> %ld\n", name->chars,
               frame->global_owner);
       if (table_set(frame->globals, name, peek_vm(0))) {
@@ -608,18 +677,18 @@ IResult run_vm() {
     }
 
     case OP_GET_LOCAL: {
-      uint8_t slot = read_bt();
+      uint8_t slot = read_bt(frame);
       // push(vm.stack[slot]);
       push(frame->slots[slot]);
       break;
     }
     case OP_SET_LOCAL: {
-      uint8_t slot = read_bt();
+      uint8_t slot = read_bt(frame);
       frame->slots[slot] = peek_vm(0);
       break;
     }
     case OP_JMP_IF_FALSE: {
-      uint16_t offset = read_u16();
+      uint16_t offset = read_u16(frame);
       // wprintf(L"JIF -> %d\n" , offset);
       if (is_falsey(peek_vm(0))) {
         frame->ip += offset;
@@ -627,26 +696,27 @@ IResult run_vm() {
       break;
     }
     case OP_JMP: {
-      uint16_t offset = read_u16();
+      uint16_t offset = read_u16(frame);
       frame->ip += offset;
       break;
     }
     case OP_LOOP: {
-      uint16_t offset = read_u16();
+      uint16_t offset = read_u16(frame);
       frame->ip -= offset;
       break;
     }
     case OP_CLOSURE: {
-      ObjFunc *func = get_as_func(read_const());
-      ObjClosure *cls = new_closure(func);
-      cls->global_owner = vm.mod_names[vm.current_mod];
-      cls->globals = &vm.modules[vm.current_mod].globals;
+      ObjFunc *func = get_as_func(read_const(frame));
+      ObjClosure *cls = new_closure(func, frame->global_owner);
+      // cls->global_owner = vm.mod_names[vm.current_mod];
+      // cls->globals = &vm.modules[vm.current_mod].globals;
       push(make_obj_val(cls));
+      Module *mod = get_mod_by_hash(frame->global_owner);
       for (int i = 0; i < cls->upv_count; i++) {
-        uint16_t is_local = read_bt();
-        uint8_t index = read_bt();
+        uint16_t is_local = read_bt(frame);
+        uint8_t index = read_bt(frame);
         if (is_local) {
-          cls->upv[i] = capture_upv(frame->slots + index);
+          cls->upv[i] = capture_upv(mod, frame->slots + index);
           // capture
         } else {
           cls->upv[i] = frame->closure->upv[index];
@@ -659,22 +729,23 @@ IResult run_vm() {
       break;
     }
     case OP_GET_UP: {
-      uint8_t slot = read_bt();
+      uint8_t slot = read_bt(frame);
       push(*frame->closure->upv[slot]->location);
       break;
     }
     case OP_SET_UP: {
-      uint8_t slot = read_bt();
+      uint8_t slot = read_bt(frame);
       *frame->closure->upv[slot]->location = peek_vm(0);
       break;
     }
     case OP_CLS_UP: {
-      close_upval(vm.stack_top - 1);
+      Module *mod = get_mod_by_hash(frame->global_owner);
+      close_upval(mod, vm.stack_top - 1);
       pop();
       break;
     }
     case OP_CALL: {
-      int argc = read_bt();
+      int argc = read_bt(frame);
       if (!call_val(peek_vm(argc), argc)) {
         return INTRP_RUNTIME_ERR;
       }
@@ -696,23 +767,36 @@ IResult run_vm() {
         return INTRP_RUNTIME_ERR;
       }
 
+      frame = &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
+      // wprintf(L"after import -> %ld\n" , get_cur_mod()->frame_count);
+      // else {
+      //   frame = &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
+      //   continue;
+      // }
+
+      // vm.current_mod--;
+
       // print_val(import_file_name);
       break;
     }
     case OP_GET_MOD_PROP: {
       // print_stack();
-      // print_table(&get_cur_mod()->globals, "curmodglobals");
       // print_val(peek_vm(0));
       ObjMod *modname = get_as_mod(peek_vm(0));
-      ObjString *prop = read_str_const();
+
+      ObjString *prop = read_str_const(frame);
       Value value;
       // wprintf(L"MODNAME -> %ls\n" , modname->name->chars);
       current_owner = modname->name->hash;
       Module *mod = get_mod_by_hash(modname->name->hash);
+
       if (mod == NULL) {
         runtime_err(L"module not found %ls\n", modname->name->chars);
         return INTRP_RUNTIME_ERR;
       }
+
+      // print_table(&mod->globals, "curmodglobals");
+      // print_table(frame->globals, "frame modules");
 
       if (table_get(&mod->globals, prop, &value)) {
         pop();
@@ -729,19 +813,18 @@ IResult run_vm() {
   return INTRP_RUNTIME_ERR;
 }
 
-void close_upval(Value *last) {
-  while (get_cur_mod()->open_upvs != NULL &&
-         get_cur_mod()->open_upvs->location >= last) {
-    ObjUpVal *upval = get_cur_mod()->open_upvs;
+void close_upval(Module *module, Value *last) {
+  while (module->open_upvs != NULL && module->open_upvs->location >= last) {
+    ObjUpVal *upval = module->open_upvs;
     upval->closed = *upval->location;
     upval->location = &upval->closed;
-    get_cur_mod()->open_upvs = upval->next;
+    module->open_upvs = upval->next;
   }
 }
 
-ObjUpVal *capture_upv(Value *local) {
+ObjUpVal *capture_upv(Module *module, Value *local) {
   ObjUpVal *prev = NULL;
-  ObjUpVal *upv = get_cur_mod()->open_upvs;
+  ObjUpVal *upv = module->open_upvs;
   while (upv != NULL && upv->location > local) {
     prev = upv;
     upv = upv->next;
@@ -754,7 +837,7 @@ ObjUpVal *capture_upv(Value *local) {
   ObjUpVal *new_upv = new_up_val(local);
   new_upv->next = upv;
   if (prev == NULL) {
-    get_cur_mod()->open_upvs = new_upv;
+    module->open_upvs = new_upv;
   } else {
     prev->next = new_upv;
   }
@@ -766,10 +849,11 @@ Value clock_ntv_fn(int argc, Value *args) {
 }
 
 bool call_val(Value calle, int argc) {
+  int origin = get_cur_mod()->frame_count - 1;
   if (is_obj(calle)) {
     switch (get_obj_type(calle)) {
     case OBJ_CLOUSRE:
-      return call(get_as_closure(calle), argc);
+      return call(get_as_closure(calle), origin, argc);
     case OBJ_NATIVE: {
       NativeFn native = get_as_native(calle);
       Value result = native(argc, vm.stack_top - argc);
@@ -785,7 +869,7 @@ bool call_val(Value calle, int argc) {
   return false;
 }
 
-bool call(ObjClosure *closure, int argc) {
+bool call(ObjClosure *closure, int origin, int argc) {
   if (closure->func->arity != argc) {
     runtime_err(L"Expected %d args but got %d", closure->func->arity, argc);
     return false;
@@ -800,6 +884,7 @@ bool call(ObjClosure *closure, int argc) {
   frame->closure = closure;
   frame->ip = closure->func->ins.code;
   frame->slots = vm.stack_top - argc - 1;
+  frame->origin = origin;
   // print_mod_names();
   frame->global_owner = closure->global_owner;
   frame->globals = closure->globals;
@@ -821,13 +906,13 @@ IResult interpret(wchar_t *source) {
   }
 
   push(make_obj_val(fn));
-  ObjClosure *cls = new_closure(fn);
+  ObjClosure *cls = new_closure(fn, 0);
   pop();
   push(make_obj_val(cls));
   cls->global_owner = 0;
   cls->globals = &vm.modules[0].globals;
 
-  call(cls, 0);
+  call(cls, 0, 0);
   // CallFrame *frame = &vm.frames[vm.frame_count++];
   // frame->func = fn;
   // frame->ip = fn->ins.code;

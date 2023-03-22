@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "value.h"
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef enum {
@@ -57,5 +58,5 @@ void init_instruction(Instruction *ins);
 void write_ins(Instruction *ins, uint8_t bt, int line);
 void free_ins(Instruction *ins);
 int add_const(Instruction *ins, Value val);
-
+bool make_changes_for_mod(Instruction *ins);
 #endif

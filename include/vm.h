@@ -20,15 +20,17 @@ typedef struct {
   Value *slots;
   uint32_t global_owner;
   Htable *globals;
+  int origin;
 } CallFrame;
 
-typedef struct {
+typedef struct Module {
   Htable globals;
   CallFrame frames[FRAME_SIZE];
   int frame_count;
   wchar_t *name;
   ObjUpVal *open_upvs;
   bool is_default;
+  struct Module *origin;
 
 } Module;
 
@@ -36,7 +38,7 @@ typedef struct ObjMod {
   Obj obj;
   ObjString *name;
 } ObjMod;
-
+Module *get_mod_by_hash(uint32_t hash);
 ObjMod *get_as_mod(Value val);    // defined in obj.c
 ObjMod *new_mod(ObjString *name); // define in obj.c
 
@@ -53,7 +55,7 @@ typedef struct {
   Module modules[MODULES_MAX];
   uint32_t mod_names[MODULES_MAX];
   int mod_count;
-  int current_mod;
+  Module *current_mod;
   // Htable globals;
   Obj *objs;
   // CallFrame frames[FRAME_SIZE];
@@ -82,10 +84,10 @@ void push(Value value);
 Value pop();
 Value get_last_pop();
 bool call_val(Value calle, int argc);
-bool call(ObjClosure *closure, int argc);
+bool call(ObjClosure *closure, int origin, int argc);
 void define_native(wchar_t *name, NativeFn func);
 Value clock_ntv_fn(int argc, Value *args);
-ObjUpVal *capture_upv(Value *local);
-void close_upval(Value *last);
+ObjUpVal *capture_upv(Module *module, Value *local);
+void close_upval(Module *module, Value *last);
 
 #endif

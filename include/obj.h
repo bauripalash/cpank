@@ -56,7 +56,7 @@ typedef struct {
   uint32_t global_owner;
   Htable *globals;
 } ObjClosure;
-ObjClosure *new_closure(ObjFunc *function);
+ObjClosure *new_closure(ObjFunc *function, uint32_t global_owner);
 
 struct ObjString {
   Obj obj;

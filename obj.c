@@ -187,7 +187,7 @@ ObjNative *new_native(NativeFn fn) {
   return native;
 }
 
-ObjClosure *new_closure(ObjFunc *func) {
+ObjClosure *new_closure(ObjFunc *func, uint32_t global_owner) {
   ObjUpVal **upvs = ALLOC(ObjUpVal *, func->up_count);
   for (int i = 0; i < func->up_count; i++) {
     upvs[i] = NULL;
@@ -195,6 +195,8 @@ ObjClosure *new_closure(ObjFunc *func) {
   ObjClosure *cls = ALLOCATE_OBJ(ObjClosure, OBJ_CLOUSRE);
   cls->func = func;
   cls->upv = upvs;
+  cls->global_owner = global_owner;
+  cls->globals = &get_mod_by_hash(global_owner)->globals;
   cls->upv_count = func->up_count;
   return cls;
 }

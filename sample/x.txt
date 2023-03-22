@@ -1,7 +1,7 @@
-let a = 1;
-show a;
 import "x";
-x.dance("palash");
-
-show a;
-
+let pi = 3.14;
+show pi;
+show x.name;
+import "y";
+y.hello("hello");
+show pi;

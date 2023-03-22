@@ -2,6 +2,7 @@
 #include "include/mem.h"
 #include "include/value.h"
 #include "include/vm.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -38,4 +39,13 @@ int add_const(Instruction *ins, Value val) {
   write_valarr(&ins->consts, val);
   pop();
   return ins->consts.len - 1;
+}
+
+bool make_changes_for_mod(Instruction *ins) {
+  if (ins->len < 2) {
+    return false;
+  }
+  ins->code[ins->len - 1] = OP_END_MOD;
+  // ins->len--;
+  return true;
 }

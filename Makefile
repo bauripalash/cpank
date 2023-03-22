@@ -34,7 +34,7 @@ build_debug:
 
 build_uo:
 	@echo "Building Unoptimized $(OUTPUT)"
-	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC)
+	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -pg
 	@echo "Finished building unoptimized $(OUTPUT)"
 
 build:
