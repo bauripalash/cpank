@@ -20,7 +20,6 @@ typedef struct {
   Value *slots;
   uint32_t global_owner;
   Htable *globals;
-  int origin;
 } CallFrame;
 
 typedef struct Module {

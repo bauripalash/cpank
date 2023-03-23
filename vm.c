@@ -21,7 +21,6 @@
 
 Vm vm;
 const wchar_t *default_mod = L"__d__";
-uint32_t current_owner = 1;
 // #define DEBUG_STACK
 
 void reset_stack() {
@@ -103,11 +102,12 @@ void free_module(Module *mod) {
   // ObjMod *objmod = mod->mod;
   //  free_single_obj((Obj *)objmod->name);
   //  FREE(ObjString, objmod->name);
-  for (int i = 0; i < mod->frame_count; i++) {
-    CallFrame *frame = &mod->frames[i];
-    FREE(ObjClosure, frame->closure);
-    // free_single_obj((Obj *)frame->closure);
-  }
+  // for (int i = 0; i < mod->frame_count; i++) {
+  //  CallFrame *frame = &mod->frames[i];
+  //  FREE(ObjClosure, frame->closure);
+  // free_single_obj((Obj *)frame->closure);
+  //}
+  // mod->open_upvs = NULL;
 }
 
 void define_native(wchar_t *name, NativeFn func) {
@@ -491,8 +491,7 @@ IResult run_vm() {
     // wprintf(L"INS -> %s\n--------------\n" , print_opcode(ins));
     switch (ins) {
     case OP_END_MOD:
-      pop();
-      int oring = frame->origin;
+      pop(); // in modules last nil still exists
       get_cur_mod()->frame_count--;
 
       vm.current_mod = get_cur_mod()->origin;
@@ -624,20 +623,12 @@ IResult run_vm() {
       wprintf(L"p~ ");
 
       Value to_show = pop();
-
-      // memcpy(vm.last_pop, to_show, sizeof(Value));
       vm.last_pop = to_show;
       print_val(to_show);
       wprintf(L"\n");
       break;
     case OP_DEF_GLOB: {
       ObjString *nm = read_str_const(frame);
-
-      // wprintf(L"-------->def global %ld | %ls\n", frame->global_owner,
-      //         nm->chars);
-      //   wprintf(L"Def global -> %ls\n" , nm->chars);
-      //   print_val(peek_vm(0));
-      //  print_table(frame->globals, "mod globals before deg glob");
       table_set(frame->globals, nm, peek_vm(0));
       /*for (int i = 0; i <= vm.mod_count; i++) {
         Module * mod = &vm.modules[i];
@@ -646,8 +637,7 @@ IResult run_vm() {
           print_table(tbl , "frames");
          }
       }*/
-      // wprintf(L"FRAME -> module %ld\n", frame->global_owner);
-      // print_table(frame->globals, "curframe - defglobal");
+
       pop();
       break;
     }
@@ -788,7 +778,7 @@ IResult run_vm() {
       ObjString *prop = read_str_const(frame);
       Value value;
       // wprintf(L"MODNAME -> %ls\n" , modname->name->chars);
-      current_owner = modname->name->hash;
+      // current_owner = modname->name->hash;
       Module *mod = get_mod_by_hash(modname->name->hash);
 
       if (mod == NULL) {
@@ -885,8 +875,8 @@ bool call(ObjClosure *closure, int origin, int argc) {
   frame->closure = closure;
   frame->ip = closure->func->ins.code;
   frame->slots = vm.stack_top - argc - 1;
-  frame->origin = origin;
-  // print_mod_names();
+  // frame->origin = origin;
+  //  print_mod_names();
   frame->global_owner = closure->global_owner;
   frame->globals = closure->globals;
 

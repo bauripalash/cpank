@@ -81,9 +81,11 @@ void free_single_obj(Obj *obj) {
   }
   case OBJ_MOD: {
 
-    ObjMod *mod = (ObjMod *)obj;
-    // free(mod->name->chars);
-    // FREE(ObjString, mod->name);
+    // FREE_ARR(wchar_t, mod->name->chars, mod->name->len+1);
+    FREE(ObjMod, obj);
+    // free_single_obj((Obj*)mod->name);
+    //  free(mod->name->chars);
+    //  FREE(ObjString, mod->name);
     break;
   }
   }
