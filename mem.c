@@ -13,11 +13,11 @@
 
 #include "include/vm.h"
 
-// #define  DEBUG_LOG_GC
+#define DEBUG_LOG_GC
 
 // #define NOGC
 
-// #define DEBUG_STRES_GC
+#define DEBUG_STRES_GC
 #ifdef DEBUG_LOG_GC
 #include "include/debug.h"
 #endif
@@ -110,7 +110,7 @@ void mark_array(Valarr *arr) {
 
 void blacken_obj(Obj *obj) {
 #ifdef DEBUG_LOG_GC
-  //setlocale(LC_CTYPE, "");
+  // setlocale(LC_CTYPE, "");
   wprintf(L"%p blacken -> %ls", (void *)obj, get_obj_type_as_string(obj->type));
 
   print_val(make_obj_val(obj));
@@ -147,24 +147,24 @@ void blacken_obj(Obj *obj) {
 }
 
 void mark_roots() {
-#ifdef DEBUG_LOG_GCC
+#ifdef DEBUG_LOG_GC
   wprintf(L"marking stack slots -> \n");
 #endif
   for (Value *slot = vm.stack; slot < vm.stack_top; slot++) {
     mark_val(*slot);
   }
-#ifdef DEBUG_LOG_GCC
+#ifdef DEBUG_LOG_GC
   wprintf(L"finished marking slots -> \n");
 #endif
-#ifdef DEBUG_LOG_GCC
+#ifdef DEBUG_LOG_GC
   wprintf(L"marking roots - frame closures -> \n");
 #endif
-  // for (int i = 0; i < vm.mod_count; i++) {
-  //   Module *mod = &vm.modules[i];
-  for (int i = 0; i < vm.current_mod->frame_count; i++) {
-    mark_obj((Obj *)vm.current_mod->frames[i].closure);
+  for (int i = 0; i < vm.mod_count; i++) {
+    Module *mod = &vm.modules[i];
+    for (int i = 0; i < mod->frame_count; i++) {
+      mark_obj((Obj *)mod->frames[i].closure);
+    }
   }
-  //}
 
 #ifdef DEBUG_LOG_GCC
   wprintf(L"finished marking frame closures -> \n");
@@ -181,27 +181,32 @@ void mark_roots() {
   }
   //}
 
-#ifdef DEBUG_LOG_GCC
+#ifdef DEBUG_LOG_GC
   wprintf(L"finished marking open upvalues -> \n");
 #endif
 
-#ifdef DEBUG_LOG_GCC
+#ifdef DEBUG_LOG_GC
   wprintf(L"gc marking table -> gloals -> \n");
 #endif
 
   // mark_table(&vm.globals);
   // for (int i = 0; i < vm.mod_count; i++) {
-  //  Module *mod = &vm.modules[i];
-  mark_table(&vm.current_mod->globals);
+  // Module *mod = &vm.modules[i];
+  if (vm.current_mod->globals.len > 0) {
+
+    mark_table(&vm.current_mod->globals);
+  }
   //}
-#ifdef DEBUG_LOG_GCC
+
+  // mark_table(&vm.current_mod->globals);
+#ifdef DEBUG_LOG_GC
   wprintf(L"finished marking global table -> \n");
 #endif
-#ifdef DEBUG_LOG_GCC
+#ifdef DEBUG_LOG_GC
   wprintf(L"marking compiler roots -> \n");
 #endif
   mark_compiler_roots();
-#ifdef DEBUG_LOG_GCC
+#ifdef DEBUG_LOG_GC
   wprintf(L"finished marking compiler roots -> \n");
 #endif
 }
@@ -251,7 +256,7 @@ void mark_obj(Obj *obj) {
   }
 
 #ifdef DEBUG_LOG_GC
-  //setlocale(LC_CTYPE, "");
+  // setlocale(LC_CTYPE, "");
   wprintf(L"%p mark  -> ", (void *)obj);
   //  Value v = make_obj_val(obj);
 
@@ -278,7 +283,7 @@ void mark_obj(Obj *obj) {
 
 void collect_garbage() {
 #ifndef NOGC
-  //setlocale(LC_CTYPE, "");
+  // setlocale(LC_CTYPE, "");
 #ifdef DEBUG_LOG_GC
   wprintf(L"-- gc start\n");
   size_t before = vm.bts_allocated;

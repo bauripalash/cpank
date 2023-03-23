@@ -5,7 +5,7 @@
 #include "include/obj.h"
 #include "include/value.h"
 
-//#define DEBUG_PRINT_CODE
+// #define DEBUG_PRINT_CODE
 
 #ifdef DEBUG_PRINT_CODE
 #include "include/debug.h"
@@ -856,6 +856,8 @@ ObjFunc *compile_module(wchar_t *source) {
   }
 
   ObjFunc *fn = end_compiler();
+
+  mark_compiler_roots();
 
   if (!parser.had_err) {
     make_changes_for_mod(&fn->ins);

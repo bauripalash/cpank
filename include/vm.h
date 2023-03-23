@@ -46,8 +46,8 @@ Module *get_cur_mod();
 bool is_default(Module *mod);
 
 typedef struct {
-  //Instruction *ins;
-  //uint8_t *ip;
+  // Instruction *ins;
+  // uint8_t *ip;
   Value stack[STACK_SIZE];
   Value *stack_top;
   Htable strings;

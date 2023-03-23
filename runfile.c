@@ -33,7 +33,7 @@ Srcfile read_file(const char *path) {
   fclose(file);
   result.source = (char *)malloc(result.size);
   memcpy(result.source, temp_buff, result.size);
-  //memcpy_s(result.source , result.size , temp_buff , result.size);
+  // memcpy_s(result.source , result.size , temp_buff , result.size);
   free(temp_buff);
 
   return result;
@@ -45,7 +45,7 @@ int run_file(const char *filepath) {
   int errcode = 0;
   wchar_t *src = (wchar_t *)malloc(sizeof(wchar_t) * raw.size);
   // wprintf(L"sizes: wchar_t -> %d | char -> %d\n" , sizeof(wchar_t) ,
-  //setlocale(LC_CTYPE, "");
+  // setlocale(LC_CTYPE, "");
   mbstowcs(src, raw.source, raw.size + 1);
 
   boot_vm();
@@ -64,10 +64,11 @@ int run_file(const char *filepath) {
     errcode = 1;
     break;
     ;
-  //case INTRP_OK:
-  //  wprintf(L"OK\n");
-  //  break;
-  default:{}
+  // case INTRP_OK:
+  //   wprintf(L"OK\n");
+  //   break;
+  default: {
+  }
   }
 
   // free(src);

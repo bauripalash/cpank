@@ -60,9 +60,9 @@ void init_module(Module *mod, const wchar_t *name) {
 
   init_table(&mod->globals);
   mod->frame_count = 0;
-  //for (int i = 0; i != FRAME_SIZE; i++) {
-  //  CallFrame *frm = &mod->frames[i];
-    // frm = NULL;
+  // for (int i = 0; i != FRAME_SIZE; i++) {
+  //   CallFrame *frm = &mod->frames[i];
+  //  frm = NULL;
   //}
 
   mod->name = malloc(sizeof(wchar_t) * (wcslen(name) + 1));
@@ -92,9 +92,9 @@ void print_mod_names() {
   }
 }
 void free_module(Module *mod) {
-  //setlocale(LC_CTYPE, "");
-  // wprintf(L"freeing module -> %ls -> is default -> %s\n", mod->name,
-  //         is_default(mod) ? "true" : "false");
+  // setlocale(LC_CTYPE, "");
+  //  wprintf(L"freeing module -> %ls -> is default -> %s\n", mod->name,
+  //          is_default(mod) ? "true" : "false");
   free_table(&mod->globals);
   mod->frame_count = 0;
 
@@ -151,10 +151,10 @@ void print_modframes() {
 }
 
 void free_vm() {
-  //wprintf(L"----------FREE VM----------\n");
-  //print_modframes();
-  // free(vm.last_pop);
-  // vm.last_pop = make_nil();
+  // wprintf(L"----------FREE VM----------\n");
+  // print_modframes();
+  //  free(vm.last_pop);
+  //  vm.last_pop = make_nil();
   free_table(&vm.strings);
   // free_table(&vm.globals);
   for (int i = 0; i < vm.mod_count; i++) {
@@ -162,7 +162,7 @@ void free_vm() {
   }
   free_objs();
 
-  //wprintf(L"----------DONE FREE VM----------\n");
+  // wprintf(L"----------DONE FREE VM----------\n");
 }
 
 Value get_last_pop() { return vm.last_pop; }
@@ -184,8 +184,8 @@ Value pop() {
 Value peek_vm(int dist) { return vm.stack_top[-1 - dist]; }
 
 void runtime_err(wchar_t *format, ...) {
-  //setlocale(LC_CTYPE, "");
-  // wprintf(format);
+  // setlocale(LC_CTYPE, "");
+  //  wprintf(format);
   va_list args;
   va_start(args, format);
   vfwprintf(stderr, format, args);
@@ -423,8 +423,9 @@ static bool import_custom(wchar_t *import_name) {
   table_set(&get_cur_mod()->globals, strname, make_obj_val(objmod));
   vm.current_mod = mod; // vm.mod_count - 1;
   ObjFunc *newfn = compile_module(dummy_source_code);
-  //dissm_ins_chunk(&newfn->ins, import_name);
-  // write_ins(&newfn->ins, OP_END_MOD, 9999);
+  mark_compiler_roots();
+  // dissm_ins_chunk(&newfn->ins, import_name);
+  //  write_ins(&newfn->ins, OP_END_MOD, 9999);
   if (newfn == NULL) {
     return false;
   }
