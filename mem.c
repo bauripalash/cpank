@@ -110,7 +110,7 @@ void mark_array(Valarr *arr) {
 
 void blacken_obj(Obj *obj) {
 #ifdef DEBUG_LOG_GC
-  setlocale(LC_CTYPE, "");
+  //setlocale(LC_CTYPE, "");
   wprintf(L"%p blacken -> %ls", (void *)obj, get_obj_type_as_string(obj->type));
 
   print_val(make_obj_val(obj));
@@ -251,7 +251,7 @@ void mark_obj(Obj *obj) {
   }
 
 #ifdef DEBUG_LOG_GC
-  setlocale(LC_CTYPE, "");
+  //setlocale(LC_CTYPE, "");
   wprintf(L"%p mark  -> ", (void *)obj);
   //  Value v = make_obj_val(obj);
 
@@ -278,7 +278,7 @@ void mark_obj(Obj *obj) {
 
 void collect_garbage() {
 #ifndef NOGC
-  setlocale(LC_CTYPE, "");
+  //setlocale(LC_CTYPE, "");
 #ifdef DEBUG_LOG_GC
   wprintf(L"-- gc start\n");
   size_t before = vm.bts_allocated;

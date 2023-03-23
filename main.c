@@ -8,6 +8,6 @@
 #include "include/runfile.h"
 #include "include/vm.h"
 int main() {
-  setlocale(LC_CTYPE, "");
+  //setlocale(LC_CTYPE, "");
   return run_file("sample/x.txt");
 }

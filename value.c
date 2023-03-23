@@ -8,12 +8,16 @@ void print_val_type(ValType vt) {
   switch (vt) {
   case V_NIL:
     wprintf(L"NIL");
+    break;
   case V_BOOL:
     wprintf(L"BOOL");
+    break;
   case V_NUM:
     wprintf(L"NUM");
+    break;
   case V_OBJ:
     wprintf(L"OBJ");
+    break;
   }
 }
 

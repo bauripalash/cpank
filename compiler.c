@@ -5,7 +5,7 @@
 #include "include/obj.h"
 #include "include/value.h"
 
-#define DEBUG_PRINT_CODE
+//#define DEBUG_PRINT_CODE
 
 #ifdef DEBUG_PRINT_CODE
 #include "include/debug.h"

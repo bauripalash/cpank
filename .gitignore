@@ -7,3 +7,4 @@ perf.data.old
 test_cpank
 cpank.gmon.txt
 vgcore.*
+.cache/*

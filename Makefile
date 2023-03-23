@@ -1,5 +1,5 @@
-CC=clang
-CFLAGS+=-std=c11 -Wall -lm
+CC=gcc
+CFLAGS+=-std=c11 -Wall -Wextra -pedantic -lm
 LINKS=-static -lgrapheme
 SRC=lexer.c bn.c runfile.c instruction.c mem.c debug.c value.c vm.c compiler.c obj.c htable.c
 MAIN=main.c
@@ -34,7 +34,7 @@ build_debug:
 
 build_uo:
 	@echo "Building Unoptimized $(OUTPUT)"
-	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -pg
+	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g
 	@echo "Finished building unoptimized $(OUTPUT)"
 
 build:
@@ -43,7 +43,7 @@ build:
 	@echo "Finished building optimized $(OUTPUT)"
 
 memcheck: build_uo
-	valgrind -s --leak-check=full --show-leak-kinds=all ./$(OUTPUT)
+	valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(OUTPUT)
 
 perf:
 	@echo "Building optimized with -g"

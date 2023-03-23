@@ -219,4 +219,5 @@ const char *print_opcode(Op op) {
   case OP_CLOSURE:
     return "OP_CLOSURE";
   }
+  return "Unknown Opcode";
 }
