@@ -4,6 +4,7 @@
 #include "include/instruction.h"
 #include "include/mem.h"
 #include "include/obj.h"
+#include "include/utils.h"
 #include "include/value.h"
 #include <locale.h>
 #include <math.h>
@@ -621,12 +622,11 @@ IResult run_vm() {
       push(make_bool(false));
       break;
     case OP_SHOW:
-      wprintf(L"p~ ");
-
+      cp_print(L"p~~ ");
       Value to_show = pop();
       vm.last_pop = to_show;
       print_val(to_show);
-      wprintf(L"\n");
+      cp_print(L"\n");
       break;
     case OP_DEF_GLOB: {
       ObjString *nm = read_str_const(frame);

@@ -2,6 +2,7 @@
 #include "include/common.h"
 #include "include/instruction.h"
 #include "include/mem.h"
+#include "include/utils.h"
 #include "include/value.h"
 #include "include/vm.h"
 #include <stdbool.h>
@@ -129,12 +130,12 @@ ObjString *take_string(wchar_t *chars, int len) {
   return allocate_str(chars, len, hash);
 }
 
-void print_function(ObjFunc *func) { wprintf(L"<fn %ls>", func->name->chars); }
+void print_function(ObjFunc *func) { cp_print(L"<fn %ls>", func->name->chars); }
 
 void print_obj(Value val) {
   switch (get_obj_type(val)) {
   case OBJ_STR:
-    wprintf(L"%ls", get_as_native_string(val));
+    cp_print(L"%ls", get_as_native_string(val));
     // wprintf(L"str");
     break;
   case OBJ_FUNC: {
@@ -144,12 +145,12 @@ void print_obj(Value val) {
 
       print_function(get_as_func(val));
     } else {
-      wprintf(L"<fn <%p>>", f);
+      cp_print(L"<fn <%p>>", f);
     }
     break;
   }
   case OBJ_NATIVE:
-    wprintf(L"<native_fn>");
+    cp_print(L"<native_fn>");
     break;
   case OBJ_CLOUSRE: {
     ObjClosure *cls = get_as_closure(val);
@@ -157,16 +158,16 @@ void print_obj(Value val) {
 
       print_function(cls->func);
     } else {
-      wprintf(L"<closure <%p>>", cls);
+      cp_print(L"<closure <%p>>", cls);
     }
     break;
   }
   case OBJ_UPVAL:
-    wprintf(L"upval");
+    cp_print(L"upval");
     break;
   case OBJ_MOD: {
     ObjMod *mod = get_as_mod(val);
-    wprintf(L"<mod %ls>", mod->name->chars);
+    cp_print(L"<mod %ls>", mod->name->chars);
     break;
   }
   }

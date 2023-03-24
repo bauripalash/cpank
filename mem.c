@@ -19,7 +19,7 @@ GcConfig gcon;
 
 // #define NOGC
 
-// #define DEBUG_STRES_GC
+#define DEBUG_STRES_GC
 #ifdef DEBUG_LOG_GC
 #include "include/debug.h"
 #endif
@@ -177,13 +177,12 @@ void mark_roots() {
 #ifdef DEBUG_LOG_GCC
   wprintf(L"gc marking open upvalues -> \n");
 #endif
-  // for (int i = 0; i < vm.mod_count; i++) {
-  // Module *mod = &vm.modules[i];
-  for (ObjUpVal *upv = vm.current_mod->open_upvs; upv != NULL;
-       upv = upv->next) {
-    mark_obj((Obj *)upv);
+  for (int i = 0; i < vm.mod_count; i++) {
+    Module *mod = &vm.modules[i];
+    for (ObjUpVal *upv = mod->open_upvs; upv != NULL; upv = upv->next) {
+      mark_obj((Obj *)upv);
+    }
   }
-  //}
 
 #ifdef DEBUG_LOG_GC
   wprintf(L"finished marking open upvalues -> \n");
@@ -196,10 +195,19 @@ void mark_roots() {
   // mark_table(&vm.globals);
   // for (int i = 0; i < vm.mod_count; i++) {
   // Module *mod = &vm.modules[i];
-  if (vm.current_mod->globals.len > 0) {
+  // if (vm.current_mod->globals.len > 0) {
 
-    mark_table(&vm.current_mod->globals);
+  //  mark_table(&vm.current_mod->globals);
+  //}
+
+  for (int i = 0; i < vm.mod_count; i++) {
+
+    Module *mod = &vm.modules[i];
+    if (mod->globals.len > 0) {
+      mark_table(&mod->globals);
+    }
   }
+
   //}
 
   // mark_table(&vm.current_mod->globals);

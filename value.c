@@ -1,6 +1,7 @@
 #include "include/value.h"
 #include "include/mem.h"
 #include "include/obj.h"
+#include "include/utils.h"
 #include <stdbool.h>
 #include <wchar.h>
 
@@ -47,13 +48,13 @@ void print_val(Value val) {
   //  print_val_type(val.type);
   switch (val.type) {
   case V_NUM:
-    wprintf(L"%f", get_as_number(val));
+    cp_print(L"%f", get_as_number(val));
     break;
   case V_BOOL:
-    wprintf(L"%s", get_as_bool(val) ? "true" : "false");
+    cp_print(L"%s", get_as_bool(val) ? "true" : "false");
     break;
   case V_NIL:
-    wprintf(L"nil");
+    cp_print(L"nil");
     break;
   case V_OBJ:
     print_obj(val);
