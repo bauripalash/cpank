@@ -13,11 +13,13 @@
 
 #include "include/vm.h"
 
-#define DEBUG_LOG_GC
+GcConfig gcon;
+
+// #define DEBUG_LOG_GC
 
 // #define NOGC
 
-#define DEBUG_STRES_GC
+// #define DEBUG_STRES_GC
 #ifdef DEBUG_LOG_GC
 #include "include/debug.h"
 #endif
@@ -28,9 +30,11 @@ void *rallc(void *ptr, size_t os, size_t ns) {
   vm.bts_allocated += ns - os;
   if (ns > os) {
 #ifdef DEBUG_STRES_GC
+
     collect_garbage();
 #endif
     if (vm.bts_allocated > vm.next_gc) {
+
       collect_garbage();
     }
   }

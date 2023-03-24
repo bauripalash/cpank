@@ -1,1 +1,4 @@
 import "x";
+show x.name;
+import "y";
+y.hello(x.name);

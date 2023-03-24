@@ -14,6 +14,12 @@
 #define FREE_ARR(type, ptr, oc) rallc(ptr, sizeof(type) * (oc), 0)
 #define FREE(type, ptr) rallc(ptr, sizeof(type), 0)
 
+typedef struct GcConfig {
+  bool is_paused;
+} GcConfig;
+
+extern GcConfig gcon;
+
 void *rallc(void *ptr, size_t osize, size_t nsize);
 void collect_garbage();
 void free_objs();

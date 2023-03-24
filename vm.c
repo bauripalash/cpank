@@ -31,6 +31,7 @@ void reset_stack() {
 
 void boot_vm() {
   reset_stack();
+  gcon.is_paused = false;
   vm.objs = NULL;
   vm.last_pop = make_nil();
 
@@ -417,15 +418,15 @@ static bool import_custom(wchar_t *import_name) {
   int origin_caller = get_cur_mod()->frame_count - 1;
   ObjMod *objmod = new_mod(copy_string(import_name, wcslen(import_name)));
   vm.mod_names[vm.mod_count - 1] = objmod->name->hash;
-  push(make_obj_val(mod));
+  push(make_obj_val(objmod));
   ObjString *strname = copy_string(import_name, wcslen(import_name));
 
   table_set(&get_cur_mod()->globals, strname, make_obj_val(objmod));
   vm.current_mod = mod; // vm.mod_count - 1;
   ObjFunc *newfn = compile_module(dummy_source_code);
-  mark_compiler_roots();
-  // dissm_ins_chunk(&newfn->ins, import_name);
-  //  write_ins(&newfn->ins, OP_END_MOD, 9999);
+  // mark_compiler_roots();
+  //  dissm_ins_chunk(&newfn->ins, import_name);
+  //   write_ins(&newfn->ins, OP_END_MOD, 9999);
   if (newfn == NULL) {
     return false;
   }
@@ -443,7 +444,6 @@ static bool import_custom(wchar_t *import_name) {
   call(cls, origin_caller, 0);
   // wprintf(L"AFTER MOD CALL\n");
   // print_modframes();
-
   return true;
 }
 
