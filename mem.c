@@ -199,6 +199,10 @@ void mark_roots() {
 
     //  mark_table(&vm.current_mod->globals);
     //}
+    //
+    for (int i = 0; i < vm.stdlib_count; i++) {
+        mark_table(&vm.stdlibs[i].items);
+    }
 
     for (int i = 0; i < vm.mod_count; i++) {
         Module *mod = &vm.modules[i];
@@ -206,11 +210,11 @@ void mark_roots() {
             mark_table(&mod->globals);
         }
 
-        if (mod->stlib_count > 0) {
-            for (int i = 0; i < mod->stlib_count; i++) {
-                mark_table(&mod->stdlibs[i].items);
-            }
-        }
+        // if (mod->stlib_count > 0) {
+        //     for (int i = 0; i < mod->stlib_count; i++) {
+        //         mark_table(&mod->stdlibs[i].items);
+        //     }
+        // }
     }
 
     //}

@@ -24,19 +24,37 @@ typedef struct {
     Htable *globals;
 } CallFrame;
 
+/*
 typedef struct StdModule {
     Htable items;
     wchar_t *name;
     uint32_t hash;
 } StdModule;
+*/
+
+typedef struct StdlibMod {
+    Htable items;
+    wchar_t *name;
+    uint32_t hash;
+    uint32_t owners[MODULES_MAX];
+    int owner_count;
+} StdlibMod;
+
+typedef struct StdProxy {
+    StdlibMod *stdmod;
+    wchar_t *origin_name;
+    wchar_t *proxy_name;
+    uint32_t proxy_hash;
+} StdProxy;
 
 typedef struct Module {
     Htable globals;
-    StdModule stdlibs[STDLIB_MAX];
-    int stlib_count;
+    StdProxy stdproxy[STDLIB_MAX];
+    int stdlib_count;
     CallFrame frames[FRAME_SIZE];
     int frame_count;
     wchar_t *name;
+    uint32_t hash;
     ObjUpVal *open_upvs;
     bool is_default;
     struct Module *origin;
@@ -63,6 +81,8 @@ typedef struct {
     Htable strings;
     Module modules[MODULES_MAX];
     Htable builtins;
+    StdlibMod stdlibs[STDLIB_MAX];
+    int stdlib_count;
     uint32_t mod_names[MODULES_MAX];
     int mod_count;
     Module *current_mod;

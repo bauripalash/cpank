@@ -66,7 +66,8 @@ void init_module(Module *mod, const wchar_t *name) {
     init_table(&mod->globals);
     // init_stdlib_module();
     mod->frame_count = 0;
-    mod->stlib_count = 0;
+    mod->stdlib_count = 0;
+    mod->hash = get_hash(name, wcslen(name));
     // for (int i = 0; i != FRAME_SIZE; i++) {
     //   CallFrame *frm = &mod->frames[i];
     //  frm = NULL;
@@ -92,13 +93,30 @@ Module *get_mod_by_hash(uint32_t hash) {
     return NULL;
 }
 
-StdModule *get_stdlib_by_hash(uint32_t hash, Module *curmod) {
-    for (int i = 0; i < curmod->stlib_count; i++) {
-        if (curmod->stdlibs[i].hash == hash) {
-            return &curmod->stdlibs[i];
+StdlibMod *get_stdlib_by_hash(uint32_t hash, Module *curmod) {
+    uint32_t curmod_hash = get_hash(curmod->name, wcslen(curmod->name));
+    for (int i = 0; i < vm.stdlib_count; i++) {
+        StdlibMod *m = &vm.stdlibs[i];
+        if (m->hash == hash) {
+            for (int j = 0; j < m->owner_count; j++) {
+                if (m->owners[j] == curmod_hash) {
+                    return m;
+                }
+            }
         }
     }
     return NULL;
+}
+
+uint32_t get_proxy_hash(ObjString *name, Module *curmod) {
+    for (int i = 0; i < curmod->stdlib_count; i++) {
+        StdProxy *proxy = &curmod->stdproxy[i];
+        if (proxy->proxy_hash == name->hash) {
+            return proxy->stdmod->hash;
+        }
+    }
+
+    return 0;
 }
 
 void print_mod_names() {
@@ -112,12 +130,12 @@ void free_module(Module *mod) {
     //  wprintf(L"freeing module -> %ls -> is default -> %s\n", mod->name,
     //          is_default(mod) ? "true" : "false");
     free_table(&mod->globals);
-    if (mod->stlib_count > 0) {
-        for (int i = 0; i < mod->stlib_count; i++) {
-            free_table(&mod->stdlibs[i].items);
-        }
-    }
-    // free_table(&mod->stdlibs);
+    // if (mod->stlib_count > 0) {
+    //     for (int i = 0; i < mod->stlib_count; i++) {
+    //         free_table(&mod->stdlibs[i].items);
+    //     }
+    // }
+    //  free_table(&mod->stdlibs);
     mod->frame_count = 0;
 
     free(mod->name);
@@ -207,6 +225,7 @@ Value pop() {
 Value peek_vm(int dist) { return vm.stack_top[-1 - dist]; }
 
 void runtime_err(wchar_t *format, ...) {
+    print_table(&get_cur_mod()->globals, "TABLE");
     // setlocale(LC_CTYPE, "");
     //  wprintf(format);
     va_list args;
@@ -471,9 +490,35 @@ static int import_custom(wchar_t *custom_name, wchar_t *import_name) {
 
 static int import_file(wchar_t *custom_name, wchar_t *import_name) {
     if (wcscmp(import_name, L"math") == 0) {
-        ObjMod *objmod = new_mod(copy_string(import_name, wcslen(import_name)));
+        ObjMod *objmod = new_mod(copy_string(custom_name, wcslen(custom_name)));
+        Module *mod = get_cur_mod();
+
+        // Change later;
+
+        StdProxy *prx = &get_cur_mod()->stdproxy[get_cur_mod()->stdlib_count++];
+        prx->proxy_hash = objmod->name->hash;
+        prx->proxy_name = objmod->name->chars;
+
+        if (vm.stdlib_count < 1) {
+            push_stdlib_math();
+            StdlibMod *sm = &vm.stdlibs[0];
+            sm->owners[sm->owner_count++] = mod->hash;
+            prx->origin_name = sm->name;
+            prx->stdmod = sm;
+        } else {
+            for (int i = 0; i < vm.stdlib_count; i++) {
+                StdlibMod *sm = &vm.stdlibs[i];
+                if (sm->hash == objmod->name->hash) {
+                    prx->origin_name = sm->name;
+                    prx->stdmod = sm;
+                    sm->owners[sm->owner_count++] = mod->hash;
+                    //*owner = get_hash(mod->name, wcslen(mod->name));
+                }
+            }
+        }
+
         // push(make_obj_val(objmod));
-        ObjString *strname = copy_string(import_name, wcslen(import_name));
+        ObjString *strname = copy_string(custom_name, wcslen(custom_name));
 
         table_set(&get_cur_mod()->globals, strname, make_obj_val(objmod));
         push_stdlib_math();
@@ -845,19 +890,25 @@ IResult run_vm() {
                 Module *mod = get_mod_by_hash(modname->name->hash);
 
                 if (mod == NULL) {
-                    StdModule *smod =
-                        get_stdlib_by_hash(modname->name->hash, get_cur_mod());
-                    if (smod != NULL) {
-                        if (table_get(&smod->items, prop, &value)) {
-                            pop();
-                            push(value);
-                            break;
-                        } else {
-                            runtime_err(
-                                L"cannot find method or variable '%ls' for std "
-                                L"lib module '%ls'",
-                                prop->chars, modname->name->chars);
-                            return INTRP_RUNTIME_ERR;
+                    uint32_t modhash =
+                        get_proxy_hash(modname->name, get_cur_mod());
+                    // cp_println(L"MODHASH -> %ld" , modhash);
+                    if (modhash != 0) {
+                        StdlibMod *smod =
+                            get_stdlib_by_hash(modhash, get_cur_mod());
+                        if (smod != NULL) {
+                            if (table_get(&smod->items, prop, &value)) {
+                                pop();
+                                push(value);
+                                break;
+                            } else {
+                                runtime_err(
+                                    L"cannot find method or variable '%ls' for "
+                                    L"std "
+                                    L"lib module '%ls'",
+                                    prop->chars, modname->name->chars);
+                                return INTRP_RUNTIME_ERR;
+                            }
                         }
                     }
                     runtime_err(L"module not found %ls\n",

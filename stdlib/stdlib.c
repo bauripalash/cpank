@@ -7,16 +7,17 @@
 int _push_stdlib(wchar_t * stdname , wchar_t ** key , NativeFn * fn , int len){
 
 	uint32_t name_hash = get_hash(stdname, wcslen(stdname));
-	Module * mod = get_cur_mod();
-	for (int i = 0; i < get_cur_mod()->stlib_count; i++) {
-		if (mod->stdlibs[i].hash == name_hash) {
+	for (int i = 0; i < vm.stdlib_count; i++) {
+		if (vm.stdlibs[i].hash == name_hash) {
 			return STDLIB_ALREADY_EXIST_WARNING;	
 		}
 	}
 	
-	StdModule * smod = &mod->stdlibs[mod->stlib_count++];
+	StdlibMod * smod = &vm.stdlibs[vm.stdlib_count++];
 	smod->name = stdname;
 	smod->hash = name_hash;
+	//smod->owners = NULL;
+	smod->owner_count = 0;
 	
 	for (int i = 0; i < len; i++) {
 		ObjString * k = copy_string(key[i], wcslen(key[i]));
