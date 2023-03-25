@@ -13,6 +13,7 @@
 
 #define FRAME_SIZE 64
 #define MODULES_MAX 10
+#define STDLIB_MAX 10
 #define STACK_SIZE (FRAME_SIZE * UINT8_COUNT)
 
 typedef struct {
@@ -23,8 +24,16 @@ typedef struct {
     Htable *globals;
 } CallFrame;
 
+typedef struct StdModule {
+    Htable items;
+    wchar_t *name;
+    uint32_t hash;
+} StdModule;
+
 typedef struct Module {
     Htable globals;
+    StdModule stdlibs[STDLIB_MAX];
+    int stlib_count;
     CallFrame frames[FRAME_SIZE];
     int frame_count;
     wchar_t *name;
@@ -53,6 +62,7 @@ typedef struct {
     Value *stack_top;
     Htable strings;
     Module modules[MODULES_MAX];
+    Htable builtins;
     uint32_t mod_names[MODULES_MAX];
     int mod_count;
     Module *current_mod;

@@ -2,6 +2,8 @@ CC=gcc
 CFLAGS+=-std=c11 -Wall -pedantic -lm
 LINKS=-static -lgrapheme
 SRC=lexer.c bn.c runfile.c instruction.c mem.c debug.c value.c vm.c compiler.c obj.c htable.c utils.c openfile.c
+STDLIB_MODULES= stdlib/stdlib.c stdlib/math.c
+SRC+=$(STDLIB_MODULES)
 MAIN=main.c
 TESTMAIN=testmain.c
 OUTPUT=cpank

@@ -19,6 +19,7 @@
 #include "include/mem.h"
 #include "include/obj.h"
 #include "include/openfile.h"
+#include "include/stdlib.h"
 #include "include/utils.h"
 #include "include/value.h"
 
@@ -47,6 +48,7 @@ void boot_vm() {
     // vm.current_mod = 0;
 
     init_table(&vm.strings);
+    init_table(&vm.builtins);
 
     vm.mod_names[vm.mod_count] = 0;
     Module *dmod = &vm.modules[vm.mod_count++];
@@ -62,7 +64,9 @@ void boot_vm() {
 
 void init_module(Module *mod, const wchar_t *name) {
     init_table(&mod->globals);
+    // init_stdlib_module();
     mod->frame_count = 0;
+    mod->stlib_count = 0;
     // for (int i = 0; i != FRAME_SIZE; i++) {
     //   CallFrame *frm = &mod->frames[i];
     //  frm = NULL;
@@ -88,6 +92,15 @@ Module *get_mod_by_hash(uint32_t hash) {
     return NULL;
 }
 
+StdModule *get_stdlib_by_hash(uint32_t hash, Module *curmod) {
+    for (int i = 0; i < curmod->stlib_count; i++) {
+        if (curmod->stdlibs[i].hash == hash) {
+            return &curmod->stdlibs[i];
+        }
+    }
+    return NULL;
+}
+
 void print_mod_names() {
     for (int i = 0; i < vm.mod_count; i++) {
         wprintf(L"M| %4d -> %ld -> %ls \n", i, vm.mod_names[i],
@@ -99,6 +112,12 @@ void free_module(Module *mod) {
     //  wprintf(L"freeing module -> %ls -> is default -> %s\n", mod->name,
     //          is_default(mod) ? "true" : "false");
     free_table(&mod->globals);
+    if (mod->stlib_count > 0) {
+        for (int i = 0; i < mod->stlib_count; i++) {
+            free_table(&mod->stdlibs[i].items);
+        }
+    }
+    // free_table(&mod->stdlibs);
     mod->frame_count = 0;
 
     free(mod->name);
@@ -127,7 +146,7 @@ void define_native(wchar_t *name, NativeFn func) {
     }
     wprintf(L"--- END STACK ---\n");
 #endif
-    table_set(&vm.modules[0].globals, get_as_string(vm.stack[0]), vm.stack[1]);
+    table_set(&vm.builtins, get_as_string(vm.stack[0]), vm.stack[1]);
     pop();
     pop();
 }
@@ -159,6 +178,7 @@ void free_vm() {
     //  free(vm.last_pop);
     //  vm.last_pop = make_nil();
     free_table(&vm.strings);
+    free_table(&vm.builtins);
     // free_table(&vm.globals);
     for (int i = 0; i < vm.mod_count; i++) {
         free_module(&vm.modules[i]);
@@ -402,15 +422,7 @@ Value math_pow_stdlib(int argc, Value *args) {
 }
 
 static int import_custom(wchar_t *custom_name, wchar_t *import_name) {
-    // wchar_t *dummy_source_code = NULL;
-    // if (wcscmp(import_name, L"x") == 0) {
-    //     dummy_source_code = L"let name = \"palash\";";
-    // } else {
-    //     dummy_source_code =
-    //         L"fun hello(x) let pi = 100; show \"hello \" + x; end";
-    // }
-    // cp_println(L"import name -> %ls" , import_name);
-    WSrcfile ws = wread_file(import_name);
+    WSrcfile ws = wread_file(import_name);  // Warning import cycle
 
     // cp_println(L"import code -> %d" , ws.errcode );
     if (ws.errcode != 0) {
@@ -458,13 +470,20 @@ static int import_custom(wchar_t *custom_name, wchar_t *import_name) {
 }
 
 static int import_file(wchar_t *custom_name, wchar_t *import_name) {
-    // if (wcscmp(import_name, L"math") == 0) {
-    //     define_stdlib_fn(L"add", math_add_stdlib);
-    //     define_stdlib_fn(L"pow", math_pow_stdlib);
-    //     return 0;
-    // } else {
-    return import_custom(custom_name, import_name);
-    //}
+    if (wcscmp(import_name, L"math") == 0) {
+        ObjMod *objmod = new_mod(copy_string(import_name, wcslen(import_name)));
+        // push(make_obj_val(objmod));
+        ObjString *strname = copy_string(import_name, wcslen(import_name));
+
+        table_set(&get_cur_mod()->globals, strname, make_obj_val(objmod));
+        push_stdlib_math();
+        return 0;
+        //     define_stdlib_fn(L"add", math_add_stdlib);
+        //     define_stdlib_fn(L"pow", math_pow_stdlib);
+        //     return 0;
+    } else {
+        return import_custom(custom_name, import_name);
+    }
 }
 
 void print_stack() {
@@ -661,9 +680,11 @@ IResult run_vm() {
                 // print_obj();
                 Value val;
                 if (!table_get(frame->globals, name, &val)) {
-                    runtime_err(L"Get Global -> Undefined variable '%ls'.",
-                                name->chars);
-                    return INTRP_RUNTIME_ERR;
+                    if (!table_get(&vm.builtins, name, &val)) {
+                        runtime_err(L"Get Global -> Undefined variable '%ls'.",
+                                    name->chars);
+                        return INTRP_RUNTIME_ERR;
+                    }
                 }
                 push(val);
                 break;
@@ -824,6 +845,21 @@ IResult run_vm() {
                 Module *mod = get_mod_by_hash(modname->name->hash);
 
                 if (mod == NULL) {
+                    StdModule *smod =
+                        get_stdlib_by_hash(modname->name->hash, get_cur_mod());
+                    if (smod != NULL) {
+                        if (table_get(&smod->items, prop, &value)) {
+                            pop();
+                            push(value);
+                            break;
+                        } else {
+                            runtime_err(
+                                L"cannot find method or variable '%ls' for std "
+                                L"lib module '%ls'",
+                                prop->chars, modname->name->chars);
+                            return INTRP_RUNTIME_ERR;
+                        }
+                    }
                     runtime_err(L"module not found %ls\n",
                                 modname->name->chars);
                     return INTRP_RUNTIME_ERR;

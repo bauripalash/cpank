@@ -205,9 +205,17 @@ void mark_roots() {
         if (mod->globals.len > 0) {
             mark_table(&mod->globals);
         }
+
+        if (mod->stlib_count > 0) {
+            for (int i = 0; i < mod->stlib_count; i++) {
+                mark_table(&mod->stdlibs[i].items);
+            }
+        }
     }
 
     //}
+    //
+    mark_table(&vm.builtins);
 
     // mark_table(&vm.current_mod->globals);
 #ifdef DEBUG_LOG_GC

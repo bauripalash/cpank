@@ -11,7 +11,7 @@
 int main() {
     // setlocale(LC_CTYPE, "");
     // cp_color_println('g', L"start program");
-    int result = run_file("sample/x.txt");
+    int result = run_file("sample/y.txt");
     // cp_color_println('g', L"end program");
     return result;
 }
