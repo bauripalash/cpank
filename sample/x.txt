@@ -1,4 +1,2 @@
-import "x";
-show x.name;
-import "y";
-y.hello(x.name);
+import x "sample/fib_w.txt";
+show x.fib_wrapper(10);

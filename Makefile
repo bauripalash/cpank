@@ -1,7 +1,7 @@
 CC=gcc
-CFLAGS+=-std=c11 -Wall -Wextra -pedantic -lm
+CFLAGS+=-std=c11 -Wall -pedantic -lm
 LINKS=-static -lgrapheme
-SRC=lexer.c bn.c runfile.c instruction.c mem.c debug.c value.c vm.c compiler.c obj.c htable.c utils.c
+SRC=lexer.c bn.c runfile.c instruction.c mem.c debug.c value.c vm.c compiler.c obj.c htable.c utils.c openfile.c
 MAIN=main.c
 TESTMAIN=testmain.c
 OUTPUT=cpank

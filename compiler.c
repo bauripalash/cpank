@@ -752,9 +752,12 @@ static void read_while_stmt() {
 }
 
 static void read_import_stmt() {
+    eat_tok(T_ID, L"expected import name");
+    uint8_t index = make_id_const(&parser.prev);
     read_expr();
     eat_tok(T_SEMICOLON, L"Expected semicolon after import file name");
     emit_bt(OP_IMPORT_NONAME);
+    emit_bt(index);
 }
 
 static void read_block() {

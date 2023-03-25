@@ -18,6 +18,7 @@
 #include "include/instruction.h"
 #include "include/mem.h"
 #include "include/obj.h"
+#include "include/openfile.h"
 #include "include/utils.h"
 #include "include/value.h"
 
@@ -56,7 +57,7 @@ void boot_vm() {
     vm.mod_names[vm.mod_count] = get_hash(default_mod, wcslen(default_mod));
     vm.current_mod = dmod;
     // init_table(&vm.globals);
-    // define_native(L"clock", clock_ntv_fn);
+    define_native(L"clock", clock_ntv_fn);
 }
 
 void init_module(Module *mod, const wchar_t *name) {
@@ -400,36 +401,43 @@ Value math_pow_stdlib(int argc, Value *args) {
     }
 }
 
-static bool import_custom(wchar_t *import_name) {
-    wchar_t *dummy_source_code = NULL;
-    if (wcscmp(import_name, L"x") == 0) {
-        dummy_source_code = L"let name = \"palash\";";
-    } else {
-        dummy_source_code =
-            L"fun hello(x) let pi = 100; show \"hello \" + x; end";
+static int import_custom(wchar_t *custom_name, wchar_t *import_name) {
+    // wchar_t *dummy_source_code = NULL;
+    // if (wcscmp(import_name, L"x") == 0) {
+    //     dummy_source_code = L"let name = \"palash\";";
+    // } else {
+    //     dummy_source_code =
+    //         L"fun hello(x) let pi = 100; show \"hello \" + x; end";
+    // }
+    // cp_println(L"import name -> %ls" , import_name);
+    WSrcfile ws = wread_file(import_name);
+
+    // cp_println(L"import code -> %d" , ws.errcode );
+    if (ws.errcode != 0) {
+        return ws.errcode;
     }
     Module *mod = &vm.modules[vm.mod_count++];
     mod->is_default = false;
     mod->origin = get_cur_mod();
 
-    init_module(mod, import_name);
+    init_module(mod, custom_name);
 
     // wprintf(L"is globals null -> %s\n",
     //         mod->globals.entries == NULL ? "true" : "false");
     int origin_caller = get_cur_mod()->frame_count - 1;
-    ObjMod *objmod = new_mod(copy_string(import_name, wcslen(import_name)));
+    ObjMod *objmod = new_mod(copy_string(custom_name, wcslen(custom_name)));
     vm.mod_names[vm.mod_count - 1] = objmod->name->hash;
     push(make_obj_val(objmod));
-    ObjString *strname = copy_string(import_name, wcslen(import_name));
+    ObjString *strname = copy_string(custom_name, wcslen(custom_name));
 
     table_set(&get_cur_mod()->globals, strname, make_obj_val(objmod));
     vm.current_mod = mod;  // vm.mod_count - 1;
-    ObjFunc *newfn = compile_module(dummy_source_code);
+    ObjFunc *newfn = compile_module(ws.source);
     // mark_compiler_roots();
     //  dissm_ins_chunk(&newfn->ins, import_name);
     //   write_ins(&newfn->ins, OP_END_MOD, 9999);
     if (newfn == NULL) {
-        return false;
+        return ERC_COMPTIME;
     }
 
     // dissm_ins_chunk(&newfn->ins, L"MODULE");
@@ -445,17 +453,18 @@ static bool import_custom(wchar_t *import_name) {
     call(cls, origin_caller, 0);
     // wprintf(L"AFTER MOD CALL\n");
     // print_modframes();
-    return true;
+    free(ws.source);
+    return 0;
 }
 
-static bool import_file(wchar_t *import_name) {
-    if (wcscmp(import_name, L"math") == 0) {
-        define_stdlib_fn(L"add", math_add_stdlib);
-        define_stdlib_fn(L"pow", math_pow_stdlib);
-        return true;
-    } else {
-        return import_custom(import_name);
-    }
+static int import_file(wchar_t *custom_name, wchar_t *import_name) {
+    // if (wcscmp(import_name, L"math") == 0) {
+    //     define_stdlib_fn(L"add", math_add_stdlib);
+    //     define_stdlib_fn(L"pow", math_pow_stdlib);
+    //     return 0;
+    // } else {
+    return import_custom(custom_name, import_name);
+    //}
 }
 
 void print_stack() {
@@ -751,17 +760,43 @@ IResult run_vm() {
                 break;
             }
             case OP_IMPORT_NONAME: {
-                // print_stack();
+                Value raw_custom_name = read_const(frame);
+                if (!is_str_obj(raw_custom_name)) {
+                    runtime_err(L"import custom name must be a identifier");
+                    return INTRP_RUNTIME_ERR;
+                }
+                ObjString *custom_name = get_as_string(raw_custom_name);
+                // cp_color_println('p', custom_name->chars) ;
                 Value raw_file_name = pop();
                 if (!is_str_obj(raw_file_name)) {
                     runtime_err(L"import file name must be string");
                     return INTRP_RUNTIME_ERR;
                 }
                 ObjString *filename = get_as_string(raw_file_name);
-                if (!import_file(filename->chars)) {
-                    runtime_err(
-                        L"local file importing does not work yet;\
-        only a subset of stdlib is available\n");
+                int ir = import_file(custom_name->chars, filename->chars);
+
+                if (ir != 0) {
+                    switch (ir) {
+                        case ERC_FAIL_TO_OPEN:
+                            runtime_err(
+                                L"Failed to open imported file! '%.*ls' "
+                                L"doesn't "
+                                L"exist!",
+                                filename->len, filename->chars);
+                            break;
+                        case ERC_NO_MEM:
+                            runtime_err(
+                                L"Failed to open imported file '%ls'; ran out "
+                                L"of memory while trying to read it!",
+                                filename->chars);
+                            break;
+                        default:
+                            runtime_err(
+                                L"Faild to open imported file '%ls'; some "
+                                L"unknown error occured! (code %d)",
+                                filename->chars, ir);
+                            break;
+                    }
                     return INTRP_RUNTIME_ERR;
                 }
 

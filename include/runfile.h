@@ -1,9 +1,6 @@
-#include <stddef.h>
-#include <wchar.h>
-typedef struct {
-    char *source;
-    size_t size;
-
-} Srcfile;
+#ifndef cpank_runfile_h
+#define cpank_runfile_h
 
 int run_file(const char *filepath);
+
+#endif

@@ -9,9 +9,9 @@
 #include "include/utils.h"
 #include "include/vm.h"
 int main() {
-    setlocale(LC_CTYPE, "");
-    cp_color_println('g', L"start program");
+    // setlocale(LC_CTYPE, "");
+    // cp_color_println('g', L"start program");
     int result = run_file("sample/x.txt");
-    cp_color_println('g', L"end program");
+    // cp_color_println('g', L"end program");
     return result;
 }

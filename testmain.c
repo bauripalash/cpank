@@ -2,6 +2,7 @@
 #include <wchar.h>
 
 #include "include/obj.h"
+#include "include/utils.h"
 #include "include/value.h"
 #include "include/vm.h"
 
@@ -34,17 +35,17 @@ bool test_vm(const char *test_name, wchar_t *src, Value expected) {
     bool result = is_equal(got, expected);
 
     if (!result) {
-        wprintf(L"[X] failed test: %s\n", test_name);
-        wprintf(L"---------\nExpected : ");
+        cp_color_println('r', L"[X] failed test: %s", test_name);
+        cp_print(L"---------\nExpected : ");
         print_val(expected);
-        wprintf(L"\nGot : ");
+        cp_print(L"\nGot : ");
         print_val(got);
 
         // wprintf(L"-> %d" , got.type );
-        wprintf(L"\n---------\n");
+        cp_print(L"\n---------\n");
         return false;
     } else {
-        wprintf(L"[OK] passed test: %s\n", test_name);
+        cp_color_println('g', L"[OK] passed test: %s", test_name);
         return true;
     }
 }
@@ -52,6 +53,7 @@ bool test_vm(const char *test_name, wchar_t *src, Value expected) {
 int main() {
     bool fail = false;
     T testcases[] = {
+        // Label    // Code     // Expected Output
         tc("1+2", L"show 1+2;", make_num(3)),
         tc("3+5", L"show 3+5;", make_num(8)),
         tc("-1 + 1 - 1", L"show -1 + 1 - 1;", make_num(-1)),
