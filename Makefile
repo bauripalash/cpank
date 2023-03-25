@@ -64,4 +64,4 @@ clean:
 	rm cpank
 
 fmt:
-	clang-format -i -style=llvm *.c include/*.h
+	clang-format -i -style=file *.c include/*.h

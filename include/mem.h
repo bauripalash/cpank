@@ -8,14 +8,14 @@
 
 #define GROW_CAP(cap) ((cap) < 8 ? 8 : (cap)*2)
 
-#define GROW_ARR(type, ptr, oc, nc)                                            \
-  (type *)rallc(ptr, sizeof(type) * (oc), sizeof(type) * (nc))
+#define GROW_ARR(type, ptr, oc, nc) \
+    (type *)rallc(ptr, sizeof(type) * (oc), sizeof(type) * (nc))
 
 #define FREE_ARR(type, ptr, oc) rallc(ptr, sizeof(type) * (oc), 0)
 #define FREE(type, ptr) rallc(ptr, sizeof(type), 0)
 
 typedef struct GcConfig {
-  bool is_paused;
+    bool is_paused;
 } GcConfig;
 
 extern GcConfig gcon;

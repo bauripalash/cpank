@@ -1,68 +1,69 @@
 #ifndef cpank_obj_h
 #define cpank_obj_h
 
-#include "common.h"
-#include "htable.h"
-#include "instruction.h"
-#include "value.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <wchar.h>
 
+#include "common.h"
+#include "htable.h"
+#include "instruction.h"
+#include "value.h"
+
 typedef enum {
-  OBJ_STR = 0,
-  OBJ_FUNC,
-  OBJ_NATIVE,
-  OBJ_CLOUSRE,
-  OBJ_UPVAL,
-  OBJ_MOD,
+    OBJ_STR = 0,
+    OBJ_FUNC,
+    OBJ_NATIVE,
+    OBJ_CLOUSRE,
+    OBJ_UPVAL,
+    OBJ_MOD,
 } ObjType;
 
 struct Obj {
-  ObjType type;
-  bool is_marked;
-  struct Obj *next;
+    ObjType type;
+    bool is_marked;
+    struct Obj *next;
 };
 
 typedef struct {
-  Obj obj;
-  int arity;
-  Instruction ins;
-  ObjString *name;
-  int up_count;
+    Obj obj;
+    int arity;
+    Instruction ins;
+    ObjString *name;
+    int up_count;
 } ObjFunc;
 
 typedef struct ObjUpVal {
-  Obj obj;
-  Value *location;
-  struct ObjUpVal *next;
-  Value closed;
+    Obj obj;
+    Value *location;
+    struct ObjUpVal *next;
+    Value closed;
 } ObjUpVal;
 
 typedef Value (*NativeFn)(int argc, Value *args);
 
 typedef struct {
-  Obj obj;
-  NativeFn func;
+    Obj obj;
+    NativeFn func;
 } ObjNative;
 
 ObjNative *new_native(NativeFn fn);
 
 typedef struct {
-  Obj obj;
-  ObjFunc *func;
-  ObjUpVal **upv;
-  int upv_count;
-  uint32_t global_owner;
-  Htable *globals;
+    Obj obj;
+    ObjFunc *func;
+    ObjUpVal **upv;
+    int upv_count;
+    uint32_t global_owner;
+    Htable *globals;
 } ObjClosure;
 ObjClosure *new_closure(ObjFunc *function, uint32_t global_owner);
 
 struct ObjString {
-  Obj obj;
-  int len;
-  wchar_t *chars;
-  uint32_t hash;
+    Obj obj;
+    int len;
+    wchar_t *chars;
+    uint32_t hash;
 };
 
 ObjFunc *new_func();

@@ -1,18 +1,19 @@
-#include "value.h"
 #include <stdbool.h>
 #include <stdint.h>
+
+#include "value.h"
 #ifndef cpank_htable_h
 #define cpank_htable_h
 
 typedef struct {
-  ObjString *key; // TO DO : use hashed key instead of strings;
-  Value val;
+    ObjString *key;  // TO DO : use hashed key instead of strings;
+    Value val;
 } Entry;
 
 typedef struct {
-  int len;
-  int cap;
-  Entry *entries;
+    int len;
+    int cap;
+    Entry *entries;
 } Htable;
 
 void debug_entry(Entry *entry);

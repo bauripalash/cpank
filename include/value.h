@@ -12,12 +12,12 @@ void print_val_type(ValType vt);
 //
 
 typedef struct {
-  ValType type;
-  union {
-    bool boolean;
-    double num;
-    Obj *obj;
-  } as;
+    ValType type;
+    union {
+        bool boolean;
+        double num;
+        Obj *obj;
+    } as;
 } Value;
 
 #define get_as_obj(value) ((value).as.obj)
@@ -38,9 +38,9 @@ Value make_num(double num);
 Value make_neg(Value value);
 
 typedef struct {
-  int cap;
-  int len;
-  Value *values;
+    int cap;
+    int len;
+    Value *values;
 } Valarr;
 
 void init_valarr(Valarr *array);

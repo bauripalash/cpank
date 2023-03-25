@@ -1,9 +1,8 @@
 #include <stddef.h>
 #include <wchar.h>
 typedef struct {
-
-  char *source;
-  size_t size;
+    char *source;
+    size_t size;
 
 } Srcfile;
 
