@@ -3,6 +3,14 @@
 #include <string.h>
 #include <wchar.h>
 
+#ifdef WIN32
+#include <io.h>
+#define F_OK 0
+#define access _access
+#else
+#include <unistd.h>
+#endif
+
 #include "include/runfile.h"
 #include "include/utils.h"
 
@@ -30,8 +38,13 @@ int main(int argc, char** argv) {
         } else if (strcmp(ag, "-v") == 0 || strcmp(ag, "--version") == 0) {
             cp_color_println('g', L"cpank %ls", version);
         } else {
-            int result = run_file(ag);
-            return result;
+            if (access(ag, F_OK) == 0) {
+                int result = run_file(ag);
+                return result;
+            } else {
+                cp_color_println('r', L"Error! file '%s' does not exist!", ag);
+                return 1;
+            }
         }
     }
     // cp_color_println('g', L"start program");
