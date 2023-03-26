@@ -2,4 +2,8 @@ import m "math";
 
 show m.gcd(9 , 3);
 show m.lcm(10,10);
+show m.sqrt(11);
+show m.log10(11);
+show m.log(11);
+show m.logx(10 , 11);
 
