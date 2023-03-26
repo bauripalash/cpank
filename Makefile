@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS+=-std=c11 -Wall -pedantic -lm
+CFLAGS+=-std=c99 -Wall -pedantic -lm
 LINKS=-static -lgrapheme
 SRC=lexer.c bn.c runfile.c instruction.c mem.c debug.c value.c vm.c compiler.c obj.c htable.c utils.c openfile.c
 STDLIB_MODULES= stdlib/stdlib.c stdlib/math.c
@@ -51,14 +51,14 @@ perf:
 	@echo "Building optimized with -g"
 	$(CC) -O3 $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g -pg
 	@echo "Running Perf"
-	perf record -g -F 999 $(OUTPUT)
+	perf record -g -F 999 ./$(OUTPUT)
 	perf script -F +pid > cpank.perf
 
 prof:
 	@echo "Building optimized with -g"
 	$(CC) -O3 $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g -pg
 	@echo "Running gprof"
-	gprof $(OUTPUT) > cpank.gmon.txt
+	gprof ./$(OUTPUT) > cpank.gmon.txt
 
 
 

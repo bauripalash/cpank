@@ -2,6 +2,7 @@
 
 #include <locale.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -113,8 +114,9 @@ const char *toktype_to_string(TokType t) {
 }
 
 char *token_to_string(Token *tk) {
-    char *result = NULL;
-    sprintf(result, "T[%s]", toktype_to_string(tk->type));
+    size_t size_to_write = sizeof(char) * 16;
+    char *result = (char *)malloc(size_to_write);
+    snprintf(result, size_to_write, "T[%s]", toktype_to_string(tk->type));
     return result;
 }
 

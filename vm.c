@@ -62,6 +62,15 @@ void boot_vm() {
     define_native(L"clock", clock_ntv_fn);
 }
 
+void free_stdlibs() {
+    for (int i = 0; i < vm.stdlib_count; i++) {
+        StdlibMod *mod = &vm.stdlibs[i];
+        if (mod->items.len > 0 || mod->items.cap > 0) {
+            free_table(&mod->items);
+        }
+    }
+}
+
 void init_module(Module *mod, const wchar_t *name) {
     init_table(&mod->globals);
     // init_stdlib_module();
@@ -197,6 +206,7 @@ void free_vm() {
     //  vm.last_pop = make_nil();
     free_table(&vm.strings);
     free_table(&vm.builtins);
+    free_stdlibs();
     // free_table(&vm.globals);
     for (int i = 0; i < vm.mod_count; i++) {
         free_module(&vm.modules[i]);

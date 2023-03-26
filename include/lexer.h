@@ -95,6 +95,8 @@ typedef struct {
 } Token;
 
 const char *toktype_to_string(TokType tt);
+
+// you must free the result
 char *token_to_string(Token *t);
 void boot_lexer(wchar_t *src);
 
