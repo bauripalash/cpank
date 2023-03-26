@@ -63,6 +63,7 @@ void free_single_obj(Obj *obj) {
             FREE(ObjString, obj);
             break;
         }
+
         case OBJ_FUNC: {
             ObjFunc *func = (ObjFunc *)obj;
             free_ins(&func->ins);
@@ -89,6 +90,10 @@ void free_single_obj(Obj *obj) {
             // free_single_obj((Obj*)mod->name);
             //  free(mod->name->chars);
             //  FREE(ObjString, mod->name);
+            break;
+        }
+        case OBJ_ERR: {
+            FREE(ObjErr, obj);
             break;
         }
     }
@@ -125,6 +130,7 @@ void blacken_obj(Obj *obj) {
             break;
         case OBJ_STR:
             break;
+
         case OBJ_UPVAL:
             mark_val(((ObjUpVal *)obj)->closed);
             break;
@@ -145,6 +151,11 @@ void blacken_obj(Obj *obj) {
         case OBJ_MOD: {
             ObjMod *md = (ObjMod *)obj;
             mark_obj((Obj *)md->name);
+            break;
+        }
+        case OBJ_ERR: {
+            ObjErr *err = (ObjErr *)obj;
+            mark_obj((Obj *)err->msg);
             break;
         }
     }

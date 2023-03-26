@@ -17,6 +17,7 @@ typedef enum {
     OBJ_CLOUSRE,
     OBJ_UPVAL,
     OBJ_MOD,
+    OBJ_ERR,
 } ObjType;
 
 struct Obj {
@@ -66,6 +67,11 @@ struct ObjString {
     uint32_t hash;
 };
 
+typedef struct {
+    Obj obj;
+    ObjString *msg;
+} ObjErr;
+
 ObjFunc *new_func();
 ObjUpVal *new_up_val(Value *val);
 ObjType get_obj_type(Value val);
@@ -75,6 +81,8 @@ bool is_func_obj(Value val);
 bool is_native_obj(Value val);
 bool is_closure_obj(Value val);
 bool is_mod_obj(Value val);
+bool is_err_obj(Value val);
+ObjErr *new_err_obj(wchar_t *errmsg);
 ObjFunc *get_as_func(Value val);
 ObjClosure *get_as_closure(Value val);
 ObjString *get_as_string(Value val);
