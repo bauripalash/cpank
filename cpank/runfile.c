@@ -9,10 +9,16 @@
 
 #include "include/common.h"
 #include "include/openfile.h"
+#include "include/utils.h"
 #include "include/vm.h"
 
 int run_file(const char *filepath) {
     Srcfile raw = read_file(filepath);
+    if (raw.errcode != 0) {
+        cp_println(L"Failed to read file '%s' -> error code %d", filepath,
+                   raw.errcode);
+        exit(1);
+    }
     //  wprintf(L"SOURCE -> %s", raw.source);
     int errcode = 0;
     wchar_t *src = (wchar_t *)malloc(sizeof(wchar_t) * raw.size);

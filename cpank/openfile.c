@@ -14,8 +14,8 @@ Srcfile read_file(const char *path) {
 
     result.source = NULL;
     result.size = 0;
-    if (does_file_exist(path)) {
-        result.errcode = ERC_FAIL_TO_OPEN;
+    if (!does_file_exist(path)) {
+        result.errcode = ERC_FILE_NOT_EXIST;
         return result;
     }
     result.errcode = 0;

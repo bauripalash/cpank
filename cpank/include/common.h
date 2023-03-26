@@ -15,6 +15,7 @@
 #define ERC_RUNTIME 10
 #define ERC_COMPTIME 11
 #define ERC_FAIL_TO_OPEN 12
-#define ERC_NO_MEM 13
+#define ERC_FILE_NOT_EXIST 13
+#define ERC_NO_MEM 14
 
 #endif

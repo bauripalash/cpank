@@ -1,24 +1,25 @@
 CC=gcc
 CFLAGS+=-std=c99 -Wall -pedantic -lm
 LINKS=-static -lgrapheme
-SRC=lexer.c bn.c runfile.c instruction.c mem.c debug.c value.c vm.c compiler.c obj.c htable.c utils.c openfile.c
-STDLIB_MODULES= stdlib/stdlib.c stdlib/math.c
+SRC=cpank/lexer.c cpank/bn.c cpank/runfile.c cpank/instruction.c cpank/mem.c cpank/debug.c cpank/value.c cpank/vm.c cpank/compiler.c cpank/obj.c cpank/htable.c cpank/utils.c cpank/openfile.c
+STDLIB_MODULES= cpank/stdlib/stdlib.c cpank/stdlib/math.c
 SRC+=$(STDLIB_MODULES)
-MAIN=main.c
-TESTMAIN=testmain.c
-OUTPUT=cpank
+MAIN=cpank/main.c
+SAMPLE_TO_RUN=sample/x.txt
+TESTMAIN=cpank/testmain.c
+OUTPUT=pank
 TESTOUTPUT=test_cpank
-INCLUDE_DIR=include/
+INCLUDE_DIR=cpank/include/
 
 run:
 	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g
-	./$(OUTPUT)
+	./$(OUTPUT) $(SAMPLE_TO_RUN)
 
 check:
 	cppcheck -I $(INCLUDE_DIR) --enable=all $(MAIN) $(SRC)
 
 debug: build_debug
-	gdb $(OUTPUT)
+	gdb --args $(OUTPUT) $(SAMPLE_TO_RUN)
 
 
 build_test:
@@ -45,25 +46,26 @@ build:
 	@echo "Finished building optimized $(OUTPUT)"
 
 memcheck: build_uo
-	valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(OUTPUT)
+	valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(OUTPUT) $(SAMPLE_TO_RUN)
 
 perf:
 	@echo "Building optimized with -g"
 	$(CC) -O3 $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g -pg
 	@echo "Running Perf"
-	perf record -g -F 999 ./$(OUTPUT)
+	perf record -g -F 999 ./$(OUTPUT) $(SAMPLE_TO_RUN)
 	perf script -F +pid > cpank.perf
 
 prof:
 	@echo "Building optimized with -g"
 	$(CC) -O3 $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g -pg
 	@echo "Running gprof"
-	gprof ./$(OUTPUT) > cpank.gmon.txt
+	gprof ./$(OUTPUT) $(SAMPLE_TO_RUN) > cpank.gmon.txt
 
 
 
 clean:
-	rm cpank
+	rm ./$(OUTPUT)
+	rm ./$(TESTOUTPUT)
 
 fmt:
-	clang-format -i -style=file *.c include/*.h
+	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/stdlib/*.c
