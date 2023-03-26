@@ -1,6 +1,9 @@
 #ifndef cpank_utils_h
 #define cpank_utils_h
 
+#include <stdbool.h>
+#include <wchar.h>
+
 #define ANSI_COLOR_BLACK L"\x1b[30m"
 #define ANSI_COLOR_RED L"\x1b[31m"
 #define ANSI_COLOR_GREEN L"\x1b[32m"
@@ -11,7 +14,8 @@
 #define ANSI_COLOR_WHITE L"\x1b[37m"
 #define ANSI_COLOR_RESET L"\x1b[0m"
 
-#include <wchar.h>
+// check if `filepath` exists
+bool does_file_exist(const char *filepath);
 
 // print widechars to stdout without newline
 void cp_print(const wchar_t *format, ...);

@@ -6,6 +6,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
+
+#ifdef WIN32
+#include <io.h>
+#define F_OK 0
+#define access _access
+#else
+#include <unistd.h>
+#endif
+
+bool does_file_exist(const char *filepath) {
+    return access(filepath, F_OK) == 0;
+}
+
 static char nocolor_env[] = "CPANK_NO_COLOR";
 
 static bool no_color() {

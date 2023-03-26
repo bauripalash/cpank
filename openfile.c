@@ -11,8 +11,13 @@
 
 Srcfile read_file(const char *path) {
     Srcfile result;
+
     result.source = NULL;
     result.size = 0;
+    if (does_file_exist(path)) {
+        result.errcode = ERC_FAIL_TO_OPEN;
+        return result;
+    }
     result.errcode = 0;
     FILE *file = fopen(path, "r");
     if (file == NULL) {
@@ -55,6 +60,7 @@ WSrcfile wread_file(wchar_t *path) {
     WSrcfile result;
     result.source = NULL;
     result.size = 0;
+
     result.errcode = 0;
     size_t path_size = sizeof(path);
     char *cpath = malloc(sizeof(char) * path_size);

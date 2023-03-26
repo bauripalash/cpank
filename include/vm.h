@@ -24,14 +24,6 @@ typedef struct {
     Htable *globals;
 } CallFrame;
 
-/*
-typedef struct StdModule {
-    Htable items;
-    wchar_t *name;
-    uint32_t hash;
-} StdModule;
-*/
-
 typedef struct StdlibMod {
     Htable items;
     wchar_t *name;
@@ -73,24 +65,32 @@ void init_module(Module *mod, const wchar_t *name);
 Module *get_cur_mod();
 bool is_default(Module *mod);
 
+// The Vm struct
 typedef struct {
-    // Instruction *ins;
-    // uint8_t *ip;
+    // The stack with max size of STACK_SIZE
     Value stack[STACK_SIZE];
+    // Top of the stack
     Value *stack_top;
+    // All allocated strings
     Htable strings;
+    // List of modules imported and a default one
     Module modules[MODULES_MAX];
+    // Builtin functions
     Htable builtins;
+    // Standard library
     StdlibMod stdlibs[STDLIB_MAX];
+    // How many Standard library packages imported by all modules
+    // See more on `notes`
     int stdlib_count;
+    // Hash of all modules
+    // Hash is used so that we don't have to compare strings everytime
     uint32_t mod_names[MODULES_MAX];
+    // Number of modules imported
     int mod_count;
+    // The current mod being run
     Module *current_mod;
-    // Htable globals;
+    // All allocated objects
     Obj *objs;
-    // CallFrame frames[FRAME_SIZE];
-    // int frame_count;
-    // ObjUpVal *open_upvs;
     int gray_count;
     int gray_cap;
     Obj **gray_stack;
@@ -107,7 +107,10 @@ typedef enum {
 
 extern Vm vm;
 
+// Initilalize the VM
 void boot_vm();
+
+// Free the VM and all things it holds
 void free_vm();
 IResult interpret(wchar_t *source);
 void push(Value value);
