@@ -21,7 +21,7 @@ Value _math_pow(int argc, Value* args) {
 
 Value _math_add(int argc, Value* args) {
     if (argc != 2) {
-        return make_nil();
+        return make_error(L"math add function only takes two arguments!");
     }
 
     if (args[0].type != args[1].type && args[0].type != V_NUM) {

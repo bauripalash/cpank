@@ -83,6 +83,8 @@ bool is_closure_obj(Value val);
 bool is_mod_obj(Value val);
 bool is_err_obj(Value val);
 ObjErr *new_err_obj(wchar_t *errmsg);
+Value make_error(wchar_t *errmsg);
+ObjErr *get_as_err(Value val);
 ObjFunc *get_as_func(Value val);
 ObjClosure *get_as_closure(Value val);
 ObjString *get_as_string(Value val);

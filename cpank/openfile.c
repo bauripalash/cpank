@@ -62,12 +62,14 @@ WSrcfile wread_file(wchar_t *path) {
     result.size = 0;
 
     result.errcode = 0;
-    size_t path_size = sizeof(path);
+    size_t path_size = sizeof(wchar_t) * (wcslen(path) + 1);
     char *cpath = malloc(sizeof(char) * path_size);
     if (cpath == NULL) {
         result.errcode = ERC_NO_MEM;
         return result;
     }
+
+    memset(cpath, 0, path_size);
     wcstombs(cpath, path, wcslen(path));
     Srcfile raw = read_file(cpath);
     if (raw.errcode != 0) {
@@ -75,13 +77,19 @@ WSrcfile wread_file(wchar_t *path) {
 
         return result;
     }
-    result.source = (wchar_t *)malloc(sizeof(wchar_t) * raw.size);
+    size_t result_size = sizeof(wchar_t) * raw.size;
+    result.source = (wchar_t *)malloc(result_size);
+
     if (result.source == NULL) {
         result.errcode = ERC_NO_MEM;
         free(cpath);
         return result;
     }
+
+    memset(result.source, 0, result_size);
     mbstowcs(result.source, raw.source, raw.size + 1);
+    free(raw.source);
+    free(cpath);
     result.size = sizeof(result.source);
     return result;
 }

@@ -20,7 +20,7 @@ GcConfig gcon;
 
 // #define NOGC
 
-// #define DEBUG_STRES_GC
+#define DEBUG_STRES_GC
 #ifdef DEBUG_LOG_GC
 #include "include/debug.h"
 #endif
@@ -85,8 +85,12 @@ void free_single_obj(Obj *obj) {
             break;
         }
         case OBJ_MOD: {
+            ObjMod *md = (ObjMod *)obj;
+
+            FREE_ARR(wchar_t, md->name, md->name_len);
             // FREE_ARR(wchar_t, mod->name->chars, mod->name->len+1);
             FREE(ObjMod, obj);
+
             // free_single_obj((Obj*)mod->name);
             //  free(mod->name->chars);
             //  FREE(ObjString, mod->name);
@@ -149,8 +153,8 @@ void blacken_obj(Obj *obj) {
             break;
         }
         case OBJ_MOD: {
-            ObjMod *md = (ObjMod *)obj;
-            mark_obj((Obj *)md->name);
+            // ObjMod *md = (ObjMod *)obj;
+            // mark_obj((Obj *)md->name);
             break;
         }
         case OBJ_ERR: {
@@ -211,9 +215,6 @@ void mark_roots() {
     //  mark_table(&vm.current_mod->globals);
     //}
     //
-    for (int i = 0; i < vm.stdlib_count; i++) {
-        mark_table(&vm.stdlibs[i].items);
-    }
 
     for (int i = 0; i < vm.mod_count; i++) {
         Module *mod = &vm.modules[i];
@@ -221,11 +222,26 @@ void mark_roots() {
             mark_table(&mod->globals);
         }
 
+        if (mod->stdlib_count > 0) {
+            for (int j = 0; j < mod->stdlib_count; j++) {
+                StdlibMod *sm = mod->stdproxy[j].stdmod;
+                if (sm != NULL && sm->items.len > 0 && sm->items.cap > 0) {
+                    mark_table(&sm->items);
+                }
+            }
+        }
+
         // if (mod->stlib_count > 0) {
         //     for (int i = 0; i < mod->stlib_count; i++) {
         //         mark_table(&mod->stdlibs[i].items);
         //     }
         // }
+    }
+    for (int i = 0; i < vm.stdlib_count; i++) {
+        StdlibMod *sm = &vm.stdlibs[i];
+        if (sm->owner_count > 0) {
+            mark_table(&sm->items);
+        }
     }
 
     //}

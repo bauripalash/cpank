@@ -1,5 +1,6 @@
 import m "math";
 
+show m.add(9,1);
 show m.gcd(9 , 3);
 show m.lcm(10,10);
 show m.sqrt(11);

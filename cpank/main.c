@@ -7,14 +7,16 @@
 #include "include/utils.h"
 
 const wchar_t help_msg[] =
-    L"usage: cpank [option] <File to Run>\n"
+    L"Pankti programming language; an interpreted bengali programming "
+    L"language\n"
+    "Made by, Palash Bauri\n"
+
+    "Licensed under GPLv3\n"
+    "usage: cpank [option] <File to Run>\n\n"
     "Options and Arguments\n"
     "-v, --version : show version info and exit\n"
     "-h, --help : show help and exit\n\n"
-    "Pankti Programming Language\n"
-    "cpank v0.1.0\n\n"
-    "(C) Palash Bauri\n"
-    "Licensed under GPLv3\n";
+    "cpank v0.1.0\n";
 
 const wchar_t version[] = L"v0.1.0";
 

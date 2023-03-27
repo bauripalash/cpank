@@ -16,7 +16,18 @@
 #endif
 
 bool does_file_exist(const char *filepath) {
-    return access(filepath, F_OK) == 0;
+    FILE *file = fopen(filepath, "r");
+    if (file == NULL) {
+        return false;
+        // fwprintf(stderr, L"Failed to open file %s\n", path);
+        // cp_color_println('r' , L"Failed to open file %s" , path);
+        // result.errcode = ERC_FAIL_TO_OPEN;
+
+        // return result;
+    } else {
+        fclose(file);
+        return true;
+    }
 }
 
 static char nocolor_env[] = "CPANK_NO_COLOR";

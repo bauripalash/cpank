@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
 
@@ -46,6 +47,8 @@ bool is_func_obj(Value val) { return is_obj_type(val, OBJ_FUNC); }
 bool is_native_obj(Value val) { return is_obj_type(val, OBJ_NATIVE); }
 bool is_closure_obj(Value val) { return is_obj_type(val, OBJ_CLOUSRE); }
 bool is_mod_obj(Value val) { return is_obj_type(val, OBJ_MOD); }
+bool is_err_obj(Value val) { return is_obj_type(val, OBJ_ERR); }
+
 ObjString *get_as_string(Value val) { return (ObjString *)get_as_obj(val); }
 ObjFunc *get_as_func(Value val) { return (ObjFunc *)get_as_obj(val); }
 wchar_t *get_as_native_string(Value val) {
@@ -62,6 +65,7 @@ ObjClosure *get_as_closure(Value val) { return (ObjClosure *)get_as_obj(val); }
 
 ObjMod *get_as_mod(Value val) { return (ObjMod *)get_as_obj(val); }
 
+ObjErr *get_as_err(Value val) { return (ObjErr *)get_as_obj(val); }
 ObjString *allocate_str(wchar_t *chars, int len, uint32_t hash) {
     ObjString *string = ALLOCATE_OBJ(ObjString, OBJ_STR);
     string->len = len;
@@ -89,6 +93,8 @@ wchar_t *get_obj_type_as_string(ObjType o) {
             return L"OBJ_NATIVE";
         case OBJ_MOD:
             return L"OBJ_MOD";
+        case OBJ_ERR:
+            return L"OBJ_ERR";
     }
 
     return L"OBJ_UNKNOWN";
@@ -166,7 +172,13 @@ void print_obj(Value val) {
             break;
         case OBJ_MOD: {
             ObjMod *mod = get_as_mod(val);
-            cp_print(L"<mod %ls>", mod->name->chars);
+            cp_print(L"<mod %ls>", mod->name);
+            break;
+        }
+        case OBJ_ERR: {
+            ObjErr *err = get_as_err(val);
+            cp_print(L"Error ");
+            cp_print(L"%ls", err->msg->chars);
             break;
         }
     }
@@ -201,8 +213,23 @@ ObjClosure *new_closure(ObjFunc *func, uint32_t global_owner) {
     return cls;
 }
 
-ObjMod *new_mod(ObjString *name) {
+ObjMod *new_mod(wchar_t *name) {
     ObjMod *mod = ALLOCATE_OBJ(ObjMod, OBJ_MOD);
-    mod->name = name;
+    size_t name_size = sizeof(wchar_t) * (wcslen(name) + 1);
+    mod->name = (wchar_t *)malloc(name_size);
+    wmemset(mod->name, 0, wcslen(name) + 1);
+    wmemcpy(mod->name, name, wcslen(name) + 1);
+    mod->name_len = name_size;
+    mod->name_hash = get_hash(mod->name, wcslen(mod->name));
     return mod;
+}
+
+ObjErr *new_err_obj(wchar_t *errmsg) {
+    ObjErr *err = ALLOCATE_OBJ(ObjErr, OBJ_ERR);
+    err->msg = copy_string(errmsg, wcslen(errmsg));
+    return err;
+}
+
+Value make_error(wchar_t *errmsg) {
+    return make_obj_val((Obj *)new_err_obj(errmsg));
 }

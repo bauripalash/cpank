@@ -50,16 +50,19 @@ typedef struct Module {
     ObjUpVal *open_upvs;
     bool is_default;
     struct Module *origin;
+    wchar_t *source_code;
 
 } Module;
 
 typedef struct ObjMod {
     Obj obj;
-    ObjString *name;
+    wchar_t *name;
+    int name_len;
+    uint32_t name_hash;
 } ObjMod;
 Module *get_mod_by_hash(uint32_t hash);
-ObjMod *get_as_mod(Value val);     // defined in obj.c
-ObjMod *new_mod(ObjString *name);  // define in obj.c
+ObjMod *get_as_mod(Value val);   // defined in obj.c
+ObjMod *new_mod(wchar_t *name);  // define in obj.c
 
 void init_module(Module *mod, const wchar_t *name);
 Module *get_cur_mod();
@@ -113,7 +116,7 @@ void boot_vm();
 // Free the VM and all things it holds
 void free_vm();
 IResult interpret(wchar_t *source);
-void push(Value value);
+bool push(Value value);
 Value pop();
 Value get_last_pop();
 bool call_val(Value calle, int argc);
