@@ -21,7 +21,7 @@ const wchar_t help_msg[] =
 const wchar_t version[] = L"v0.1.0";
 
 int main(int argc, char** argv) {
-    setlocale(LC_CTYPE, "en_US.UTF-8");
+    setlocale(LC_CTYPE, "");
     if (argc != 2) {
         cp_println(help_msg);
         return 0;

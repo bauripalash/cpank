@@ -172,13 +172,17 @@ void print_obj(Value val) {
             break;
         case OBJ_MOD: {
             ObjMod *mod = get_as_mod(val);
-            cp_print(L"<mod %ls>", mod->name);
+            cp_print(L"<mod %ls>", mod->name->chars);
             break;
         }
         case OBJ_ERR: {
             ObjErr *err = get_as_err(val);
             cp_print(L"Error ");
             cp_print(L"%ls", err->msg->chars);
+            break;
+        }
+        default: {
+            cp_print(L"OBJ_UNKNOWN");
             break;
         }
     }
@@ -215,12 +219,7 @@ ObjClosure *new_closure(ObjFunc *func, uint32_t global_owner) {
 
 ObjMod *new_mod(wchar_t *name) {
     ObjMod *mod = ALLOCATE_OBJ(ObjMod, OBJ_MOD);
-    size_t name_size = sizeof(wchar_t) * (wcslen(name) + 1);
-    mod->name = (wchar_t *)malloc(name_size);
-    wmemset(mod->name, 0, wcslen(name) + 1);
-    wmemcpy(mod->name, name, wcslen(name) + 1);
-    mod->name_len = name_size;
-    mod->name_hash = get_hash(mod->name, wcslen(mod->name));
+    mod->name = copy_string(name, wcslen(name));
     return mod;
 }
 

@@ -66,7 +66,7 @@ int dissm_ins(Instruction *ins, int offset) {
         case OP_NEG:
             return simple_ins("OP_NEG", offset);
         case OP_IMPORT_NONAME:
-            return simple_ins("OP_IMPORT_NONAME", offset);
+            return const_ins("OP_IMPORT_NONAME", ins, offset);
         case OP_ADD:
             return simple_ins("OP_ADD", offset);
         case OP_SUB:

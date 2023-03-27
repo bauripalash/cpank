@@ -56,9 +56,8 @@ typedef struct Module {
 
 typedef struct ObjMod {
     Obj obj;
-    wchar_t *name;
-    int name_len;
-    uint32_t name_hash;
+    ObjString *name;
+
 } ObjMod;
 Module *get_mod_by_hash(uint32_t hash);
 ObjMod *get_as_mod(Value val);   // defined in obj.c

@@ -17,11 +17,11 @@
 
 GcConfig gcon;
 
-#define DEBUG_LOG_GC
+// #define DEBUG_LOG_GC
 
 // #define NOGC
 
-// #define DEBUG_STRES_GC
+#define DEBUG_STRES_GC
 #ifdef DEBUG_LOG_GC
 #include "include/debug.h"
 #endif
@@ -90,10 +90,10 @@ void free_single_obj(Obj *obj) {
             break;
         }
         case OBJ_MOD: {
-            ObjMod *md = (ObjMod *)obj;
+            // ObjMod *md = (ObjMod *)obj;
 
-            FREE_ARR(wchar_t, md->name, md->name_len);
-            // FREE_ARR(wchar_t, mod->name->chars, mod->name->len+1);
+            // FREE_ARR(wchar_t, md->name, md->name_len);
+            //  FREE_ARR(wchar_t, mod->name->chars, mod->name->len+1);
             FREE(ObjMod, obj);
 
             // free_single_obj((Obj*)mod->name);
@@ -159,6 +159,7 @@ void blacken_obj(Obj *obj) {
         }
         case OBJ_MOD: {
             // ObjMod *md = (ObjMod *)obj;
+
             // mark_obj((Obj *)md->name);
             break;
         }
@@ -223,9 +224,13 @@ void mark_roots() {
 
     for (int i = 0; i < vm.mod_count; i++) {
         Module *mod = &vm.modules[i];
-        if (mod->globals.len > 0) {
-            mark_table(&mod->globals);
-        }
+        // cp_println(L"Marking globals of -> %ls" , mod->name);
+        // if (mod->globals.len > 0) {
+        //
+        // print_table(&mod->globals, "mod__d__");
+        mark_table(&mod->globals);
+
+        //}
 
         /*if (mod->stdlib_count > 0) {
             for (int j = 0; j < mod->stdlib_count; j++) {
@@ -243,11 +248,13 @@ void mark_roots() {
         // }
     }
 #ifdef DEBUG_LOG_GC
+    cp_println(L"[GC] Finished Marking Module Globals");
     cp_println(L"[GC] Marking Imported StdLibs");
 #endif
     for (int i = 0; i < vm.stdlib_count; i++) {
         StdlibMod *sm = &vm.stdlibs[i];
-        if (sm->owner_count > 0) {
+        if (sm->items.cap > 0) {
+            // print_table(&sm->items, "std math");
             mark_table(&sm->items);
         }
     }

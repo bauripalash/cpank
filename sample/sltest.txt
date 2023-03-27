@@ -1,10 +1,21 @@
 import m "math";
 
+
+#let name = "hello";
+#show name;
+
+show "add";
 show m.add(9,1);
-show m.gcd(9 , 3);
-show m.lcm(10,10);
-show m.sqrt(11);
-show m.log10(11);
-show m.log(11);
-show m.logx(10 , 11);
+#show "gcd";
+#show m.gcd(9 , 3);
+#show "lcm";
+#show m.lcm(10,10);
+#show "sqrt";
+#show m.sqrt(11);
+#show "log10";
+#show m.log10(11);
+#show "loge";
+#show m.loge(11);
+#show "logx";
+#show m.logx(10 , 11);
 

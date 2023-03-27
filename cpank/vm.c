@@ -70,7 +70,6 @@ void init_module(Module *mod, const wchar_t *name) {
     mod->frame_count = 0;
     mod->stdlib_count = 0;
     mod->hash = get_hash(name, wcslen(name));
-
     mod->name = malloc(sizeof(wchar_t) * (wcslen(name) + 1));
     wmemcpy(mod->name, name, wcslen(name) + 1);
     mod->open_upvs = NULL;
@@ -91,10 +90,13 @@ Module *get_mod_by_hash(uint32_t hash) {
 }
 
 StdlibMod *get_stdlib_by_hash(uint32_t hash, Module *curmod) {
-    uint32_t curmod_hash = get_hash(curmod->name, wcslen(curmod->name));
+    // uint32_t curmod_hash = get_hash(curmod->name, wcslen(curmod->name));
+    uint32_t curmod_hash = curmod->hash;
     for (int i = 0; i < vm.stdlib_count; i++) {
         StdlibMod *m = &vm.stdlibs[i];
         if (m->hash == hash) {
+            // cp_color_println('y', L"stm -> %ld | %d" , m->hash ,
+            // m->owner_count );
             for (int j = 0; j < m->owner_count; j++) {
                 if (m->owners[j] == curmod_hash) {
                     return m;
@@ -190,6 +192,7 @@ Value get_last_pop() { return vm.last_pop; }
 Module *get_cur_mod() { return vm.current_mod; }
 
 void runtime_err(wchar_t *format, ...) {
+    setlocale(LC_CTYPE, "");
     va_list args;
     va_start(args, format);
     vfwprintf(stderr, format, args);
@@ -432,8 +435,10 @@ static int import_custom(wchar_t *custom_name, wchar_t *import_name) {
 
     int origin_caller = get_cur_mod()->frame_count - 1;
     ObjMod *objmod = new_mod(custom_name);
-    vm.mod_names[vm.mod_count - 1] = objmod->name_hash;
+
     push(make_obj_val(objmod));
+    cp_println(L"-----> %ls", objmod->name->chars);
+    vm.mod_names[vm.mod_count - 1] = objmod->name->hash;
     ObjString *strname = copy_string(custom_name, wcslen(custom_name));
 
     table_set(&get_cur_mod()->globals, strname, make_obj_val(objmod));
@@ -444,8 +449,8 @@ static int import_custom(wchar_t *custom_name, wchar_t *import_name) {
     }
 
     push(make_obj_val(newfn));
-    ObjClosure *cls = new_closure(newfn, objmod->name_hash);
-    cls->global_owner = objmod->name_hash;
+    ObjClosure *cls = new_closure(newfn, objmod->name->hash);
+    cls->global_owner = objmod->name->hash;
     cls->globals = &mod->globals;
     pop();
     call(cls, origin_caller, 0);
@@ -456,24 +461,48 @@ static int import_custom(wchar_t *custom_name, wchar_t *import_name) {
 static int import_file(wchar_t *custom_name, wchar_t *import_name) {
     if (wcscmp(import_name, L"math") == 0) {
         ObjMod *objmod = new_mod(custom_name);
+        push(make_obj_val(objmod));
+
+        // cp_println(L">>>> %ls" , objmod->name->chars);
+        // print_val(pop());
+
+        // print_obj(make_obj_val(objmod));
+        // cp_println(L"<<<< %ls -> %d" ,
+        // get_obj_type_as_string(objmod->obj.type) , objmod->obj.type);
+
+        ObjString *strname = copy_string(custom_name, wcslen(custom_name));
+
         Module *mod = get_cur_mod();
+        // cp_color_println('b', L"setting table");
+        table_set(&mod->globals, strname, make_obj_val(objmod));
+        // print_table(&get_cur_mod()->globals, "AFTER TABLE SET");
+
+        // cp_color_println('b', L"end table");
+        // Value val;
+        // table_get(&mod->globals, strname, &val);
+        // print_val(val);
 
         // Change later;
 
-        StdProxy *prx = &get_cur_mod()->stdproxy[get_cur_mod()->stdlib_count++];
-        prx->proxy_hash = objmod->name_hash;
-        prx->proxy_name = objmod->name;
+        StdProxy *prx = &mod->stdproxy[mod->stdlib_count++];
+
+        prx->proxy_hash = objmod->name->hash;
+        prx->proxy_name = objmod->name->chars;
 
         if (vm.stdlib_count < 1) {
             push_stdlib_math();
             StdlibMod *sm = &vm.stdlibs[0];
+
+            // cp_color_println('g', L"STDM");
+            // print_table(&sm->items, "stdm");
             sm->owners[sm->owner_count++] = mod->hash;
+            // cp_color_println('g', L"END STDM");
             prx->origin_name = sm->name;
             prx->stdmod = sm;
         } else {
             for (int i = 0; i < vm.stdlib_count; i++) {
                 StdlibMod *sm = &vm.stdlibs[i];
-                if (sm->hash == objmod->name_hash) {
+                if (sm->hash == objmod->name->hash) {
                     prx->origin_name = sm->name;
                     prx->stdmod = sm;
                     sm->owners[sm->owner_count++] = mod->hash;
@@ -481,10 +510,7 @@ static int import_file(wchar_t *custom_name, wchar_t *import_name) {
             }
         }
 
-        ObjString *strname = copy_string(custom_name, wcslen(custom_name));
-
-        table_set(&get_cur_mod()->globals, strname, make_obj_val(objmod));
-        push_stdlib_math();
+        pop();
         return 0;
 
     } else {
@@ -672,8 +698,8 @@ IResult run_vm() {
 
             case OP_SET_GLOB: {
                 ObjString *name = read_str_const(frame);
-                wprintf(L"setting global -> %ls -> %ld\n", name->chars,
-                        frame->global_owner);
+                // wprintf(L"setting global -> %ls -> %ld\n", name->chars,
+                //         frame->global_owner);
                 if (table_set(frame->globals, name, peek_vm(0))) {
                     table_del(frame->globals, name);
                     runtime_err(L"Set Global -> Undefined var '%ls'",
@@ -756,6 +782,7 @@ IResult run_vm() {
                 break;
             }
             case OP_IMPORT_NONAME: {
+                // cp_color_println('b', L"IMPORT");
                 Value raw_custom_name = read_const(frame);
                 if (!is_str_obj(raw_custom_name)) {
                     runtime_err(L"import custom name must be a identifier");
@@ -763,12 +790,18 @@ IResult run_vm() {
                 }
                 ObjString *custom_name = get_as_string(raw_custom_name);
                 Value raw_file_name = pop();
+                // cp_println(L"VVV");
+                // print_val(raw_file_name);
+
+                // cp_println(L"\n^^^");
                 if (!is_str_obj(raw_file_name)) {
                     runtime_err(L"import file name must be string");
                     return INTRP_RUNTIME_ERR;
                 }
                 ObjString *filename = get_as_string(raw_file_name);
                 int ir = import_file(custom_name->chars, filename->chars);
+                // cp_println(L"----> %ls|%ls| %d\n\n" , custom_name->chars ,
+                // filename->chars , ir);
 
                 if (ir != 0) {
                     switch (ir) {
@@ -795,27 +828,38 @@ IResult run_vm() {
                     return INTRP_RUNTIME_ERR;
                 }
 
+                // print_table(&get_cur_mod()->globals, "GLOBALS");
+
                 frame = &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
 
                 break;
             }
             case OP_GET_MOD_PROP: {
+                if (!is_mod_obj(peek_vm(0))) {
+                    runtime_err(L"Module object is not a module");
+                    return INTRP_RUNTIME_ERR;
+                }
                 ObjMod *modname = get_as_mod(peek_vm(0));
 
-                cp_color_println('r', L"modname -> %d", modname->name_len);
+                // cp_color_println('r', L"modname -> %ls | %ld",
+                // modname->name->chars , modname->name->hash);
 
                 ObjString *prop = read_str_const(frame);
+                // cp_color_println('b', L"prop -> %ls" , prop->chars);
                 Value value;
 
-                Module *mod = get_mod_by_hash(modname->name_hash);
+                Module *mod = get_mod_by_hash(modname->name->hash);
 
                 if (mod == NULL) {
                     uint32_t modhash =
 
-                        get_proxy_hash(modname->name_hash, get_cur_mod());
+                        get_proxy_hash(modname->name->hash, get_cur_mod());
+                    // cp_color_println('g', L"proxy hash -> %ld" , modhash);
                     if (modhash != 0) {
                         StdlibMod *smod =
                             get_stdlib_by_hash(modhash, get_cur_mod());
+
+                        //  cp_color_println('b', L"smod -> %ld" , smod->hash);
                         if (smod != NULL) {
                             if (table_get(&smod->items, prop, &value)) {
                                 pop();
@@ -832,7 +876,8 @@ IResult run_vm() {
                             }
                         }
                     }
-                    runtime_err(L"module not found %d\n", modname->name_len);
+                    runtime_err(L"module not found\n");
+                    print_obj(make_obj_val(modname->name));
                     return INTRP_RUNTIME_ERR;
                 }
 

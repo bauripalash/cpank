@@ -2,6 +2,7 @@
 #include <wchar.h>
 
 #include "../include/stdlib.h"
+#include "../include/utils.h"
 #include "../include/value.h"
 
 Value _math_pow(int argc, Value* args) {
@@ -104,7 +105,7 @@ Value _math_log10(int argc, Value* args) {
     return make_num(log10(a));
 }
 // Log base e
-Value _math_log(int argc, Value* args) {
+Value _math_log_e(int argc, Value* args) {
     if (argc != 1) {
         return make_nil();
     }
@@ -135,10 +136,10 @@ Value _math_logx(int argc, Value* args) {
 
 void push_stdlib_math() {
     SL sls[] = {
-        msl(L"pow", _math_pow),   msl(L"add", _math_add),
-        msl(L"gcd", _math_gcd),   msl(L"lcm", _math_lcm),
-        msl(L"sqrt", _math_sqrt), msl(L"log10", _math_log10),
-        msl(L"log", _math_log),   msl(L"logx", _math_logx),
+        msl(L"pow", _math_pow),    msl(L"add", _math_add),
+        msl(L"gcd", _math_gcd),    msl(L"lcm", _math_lcm),
+        msl(L"sqrt", _math_sqrt),  msl(L"log10", _math_log10),
+        msl(L"loge", _math_log_e), msl(L"logx", _math_logx),
     };
 
     _push_stdlib(L"math", sls, 8);
