@@ -11,16 +11,17 @@
 #include "include/compiler.h"
 #include "include/instruction.h"
 #include "include/obj.h"
+#include "include/utils.h"
 #include "include/value.h"
 #include "include/vm.h"
 
 GcConfig gcon;
 
-// #define DEBUG_LOG_GC
+#define DEBUG_LOG_GC
 
 // #define NOGC
 
-#define DEBUG_STRES_GC
+// #define DEBUG_STRES_GC
 #ifdef DEBUG_LOG_GC
 #include "include/debug.h"
 #endif
@@ -46,7 +47,8 @@ void *rallc(void *ptr, size_t os, size_t ns) {
 
     void *result = realloc(ptr, ns);
     if (result == NULL) {
-        fprintf(stderr, "Failed to allocate memory");
+        // fprintf(stderr, "Failed to allocate memory");
+        cp_err_println(L"Fail to allocate memory");
         exit(1);
     }
     return result;
@@ -54,7 +56,10 @@ void *rallc(void *ptr, size_t os, size_t ns) {
 
 void free_single_obj(Obj *obj) {
 #ifdef DEBUG_LOG_GC
-    wprintf(L"%p free type %d\n", (void *)obj, obj->type);
+    cp_color_print('b', L"[GC] (%p) Freeing : T(%ls) : V(", (void *)obj,
+                   get_obj_type_as_string(obj->type));
+    print_obj(make_obj_val(obj));
+    cp_color_println('b', L")");
 #endif
     switch (obj->type) {
         case OBJ_STR: {
@@ -123,11 +128,11 @@ void mark_array(Valarr *arr) {
 void blacken_obj(Obj *obj) {
 #ifdef DEBUG_LOG_GC
     // setlocale(LC_CTYPE, "");
-    wprintf(L"%p blacken -> %ls", (void *)obj,
-            get_obj_type_as_string(obj->type));
+    cp_color_print('g', L"[GC] (%p) Blacken : T(%ls) : V(", (void *)obj,
+                   get_obj_type_as_string(obj->type));
 
     print_val(make_obj_val(obj));
-    wprintf(L"\n");
+    cp_color_println('g', L")");
 #endif
     switch (obj->type) {
         case OBJ_NATIVE:
@@ -167,30 +172,30 @@ void blacken_obj(Obj *obj) {
 
 void mark_roots() {
 #ifdef DEBUG_LOG_GC
-    wprintf(L"marking stack slots -> \n");
+    cp_println(L"[GC] Marking Stack Slots");
 #endif
     for (Value *slot = vm.stack; slot < vm.stack_top; slot++) {
         mark_val(*slot);
     }
 #ifdef DEBUG_LOG_GC
-    wprintf(L"finished marking slots -> \n");
+    cp_println(L"[GC] Finished Stack Slots Marking");
 #endif
 #ifdef DEBUG_LOG_GC
-    wprintf(L"marking roots - frame closures -> \n");
+    cp_println(L"[GC] Marking Frame Closures");
 #endif
     for (int i = 0; i < vm.mod_count; i++) {
         Module *mod = &vm.modules[i];
-        for (int i = 0; i < mod->frame_count; i++) {
-            mark_obj((Obj *)mod->frames[i].closure);
+        for (int j = 0; j < mod->frame_count; j++) {
+            mark_obj((Obj *)mod->frames[j].closure);
         }
     }
 
-#ifdef DEBUG_LOG_GCC
-    wprintf(L"finished marking frame closures -> \n");
+#ifdef DEBUG_LOG_GC
+    cp_println(L"[GC] Finished Marking Frame Closure");
 #endif
 
-#ifdef DEBUG_LOG_GCC
-    wprintf(L"gc marking open upvalues -> \n");
+#ifdef DEBUG_LOG_GC
+    cp_println(L"[GC] Marking UpValues");
 #endif
     for (int i = 0; i < vm.mod_count; i++) {
         Module *mod = &vm.modules[i];
@@ -200,11 +205,11 @@ void mark_roots() {
     }
 
 #ifdef DEBUG_LOG_GC
-    wprintf(L"finished marking open upvalues -> \n");
+    cp_println(L"[GC] Finished Marking UpValues");
 #endif
 
 #ifdef DEBUG_LOG_GC
-    wprintf(L"gc marking table -> gloals -> \n");
+    cp_println(L"[GC] Marking Module Globals");
 #endif
 
     // mark_table(&vm.globals);
@@ -222,14 +227,14 @@ void mark_roots() {
             mark_table(&mod->globals);
         }
 
-        if (mod->stdlib_count > 0) {
+        /*if (mod->stdlib_count > 0) {
             for (int j = 0; j < mod->stdlib_count; j++) {
                 StdlibMod *sm = mod->stdproxy[j].stdmod;
                 if (sm != NULL && sm->items.len > 0 && sm->items.cap > 0) {
                     mark_table(&sm->items);
                 }
             }
-        }
+        }*/
 
         // if (mod->stlib_count > 0) {
         //     for (int i = 0; i < mod->stlib_count; i++) {
@@ -237,27 +242,36 @@ void mark_roots() {
         //     }
         // }
     }
+#ifdef DEBUG_LOG_GC
+    cp_println(L"[GC] Marking Imported StdLibs");
+#endif
     for (int i = 0; i < vm.stdlib_count; i++) {
         StdlibMod *sm = &vm.stdlibs[i];
         if (sm->owner_count > 0) {
             mark_table(&sm->items);
         }
     }
+#ifdef DEBUG_LOG_GC
+    cp_println(L"[GC] Finished Marking Imported StdLibs");
+#endif
 
     //}
     //
+#ifdef DEBUG_LOG_GC
+    cp_println(L"[GC] Marking Builtins");
+#endif
     mark_table(&vm.builtins);
 
     // mark_table(&vm.current_mod->globals);
 #ifdef DEBUG_LOG_GC
-    wprintf(L"finished marking global table -> \n");
+    cp_println(L"[GC] Finished Marking Builtins");
 #endif
 #ifdef DEBUG_LOG_GC
-    wprintf(L"marking compiler roots -> \n");
+    cp_println(L"[GC] Marking Compiler Roots");
 #endif
     mark_compiler_roots();
 #ifdef DEBUG_LOG_GC
-    wprintf(L"finished marking compiler roots -> \n");
+    cp_println(L"[GC] Finished Marking Compiler Roots");
 #endif
 }
 
@@ -306,16 +320,10 @@ void mark_obj(Obj *obj) {
     }
 
 #ifdef DEBUG_LOG_GC
-    // setlocale(LC_CTYPE, "");
-    wprintf(L"%p mark  -> ", (void *)obj);
-    //  Value v = make_obj_val(obj);
-
-    wprintf(L"%ls\n", get_obj_type_as_string(obj->type));
-    // ObjFunc * f = (ObjFunc *)obj;
-    // dissm_ins_chunk(&f->ins, L"debug");
-    // print_val(make_obj_val(obj));
-    // print_obj(make_obj_val(obj));
-    wprintf(L"\n");
+    cp_color_print('p', L"[GC] (%p) Marking : T(%ls) : V(", (void *)obj,
+                   get_obj_type_as_string(obj->type));
+    print_obj(make_obj_val(obj));
+    cp_color_println('p', L")");
 #endif
 
     obj->is_marked = true;
@@ -336,30 +344,57 @@ void collect_garbage() {
 #ifndef NOGC
     // setlocale(LC_CTYPE, "");
 #ifdef DEBUG_LOG_GC
-    wprintf(L"-- gc start\n");
+    cp_color_println('y', L"[GC] === GC START ====");
     size_t before = vm.bts_allocated;
 #endif
 
 #ifdef DEBUG_LOG_GC
-    wprintf(L"gc marking roots -> \n");
+    // wprintf(L"gc marking roots -> \n");
+    cp_println(L"[GC] -- Marking Roots --");
 #endif
 
     mark_roots();
 
 #ifdef DEBUG_LOG_GC
-    wprintf(L"finished marking roots -> \n");
+    // wprintf(L"finished marking roots -> \n");
+    cp_println(L"[GC] -- Finished Marking Roots --");
+
+    cp_println(L"[GC] -- Tracing Refs --");
 #endif
     trace_refs();
+
+#ifdef DEBUG_LOG_GC
+    cp_println(L"[GC] -- Finished Tracing Refs --");
+#endif
+
+#ifdef DEBUG_LOG_GC
+    cp_println(L"[GC] -- Removing White Strings --");
+#endif
+
     table_remove_white(&vm.strings);
 
+#ifdef DEBUG_LOG_GC
+    cp_println(L"[GC] -- Finished Removing White Strings --");
+#endif
+
+#ifdef DEBUG_LOG_GC
+    cp_println(L"[GC] -- Sweeping --");
+#endif
+
     sweep();
+
+#ifdef DEBUG_LOG_GC
+    cp_println(L"[GC] -- Finished Sweeping --");
+#endif
 
     vm.next_gc = vm.bts_allocated * GC_HEAD_GROW_FACT;
 
 #ifdef DEBUG_LOG_GC
-    wprintf(L"-- gc end\n");
-    wprintf(L"  collected %zu bytes (from %zu to %zu) next at %zu",
-            before - vm.bts_allocated, before, vm.bts_allocated, vm.next_gc);
+
+    cp_color_println('y', L"[GC] === GC END ====");
+    // wprintf(L"-- gc end\n");
+    cp_println(L"[GC] collected %zu bytes (from %zu to %zu) next at %zu",
+               before - vm.bts_allocated, before, vm.bts_allocated, vm.next_gc);
 #endif
 #endif
 }

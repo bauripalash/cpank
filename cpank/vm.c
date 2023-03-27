@@ -832,7 +832,7 @@ IResult run_vm() {
                             }
                         }
                     }
-                    runtime_err(L"module not found %ls\n", modname->name);
+                    runtime_err(L"module not found %d\n", modname->name_len);
                     return INTRP_RUNTIME_ERR;
                 }
 
