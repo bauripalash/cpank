@@ -1,5 +1,6 @@
 #include "../include/stdlib.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <wchar.h>
 
@@ -18,16 +19,21 @@ int _push_stdlib(wchar_t* stdname, SL funcs[], int len) {
     StdlibMod* smod = &vm.stdlibs[vm.stdlib_count++];
     smod->name = stdname;
     smod->hash = name_hash;
-    // smod->owners =
+    init_table(&smod->items);
     smod->owner_count = 0;
 
     for (int i = 0; i < len; i++) {
-        SL f = funcs[i];
-        ObjString* k = copy_string(f.key, wcslen(f.key));
-        cp_color_println('r', L"STD KEY -> %ls", k->chars);
-        Value val = make_obj_val(new_native(f.func));
+        SL* f = &funcs[i];
+        ObjString* k = copy_string(f->key, wcslen(f->key));
+        // cp_color_println('r', L"STD KEY -> %ls", k->chars);
+        ObjNative* nf = new_native(f->func);
+        nf->obj.is_gen = true;
+        Value val = make_obj_val(nf);
+
         table_set(&smod->items, k, val);
     }
+
+    print_table(&smod->items, "AFTER DEFINE OF STDLIB ----------------");
 
     return 0;
 }

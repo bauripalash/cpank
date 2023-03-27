@@ -23,6 +23,7 @@ typedef enum {
 struct Obj {
     ObjType type;
     bool is_marked;
+    bool is_gen;
     struct Obj *next;
 };
 
