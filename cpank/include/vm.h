@@ -117,6 +117,7 @@ void free_vm();
 IResult interpret(wchar_t *source);
 bool push(Value value);
 Value pop();
+Value peek_vm(int dist);
 Value get_last_pop();
 bool call_val(Value calle, int argc);
 bool call(ObjClosure *closure, int origin, int argc);

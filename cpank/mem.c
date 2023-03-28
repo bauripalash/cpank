@@ -253,16 +253,16 @@ void mark_roots() {
 #endif
     for (int i = 0; i < vm.stdlib_count; i++) {
         StdlibMod *sm = &vm.stdlibs[i];
-        cp_color_println('b', L"___>>>> %ls", sm->name);
+        // cp_color_println('b', L"___>>>> %ls", sm->name);
         if (sm->items.cap > 0) {
             if (sm->items.len > 0) {
-                print_table(&sm->items, "std math");
+                // print_table(&sm->items, "std math");
 
                 mark_table(&sm->items);
             }
         }
     }
-    cp_color_println('r', L"------------");
+    // cp_color_println('r', L"------------");
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] Finished Marking Imported StdLibs");
 #endif

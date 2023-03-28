@@ -25,15 +25,16 @@ int _push_stdlib(wchar_t* stdname, SL funcs[], int len) {
     for (int i = 0; i < len; i++) {
         SL* f = &funcs[i];
         ObjString* k = copy_string(f->key, wcslen(f->key));
-        // cp_color_println('r', L"STD KEY -> %ls", k->chars);
+        push(make_obj_val(k));
         ObjNative* nf = new_native(f->func);
         nf->obj.is_gen = true;
-        Value val = make_obj_val(nf);
-
-        table_set(&smod->items, k, val);
+        push(make_obj_val(nf));
+        table_set(&smod->items, get_as_string(peek_vm(1)), peek_vm(0));
+        pop();
+        pop();
     }
 
-    print_table(&smod->items, "AFTER DEFINE OF STDLIB ----------------");
+    // print_table(&smod->items, "AFTER DEFINE OF STDLIB ----------------");
 
     return 0;
 }
