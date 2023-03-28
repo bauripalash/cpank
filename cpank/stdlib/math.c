@@ -8,11 +8,11 @@
 
 Value _math_pow(int argc, Value* args) {
     if (argc != 2) {
-        return make_nil();
+        return make_error(L"math pow function only takes 2 arguments!");
     }
 
     if (args[0].type != args[1].type && args[0].type != V_NUM) {
-        return make_nil();
+        return make_error(L"math pow function only works on numbers");
     }
 
     double a = get_as_number(args[0]);
@@ -23,16 +23,11 @@ Value _math_pow(int argc, Value* args) {
 
 Value _math_add(int argc, Value* args) {
     if (argc != 2) {
-        // ObjErr * err = new_err_obj(L"math obj error");
-        // print_obj()
-        // Value verr = make_obj_val(err);
-        // print_val(verr);
-        // return verr;
-        return make_error(L"math add function only takes two arguments!");
+        return make_error(L"math add function only takes 2 arguments!");
     }
 
     if (args[0].type != args[1].type && args[0].type != V_NUM) {
-        return make_nil();
+        return make_error(L"math add function only works on numbers");
     }
 
     double a = get_as_number(args[0]);
@@ -58,11 +53,13 @@ double _get_gcd(double a, double b) {
 
 Value _math_gcd(int argc, Value* args) {
     if (argc != 2) {
-        return make_nil();
+        // return make_nil();
+
+        return make_error(L"math gcd function only takes two arguments!");
     }
 
     if (args[0].type != args[1].type && args[0].type != V_NUM) {
-        return make_nil();
+        return make_error(L"math add function only works on numbers");
     }
 
     double a = get_as_number(args[0]);
@@ -73,11 +70,11 @@ Value _math_gcd(int argc, Value* args) {
 
 Value _math_lcm(int argc, Value* args) {
     if (argc != 2) {
-        return make_nil();
+        return make_error(L"math lcm function only takes 2 arguments!");
     }
 
     if (args[0].type != args[1].type && args[0].type != V_NUM) {
-        return make_nil();
+        return make_error(L"math lcm function only works on numbers");
     }
     double a = get_as_number(args[0]);
     double b = get_as_number(args[1]);
@@ -87,11 +84,11 @@ Value _math_lcm(int argc, Value* args) {
 
 Value _math_sqrt(int argc, Value* args) {
     if (argc != 1) {
-        return make_nil();
+        return make_error(L"math sqrt function only takes 1 arguments!");
     }
 
     if (args[0].type != V_NUM) {
-        return make_nil();
+        return make_error(L"math sqrt function only works on numbers");
     }
 
     double a = get_as_number(args[0]);
@@ -100,11 +97,11 @@ Value _math_sqrt(int argc, Value* args) {
 
 Value _math_log10(int argc, Value* args) {
     if (argc != 1) {
-        return make_nil();
+        return make_error(L"math log 10 function only takes 1 arguments!");
     }
 
     if (args[0].type != V_NUM) {
-        return make_nil();
+        return make_error(L"math log10 function only works on numbers");
     }
     double a = get_as_number(args[0]);
 
@@ -113,11 +110,11 @@ Value _math_log10(int argc, Value* args) {
 // Log base e
 Value _math_log_e(int argc, Value* args) {
     if (argc != 1) {
-        return make_nil();
+        return make_error(L"math log e function only takes 1 arguments!");
     }
 
     if (args[0].type != V_NUM) {
-        return make_nil();
+        return make_error(L"math log e function only works on numbers");
     }
     double a = get_as_number(args[0]);
 
@@ -127,11 +124,11 @@ Value _math_log_e(int argc, Value* args) {
 // Log base X
 Value _math_logx(int argc, Value* args) {
     if (argc != 2) {
-        return make_nil();
+        return make_error(L"math logx function only takes 2 arguments!");
     }
 
     if (args[0].type != args[1].type && args[0].type != V_NUM) {
-        return make_nil();
+        return make_error(L"math logx function only works on numbers");
     }
 
     double base = get_as_number(args[0]);
