@@ -123,6 +123,8 @@ int dissm_ins(Instruction *ins, int offset) {
             return const_ins("OP_GET_MOD_PROP", ins, offset);
         case OP_END_MOD:
             return simple_ins("OP_END_MOD", offset);
+        case OP_ERR:
+            return simple_ins("OP_ERR", offset);
         case OP_CLOSURE:
             offset++;
             uint8_t con = ins->code[offset++];
@@ -219,6 +221,8 @@ const char *print_opcode(Op op) {
             return "OP_END_MOD";
         case OP_CLOSURE:
             return "OP_CLOSURE";
+        case OP_ERR:
+            return "OP_ERR";
     }
     return "Unknown Opcode";
 }

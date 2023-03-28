@@ -70,7 +70,8 @@ struct ObjString {
 
 typedef struct {
     Obj obj;
-    ObjString *msg;
+    int len;
+    wchar_t *errmsg;
 } ObjErr;
 
 ObjFunc *new_func();

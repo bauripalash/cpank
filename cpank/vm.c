@@ -24,7 +24,7 @@
 #include "include/value.h"
 
 Vm vm;
-const wchar_t *default_mod = L"__d__";
+const wchar_t *default_mod = L"_d_";
 // #define DEBUG_STACK
 
 void reset_stack() { vm.stack_top = vm.stack; }
@@ -136,19 +136,8 @@ void free_module(Module *mod) {
 }
 
 void define_native(wchar_t *name, NativeFn func) {
-    push(make_obj_val(copy_string(name, (int)wcslen(name))));
-    push(make_obj_val(new_native(func)));
-    // Value k = make_obj_val(copy_string(name, (int)wcslen(name)));
-    // Value fn = make_obj_val(new_native(func));
-#ifdef DEBUG_STACK
-    wprintf(L"------ STACK in Define native----\n");
-    for (Value *slt = vm.stack; slt < vm.stack_top; slt++) {
-        wprintf(L"[ ");
-        print_val(*slt);
-        wprintf(L" ]\n");
-    }
-    wprintf(L"--- END STACK ---\n");
-#endif
+    push(make_obj_val(copy_string(name, (int)wcslen(name))));  // peek 1
+    push(make_obj_val(new_native(func)));                      // peek 0
     table_set(&vm.builtins, get_as_string(vm.stack[0]), vm.stack[1]);
     pop();
     pop();
@@ -176,7 +165,6 @@ void print_modframes() {
 }
 
 void free_vm() {
-    // wprintf(L"----------FREE VM----------\n");
     free_table(&vm.strings);
     free_table(&vm.builtins);
     free_stdlibs();
@@ -184,20 +172,20 @@ void free_vm() {
         free_module(&vm.modules[i]);
     }
     free_objs();
-
-    // wprintf(L"----------DONE FREE VM----------\n");
 }
 
-Value get_last_pop() { return vm.last_pop; }
+Value get_last_pop() { return vm.last_pop; }  // for testing -> see testmain.c
 Module *get_cur_mod() { return vm.current_mod; }
 
 void runtime_err(wchar_t *format, ...) {
-    setlocale(LC_CTYPE, "");
+    // setlocale(LC_CTYPE, "");
     va_list args;
     va_start(args, format);
     vfwprintf(stderr, format, args);
+    // vwprintf(format, args)
 
     va_end(args);
+
     fputwc('\n', stderr);
 
     for (int i = get_cur_mod()->frame_count - 1; i >= 0; i--) {
@@ -218,12 +206,15 @@ void runtime_err(wchar_t *format, ...) {
 }
 
 bool push(Value value) {
+    // cp_color_print('b' , L"++Pushing value -> ");
+    // print_val(value);
+    // cp_color_println('b', L"----");
     *vm.stack_top = value;
     vm.stack_top++;
-    if (is_err_obj(value)) {
-        runtime_err(L"Error occured : %ls", get_as_err(value)->msg->chars);
-        return false;
-    }
+    // if (is_err_obj(value)) {
+    //     runtime_err(L"Error occured : %ls", get_as_err(value)->errmsg);
+    //     return false;
+    // }
     return true;
 }
 
@@ -370,55 +361,6 @@ bool bin_lte() {
     return true;
 }
 
-void define_stdlib_fn(wchar_t *name, NativeFn func) {
-    // push(make_obj_val(copy_string(name, (int)wcslen(name))));
-    // push(;
-    Value k = make_obj_val(copy_string(name, (int)wcslen(name)));
-    Value fn = make_obj_val(new_native(func));
-#ifdef DEBUG_STACK
-    wprintf(L"------ STACK in Define native----\n");
-    for (Value *slt = vm.stack; slt < vm.stack_top; slt++) {
-        wprintf(L"[ ");
-        print_val(*slt);
-        wprintf(L" ]\n");
-    }
-    wprintf(L"--- END STACK ---\n");
-#endif
-    table_set(&get_cur_mod()->globals, get_as_string(k), fn);
-}
-
-Value math_add_stdlib(int argc, Value *args) {
-    if (argc != 2) {
-        runtime_err(L"add function only takes two arguments");
-        return make_nil();
-    }
-
-    if (is_num(args[0]) && is_num(args[1])) {
-        double l = get_as_number(args[0]);
-        double r = get_as_number(args[1]);
-        return make_num(l + r);
-    } else {
-        runtime_err(L"add function only works on numbers");
-        return make_nil();
-    }
-}
-Value math_pow_stdlib(int argc, Value *args) {
-    if (argc != 2) {
-        runtime_err(L"pow function only takes two arguments");
-        return make_nil();
-    }
-
-    if (is_num(args[0]) && is_num(args[1])) {
-        double l = get_as_number(args[0]);
-        double r = get_as_number(args[1]);
-
-        return make_num(pow(l, r));
-    } else {
-        runtime_err(L"pow function only works on numbers");
-        return make_nil();
-    }
-}
-
 static int import_custom(wchar_t *custom_name, wchar_t *import_name) {
     WSrcfile ws = wread_file(import_name);  // Warning import cycle
 
@@ -430,8 +372,6 @@ static int import_custom(wchar_t *custom_name, wchar_t *import_name) {
     mod->origin = get_cur_mod();
 
     init_module(mod, custom_name);
-    // mod->source_code = ws.source;
-    // wmemcpy(mod->source_code, ws.source, ws.size);
 
     int origin_caller = get_cur_mod()->frame_count - 1;
     ObjMod *objmod = new_mod(custom_name);
@@ -479,11 +419,7 @@ static int import_file(wchar_t *custom_name, wchar_t *import_name) {
         if (vm.stdlib_count < 1) {
             push_stdlib_math();
             StdlibMod *sm = &vm.stdlibs[0];
-
-            // cp_color_println('g', L"STDM");
-            // print_table(&sm->items, "stdm");
             sm->owners[sm->owner_count++] = mod->hash;
-            // cp_color_println('g', L"END STDM");
             prx->origin_name = sm->name;
             prx->stdmod = sm;
         } else {
@@ -549,6 +485,9 @@ IResult run_vm() {
 
             case OP_RETURN: {
                 Value res = pop();
+                // cp_color_println('b', L"Return value ->");
+                // print_val(peek_vm(0));
+                //`cp_color_println('b', L"--------");
 
                 close_upval(get_cur_mod(), frame->slots);
 
@@ -769,6 +708,14 @@ IResult run_vm() {
                 frame = &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
                 break;
             }
+            case OP_ERR: {
+                Value msg = pop();
+                cp_print(L"Error : ");
+                print_val(msg);
+                cp_println(L"");
+                runtime_err(L"");
+                return INTRP_RUNTIME_ERR;
+            }
             case OP_IMPORT_NONAME: {
                 // cp_color_println('b', L"IMPORT");
                 Value raw_custom_name = read_const(frame);
@@ -822,6 +769,7 @@ IResult run_vm() {
 
                 break;
             }
+
             case OP_GET_MOD_PROP: {
                 if (!is_mod_obj(peek_vm(0))) {
                     runtime_err(L"Module object is not a module");
@@ -932,6 +880,10 @@ bool call_val(Value calle, int argc) {
                 NativeFn native = get_as_native(calle);
                 Value result = native(argc, vm.stack_top - argc);
                 vm.stack_top -= argc + 1;
+                if (is_err_obj(result)) {
+                    runtime_err(get_as_err(result)->errmsg);
+                    return false;
+                }
                 if (!push(result)) return false;
                 ;
                 return true;

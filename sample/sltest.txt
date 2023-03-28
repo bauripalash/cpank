@@ -1,8 +1,6 @@
 import m "math";
 
 
-#let name = "hello";
-#show name;
 
 show "add";
 show m.add(9,1);

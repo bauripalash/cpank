@@ -4,6 +4,7 @@
 #include "../include/stdlib.h"
 #include "../include/utils.h"
 #include "../include/value.h"
+#include "../include/vm.h"
 
 Value _math_pow(int argc, Value* args) {
     if (argc != 2) {
@@ -22,6 +23,11 @@ Value _math_pow(int argc, Value* args) {
 
 Value _math_add(int argc, Value* args) {
     if (argc != 2) {
+        // ObjErr * err = new_err_obj(L"math obj error");
+        // print_obj()
+        // Value verr = make_obj_val(err);
+        // print_val(verr);
+        // return verr;
         return make_error(L"math add function only takes two arguments!");
     }
 

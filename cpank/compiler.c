@@ -489,6 +489,7 @@ ParseRule parse_rules[] = {
     [T_TRUE] = {literal, NULL, PREC_NONE},
     [T_LET] = {NULL, NULL, PREC_NONE},
     [T_WHILE] = {NULL, NULL, PREC_NONE},
+    [T_MKERR] = {NULL, NULL, PREC_NONE},
     [T_ERR] = {NULL, NULL, PREC_NONE},
     [T_EOF] = {NULL, NULL, PREC_NONE},
 };
@@ -525,6 +526,7 @@ static void sync_errors() {
             case T_WHILE:
             case T_SHOW:
             case T_RETURN:
+            case T_ERR:
                 return;
             default:;
         }
@@ -768,6 +770,12 @@ static void read_block() {
     eat_tok(T_RBRACE, L"Expected '}' after block stmts");
 }
 
+static void read_err_stmt() {
+    read_expr();
+    eat_tok(T_SEMICOLON, L"Expected ';' after error statement");
+    emit_bt(OP_ERR);
+}
+
 // read statement
 //
 // * Show/print statement
@@ -788,6 +796,8 @@ static void read_stmt() {
         return_stmt();
     } else if (match_tok(T_IMPORT)) {
         read_import_stmt();
+    } else if (match_tok(T_MKERR)) {
+        read_err_stmt();
     } else if (match_tok(T_LBRACE)) {
         start_scope();
         read_block();

@@ -43,6 +43,7 @@ typedef enum {
     OP_SET_MOD_PROP,
     OP_GET_MOD_PROP,
     OP_END_MOD,
+    OP_ERR,
 
 } Op;
 

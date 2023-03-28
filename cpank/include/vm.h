@@ -123,6 +123,7 @@ bool call_val(Value calle, int argc);
 bool call(ObjClosure *closure, int origin, int argc);
 void define_native(wchar_t *name, NativeFn func);
 Value clock_ntv_fn(int argc, Value *args);
+
 ObjUpVal *capture_upv(Module *module, Value *local);
 void close_upval(Module *module, Value *last);
 

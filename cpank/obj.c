@@ -178,7 +178,7 @@ void print_obj(Value val) {
         case OBJ_ERR: {
             ObjErr *err = get_as_err(val);
             cp_print(L"Error ");
-            cp_print(L"%ls", err->msg->chars);
+            cp_print(L"%ls", err->errmsg);
             break;
         }
         default: {
@@ -225,10 +225,13 @@ ObjMod *new_mod(wchar_t *name) {
 
 ObjErr *new_err_obj(wchar_t *errmsg) {
     ObjErr *err = ALLOCATE_OBJ(ObjErr, OBJ_ERR);
-    err->msg = copy_string(errmsg, wcslen(errmsg));
+    err->errmsg = malloc(sizeof(wchar_t) * (wcslen(errmsg) + 1));
+    wmemset(err->errmsg, 0, wcslen(errmsg) + 1);
+
+    wmemcpy(err->errmsg, errmsg, wcslen(errmsg) + 1);
+    err->len = wcslen(errmsg) + 1;
+    // copy_string(errmsg, wcslen(errmsg));
     return err;
 }
 
-Value make_error(wchar_t *errmsg) {
-    return make_obj_val((Obj *)new_err_obj(errmsg));
-}
+Value make_error(wchar_t *errmsg) { return make_obj_val(new_err_obj(errmsg)); }

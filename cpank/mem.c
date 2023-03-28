@@ -3,7 +3,7 @@
 #include <locale.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdio.h>
+// #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
 
@@ -90,18 +90,13 @@ void free_single_obj(Obj *obj) {
             break;
         }
         case OBJ_MOD: {
-            // ObjMod *md = (ObjMod *)obj;
-
-            // FREE_ARR(wchar_t, md->name, md->name_len);
-            //  FREE_ARR(wchar_t, mod->name->chars, mod->name->len+1);
             FREE(ObjMod, obj);
-
-            // free_single_obj((Obj*)mod->name);
-            //  free(mod->name->chars);
-            //  FREE(ObjString, mod->name);
             break;
         }
         case OBJ_ERR: {
+            ObjErr *err = (ObjErr *)obj;
+            FREE_ARR(wchar_t, err->errmsg, err->len + 1);
+
             FREE(ObjErr, obj);
             break;
         }
@@ -165,7 +160,9 @@ void blacken_obj(Obj *obj) {
         }
         case OBJ_ERR: {
             ObjErr *err = (ObjErr *)obj;
-            mark_obj((Obj *)err->msg);
+            err->obj.is_marked = true;
+            // mark_obj((Obj *)err->msg);
+
             break;
         }
     }
@@ -224,28 +221,7 @@ void mark_roots() {
 
     for (int i = 0; i < vm.mod_count; i++) {
         Module *mod = &vm.modules[i];
-        // cp_println(L"Marking globals of -> %ls" , mod->name);
-        // if (mod->globals.len > 0) {
-        //
-        // print_table(&mod->globals, "mod__d__");
         mark_table(&mod->globals);
-
-        //}
-
-        /*if (mod->stdlib_count > 0) {
-            for (int j = 0; j < mod->stdlib_count; j++) {
-                StdlibMod *sm = mod->stdproxy[j].stdmod;
-                if (sm != NULL && sm->items.len > 0 && sm->items.cap > 0) {
-                    mark_table(&sm->items);
-                }
-            }
-        }*/
-
-        // if (mod->stlib_count > 0) {
-        //     for (int i = 0; i < mod->stlib_count; i++) {
-        //         mark_table(&mod->stdlibs[i].items);
-        //     }
-        // }
     }
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] Finished Marking Module Globals");
@@ -253,11 +229,8 @@ void mark_roots() {
 #endif
     for (int i = 0; i < vm.stdlib_count; i++) {
         StdlibMod *sm = &vm.stdlibs[i];
-        // cp_color_println('b', L"___>>>> %ls", sm->name);
         if (sm->items.cap > 0) {
             if (sm->items.len > 0) {
-                // print_table(&sm->items, "std math");
-
                 mark_table(&sm->items);
             }
         }

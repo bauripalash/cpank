@@ -108,6 +108,8 @@ const char *toktype_to_string(TokType t) {
             return "T_EOF";
         case T_ERR:
             return "T_ERR";
+        case T_MKERR:
+            return "T_MKERR";
     };
 
     return "UNKNOWN_TOKEN";
@@ -242,6 +244,8 @@ TokType get_ident_tok_type(wchar_t *input, int len) {
         tt = T_NIL;
     } else if (wcscmp(tc, L"import") == 0) {
         tt = T_IMPORT;
+    } else if (wcscmp(tc, L"panic") == 0) {
+        tt = T_MKERR;
 
     } else {
         tt = T_ID;
