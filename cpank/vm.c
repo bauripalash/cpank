@@ -436,12 +436,13 @@ static int import_custom(wchar_t *custom_name, wchar_t *import_name) {
     int origin_caller = get_cur_mod()->frame_count - 1;
     ObjMod *objmod = new_mod(custom_name);
 
-    push(make_obj_val(objmod));
-    cp_println(L"-----> %ls", objmod->name->chars);
+    push(make_obj_val(objmod));  // peek 1
+    // cp_println(L"-----> %ls", objmod->name->chars);
     vm.mod_names[vm.mod_count - 1] = objmod->name->hash;
     ObjString *strname = copy_string(custom_name, wcslen(custom_name));
+    push(make_obj_val(strname));  // peek 0
 
-    table_set(&get_cur_mod()->globals, strname, make_obj_val(objmod));
+    table_set(&get_cur_mod()->globals, get_as_string(peek_vm(0)), peek_vm(1));
     vm.current_mod = mod;  // vm.mod_count - 1;
     ObjFunc *newfn = compile_module(ws.source);
     if (newfn == NULL) {
@@ -453,6 +454,8 @@ static int import_custom(wchar_t *custom_name, wchar_t *import_name) {
     cls->global_owner = objmod->name->hash;
     cls->globals = &mod->globals;
     pop();
+    pop();
+    pop();
     call(cls, origin_caller, 0);
     free(ws.source);
     return 0;
@@ -460,29 +463,13 @@ static int import_custom(wchar_t *custom_name, wchar_t *import_name) {
 
 static int import_file(wchar_t *custom_name, wchar_t *import_name) {
     if (wcscmp(import_name, L"math") == 0) {
+        ObjString *strname = copy_string(custom_name, wcslen(custom_name));
+        push(make_obj_val(strname));
         ObjMod *objmod = new_mod(custom_name);
         push(make_obj_val(objmod));
 
-        // cp_println(L">>>> %ls" , objmod->name->chars);
-        // print_val(pop());
-
-        // print_obj(make_obj_val(objmod));
-        // cp_println(L"<<<< %ls -> %d" ,
-        // get_obj_type_as_string(objmod->obj.type) , objmod->obj.type);
-
-        ObjString *strname = copy_string(custom_name, wcslen(custom_name));
-
         Module *mod = get_cur_mod();
-        // cp_color_println('b', L"setting table");
-        table_set(&mod->globals, strname, make_obj_val(objmod));
-        // print_table(&get_cur_mod()->globals, "AFTER TABLE SET");
-
-        // cp_color_println('b', L"end table");
-        // Value val;
-        // table_get(&mod->globals, strname, &val);
-        // print_val(val);
-
-        // Change later;
+        table_set(&mod->globals, get_as_string(peek_vm(1)), peek_vm(0));
 
         StdProxy *prx = &mod->stdproxy[mod->stdlib_count++];
 
@@ -510,6 +497,7 @@ static int import_file(wchar_t *custom_name, wchar_t *import_name) {
             }
         }
 
+        pop();
         pop();
         return 0;
 
