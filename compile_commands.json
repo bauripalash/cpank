@@ -3,181 +3,257 @@
     "arguments": [
       "/usr/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c99",
       "-Wall",
+      "-pedantic",
       "-g",
       "-o",
-      "cpank",
-      "main.c"
+      "pank",
+      "cpank/main.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/main.c",
-    "output": "/home/palash/d/cpank/cpank"
+    "file": "/home/palash/d/cpank/cpank/main.c",
+    "output": "/home/palash/d/cpank/pank"
   },
   {
     "arguments": [
       "/usr/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c99",
       "-Wall",
+      "-pedantic",
       "-g",
       "-o",
-      "cpank",
-      "lexer.c"
+      "pank",
+      "cpank/lexer.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/lexer.c",
-    "output": "/home/palash/d/cpank/cpank"
+    "file": "/home/palash/d/cpank/cpank/lexer.c",
+    "output": "/home/palash/d/cpank/pank"
   },
   {
     "arguments": [
       "/usr/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c99",
       "-Wall",
+      "-pedantic",
       "-g",
       "-o",
-      "cpank",
-      "bn.c"
+      "pank",
+      "cpank/bn.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/bn.c",
-    "output": "/home/palash/d/cpank/cpank"
+    "file": "/home/palash/d/cpank/cpank/bn.c",
+    "output": "/home/palash/d/cpank/pank"
   },
   {
     "arguments": [
       "/usr/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c99",
       "-Wall",
+      "-pedantic",
       "-g",
       "-o",
-      "cpank",
-      "runfile.c"
+      "pank",
+      "cpank/runfile.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/runfile.c",
-    "output": "/home/palash/d/cpank/cpank"
+    "file": "/home/palash/d/cpank/cpank/runfile.c",
+    "output": "/home/palash/d/cpank/pank"
   },
   {
     "arguments": [
       "/usr/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c99",
       "-Wall",
+      "-pedantic",
       "-g",
       "-o",
-      "cpank",
-      "instruction.c"
+      "pank",
+      "cpank/instruction.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/instruction.c",
-    "output": "/home/palash/d/cpank/cpank"
+    "file": "/home/palash/d/cpank/cpank/instruction.c",
+    "output": "/home/palash/d/cpank/pank"
   },
   {
     "arguments": [
       "/usr/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c99",
       "-Wall",
+      "-pedantic",
       "-g",
       "-o",
-      "cpank",
-      "mem.c"
+      "pank",
+      "cpank/mem.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/mem.c",
-    "output": "/home/palash/d/cpank/cpank"
+    "file": "/home/palash/d/cpank/cpank/mem.c",
+    "output": "/home/palash/d/cpank/pank"
   },
   {
     "arguments": [
       "/usr/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c99",
       "-Wall",
+      "-pedantic",
       "-g",
       "-o",
-      "cpank",
-      "debug.c"
+      "pank",
+      "cpank/debug.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/debug.c",
-    "output": "/home/palash/d/cpank/cpank"
+    "file": "/home/palash/d/cpank/cpank/debug.c",
+    "output": "/home/palash/d/cpank/pank"
   },
   {
     "arguments": [
       "/usr/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c99",
       "-Wall",
+      "-pedantic",
       "-g",
       "-o",
-      "cpank",
-      "value.c"
+      "pank",
+      "cpank/value.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/value.c",
-    "output": "/home/palash/d/cpank/cpank"
+    "file": "/home/palash/d/cpank/cpank/value.c",
+    "output": "/home/palash/d/cpank/pank"
   },
   {
     "arguments": [
       "/usr/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c99",
       "-Wall",
+      "-pedantic",
       "-g",
       "-o",
-      "cpank",
-      "vm.c"
+      "pank",
+      "cpank/vm.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/vm.c",
-    "output": "/home/palash/d/cpank/cpank"
+    "file": "/home/palash/d/cpank/cpank/vm.c",
+    "output": "/home/palash/d/cpank/pank"
   },
   {
     "arguments": [
       "/usr/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c99",
       "-Wall",
+      "-pedantic",
       "-g",
       "-o",
-      "cpank",
-      "compiler.c"
+      "pank",
+      "cpank/compiler.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/compiler.c",
-    "output": "/home/palash/d/cpank/cpank"
+    "file": "/home/palash/d/cpank/cpank/compiler.c",
+    "output": "/home/palash/d/cpank/pank"
   },
   {
     "arguments": [
       "/usr/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c99",
       "-Wall",
+      "-pedantic",
       "-g",
       "-o",
-      "cpank",
-      "obj.c"
+      "pank",
+      "cpank/obj.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/obj.c",
-    "output": "/home/palash/d/cpank/cpank"
+    "file": "/home/palash/d/cpank/cpank/obj.c",
+    "output": "/home/palash/d/cpank/pank"
   },
   {
     "arguments": [
       "/usr/bin/clang",
       "-c",
-      "-std=c11",
+      "-std=c99",
       "-Wall",
+      "-pedantic",
       "-g",
       "-o",
-      "cpank",
-      "htable.c"
+      "pank",
+      "cpank/htable.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/htable.c",
-    "output": "/home/palash/d/cpank/cpank"
+    "file": "/home/palash/d/cpank/cpank/htable.c",
+    "output": "/home/palash/d/cpank/pank"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-pedantic",
+      "-g",
+      "-o",
+      "pank",
+      "cpank/utils.c"
+    ],
+    "directory": "/home/palash/d/cpank",
+    "file": "/home/palash/d/cpank/cpank/utils.c",
+    "output": "/home/palash/d/cpank/pank"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-pedantic",
+      "-g",
+      "-o",
+      "pank",
+      "cpank/openfile.c"
+    ],
+    "directory": "/home/palash/d/cpank",
+    "file": "/home/palash/d/cpank/cpank/openfile.c",
+    "output": "/home/palash/d/cpank/pank"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-pedantic",
+      "-g",
+      "-o",
+      "pank",
+      "cpank/stdlib/stdlib.c"
+    ],
+    "directory": "/home/palash/d/cpank",
+    "file": "/home/palash/d/cpank/cpank/stdlib/stdlib.c",
+    "output": "/home/palash/d/cpank/pank"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-pedantic",
+      "-g",
+      "-o",
+      "pank",
+      "cpank/stdlib/math.c"
+    ],
+    "directory": "/home/palash/d/cpank",
+    "file": "/home/palash/d/cpank/cpank/stdlib/math.c",
+    "output": "/home/palash/d/cpank/pank"
   },
   {
     "arguments": [
@@ -227,7 +303,8 @@
       "-internal-externc-isystem",
       "/usr/include",
       "-Wall",
-      "-std=c11",
+      "-pedantic",
+      "-std=c99",
       "-fdebug-compilation-dir=/home/palash/d/cpank",
       "-ferror-limit",
       "19",
@@ -240,12 +317,12 @@
       "-x",
       "c",
       "-o",
-      "/tmp/main-0e2c55.o",
-      "main.c"
+      "/tmp/main-a4b6d7.o",
+      "cpank/main.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/main.c",
-    "output": "/tmp/main-0e2c55.o"
+    "file": "/home/palash/d/cpank/cpank/main.c",
+    "output": "/tmp/main-a4b6d7.o"
   },
   {
     "arguments": [
@@ -295,7 +372,8 @@
       "-internal-externc-isystem",
       "/usr/include",
       "-Wall",
-      "-std=c11",
+      "-pedantic",
+      "-std=c99",
       "-fdebug-compilation-dir=/home/palash/d/cpank",
       "-ferror-limit",
       "19",
@@ -308,12 +386,12 @@
       "-x",
       "c",
       "-o",
-      "/tmp/lexer-5cebfb.o",
-      "lexer.c"
+      "/tmp/lexer-d5bdf3.o",
+      "cpank/lexer.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/lexer.c",
-    "output": "/tmp/lexer-5cebfb.o"
+    "file": "/home/palash/d/cpank/cpank/lexer.c",
+    "output": "/tmp/lexer-d5bdf3.o"
   },
   {
     "arguments": [
@@ -363,7 +441,8 @@
       "-internal-externc-isystem",
       "/usr/include",
       "-Wall",
-      "-std=c11",
+      "-pedantic",
+      "-std=c99",
       "-fdebug-compilation-dir=/home/palash/d/cpank",
       "-ferror-limit",
       "19",
@@ -376,12 +455,12 @@
       "-x",
       "c",
       "-o",
-      "/tmp/bn-c88836.o",
-      "bn.c"
+      "/tmp/bn-9fb09d.o",
+      "cpank/bn.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/bn.c",
-    "output": "/tmp/bn-c88836.o"
+    "file": "/home/palash/d/cpank/cpank/bn.c",
+    "output": "/tmp/bn-9fb09d.o"
   },
   {
     "arguments": [
@@ -431,7 +510,8 @@
       "-internal-externc-isystem",
       "/usr/include",
       "-Wall",
-      "-std=c11",
+      "-pedantic",
+      "-std=c99",
       "-fdebug-compilation-dir=/home/palash/d/cpank",
       "-ferror-limit",
       "19",
@@ -444,12 +524,12 @@
       "-x",
       "c",
       "-o",
-      "/tmp/runfile-3a721d.o",
-      "runfile.c"
+      "/tmp/runfile-2b4f46.o",
+      "cpank/runfile.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/runfile.c",
-    "output": "/tmp/runfile-3a721d.o"
+    "file": "/home/palash/d/cpank/cpank/runfile.c",
+    "output": "/tmp/runfile-2b4f46.o"
   },
   {
     "arguments": [
@@ -499,7 +579,8 @@
       "-internal-externc-isystem",
       "/usr/include",
       "-Wall",
-      "-std=c11",
+      "-pedantic",
+      "-std=c99",
       "-fdebug-compilation-dir=/home/palash/d/cpank",
       "-ferror-limit",
       "19",
@@ -512,12 +593,12 @@
       "-x",
       "c",
       "-o",
-      "/tmp/instruction-1ee993.o",
-      "instruction.c"
+      "/tmp/instruction-8bf5b3.o",
+      "cpank/instruction.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/instruction.c",
-    "output": "/tmp/instruction-1ee993.o"
+    "file": "/home/palash/d/cpank/cpank/instruction.c",
+    "output": "/tmp/instruction-8bf5b3.o"
   },
   {
     "arguments": [
@@ -567,7 +648,8 @@
       "-internal-externc-isystem",
       "/usr/include",
       "-Wall",
-      "-std=c11",
+      "-pedantic",
+      "-std=c99",
       "-fdebug-compilation-dir=/home/palash/d/cpank",
       "-ferror-limit",
       "19",
@@ -580,12 +662,12 @@
       "-x",
       "c",
       "-o",
-      "/tmp/mem-9105ae.o",
-      "mem.c"
+      "/tmp/mem-9c247b.o",
+      "cpank/mem.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/mem.c",
-    "output": "/tmp/mem-9105ae.o"
+    "file": "/home/palash/d/cpank/cpank/mem.c",
+    "output": "/tmp/mem-9c247b.o"
   },
   {
     "arguments": [
@@ -635,7 +717,8 @@
       "-internal-externc-isystem",
       "/usr/include",
       "-Wall",
-      "-std=c11",
+      "-pedantic",
+      "-std=c99",
       "-fdebug-compilation-dir=/home/palash/d/cpank",
       "-ferror-limit",
       "19",
@@ -648,12 +731,12 @@
       "-x",
       "c",
       "-o",
-      "/tmp/debug-adc621.o",
-      "debug.c"
+      "/tmp/debug-8e3527.o",
+      "cpank/debug.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/debug.c",
-    "output": "/tmp/debug-adc621.o"
+    "file": "/home/palash/d/cpank/cpank/debug.c",
+    "output": "/tmp/debug-8e3527.o"
   },
   {
     "arguments": [
@@ -703,7 +786,8 @@
       "-internal-externc-isystem",
       "/usr/include",
       "-Wall",
-      "-std=c11",
+      "-pedantic",
+      "-std=c99",
       "-fdebug-compilation-dir=/home/palash/d/cpank",
       "-ferror-limit",
       "19",
@@ -716,12 +800,12 @@
       "-x",
       "c",
       "-o",
-      "/tmp/value-3c272b.o",
-      "value.c"
+      "/tmp/value-149c7d.o",
+      "cpank/value.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/value.c",
-    "output": "/tmp/value-3c272b.o"
+    "file": "/home/palash/d/cpank/cpank/value.c",
+    "output": "/tmp/value-149c7d.o"
   },
   {
     "arguments": [
@@ -771,7 +855,8 @@
       "-internal-externc-isystem",
       "/usr/include",
       "-Wall",
-      "-std=c11",
+      "-pedantic",
+      "-std=c99",
       "-fdebug-compilation-dir=/home/palash/d/cpank",
       "-ferror-limit",
       "19",
@@ -784,12 +869,12 @@
       "-x",
       "c",
       "-o",
-      "/tmp/vm-e18e1c.o",
-      "vm.c"
+      "/tmp/vm-98881a.o",
+      "cpank/vm.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/vm.c",
-    "output": "/tmp/vm-e18e1c.o"
+    "file": "/home/palash/d/cpank/cpank/vm.c",
+    "output": "/tmp/vm-98881a.o"
   },
   {
     "arguments": [
@@ -839,7 +924,8 @@
       "-internal-externc-isystem",
       "/usr/include",
       "-Wall",
-      "-std=c11",
+      "-pedantic",
+      "-std=c99",
       "-fdebug-compilation-dir=/home/palash/d/cpank",
       "-ferror-limit",
       "19",
@@ -852,12 +938,12 @@
       "-x",
       "c",
       "-o",
-      "/tmp/compiler-be6198.o",
-      "compiler.c"
+      "/tmp/compiler-c13ec8.o",
+      "cpank/compiler.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/compiler.c",
-    "output": "/tmp/compiler-be6198.o"
+    "file": "/home/palash/d/cpank/cpank/compiler.c",
+    "output": "/tmp/compiler-c13ec8.o"
   },
   {
     "arguments": [
@@ -907,7 +993,8 @@
       "-internal-externc-isystem",
       "/usr/include",
       "-Wall",
-      "-std=c11",
+      "-pedantic",
+      "-std=c99",
       "-fdebug-compilation-dir=/home/palash/d/cpank",
       "-ferror-limit",
       "19",
@@ -920,12 +1007,12 @@
       "-x",
       "c",
       "-o",
-      "/tmp/obj-70796b.o",
-      "obj.c"
+      "/tmp/obj-e22a21.o",
+      "cpank/obj.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/obj.c",
-    "output": "/tmp/obj-70796b.o"
+    "file": "/home/palash/d/cpank/cpank/obj.c",
+    "output": "/tmp/obj-e22a21.o"
   },
   {
     "arguments": [
@@ -975,7 +1062,8 @@
       "-internal-externc-isystem",
       "/usr/include",
       "-Wall",
-      "-std=c11",
+      "-pedantic",
+      "-std=c99",
       "-fdebug-compilation-dir=/home/palash/d/cpank",
       "-ferror-limit",
       "19",
@@ -988,11 +1076,287 @@
       "-x",
       "c",
       "-o",
-      "/tmp/htable-ed6de2.o",
-      "htable.c"
+      "/tmp/htable-3bd99b.o",
+      "cpank/htable.c"
     ],
     "directory": "/home/palash/d/cpank",
-    "file": "/home/palash/d/cpank/htable.c",
-    "output": "/tmp/htable-ed6de2.o"
+    "file": "/home/palash/d/cpank/cpank/htable.c",
+    "output": "/tmp/htable-3bd99b.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang-15",
+      "-cc1",
+      "-triple",
+      "x86_64-pc-linux-gnu",
+      "-emit-obj",
+      "-mrelax-all",
+      "--mrelax-relocations",
+      "-disable-free",
+      "-clear-ast-before-backend",
+      "-disable-llvm-verifier",
+      "-discard-value-names",
+      "-main-file-name",
+      "-mrelocation-model",
+      "pic",
+      "-pic-level",
+      "2",
+      "-pic-is-pie",
+      "-mframe-pointer=all",
+      "-fmath-errno",
+      "-ffp-contract=on",
+      "-fno-rounding-math",
+      "-mconstructor-aliases",
+      "-funwind-tables=2",
+      "-target-cpu",
+      "x86-64",
+      "-tune-cpu",
+      "generic",
+      "-mllvm",
+      "-treat-scalable-fixed-error-as-warning",
+      "-debug-info-kind=constructor",
+      "-dwarf-version=5",
+      "-debugger-tuning=gdb",
+      "-fcoverage-compilation-dir=/home/palash/d/cpank",
+      "-resource-dir",
+      "/usr/lib/clang/15.0.7",
+      "-internal-isystem",
+      "/usr/lib/clang/15.0.7/include",
+      "-internal-isystem",
+      "/usr/local/include",
+      "-internal-isystem",
+      "/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/12.2.1/../../../../x86_64-pc-linux-gnu/include",
+      "-internal-externc-isystem",
+      "/include",
+      "-internal-externc-isystem",
+      "/usr/include",
+      "-Wall",
+      "-pedantic",
+      "-std=c99",
+      "-fdebug-compilation-dir=/home/palash/d/cpank",
+      "-ferror-limit",
+      "19",
+      "-stack-protector",
+      "2",
+      "-fgnuc-version=4.2.1",
+      "-fcolor-diagnostics",
+      "-faddrsig",
+      "-D__GCC_HAVE_DWARF2_CFI_ASM=1",
+      "-x",
+      "c",
+      "-o",
+      "/tmp/utils-f81a5b.o",
+      "cpank/utils.c"
+    ],
+    "directory": "/home/palash/d/cpank",
+    "file": "/home/palash/d/cpank/cpank/utils.c",
+    "output": "/tmp/utils-f81a5b.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang-15",
+      "-cc1",
+      "-triple",
+      "x86_64-pc-linux-gnu",
+      "-emit-obj",
+      "-mrelax-all",
+      "--mrelax-relocations",
+      "-disable-free",
+      "-clear-ast-before-backend",
+      "-disable-llvm-verifier",
+      "-discard-value-names",
+      "-main-file-name",
+      "-mrelocation-model",
+      "pic",
+      "-pic-level",
+      "2",
+      "-pic-is-pie",
+      "-mframe-pointer=all",
+      "-fmath-errno",
+      "-ffp-contract=on",
+      "-fno-rounding-math",
+      "-mconstructor-aliases",
+      "-funwind-tables=2",
+      "-target-cpu",
+      "x86-64",
+      "-tune-cpu",
+      "generic",
+      "-mllvm",
+      "-treat-scalable-fixed-error-as-warning",
+      "-debug-info-kind=constructor",
+      "-dwarf-version=5",
+      "-debugger-tuning=gdb",
+      "-fcoverage-compilation-dir=/home/palash/d/cpank",
+      "-resource-dir",
+      "/usr/lib/clang/15.0.7",
+      "-internal-isystem",
+      "/usr/lib/clang/15.0.7/include",
+      "-internal-isystem",
+      "/usr/local/include",
+      "-internal-isystem",
+      "/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/12.2.1/../../../../x86_64-pc-linux-gnu/include",
+      "-internal-externc-isystem",
+      "/include",
+      "-internal-externc-isystem",
+      "/usr/include",
+      "-Wall",
+      "-pedantic",
+      "-std=c99",
+      "-fdebug-compilation-dir=/home/palash/d/cpank",
+      "-ferror-limit",
+      "19",
+      "-stack-protector",
+      "2",
+      "-fgnuc-version=4.2.1",
+      "-fcolor-diagnostics",
+      "-faddrsig",
+      "-D__GCC_HAVE_DWARF2_CFI_ASM=1",
+      "-x",
+      "c",
+      "-o",
+      "/tmp/openfile-7d58cb.o",
+      "cpank/openfile.c"
+    ],
+    "directory": "/home/palash/d/cpank",
+    "file": "/home/palash/d/cpank/cpank/openfile.c",
+    "output": "/tmp/openfile-7d58cb.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang-15",
+      "-cc1",
+      "-triple",
+      "x86_64-pc-linux-gnu",
+      "-emit-obj",
+      "-mrelax-all",
+      "--mrelax-relocations",
+      "-disable-free",
+      "-clear-ast-before-backend",
+      "-disable-llvm-verifier",
+      "-discard-value-names",
+      "-main-file-name",
+      "-mrelocation-model",
+      "pic",
+      "-pic-level",
+      "2",
+      "-pic-is-pie",
+      "-mframe-pointer=all",
+      "-fmath-errno",
+      "-ffp-contract=on",
+      "-fno-rounding-math",
+      "-mconstructor-aliases",
+      "-funwind-tables=2",
+      "-target-cpu",
+      "x86-64",
+      "-tune-cpu",
+      "generic",
+      "-mllvm",
+      "-treat-scalable-fixed-error-as-warning",
+      "-debug-info-kind=constructor",
+      "-dwarf-version=5",
+      "-debugger-tuning=gdb",
+      "-fcoverage-compilation-dir=/home/palash/d/cpank",
+      "-resource-dir",
+      "/usr/lib/clang/15.0.7",
+      "-internal-isystem",
+      "/usr/lib/clang/15.0.7/include",
+      "-internal-isystem",
+      "/usr/local/include",
+      "-internal-isystem",
+      "/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/12.2.1/../../../../x86_64-pc-linux-gnu/include",
+      "-internal-externc-isystem",
+      "/include",
+      "-internal-externc-isystem",
+      "/usr/include",
+      "-Wall",
+      "-pedantic",
+      "-std=c99",
+      "-fdebug-compilation-dir=/home/palash/d/cpank",
+      "-ferror-limit",
+      "19",
+      "-stack-protector",
+      "2",
+      "-fgnuc-version=4.2.1",
+      "-fcolor-diagnostics",
+      "-faddrsig",
+      "-D__GCC_HAVE_DWARF2_CFI_ASM=1",
+      "-x",
+      "c",
+      "-o",
+      "/tmp/stdlib-649fee.o",
+      "cpank/stdlib/stdlib.c"
+    ],
+    "directory": "/home/palash/d/cpank",
+    "file": "/home/palash/d/cpank/cpank/stdlib/stdlib.c",
+    "output": "/tmp/stdlib-649fee.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang-15",
+      "-cc1",
+      "-triple",
+      "x86_64-pc-linux-gnu",
+      "-emit-obj",
+      "-mrelax-all",
+      "--mrelax-relocations",
+      "-disable-free",
+      "-clear-ast-before-backend",
+      "-disable-llvm-verifier",
+      "-discard-value-names",
+      "-main-file-name",
+      "-mrelocation-model",
+      "pic",
+      "-pic-level",
+      "2",
+      "-pic-is-pie",
+      "-mframe-pointer=all",
+      "-fmath-errno",
+      "-ffp-contract=on",
+      "-fno-rounding-math",
+      "-mconstructor-aliases",
+      "-funwind-tables=2",
+      "-target-cpu",
+      "x86-64",
+      "-tune-cpu",
+      "generic",
+      "-mllvm",
+      "-treat-scalable-fixed-error-as-warning",
+      "-debug-info-kind=constructor",
+      "-dwarf-version=5",
+      "-debugger-tuning=gdb",
+      "-fcoverage-compilation-dir=/home/palash/d/cpank",
+      "-resource-dir",
+      "/usr/lib/clang/15.0.7",
+      "-internal-isystem",
+      "/usr/lib/clang/15.0.7/include",
+      "-internal-isystem",
+      "/usr/local/include",
+      "-internal-isystem",
+      "/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/12.2.1/../../../../x86_64-pc-linux-gnu/include",
+      "-internal-externc-isystem",
+      "/include",
+      "-internal-externc-isystem",
+      "/usr/include",
+      "-Wall",
+      "-pedantic",
+      "-std=c99",
+      "-fdebug-compilation-dir=/home/palash/d/cpank",
+      "-ferror-limit",
+      "19",
+      "-stack-protector",
+      "2",
+      "-fgnuc-version=4.2.1",
+      "-fcolor-diagnostics",
+      "-faddrsig",
+      "-D__GCC_HAVE_DWARF2_CFI_ASM=1",
+      "-x",
+      "c",
+      "-o",
+      "/tmp/math-2d6960.o",
+      "cpank/stdlib/math.c"
+    ],
+    "directory": "/home/palash/d/cpank",
+    "file": "/home/palash/d/cpank/cpank/stdlib/math.c",
+    "output": "/tmp/math-2d6960.o"
   }
 ]
