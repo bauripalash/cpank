@@ -710,6 +710,19 @@ IResult run_vm(void) {
                 frame = &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
                 break;
             }
+            case OP_ARRAY: {
+                int item_len = read_bt(frame);
+                ObjArray *array = new_array();
+                push(make_obj_val(array));
+                for (int i = item_len; i > 0; i--) {
+                    write_valarr(&array->items, peek_vm(i));
+                }
+                vm.stack_top -= item_len + 1;
+
+                array->len = item_len;
+                push(make_obj_val(array));
+                break;
+            }
             case OP_ERR: {
                 Value msg = pop();
                 cp_print(L"Error : ");

@@ -6,7 +6,7 @@
 #include "include/obj.h"
 #include "include/value.h"
 
-// #define DEBUG_PRINT_CODE
+#define DEBUG_PRINT_CODE
 
 #ifdef DEBUG_PRINT_CODE
 #include "include/debug.h"
@@ -339,6 +339,22 @@ void literal(bool can_assign) {
     }
 }
 
+void read_array(bool can_assign) {
+    int items = 0;
+    if (!check_tok(T_RSBRACKET)) {
+        do {
+            read_expr();
+            if (items == 255) {
+                err(L"Too many arguments; more than 255");
+            }
+            items++;
+        } while (match_tok(T_COMMA));
+    }
+
+    eat_tok(T_RSBRACKET, L"Expected ']' after array literal");
+    emit_two(OP_ARRAY, (uint8_t)items);
+}
+
 void add_local(Token name) {
     if (current->local_count == UINT8_COUNT) {
         err(L"too many local vars");
@@ -492,6 +508,9 @@ ParseRule parse_rules[] = {
     [T_MKERR] = {NULL, NULL, PREC_NONE},
     [T_ERR] = {NULL, NULL, PREC_NONE},
     [T_EOF] = {NULL, NULL, PREC_NONE},
+    [T_LSBRACKET] = {read_array, NULL, PREC_NONE},
+    [T_RSBRACKET] = {NULL, NULL, PREC_NONE},
+
 };
 
 static ParseRule *get_parse_rule(TokType tt) { return &parse_rules[tt]; }

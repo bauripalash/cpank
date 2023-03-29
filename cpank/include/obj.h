@@ -17,6 +17,7 @@ typedef enum {
     OBJ_CLOUSRE,
     OBJ_UPVAL,
     OBJ_MOD,
+    OBJ_ARRAY,
     OBJ_ERR,
 } ObjType;
 
@@ -74,8 +75,15 @@ typedef struct {
     wchar_t *errmsg;
 } ObjErr;
 
+typedef struct ObjArray {
+    Obj obj;
+    int len;
+    Valarr items;
+} ObjArray;
+
 ObjFunc *new_func(void);
 ObjUpVal *new_up_val(Value *val);
+ObjArray *new_array(void);
 ObjType get_obj_type(Value val);
 bool is_obj_type(Value val, ObjType ot);
 bool is_str_obj(Value val);
@@ -84,12 +92,14 @@ bool is_native_obj(Value val);
 bool is_closure_obj(Value val);
 bool is_mod_obj(Value val);
 bool is_err_obj(Value val);
+bool is_array_obj(Value val);
 ObjErr *new_err_obj(wchar_t *errmsg);
 Value make_error(wchar_t *errmsg);
 ObjErr *get_as_err(Value val);
 ObjFunc *get_as_func(Value val);
 ObjClosure *get_as_closure(Value val);
 ObjString *get_as_string(Value val);
+ObjArray *get_as_array(Value val);
 wchar_t *get_as_native_string(Value val);
 NativeFn get_as_native(Value val);
 ObjString *copy_string(wchar_t *chars, int len);

@@ -100,6 +100,12 @@ void free_single_obj(Obj *obj) {
             FREE(ObjErr, obj);
             break;
         }
+        case OBJ_ARRAY: {
+            ObjArray *array = (ObjArray *)obj;
+            free_valarr(&array->items);
+            FREE(ObjArray, obj);
+            break;
+        }
     }
 }
 
@@ -164,6 +170,13 @@ void blacken_obj(Obj *obj) {
             // mark_obj((Obj *)err->msg);
 
             break;
+        }
+        case OBJ_ARRAY: {
+            ObjArray *array = (ObjArray *)obj;
+            array->obj.is_marked = true;
+            for (int i = 0; i < array->len; i++) {
+                mark_val(array->items.values[i]);
+            }
         }
     }
 }

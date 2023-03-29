@@ -48,6 +48,7 @@ bool is_native_obj(Value val) { return is_obj_type(val, OBJ_NATIVE); }
 bool is_closure_obj(Value val) { return is_obj_type(val, OBJ_CLOUSRE); }
 bool is_mod_obj(Value val) { return is_obj_type(val, OBJ_MOD); }
 bool is_err_obj(Value val) { return is_obj_type(val, OBJ_ERR); }
+bool is_array_obj(Value val) { return is_obj_type(val, OBJ_ARRAY); }
 
 ObjString *get_as_string(Value val) { return (ObjString *)get_as_obj(val); }
 ObjFunc *get_as_func(Value val) { return (ObjFunc *)get_as_obj(val); }
@@ -79,6 +80,8 @@ ObjString *allocate_str(wchar_t *chars, int len, uint32_t hash) {
     return string;
 }
 
+ObjArray *get_as_array(Value val) { return (ObjArray *)get_as_obj(val); }
+
 wchar_t *get_obj_type_as_string(ObjType o) {
     switch (o) {
         case OBJ_STR:
@@ -95,6 +98,8 @@ wchar_t *get_obj_type_as_string(ObjType o) {
             return L"OBJ_MOD";
         case OBJ_ERR:
             return L"OBJ_ERR";
+        case OBJ_ARRAY:
+            return L"OBJ_ARRAY";
     }
 
     return L"OBJ_UNKNOWN";
@@ -181,6 +186,17 @@ void print_obj(Value val) {
             cp_print(L"%ls", err->errmsg);
             break;
         }
+        case OBJ_ARRAY: {
+            ObjArray *array = get_as_array(val);
+            cp_print(L"[");
+            for (int i = 0; i < array->len; i++) {
+                Value val = array->items.values[i];
+                print_val(val);
+                cp_print(L", ");
+            }
+            cp_print(L"]");
+            break;
+        }
         default: {
             cp_print(L"OBJ_UNKNOWN");
             break;
@@ -195,6 +211,13 @@ ObjFunc *new_func(void) {
     func->up_count = 0;
     init_instruction(&func->ins);
     return func;
+}
+
+ObjArray *new_array(void) {
+    ObjArray *array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY);
+    array->len = 0;
+    init_valarr(&array->items);
+    return array;
 }
 
 ObjNative *new_native(NativeFn fn) {

@@ -107,6 +107,8 @@ int dissm_ins(Instruction *ins, int offset) {
             return bt_ins("OP_SET_LOCAL", ins, offset);
         case OP_CALL:
             return bt_ins("OP_CALL", ins, offset);
+        case OP_ARRAY:
+            return bt_ins("OP_ARRAY", ins, offset);
         case OP_JMP:
             return jmp_ins("OP_JMP", 1, ins, offset);
         case OP_JMP_IF_FALSE:
@@ -203,6 +205,8 @@ const char *print_opcode(Op op) {
             return "OP_SET_LOCAL";
         case OP_CALL:
             return "OP_CALL";
+        case OP_ARRAY:
+            return "OP_ARRAY";
         case OP_JMP:
             return "OP_JMP";
         case OP_JMP_IF_FALSE:

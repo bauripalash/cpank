@@ -44,6 +44,7 @@ typedef enum {
     OP_GET_MOD_PROP,
     OP_END_MOD,
     OP_ERR,
+    OP_ARRAY,
 
 } Op;
 
