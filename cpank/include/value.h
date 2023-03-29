@@ -33,7 +33,7 @@ bool get_as_bool(Value val);
 double get_as_number(Value val);
 
 Value make_bool(bool value);
-Value make_nil();
+Value make_nil(void);
 Value make_num(double num);
 Value make_neg(Value value);
 

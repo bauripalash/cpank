@@ -137,7 +137,7 @@ Value _math_logx(int argc, Value* args) {
     return make_num(log(num) / log(base));
 }
 
-void push_stdlib_math() {
+void push_stdlib_math(void) {
     SL sls[] = {
         msl(L"pow", _math_pow),    msl(L"add", _math_add),
         msl(L"gcd", _math_gcd),    msl(L"lcm", _math_lcm),

@@ -9,6 +9,8 @@ typedef enum {
     T_LBRACE,
     // }
     T_RBRACE,
+    T_LSBRACKET,
+    T_RSBRACKET,
     // -
     T_MINUS,
     // +
@@ -112,13 +114,13 @@ typedef struct {
 
 // check if lexer at the end of input
 // Checks if current char is '\0'
-bool is_eof();
+bool is_eof(void);
 
 // Given a type craetes a token;
 Token mktok(TokType type);
 Token err_tok(wchar_t *msg);
-wchar_t next();
-Token get_tok();
+wchar_t next(void);
+Token get_tok(void);
 /*
 void init_lexer(const char * source);
 bool is_at_eof();

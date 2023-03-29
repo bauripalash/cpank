@@ -1,4 +1,4 @@
-CC=gcc
+CC=clang
 CFLAGS+=-std=c99 -Wall -pedantic -lm
 LINKS=-static -lgrapheme
 SRC=cpank/lexer.c cpank/bn.c cpank/runfile.c cpank/instruction.c cpank/mem.c cpank/debug.c cpank/value.c cpank/vm.c cpank/compiler.c cpank/obj.c cpank/htable.c cpank/utils.c cpank/openfile.c
@@ -37,7 +37,7 @@ build_debug:
 
 build_uo:
 	@echo "Building Unoptimized $(OUTPUT)"
-	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g 
+	$(CC) $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g -gdwarf-4
 	@echo "Finished building unoptimized $(OUTPUT)"
 
 build:
@@ -45,7 +45,7 @@ build:
 	$(CC) -O3 $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC)
 	@echo "Finished building optimized $(OUTPUT)"
 
-memcheck: build_uo
+memcheck: build_uo 
 	valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(OUTPUT) $(SAMPLE_TO_RUN)
 
 perf:

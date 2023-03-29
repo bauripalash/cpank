@@ -188,7 +188,7 @@ void print_obj(Value val) {
     }
 }
 
-ObjFunc *new_func() {
+ObjFunc *new_func(void) {
     ObjFunc *func = ALLOCATE_OBJ(ObjFunc, OBJ_FUNC);
     func->arity = 0;
     func->name = NULL;

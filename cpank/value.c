@@ -119,7 +119,7 @@ Value make_bool(bool value) {
     return v;
 }
 
-Value make_nil() {
+Value make_nil(void) {
     Value v;
     v.type = V_NIL;
     v.as.num = 0;

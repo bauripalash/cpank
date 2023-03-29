@@ -27,9 +27,9 @@ Vm vm;
 const wchar_t *default_mod = L"_d_";
 // #define DEBUG_STACK
 
-void reset_stack() { vm.stack_top = vm.stack; }
+void reset_stack(void) { vm.stack_top = vm.stack; }
 
-void boot_vm() {
+void boot_vm(void) {
     reset_stack();
     gcon.is_paused = false;
     vm.objs = NULL;
@@ -55,7 +55,7 @@ void boot_vm() {
     define_native(L"clock", clock_ntv_fn);
 }
 
-void free_stdlibs() {
+void free_stdlibs(void) {
     for (int i = 0; i < vm.stdlib_count; i++) {
         StdlibMod *mod = &vm.stdlibs[i];
         if (mod->items.len > 0 || mod->items.cap > 0) {
@@ -118,7 +118,7 @@ uint32_t get_proxy_hash(uint32_t name, Module *curmod) {
     return 0;
 }
 
-void print_mod_names() {
+void print_mod_names(void) {
     for (int i = 0; i < vm.mod_count; i++) {
         wprintf(L"M| %4d -> %ld -> %ls \n", i, vm.mod_names[i],
                 vm.modules[i].name);
@@ -143,7 +143,7 @@ void define_native(wchar_t *name, NativeFn func) {
     pop();
 }
 
-void print_modframes() {
+void print_modframes(void) {
     for (int i = 0; i < vm.mod_count; i++) {
         Module *mod = &vm.modules[i];
         wprintf(L"module %ls has %d frames \n", mod->name, mod->frame_count);
@@ -164,7 +164,7 @@ void print_modframes() {
     }
 }
 
-void free_vm() {
+void free_vm(void) {
     free_table(&vm.strings);
     free_table(&vm.builtins);
     free_stdlibs();
@@ -174,8 +174,10 @@ void free_vm() {
     free_objs();
 }
 
-Value get_last_pop() { return vm.last_pop; }  // for testing -> see testmain.c
-Module *get_cur_mod() { return vm.current_mod; }
+Value get_last_pop(void) {
+    return vm.last_pop;
+}  // for testing -> see testmain.c
+Module *get_cur_mod(void) { return vm.current_mod; }
 
 void runtime_err(wchar_t *format, ...) {
     // setlocale(LC_CTYPE, "");
@@ -218,14 +220,14 @@ bool push(Value value) {
     return true;
 }
 
-Value pop() {
+Value pop(void) {
     vm.stack_top--;
     return *vm.stack_top;
 }
 
 Value peek_vm(int dist) { return vm.stack_top[-1 - dist]; }
 
-CallFrame *get_cur_farme() {
+CallFrame *get_cur_farme(void) {
     return &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
 }
 uint8_t read_bt(CallFrame *frame) {
@@ -248,7 +250,7 @@ Value read_const(CallFrame *frame) {
 ObjString *read_str_const(CallFrame *frame) {
     return get_as_string(read_const(frame));
 }
-void add_string() {
+void add_string(void) {
     ObjString *r = get_as_string(peek_vm(0));
     ObjString *l = get_as_string(peek_vm(1));
 
@@ -263,7 +265,7 @@ void add_string() {
     push(make_obj_val(new_obj));
 }
 
-bool bin_add() {
+bool bin_add(void) {
     if (is_str_obj(peek_vm(0)) && is_str_obj(peek_vm(1))) {
         add_string();
         return true;
@@ -282,7 +284,7 @@ bool bin_add() {
     }
 }
 
-bool bin_sub() {
+bool bin_sub(void) {
     if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
         runtime_err(L"Operands must be numbers for binary operation");
         return false;
@@ -293,7 +295,7 @@ bool bin_sub() {
     return true;
 }
 
-bool bin_mul() {
+bool bin_mul(void) {
     if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
         runtime_err(L"Operands must be numbers for binary operation");
         return false;
@@ -304,7 +306,7 @@ bool bin_mul() {
     return true;
 }
 
-bool bin_div() {
+bool bin_div(void) {
     if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
         runtime_err(L"Operands must be numbers for binary operation");
         return false;
@@ -315,7 +317,7 @@ bool bin_div() {
     return true;
 }
 
-bool bin_gt() {
+bool bin_gt(void) {
     if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
         runtime_err(L"Operands must be numbers for binary operation");
         return false;
@@ -326,7 +328,7 @@ bool bin_gt() {
     return true;
 }
 
-bool bin_gte() {
+bool bin_gte(void) {
     if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
         runtime_err(
             L"Operands must be numbers for greater than equal operation");
@@ -339,7 +341,7 @@ bool bin_gte() {
     return true;
 }
 
-bool bin_lt() {
+bool bin_lt(void) {
     if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
         runtime_err(L"Operands must be numbers for binary operation");
         return false;
@@ -350,7 +352,7 @@ bool bin_lt() {
     return true;
 }
 
-bool bin_lte() {
+bool bin_lte(void) {
     if (!is_num(peek_vm(0)) || !is_num(peek_vm(1))) {
         runtime_err(L"Operands must be numbers for less than equal operation");
         return false;
@@ -442,7 +444,7 @@ static int import_file(wchar_t *custom_name, wchar_t *import_name) {
     }
 }
 
-void print_stack() {
+void print_stack(void) {
     wprintf(L"------ STACK ----\n");
     for (Value *slt = vm.stack; slt < vm.stack_top; slt++) {
         wprintf(L"[ ");
@@ -452,7 +454,7 @@ void print_stack() {
     wprintf(L"--- END STACK ---\n");
 }
 
-IResult run_vm() {
+IResult run_vm(void) {
     CallFrame *frame = &get_cur_mod()->frames[get_cur_mod()->frame_count - 1];
     for (;;) {
 #ifdef DEBUG_STACK

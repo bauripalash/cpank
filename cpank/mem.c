@@ -103,7 +103,7 @@ void free_single_obj(Obj *obj) {
     }
 }
 
-void free_objs() {
+void free_objs(void) {
     Obj *object = vm.objs;
     while (object != NULL) {
         Obj *next_obj = object->next;
@@ -168,7 +168,7 @@ void blacken_obj(Obj *obj) {
     }
 }
 
-void mark_roots() {
+void mark_roots(void) {
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] Marking Stack Slots");
 #endif
@@ -260,14 +260,14 @@ void mark_roots() {
 #endif
 }
 
-void trace_refs() {
+void trace_refs(void) {
     while (vm.gray_count > 0) {
         Obj *obj = vm.gray_stack[--vm.gray_count];
         blacken_obj(obj);
     }
 }
 
-void sweep() {
+void sweep(void) {
     Obj *prev = NULL;
     Obj *obj = vm.objs;
     while (obj != NULL) {
@@ -325,7 +325,7 @@ void mark_obj(Obj *obj) {
     vm.gray_stack[vm.gray_count++] = obj;
 }
 
-void collect_garbage() {
+void collect_garbage(void) {
 #ifndef NOGC
     // setlocale(LC_CTYPE, "");
 #ifdef DEBUG_LOG_GC

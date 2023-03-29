@@ -110,6 +110,10 @@ const char *toktype_to_string(TokType t) {
             return "T_ERR";
         case T_MKERR:
             return "T_MKERR";
+        case T_LSBRACKET:
+            return "T_LSBRACKET";
+        case T_RSBRACKET:
+            return "T_RSBRACKET";
     };
 
     return "UNKNOWN_TOKEN";
@@ -131,8 +135,8 @@ bool match_char(wchar_t c) {
     return true;
 }
 
-wchar_t peek() { return *lexer.current; }
-wchar_t peek_next() {
+wchar_t peek(void) { return *lexer.current; }
+wchar_t peek_next(void) {
     if (is_eof()) return '\0';
     return lexer.current[1];
 }
@@ -143,7 +147,7 @@ void boot_lexer(wchar_t *src) {
     lexer.line = 1;
 }
 
-bool is_eof() { return *lexer.current == '\0'; }
+bool is_eof(void) { return *lexer.current == '\0'; }
 
 Token mktok(TokType type) {
     Token tok;
@@ -180,7 +184,7 @@ void btoe(wchar_t *input, int len) {
     }
 }
 
-Token mk_num_tok() {
+Token mk_num_tok(void) {
     Token tok;
     tok.type = T_NUM;
     tok.start = lexer.start;
@@ -256,7 +260,7 @@ TokType get_ident_tok_type(wchar_t *input, int len) {
     return tt;
 }
 
-Token mk_id_tok() {
+Token mk_id_tok(void) {
     Token tok;
     tok.start = lexer.start;
     tok.length = (int)(lexer.current - lexer.start);
@@ -279,7 +283,7 @@ bool is_en_alpha(wchar_t c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 
-void skip_ws() {
+void skip_ws(void) {
     for (;;) {
         wchar_t c = peek();
         switch (c) {
@@ -303,12 +307,12 @@ void skip_ws() {
     }
 }
 
-wchar_t next() {
+wchar_t next(void) {
     lexer.current++;
     return lexer.current[-1];
 }
 
-Token get_str_tok() {
+Token get_str_tok(void) {
     while (peek() != '"' && !is_eof()) {
         if (peek() == '\n') {
             lexer.line++;
@@ -324,7 +328,7 @@ Token get_str_tok() {
     return mktok(T_STR);
 }
 
-Token get_ident_tok() {
+Token get_ident_tok(void) {
     while ((is_en_alpha(peek()) || is_bn_char(peek())) || is_en_num(peek())) {
         next();
     }
@@ -332,7 +336,7 @@ Token get_ident_tok() {
     return mk_id_tok();
 }
 
-Token get_num_tok() {
+Token get_num_tok(void) {
     while (is_bn_num(peek()) || is_en_num(peek())) {
         next();
     }
@@ -347,7 +351,7 @@ Token get_num_tok() {
     return mk_num_tok();
 }
 
-Token get_tok() {
+Token get_tok(void) {
     skip_ws();
 
     lexer.start = lexer.current;
@@ -370,6 +374,10 @@ Token get_tok() {
             return mktok(T_LBRACE);
         case '}':
             return mktok(T_RBRACE);
+        case '[':
+            return mktok(T_LSBRACKET);
+        case ']':
+            return mktok(T_RSBRACKET);
         case '-':
             return mktok(T_MINUS);
         case '+':

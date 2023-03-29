@@ -64,7 +64,7 @@ ObjMod *get_as_mod(Value val);   // defined in obj.c
 ObjMod *new_mod(wchar_t *name);  // define in obj.c
 
 void init_module(Module *mod, const wchar_t *name);
-Module *get_cur_mod();
+Module *get_cur_mod(void);
 bool is_default(Module *mod);
 
 // The Vm struct
@@ -110,15 +110,15 @@ typedef enum {
 extern Vm vm;
 
 // Initilalize the VM
-void boot_vm();
+void boot_vm(void);
 
 // Free the VM and all things it holds
-void free_vm();
+void free_vm(void);
 IResult interpret(wchar_t *source);
 bool push(Value value);
-Value pop();
+Value pop(void);
 Value peek_vm(int dist);
-Value get_last_pop();
+Value get_last_pop(void);
 bool call_val(Value calle, int argc);
 bool call(ObjClosure *closure, int origin, int argc);
 void define_native(wchar_t *name, NativeFn func);

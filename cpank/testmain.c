@@ -50,7 +50,7 @@ bool test_vm(const char *test_name, wchar_t *src, Value expected) {
     }
 }
 
-int main() {
+int main(void) {
     bool fail = false;
     T testcases[] = {
         // Label    // Code     // Expected Output

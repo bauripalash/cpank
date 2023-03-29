@@ -21,8 +21,8 @@ typedef struct GcConfig {
 extern GcConfig gcon;
 
 void *rallc(void *ptr, size_t osize, size_t nsize);
-void collect_garbage();
-void free_objs();
+void collect_garbage(void);
+void free_objs(void);
 void mark_val(Value val);
 void mark_obj(Obj *obj);
 void free_single_obj(Obj *obj);

@@ -20,14 +20,14 @@
 #include <stdlib.h>
 #include <wchar.h>
 
-static void start_scope();
-static void end_scope();
+static void start_scope(void);
+static void end_scope(void);
 static void emit_bt(uint8_t bt);
 static void emit_two(uint8_t bt_1, uint8_t bt_2);
-static void emit_return();
+static void emit_return(void);
 static void parse_prec(Prec prec);
-static void read_stmt();
-static void read_declr();
+static void read_stmt(void);
+static void read_declr(void);
 
 typedef void (*ParseFn)(bool can_assign);
 
@@ -72,7 +72,7 @@ void init_comiler(Compiler *compiler, FuncType type) {
 }
 
 // get instruction set from current compiler
-static Instruction *cur_ins() { return &current->func->ins; }
+static Instruction *cur_ins(void) { return &current->func->ins; }
 
 // helper function for err(..) and err_at_cur(..)
 static void err_at(Token *tok, wchar_t *msg) {
@@ -100,7 +100,7 @@ static void err(wchar_t *msg) { err_at(&parser.prev, msg); }
 // Throw error for current function
 static void err_at_cur(wchar_t *msg) { err_at(&parser.cur, msg); }
 
-static void advance() {
+static void advance(void) {
     parser.prev = parser.cur;
     for (;;) {
         parser.cur = get_tok();
@@ -124,7 +124,7 @@ static void emit_two(uint8_t bt_1, uint8_t bt_2) {
 
 // emit 'nil' opcode and
 // then 'return' opcode
-static void emit_return() {
+static void emit_return(void) {
     emit_bt(OP_NIL);
     emit_bt(OP_RETURN);
 }
@@ -232,9 +232,9 @@ static bool match_tok(TokType tt) {
 // read expression
 // alias for
 // parse_prec(PREC_ASSIGN)
-static void read_expr() { parse_prec(PREC_ASSIGN); }
+static void read_expr(void) { parse_prec(PREC_ASSIGN); }
 
-uint8_t read_arg_list() {
+uint8_t read_arg_list(void) {
     uint8_t argc = 0;
     if (!check_tok(T_RPAREN)) {
         do {
@@ -496,9 +496,9 @@ ParseRule parse_rules[] = {
 
 static ParseRule *get_parse_rule(TokType tt) { return &parse_rules[tt]; }
 
-static void start_scope() { current->scope_depth++; }
+static void start_scope(void) { current->scope_depth++; }
 
-static void end_scope() {
+static void end_scope(void) {
     current->scope_depth--;
     while (current->local_count > 0 &&
            current->locals[current->local_count - 1].depth >
@@ -512,7 +512,7 @@ static void end_scope() {
     }
 }
 
-static void sync_errors() {
+static void sync_errors(void) {
     parser.panic_mode = false;
     while (parser.cur.type != T_EOF) {
         if (parser.prev.type == T_SEMICOLON) {
@@ -557,7 +557,7 @@ static void parse_prec(Prec prec) {
 
 // parse and compile
 // return statements
-static void return_stmt() {
+static void return_stmt(void) {
     // top level script must not have
     // return statement
     if (current->type == FTYPE_SCRIPT) {
@@ -581,19 +581,19 @@ static void return_stmt() {
 // bare expressions without any
 // statements or keywords
 // 1 + 2;
-static void read_expr_stmt() {
+static void read_expr_stmt(void) {
     read_expr();
     eat_tok(T_SEMICOLON, L"Expected ';' after expression statement");
     emit_bt(OP_POP);
 }
 
-static void read_print_stmt() {
+static void read_print_stmt(void) {
     read_expr();
     eat_tok(T_SEMICOLON, L"expected ';' after show stmt");
     emit_bt(OP_SHOW);
 }
 
-static void declare_var() {
+static void declare_var(void) {
     if (current->scope_depth == 0) {
         return;
     }
@@ -621,7 +621,7 @@ static uint8_t parse_var(wchar_t *errmsg) {
     return make_id_const(&parser.prev);
 }
 
-static void mark_init() {
+static void mark_init(void) {
     if (current->scope_depth == 0) {
         return;
     }
@@ -636,7 +636,7 @@ static void define_var(uint8_t global) {
     emit_two(OP_DEF_GLOB, global);
 }
 
-static void let_declr() {
+static void let_declr(void) {
     uint8_t global = parse_var(L"Expected variable name after let");
     if (match_tok(T_EQ)) {
         read_expr();
@@ -648,7 +648,7 @@ static void let_declr() {
     define_var(global);
 }
 
-static void read_to_end() {
+static void read_to_end(void) {
     while (!check_tok(T_END) && !check_tok(T_EOF)) {
         read_declr();
     }
@@ -684,14 +684,14 @@ static void build_func(FuncType type) {
     }
 }
 
-static void funct_declr() {
+static void funct_declr(void) {
     uint8_t global = parse_var(L"Expected function name");
     mark_init();
     build_func(FTYPE_FUNC);
     define_var(global);
 }
 
-static void read_declr() {
+static void read_declr(void) {
     if (match_tok(T_LET)) {
         let_declr();
     } else if (match_tok(T_FUNC)) {
@@ -705,7 +705,7 @@ static void read_declr() {
 }
 
 /*got end?*/
-static void read_if_block() {
+static void read_if_block(void) {
     start_scope();
     while (!check_tok(T_END) && !check_tok(T_ELSE) && !check_tok(T_EOF)) {
         read_declr();
@@ -714,7 +714,7 @@ static void read_if_block() {
     end_scope();
 }
 
-static void read_if_stmt() {
+static void read_if_stmt(void) {
     read_expr();
     eat_tok(T_THEN, L"expected 'then'  after if expression");
 
@@ -737,7 +737,7 @@ static void read_if_stmt() {
     patch_jump(else_jmp);
 }
 
-static void read_while_stmt() {
+static void read_while_stmt(void) {
     int ls = cur_ins()->len;
     eat_tok(T_LPAREN, L"expected '(' after 'while'");
     read_expr();
@@ -753,7 +753,7 @@ static void read_while_stmt() {
     emit_bt(OP_POP);
 }
 
-static void read_import_stmt() {
+static void read_import_stmt(void) {
     eat_tok(T_ID, L"expected import name");
     uint8_t index = make_id_const(&parser.prev);
     read_expr();
@@ -762,7 +762,7 @@ static void read_import_stmt() {
     emit_bt(index);
 }
 
-static void read_block() {
+static void read_block(void) {
     while (!check_tok(T_RBRACE) && !check_tok(T_EOF)) {
         read_declr();
     }
@@ -770,7 +770,7 @@ static void read_block() {
     eat_tok(T_RBRACE, L"Expected '}' after block stmts");
 }
 
-static void read_err_stmt() {
+static void read_err_stmt(void) {
     read_expr();
     eat_tok(T_SEMICOLON, L"Expected ';' after error statement");
     emit_bt(OP_ERR);
@@ -785,7 +785,7 @@ static void read_err_stmt() {
 // * Block statement {...}
 // * Expression statement
 //   example : 1 + 2 + 3;
-static void read_stmt() {
+static void read_stmt(void) {
     if (match_tok(T_SHOW)) {
         read_print_stmt();
     } else if (match_tok(T_IF)) {
@@ -807,7 +807,7 @@ static void read_stmt() {
     }
 }
 
-ObjFunc *end_compiler() {
+ObjFunc *end_compiler(void) {
     emit_return();
     ObjFunc *func = current->func;
 #ifdef DEBUG_PRINT_CODE
@@ -873,7 +873,7 @@ ObjFunc *compile_module(wchar_t *source) {
     return parser.had_err ? NULL : fn;
 }
 
-void mark_compiler_roots() {
+void mark_compiler_roots(void) {
     Compiler *compiler = current;
     while (compiler != NULL) {
 #ifdef DEBUG_LOG_GC

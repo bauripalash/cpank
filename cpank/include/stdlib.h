@@ -18,6 +18,6 @@ SL msl(wchar_t* key, NativeFn func);
 
 int _push_stdlib(wchar_t* stdname, SL* funcs, int len);
 int _push_single_stdfunc(wchar_t* stdname, ObjString* key, NativeFn fn);
-void push_stdlib_math();
+void push_stdlib_math(void);
 
 #endif

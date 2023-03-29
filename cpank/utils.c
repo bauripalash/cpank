@@ -32,7 +32,7 @@ bool does_file_exist(const char *filepath) {
 
 static char nocolor_env[] = "CPANK_NO_COLOR";
 
-static bool no_color() {
+static bool no_color(void) {
     char *has_nocolor = getenv(nocolor_env);
     if (has_nocolor != NULL) {
         if (strcmp(has_nocolor, "1") == 0 || strcmp(has_nocolor, "true") == 0) {
@@ -78,7 +78,7 @@ void _print_ansi_color(wchar_t colorcode, FILE *stream) {
     return;
 }
 
-void color_reset() { wprintf(ANSI_COLOR_RESET); }
+void color_reset(void) { wprintf(ANSI_COLOR_RESET); }
 
 void cp_print(const wchar_t *format, ...) {
     va_list args;

@@ -74,7 +74,7 @@ typedef struct {
     wchar_t *errmsg;
 } ObjErr;
 
-ObjFunc *new_func();
+ObjFunc *new_func(void);
 ObjUpVal *new_up_val(Value *val);
 ObjType get_obj_type(Value val);
 bool is_obj_type(Value val, ObjType ot);

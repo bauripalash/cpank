@@ -60,7 +60,7 @@ typedef struct Compiler {
 void init_comiler(Compiler *compiler, FuncType type);
 
 ObjFunc *compile(wchar_t *source);
-ObjFunc *end_compiler();
-void mark_compiler_roots();
+ObjFunc *end_compiler(void);
+void mark_compiler_roots(void);
 ObjFunc *compile_module(wchar_t *source);
 #endif
