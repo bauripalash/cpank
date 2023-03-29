@@ -1,2 +1,14 @@
-# Experiment on Writing an Interpreter for Pankti programming language
+# The Pankti Programming Language
+#### Interpreter & Bytecode Compiler written in C  
+
+
+## Introduction
+Pankti is an interpreted dynamically typed programming language for programming 
+in Bengali, English as well as Combination of both. Pankti is an easy to learn
+programming language but it was also powerful language to create useful and fast
+programs.
+
+## Project Status
+> Pre-alpha. Under heavy development
+
 LICENSE : GPL v3
