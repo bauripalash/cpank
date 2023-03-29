@@ -1,3 +1,5 @@
-let name = [1,2,3];
-show name[1];
-show name[2] * name[1] + name[0];
+let x = [1,2,3];
+let index = 1;
+show x;
+show x[index - 1];
+show x[2] * x[1] + x[0];
