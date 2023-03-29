@@ -729,7 +729,12 @@ IResult run_vm(void) {
                     runtime_err(L"arrays can be only indexed with numbers");
                     return INTRP_RUNTIME_ERR;
                 }
-                int index = (int)get_as_number(raw_index);
+                double index = get_as_number(raw_index);
+                if (index < 0 || ceil(index) != index) {
+                    runtime_err(
+                        L"array index can only be non negetive integers");
+                    return INTRP_RUNTIME_ERR;
+                }
                 Value raw_array = peek_vm(1);
                 if (!is_array_obj(raw_array)) {
                     runtime_err(L"only arrays can be indexed");
@@ -741,7 +746,7 @@ IResult run_vm(void) {
                     return INTRP_RUNTIME_ERR;
                 }
 
-                Value val = array->items.values[index];
+                Value val = array->items.values[(int)index];
                 pop();
                 pop();
                 push(val);
