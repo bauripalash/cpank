@@ -723,6 +723,31 @@ IResult run_vm(void) {
                 push(make_obj_val(array));
                 break;
             }
+            case OP_ARR_INDEX: {
+                Value raw_index = peek_vm(0);
+                if (!is_num(raw_index)) {
+                    runtime_err(L"arrays can be only indexed with numbers");
+                    return INTRP_RUNTIME_ERR;
+                }
+                int index = (int)get_as_number(raw_index);
+                Value raw_array = peek_vm(1);
+                if (!is_array_obj(raw_array)) {
+                    runtime_err(L"only arrays can be indexed");
+                    return INTRP_RUNTIME_ERR;
+                }
+                ObjArray *array = get_as_array(raw_array);
+                if (index >= array->len) {
+                    runtime_err(L"Index out of range error");
+                    return INTRP_RUNTIME_ERR;
+                }
+
+                Value val = array->items.values[index];
+                pop();
+                pop();
+                push(val);
+
+                break;
+            }
             case OP_ERR: {
                 Value msg = pop();
                 cp_print(L"Error : ");

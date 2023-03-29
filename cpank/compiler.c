@@ -355,6 +355,12 @@ void read_array(bool can_assign) {
     emit_two(OP_ARRAY, (uint8_t)items);
 }
 
+void read_index_expr(bool can_assign) {
+    read_expr();
+    eat_tok(T_RSBRACKET, L"Expected ']' after index expression");
+    emit_bt(OP_ARR_INDEX);
+}
+
 void add_local(Token name) {
     if (current->local_count == UINT8_COUNT) {
         err(L"too many local vars");
@@ -508,7 +514,7 @@ ParseRule parse_rules[] = {
     [T_MKERR] = {NULL, NULL, PREC_NONE},
     [T_ERR] = {NULL, NULL, PREC_NONE},
     [T_EOF] = {NULL, NULL, PREC_NONE},
-    [T_LSBRACKET] = {read_array, NULL, PREC_NONE},
+    [T_LSBRACKET] = {read_array, read_index_expr, PREC_CALL},
     [T_RSBRACKET] = {NULL, NULL, PREC_NONE},
 
 };

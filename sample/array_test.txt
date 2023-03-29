@@ -1,3 +1,2 @@
 let name = [1,2,3];
-show name;
-show name;
+show name[2] * name[1] + name[0];

@@ -45,6 +45,7 @@ typedef enum {
     OP_END_MOD,
     OP_ERR,
     OP_ARRAY,
+    OP_ARR_INDEX,
 
 } Op;
 
