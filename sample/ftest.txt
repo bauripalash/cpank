@@ -1,6 +1,8 @@
+import m "math";
 fun hello(name)
 	show "Hey " + name;
+	return m.pow(9 , 3);
 end
 
-hello("palash");
+show hello("palash");
 
