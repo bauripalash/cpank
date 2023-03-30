@@ -98,12 +98,6 @@ typedef struct {
     int line;
 } Token;
 
-const char *toktype_to_string(TokType tt);
-
-// you must free the result
-char *token_to_string(Token *t);
-void boot_lexer(wchar_t *src);
-
 typedef struct {
     // start of lexeme;
     wchar_t *start;
@@ -112,15 +106,21 @@ typedef struct {
     int line;
 } Lexer;
 
+const char *toktype_to_string(TokType tt);
+
+// you must free the result
+char *token_to_string(Token *t);
+void boot_lexer(Lexer *lexer, wchar_t *src);
+
 // check if lexer at the end of input
 // Checks if current char is '\0'
-bool is_eof(void);
+bool is_eof(Lexer *lexer);
 
 // Given a type craetes a token;
-Token mktok(TokType type);
-Token err_tok(wchar_t *msg);
-wchar_t next(void);
-Token get_tok(void);
+Token mktok(Lexer *lexer, TokType type);
+Token err_tok(Lexer *lexer, wchar_t *msg);
+wchar_t next(Lexer *lexer);
+Token get_tok(Lexer *lexer);
 /*
 void init_lexer(const char * source);
 bool is_at_eof();

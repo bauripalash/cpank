@@ -6,6 +6,7 @@
 #include <wchar.h>
 
 #include "common.h"
+#include "compiler.h"
 #include "htable.h"
 #include "instruction.h"
 #include "obj.h"
@@ -59,16 +60,17 @@ typedef struct ObjMod {
     ObjString *name;
 
 } ObjMod;
-Module *get_mod_by_hash(uint32_t hash);
-ObjMod *get_as_mod(Value val);   // defined in obj.c
-ObjMod *new_mod(wchar_t *name);  // define in obj.c
+Module *get_mod_by_hash(PankVm *vm, uint32_t hash);
+ObjMod *get_as_mod(Value val);               // defined in obj.c
+ObjMod *new_mod(PankVm *vm, wchar_t *name);  // define in obj.c
 
 void init_module(Module *mod, const wchar_t *name);
-Module *get_cur_mod(void);
+Module *get_cur_mod(PankVm *vm);
 bool is_default(Module *mod);
 
 // The Vm struct
-typedef struct {
+struct _Vm {
+    Compiler *compiler;
     // The stack with max size of STACK_SIZE
     Value stack[STACK_SIZE];
     // Top of the stack
@@ -99,7 +101,7 @@ typedef struct {
     size_t bts_allocated;
     size_t next_gc;
     Value last_pop;
-} Vm;
+};
 
 typedef enum {
     INTRP_OK,
@@ -107,24 +109,24 @@ typedef enum {
     INTRP_RUNTIME_ERR,
 } IResult;
 
-extern Vm vm;
+// extern Vm vm;
 
 // Initilalize the VM
-void boot_vm(void);
+PankVm *boot_vm(void);
 
 // Free the VM and all things it holds
-void free_vm(void);
-IResult interpret(wchar_t *source);
-bool push(Value value);
-Value pop(void);
-Value peek_vm(int dist);
-Value get_last_pop(void);
-bool call_val(Value calle, int argc);
-bool call(ObjClosure *closure, int origin, int argc);
-void define_native(wchar_t *name, NativeFn func);
-Value clock_ntv_fn(int argc, Value *args);
+void free_vm(PankVm *vm);
+IResult interpret(PankVm *vm, wchar_t *source);
+bool push(PankVm *vm, Value value);
+Value pop(PankVm *vm);
+Value peek_vm(PankVm *vm, int dist);
+Value get_last_pop(PankVm *vm);
+bool call_val(PankVm *vm, Value calle, int argc);
+bool call(PankVm *vm, ObjClosure *closure, int origin, int argc);
+void define_native(PankVm *vm, wchar_t *name, NativeFn func);
+Value clock_ntv_fn(PankVm *vm, int argc, Value *args);
 
-ObjUpVal *capture_upv(Module *module, Value *local);
+ObjUpVal *capture_upv(PankVm *vm, Module *module, Value *local);
 void close_upval(Module *module, Value *last);
 
 #endif

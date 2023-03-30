@@ -28,15 +28,15 @@ GcConfig gcon;
 
 #define GC_HEAD_GROW_FACT 2
 
-void *rallc(void *ptr, size_t os, size_t ns) {
-    vm.bts_allocated += ns - os;
+void *rallc(PankVm *vm, void *ptr, size_t os, size_t ns) {
+    vm->bts_allocated += ns - os;
     if (ns > os) {
 #ifdef DEBUG_STRES_GC
 
-        collect_garbage();
+        collect_garbage(vm);
 #endif
-        if (vm.bts_allocated > vm.next_gc) {
-            collect_garbage();
+        if (vm->bts_allocated > vm->next_gc) {
+            collect_garbage(vm);
         }
     }
 
@@ -54,7 +54,7 @@ void *rallc(void *ptr, size_t os, size_t ns) {
     return result;
 }
 
-void free_single_obj(Obj *obj) {
+void free_single_obj(PankVm *vm, Obj *obj) {
 #ifdef DEBUG_LOG_GC
     cp_color_print('b', L"[GC] (%p) Freeing : T(%ls) : V(", (void *)obj,
                    get_obj_type_as_string(obj->type));
@@ -64,69 +64,69 @@ void free_single_obj(Obj *obj) {
     switch (obj->type) {
         case OBJ_STR: {
             ObjString *str = (ObjString *)obj;
-            FREE_ARR(wchar_t, str->chars, str->len + 1);
-            FREE(ObjString, obj);
+            FREE_ARR(vm, wchar_t, str->chars, str->len + 1);
+            FREE(vm, ObjString, obj);
             break;
         }
 
         case OBJ_FUNC: {
             ObjFunc *func = (ObjFunc *)obj;
-            free_ins(&func->ins);
-            FREE(ObjFunc, obj);
+            free_ins(vm, &func->ins);
+            FREE(vm, ObjFunc, obj);
             break;
         }
         case OBJ_NATIVE: {
-            FREE(ObjNative, obj);
+            FREE(vm, ObjNative, obj);
             break;
         }
         case OBJ_CLOUSRE: {
             ObjClosure *cls = (ObjClosure *)obj;
-            FREE_ARR(ObjUpVal *, cls->upv, cls->upv_count);
-            FREE(ObjClosure, obj);
+            FREE_ARR(vm, ObjUpVal *, cls->upv, cls->upv_count);
+            FREE(vm, ObjClosure, obj);
             break;
         }
         case OBJ_UPVAL: {
-            FREE(ObjUpVal, obj);
+            FREE(vm, ObjUpVal, obj);
             break;
         }
         case OBJ_MOD: {
-            FREE(ObjMod, obj);
+            FREE(vm, ObjMod, obj);
             break;
         }
         case OBJ_ERR: {
             ObjErr *err = (ObjErr *)obj;
-            FREE_ARR(wchar_t, err->errmsg, err->len + 1);
+            FREE_ARR(vm, wchar_t, err->errmsg, err->len + 1);
 
-            FREE(ObjErr, obj);
+            FREE(vm, ObjErr, obj);
             break;
         }
         case OBJ_ARRAY: {
             ObjArray *array = (ObjArray *)obj;
-            free_valarr(&array->items);
-            FREE(ObjArray, obj);
+            free_valarr(vm, &array->items);
+            FREE(vm, ObjArray, obj);
             break;
         }
     }
 }
 
-void free_objs(void) {
-    Obj *object = vm.objs;
+void free_objs(PankVm *vm) {
+    Obj *object = vm->objs;
     while (object != NULL) {
         Obj *next_obj = object->next;
-        free_single_obj(object);
+        free_single_obj(vm, object);
         object = next_obj;
     }
 
-    free(vm.gray_stack);
+    free(vm->gray_stack);
 }
 
-void mark_array(Valarr *arr) {
+void mark_array(PankVm *vm, Valarr *arr) {
     for (int i = 0; i < arr->len; i++) {
-        mark_val(arr->values[i]);
+        mark_val(vm, arr->values[i]);
     }
 }
 
-void blacken_obj(Obj *obj) {
+void blacken_obj(PankVm *vm, Obj *obj) {
 #ifdef DEBUG_LOG_GC
     // setlocale(LC_CTYPE, "");
     cp_color_print('g', L"[GC] (%p) Blacken : T(%ls) : V(", (void *)obj,
@@ -142,26 +142,26 @@ void blacken_obj(Obj *obj) {
             break;
 
         case OBJ_UPVAL:
-            mark_val(((ObjUpVal *)obj)->closed);
+            mark_val(vm, ((ObjUpVal *)obj)->closed);
             break;
         case OBJ_CLOUSRE: {
             ObjClosure *cls = (ObjClosure *)obj;
-            mark_obj((Obj *)cls->func);
+            mark_obj(vm, (Obj *)cls->func);
             for (int i = 0; i < cls->upv_count; i++) {
-                mark_obj((Obj *)cls->upv[i]);
+                mark_obj(vm, (Obj *)cls->upv[i]);
             }
             break;
         }
         case OBJ_FUNC: {
             ObjFunc *func = (ObjFunc *)obj;
-            mark_obj((Obj *)func->name);
-            mark_array(&func->ins.consts);
+            mark_obj(vm, (Obj *)func->name);
+            mark_array(vm, &func->ins.consts);
             break;
         }
         case OBJ_MOD: {
             ObjMod *md = (ObjMod *)obj;
 
-            mark_obj((Obj *)md->name);
+            mark_obj(vm, (Obj *)md->name);
             break;
         }
         case OBJ_ERR: {
@@ -175,18 +175,18 @@ void blacken_obj(Obj *obj) {
             ObjArray *array = (ObjArray *)obj;
             array->obj.is_marked = true;
             for (int i = 0; i < array->len; i++) {
-                mark_val(array->items.values[i]);
+                mark_val(vm, array->items.values[i]);
             }
         }
     }
 }
 
-void mark_roots(void) {
+void mark_roots(PankVm *vm) {
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] Marking Stack Slots");
 #endif
-    for (Value *slot = vm.stack; slot < vm.stack_top; slot++) {
-        mark_val(*slot);
+    for (Value *slot = vm->stack; slot < vm->stack_top; slot++) {
+        mark_val(vm, *slot);
     }
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] Finished Stack Slots Marking");
@@ -194,10 +194,10 @@ void mark_roots(void) {
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] Marking Frame Closures");
 #endif
-    for (int i = 0; i < vm.mod_count; i++) {
-        Module *mod = &vm.modules[i];
+    for (int i = 0; i < vm->mod_count; i++) {
+        Module *mod = &vm->modules[i];
         for (int j = 0; j < mod->frame_count; j++) {
-            mark_obj((Obj *)mod->frames[j].closure);
+            mark_obj(vm, (Obj *)mod->frames[j].closure);
         }
     }
 
@@ -208,10 +208,10 @@ void mark_roots(void) {
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] Marking UpValues");
 #endif
-    for (int i = 0; i < vm.mod_count; i++) {
-        Module *mod = &vm.modules[i];
+    for (int i = 0; i < vm->mod_count; i++) {
+        Module *mod = &vm->modules[i];
         for (ObjUpVal *upv = mod->open_upvs; upv != NULL; upv = upv->next) {
-            mark_obj((Obj *)upv);
+            mark_obj(vm, (Obj *)upv);
         }
     }
 
@@ -232,19 +232,20 @@ void mark_roots(void) {
     //}
     //
 
-    for (int i = 0; i < vm.mod_count; i++) {
-        Module *mod = &vm.modules[i];
-        mark_table(&mod->globals);
+    for (int i = 0; i < vm->mod_count; i++) {
+        Module *mod = &vm->modules[i];
+
+        mark_table(vm, &mod->globals);
     }
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] Finished Marking Module Globals");
     cp_println(L"[GC] Marking Imported StdLibs");
 #endif
-    for (int i = 0; i < vm.stdlib_count; i++) {
-        StdlibMod *sm = &vm.stdlibs[i];
+    for (int i = 0; i < vm->stdlib_count; i++) {
+        StdlibMod *sm = &vm->stdlibs[i];
         if (sm->items.cap > 0) {
             if (sm->items.len > 0) {
-                mark_table(&sm->items);
+                mark_table(vm, &sm->items);
             }
         }
     }
@@ -258,7 +259,7 @@ void mark_roots(void) {
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] Marking Builtins");
 #endif
-    mark_table(&vm.builtins);
+    mark_table(vm, &vm->builtins);
 
     // mark_table(&vm.current_mod->globals);
 #ifdef DEBUG_LOG_GC
@@ -267,22 +268,22 @@ void mark_roots(void) {
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] Marking Compiler Roots");
 #endif
-    mark_compiler_roots();
+    mark_compiler_roots(vm);
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] Finished Marking Compiler Roots");
 #endif
 }
 
-void trace_refs(void) {
-    while (vm.gray_count > 0) {
-        Obj *obj = vm.gray_stack[--vm.gray_count];
-        blacken_obj(obj);
+void trace_refs(PankVm *vm) {
+    while (vm->gray_count > 0) {
+        Obj *obj = vm->gray_stack[--vm->gray_count];
+        blacken_obj(vm, obj);
     }
 }
 
-void sweep(void) {
+void sweep(PankVm *vm) {
     Obj *prev = NULL;
-    Obj *obj = vm.objs;
+    Obj *obj = vm->objs;
     while (obj != NULL) {
         if (obj->is_marked) {
             obj->is_marked = false;
@@ -294,21 +295,21 @@ void sweep(void) {
             if (prev != NULL) {
                 prev->next = obj;
             } else {
-                vm.objs = obj;
+                vm->objs = obj;
             }
 
-            free_single_obj(unreached);
+            free_single_obj(vm, unreached);
         }
     }
 }
 
-void mark_val(Value val) {
+void mark_val(PankVm *vm, Value val) {
     if (is_obj(val)) {
-        mark_obj(get_as_obj(val));
+        mark_obj(vm, get_as_obj(val));
     }
 }
 
-void mark_obj(Obj *obj) {
+void mark_obj(PankVm *vm, Obj *obj) {
     if (obj == NULL) {
         return;
     }
@@ -325,25 +326,25 @@ void mark_obj(Obj *obj) {
 #endif
 
     obj->is_marked = true;
-    if (vm.gray_cap < vm.gray_count + 1) {
+    if (vm->gray_cap < vm->gray_count + 1) {
         // wprintf(L"++ growing gstack cap \n");
-        vm.gray_cap = GROW_CAP(vm.gray_cap);
-        vm.gray_stack =
-            (Obj **)realloc(vm.gray_stack, sizeof(Obj *) * vm.gray_cap);
-        if (vm.gray_stack == NULL) {
+        vm->gray_cap = GROW_CAP(vm->gray_cap);
+        vm->gray_stack =
+            (Obj **)realloc(vm->gray_stack, sizeof(Obj *) * vm->gray_cap);
+        if (vm->gray_stack == NULL) {
             exit(1);
         }
     }
 
-    vm.gray_stack[vm.gray_count++] = obj;
+    vm->gray_stack[vm->gray_count++] = obj;
 }
 
-void collect_garbage(void) {
+void collect_garbage(PankVm *vm) {
 #ifndef NOGC
     // setlocale(LC_CTYPE, "");
 #ifdef DEBUG_LOG_GC
     cp_color_println('y', L"[GC] === GC START ====");
-    size_t before = vm.bts_allocated;
+    size_t before = vm->bts_allocated;
 #endif
 
 #ifdef DEBUG_LOG_GC
@@ -351,7 +352,7 @@ void collect_garbage(void) {
     cp_println(L"[GC] -- Marking Roots --");
 #endif
 
-    mark_roots();
+    mark_roots(vm);
 
 #ifdef DEBUG_LOG_GC
     // wprintf(L"finished marking roots -> \n");
@@ -359,7 +360,7 @@ void collect_garbage(void) {
 
     cp_println(L"[GC] -- Tracing Refs --");
 #endif
-    trace_refs();
+    trace_refs(vm);
 
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] -- Finished Tracing Refs --");
@@ -369,7 +370,7 @@ void collect_garbage(void) {
     cp_println(L"[GC] -- Removing White Strings --");
 #endif
 
-    table_remove_white(&vm.strings);
+    table_remove_white(&vm->strings);
 
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] -- Finished Removing White Strings --");
@@ -379,20 +380,21 @@ void collect_garbage(void) {
     cp_println(L"[GC] -- Sweeping --");
 #endif
 
-    sweep();
+    sweep(vm);
 
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] -- Finished Sweeping --");
 #endif
 
-    vm.next_gc = vm.bts_allocated * GC_HEAD_GROW_FACT;
+    vm->next_gc = vm->bts_allocated * GC_HEAD_GROW_FACT;
 
 #ifdef DEBUG_LOG_GC
 
     cp_color_println('y', L"[GC] === GC END ====");
     // wprintf(L"-- gc end\n");
     cp_println(L"[GC] collected %zu bytes (from %zu to %zu) next at %zu",
-               before - vm.bts_allocated, before, vm.bts_allocated, vm.next_gc);
+               before - vm->bts_allocated, before, vm->bts_allocated,
+               vm->next_gc);
 #endif
 #endif
 }

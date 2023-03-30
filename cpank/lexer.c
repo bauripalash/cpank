@@ -126,35 +126,35 @@ char *token_to_string(Token *tk) {
     return result;
 }
 
-Lexer lexer;
+// Lexer lexer;
 
-bool match_char(wchar_t c) {
-    if (is_eof()) return false;
-    if (*lexer.current != c) return false;
-    lexer.current++;
+bool match_char(Lexer *lexer, wchar_t c) {
+    if (is_eof(lexer)) return false;
+    if (*lexer->current != c) return false;
+    lexer->current++;
     return true;
 }
 
-wchar_t peek(void) { return *lexer.current; }
-wchar_t peek_next(void) {
-    if (is_eof()) return '\0';
-    return lexer.current[1];
+wchar_t peek(Lexer *lexer) { return *lexer->current; }
+wchar_t peek_next(Lexer *lexer) {
+    if (is_eof(lexer)) return '\0';
+    return lexer->current[1];
 }
 
-void boot_lexer(wchar_t *src) {
-    lexer.start = src;
-    lexer.current = src;
-    lexer.line = 1;
+void boot_lexer(Lexer *lexer, wchar_t *src) {
+    lexer->start = src;
+    lexer->current = src;
+    lexer->line = 1;
 }
 
-bool is_eof(void) { return *lexer.current == '\0'; }
+bool is_eof(Lexer *lexer) { return *lexer->current == '\0'; }
 
-Token mktok(TokType type) {
+Token mktok(Lexer *lexer, TokType type) {
     Token tok;
     tok.type = type;
-    tok.start = lexer.start;
-    tok.length = (int)(lexer.current - lexer.start);
-    tok.line = lexer.line;
+    tok.start = lexer->start;
+    tok.length = (int)(lexer->current - lexer->start);
+    tok.line = lexer->line;
     return tok;
 }
 
@@ -184,12 +184,12 @@ void btoe(wchar_t *input, int len) {
     }
 }
 
-Token mk_num_tok(void) {
+Token mk_num_tok(Lexer *lexer) {
     Token tok;
     tok.type = T_NUM;
-    tok.start = lexer.start;
-    tok.length = (int)(lexer.current - lexer.start);
-    tok.line = lexer.line;
+    tok.start = lexer->start;
+    tok.length = (int)(lexer->current - lexer->start);
+    tok.line = lexer->line;
 
     btoe(tok.start, tok.length);
     // wprintf(L"NUMBER-> %.*ls\n", tok.length, tok.start);
@@ -260,21 +260,21 @@ TokType get_ident_tok_type(wchar_t *input, int len) {
     return tt;
 }
 
-Token mk_id_tok(void) {
+Token mk_id_tok(Lexer *lexer) {
     Token tok;
-    tok.start = lexer.start;
-    tok.length = (int)(lexer.current - lexer.start);
-    tok.line = lexer.line;
+    tok.start = lexer->start;
+    tok.length = (int)(lexer->current - lexer->start);
+    tok.line = lexer->line;
     tok.type = get_ident_tok_type(tok.start, tok.length);
     return tok;
 }
 
-Token err_tok(wchar_t *msg) {
+Token err_tok(Lexer *lexer, wchar_t *msg) {
     Token tk;
     tk.type = T_ERR;
     tk.start = msg;
     tk.length = (int)wcslen(msg);
-    tk.line = lexer.line;
+    tk.line = lexer->line;
     return tk;
 }
 
@@ -283,22 +283,22 @@ bool is_en_alpha(wchar_t c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 
-void skip_ws(void) {
+void skip_ws(Lexer *lexer) {
     for (;;) {
-        wchar_t c = peek();
+        wchar_t c = peek(lexer);
         switch (c) {
             case ' ':
             case '\r':
             case '\t':
-                next();
+                next(lexer);
                 break;
             case '\n':
-                lexer.line++;
-                next();
+                lexer->line++;
+                next(lexer);
                 break;
             case '#':
-                while (peek() != '\n' && !is_eof()) {
-                    next();
+                while (peek(lexer) != '\n' && !is_eof(lexer)) {
+                    next(lexer);
                 }
                 break;
             default:
@@ -307,121 +307,123 @@ void skip_ws(void) {
     }
 }
 
-wchar_t next(void) {
-    lexer.current++;
-    return lexer.current[-1];
+wchar_t next(Lexer *lexer) {
+    lexer->current++;
+    return lexer->current[-1];
 }
 
-Token get_str_tok(void) {
-    while (peek() != '"' && !is_eof()) {
-        if (peek() == '\n') {
-            lexer.line++;
+Token get_str_tok(Lexer *lexer) {
+    while (peek(lexer) != '"' && !is_eof(lexer)) {
+        if (peek(lexer) == '\n') {
+            lexer->line++;
         }
 
-        next();
+        next(lexer);
     }
 
-    if (is_eof()) {
-        return err_tok(L"String is not terminated!");
+    if (is_eof(lexer)) {
+        return err_tok(lexer, L"String is not terminated!");
     }
-    next();
-    return mktok(T_STR);
+    next(lexer);
+    return mktok(lexer, T_STR);
 }
 
-Token get_ident_tok(void) {
-    while ((is_en_alpha(peek()) || is_bn_char(peek())) || is_en_num(peek())) {
-        next();
+Token get_ident_tok(Lexer *lexer) {
+    while ((is_en_alpha(peek(lexer)) || is_bn_char(peek(lexer))) ||
+           is_en_num(peek(lexer))) {
+        next(lexer);
     }
 
-    return mk_id_tok();
+    return mk_id_tok(lexer);
 }
 
-Token get_num_tok(void) {
-    while (is_bn_num(peek()) || is_en_num(peek())) {
-        next();
+Token get_num_tok(Lexer *lexer) {
+    while (is_bn_num(peek(lexer)) || is_en_num(peek(lexer))) {
+        next(lexer);
     }
 
-    if (peek() == '.' && (is_bn_num(peek_next()) || is_en_num(peek_next()))) {
-        next();
-        while (is_bn_num(peek()) || is_en_num(peek())) {
-            next();
+    if (peek(lexer) == '.' &&
+        (is_bn_num(peek_next(lexer)) || is_en_num(peek_next(lexer)))) {
+        next(lexer);
+        while (is_bn_num(peek(lexer)) || is_en_num(peek(lexer))) {
+            next(lexer);
         }
     }
 
-    return mk_num_tok();
+    return mk_num_tok(lexer);
 }
 
-Token get_tok(void) {
-    skip_ws();
+Token get_tok(Lexer *lexer) {
+    skip_ws(lexer);
 
-    lexer.start = lexer.current;
-    if (is_eof()) return mktok(T_EOF);
+    lexer->start = lexer->current;
+    if (is_eof(lexer)) return mktok(lexer, T_EOF);
 
-    wchar_t c = next();
+    wchar_t c = next(lexer);
     if (is_bn_num(c) || is_en_num(c)) {
-        return get_num_tok();
+        return get_num_tok(lexer);
         // wprintf(L"is number ");
     }
     if (is_bn_char(c) || is_en_alpha(c)) {
-        return get_ident_tok();
+        return get_ident_tok(lexer);
     }
     switch (c) {
         case '(':
-            return mktok(T_LPAREN);
+            return mktok(lexer, T_LPAREN);
         case ')':
-            return mktok(T_RPAREN);
+            return mktok(lexer, T_RPAREN);
         case '{':
-            return mktok(T_LBRACE);
+            return mktok(lexer, T_LBRACE);
         case '}':
-            return mktok(T_RBRACE);
+            return mktok(lexer, T_RBRACE);
         case '[':
-            return mktok(T_LSBRACKET);
+            return mktok(lexer, T_LSBRACKET);
         case ']':
-            return mktok(T_RSBRACKET);
+            return mktok(lexer, T_RSBRACKET);
         case '-':
-            return mktok(T_MINUS);
+            return mktok(lexer, T_MINUS);
         case '+':
-            return mktok(T_PLUS);
+            return mktok(lexer, T_PLUS);
         case '/':
-            return mktok(T_DIV);
+            return mktok(lexer, T_DIV);
         case '*':
-            return mktok(T_ASTR);
+            return mktok(lexer, T_ASTR);
         case '.':
-            return mktok(T_DOT);
+            return mktok(lexer, T_DOT);
         case ';':
-            return mktok(T_SEMICOLON);
+            return mktok(lexer, T_SEMICOLON);
         case ',':
-            return mktok(T_COMMA);
+            return mktok(lexer, T_COMMA);
         case '!':
-            if (match_char('=')) {
-                return mktok(T_NOTEQ);
+            if (match_char(lexer, '=')) {
+                return mktok(lexer, T_NOTEQ);
             } else {
-                return mktok(T_BANG);
+                return mktok(lexer, T_BANG);
             }
         case '=':
-            if (match_char('=')) {
-                return mktok(T_EQEQ);
+            if (match_char(lexer, '=')) {
+                return mktok(lexer, T_EQEQ);
             } else {
-                return mktok(T_EQ);
+                return mktok(lexer, T_EQ);
             }
         case '>':
-            if (match_char('=')) {
-                return mktok(T_GTE);
+            if (match_char(lexer, '=')) {
+                return mktok(lexer, T_GTE);
             } else {
-                return mktok(T_GT);
+                return mktok(lexer, T_GT);
             }
         case '<':
-            if (match_char('=')) {
-                return mktok(T_LTE);
+            if (match_char(lexer, '=')) {
+                return mktok(lexer, T_LTE);
             } else {
-                return mktok(T_LT);
+                return mktok(lexer, T_LT);
             }
 
         case '"':
-            return get_str_tok();
+            return get_str_tok(lexer);
     }
 
     // wprintf(L"L-> %lc ", c);
 
-    return err_tok(L"Unknown character");
+    return err_tok(lexer, L"Unknown character");
 }

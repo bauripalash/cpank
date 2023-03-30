@@ -14,22 +14,22 @@
 #include "include/value.h"
 #include "include/vm.h"
 
-#define ALLOCATE_OBJ(type, otype) (type *)alloc_obj(sizeof(type), otype)
+#define ALLOCATE_OBJ(vm, type, otype) (type *)alloc_obj(vm, sizeof(type), otype)
 
-Obj *alloc_obj(size_t size, ObjType type) {
-    Obj *obj = (Obj *)rallc(NULL, 0, size);
+Obj *alloc_obj(PankVm *vm, size_t size, ObjType type) {
+    Obj *obj = (Obj *)rallc(vm, NULL, 0, size);
     obj->type = type;
-    obj->next = vm.objs;
+    obj->next = vm->objs;
     obj->is_marked = false;
-    vm.objs = obj;
+    vm->objs = obj;
 #ifdef DEBUG_LOG_GC
     wprintf(L"%p allocate %zu for %d\n", (void *)obj, size, type);
 #endif
     return obj;
 }
 
-ObjUpVal *new_up_val(Value *val) {
-    ObjUpVal *upv = ALLOCATE_OBJ(ObjUpVal, OBJ_UPVAL);
+ObjUpVal *new_up_val(PankVm *vm, Value *val) {
+    ObjUpVal *upv = ALLOCATE_OBJ(vm, ObjUpVal, OBJ_UPVAL);
     upv->location = val;
     upv->next = NULL;
     upv->closed = make_nil();
@@ -67,16 +67,16 @@ ObjClosure *get_as_closure(Value val) { return (ObjClosure *)get_as_obj(val); }
 ObjMod *get_as_mod(Value val) { return (ObjMod *)get_as_obj(val); }
 
 ObjErr *get_as_err(Value val) { return (ObjErr *)get_as_obj(val); }
-ObjString *allocate_str(wchar_t *chars, int len, uint32_t hash) {
-    ObjString *string = ALLOCATE_OBJ(ObjString, OBJ_STR);
+ObjString *allocate_str(PankVm *vm, wchar_t *chars, int len, uint32_t hash) {
+    ObjString *string = ALLOCATE_OBJ(vm, ObjString, OBJ_STR);
     string->len = len;
     string->chars = chars;
     string->hash = hash;
 
-    push(make_obj_val(string));
+    push(vm, make_obj_val(string));
 
-    table_set(&vm.strings, string, make_nil());
-    pop();
+    table_set(vm, &vm->strings, string, make_nil());
+    pop(vm);
     return string;
 }
 
@@ -114,32 +114,32 @@ uint32_t get_hash(const wchar_t *key, int len) {
     return hash;
 }
 
-ObjString *copy_string(wchar_t *chars, int len) {
+ObjString *copy_string(PankVm *vm, wchar_t *chars, int len) {
     uint32_t hash = get_hash(chars, len);
-    ObjString *interned = table_find_str(&vm.strings, chars, len, hash);
+    ObjString *interned = table_find_str(&vm->strings, chars, len, hash);
     if (interned != NULL) {
         return interned;
     }
-    wchar_t *heap_chars = ALLOC(wchar_t, len + 1);
+    wchar_t *heap_chars = ALLOC(vm, wchar_t, len + 1);
 
     wmemcpy(heap_chars, chars, len);
 
     heap_chars[len] = '\0';
 
-    return allocate_str(heap_chars, len, hash);
+    return allocate_str(vm, heap_chars, len, hash);
 }
 
-ObjString *take_string(wchar_t *chars, int len) {
+ObjString *take_string(PankVm *vm, wchar_t *chars, int len) {
     uint32_t hash = get_hash(chars, len);
 
-    ObjString *interned = table_find_str(&vm.strings, chars, len, hash);
+    ObjString *interned = table_find_str(&vm->strings, chars, len, hash);
 
     if (interned != NULL) {
-        FREE_ARR(wchar_t, chars, len + 1);
+        FREE_ARR(vm, wchar_t, chars, len + 1);
         return interned;
     }
 
-    return allocate_str(chars, len, hash);
+    return allocate_str(vm, chars, len, hash);
 }
 
 void print_function(ObjFunc *func) { cp_print(L"<fn %ls>", func->name->chars); }
@@ -204,8 +204,8 @@ void print_obj(Value val) {
     }
 }
 
-ObjFunc *new_func(void) {
-    ObjFunc *func = ALLOCATE_OBJ(ObjFunc, OBJ_FUNC);
+ObjFunc *new_func(PankVm *vm) {
+    ObjFunc *func = ALLOCATE_OBJ(vm, ObjFunc, OBJ_FUNC);
     func->arity = 0;
     func->name = NULL;
     func->up_count = 0;
@@ -213,41 +213,41 @@ ObjFunc *new_func(void) {
     return func;
 }
 
-ObjArray *new_array(void) {
-    ObjArray *array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY);
+ObjArray *new_array(PankVm *vm) {
+    ObjArray *array = ALLOCATE_OBJ(vm, ObjArray, OBJ_ARRAY);
     array->len = 0;
     init_valarr(&array->items);
     return array;
 }
 
-ObjNative *new_native(NativeFn fn) {
-    ObjNative *native = ALLOCATE_OBJ(ObjNative, OBJ_NATIVE);
+ObjNative *new_native(PankVm *vm, NativeFn fn) {
+    ObjNative *native = ALLOCATE_OBJ(vm, ObjNative, OBJ_NATIVE);
     native->func = fn;
     return native;
 }
 
-ObjClosure *new_closure(ObjFunc *func, uint32_t global_owner) {
-    ObjUpVal **upvs = ALLOC(ObjUpVal *, func->up_count);
+ObjClosure *new_closure(PankVm *vm, ObjFunc *func, uint32_t global_owner) {
+    ObjUpVal **upvs = ALLOC(vm, ObjUpVal *, func->up_count);
     for (int i = 0; i < func->up_count; i++) {
         upvs[i] = NULL;
     }
-    ObjClosure *cls = ALLOCATE_OBJ(ObjClosure, OBJ_CLOUSRE);
+    ObjClosure *cls = ALLOCATE_OBJ(vm, ObjClosure, OBJ_CLOUSRE);
     cls->func = func;
     cls->upv = upvs;
     cls->global_owner = global_owner;
-    cls->globals = &get_mod_by_hash(global_owner)->globals;
+    cls->globals = &get_mod_by_hash(vm, global_owner)->globals;
     cls->upv_count = func->up_count;
     return cls;
 }
 
-ObjMod *new_mod(wchar_t *name) {
-    ObjMod *mod = ALLOCATE_OBJ(ObjMod, OBJ_MOD);
-    mod->name = copy_string(name, wcslen(name));
+ObjMod *new_mod(PankVm *vm, wchar_t *name) {
+    ObjMod *mod = ALLOCATE_OBJ(vm, ObjMod, OBJ_MOD);
+    mod->name = copy_string(vm, name, wcslen(name));
     return mod;
 }
 
-ObjErr *new_err_obj(wchar_t *errmsg) {
-    ObjErr *err = ALLOCATE_OBJ(ObjErr, OBJ_ERR);
+ObjErr *new_err_obj(PankVm *vm, wchar_t *errmsg) {
+    ObjErr *err = ALLOCATE_OBJ(vm, ObjErr, OBJ_ERR);
     err->errmsg = malloc(sizeof(wchar_t) * (wcslen(errmsg) + 1));
     wmemset(err->errmsg, 0, wcslen(errmsg) + 1);
 
@@ -257,4 +257,6 @@ ObjErr *new_err_obj(wchar_t *errmsg) {
     return err;
 }
 
-Value make_error(wchar_t *errmsg) { return make_obj_val(new_err_obj(errmsg)); }
+Value make_error(PankVm *vm, wchar_t *errmsg) {
+    return make_obj_val(new_err_obj(vm, errmsg));
+}

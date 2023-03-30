@@ -59,8 +59,8 @@ typedef struct {
 } Instruction;
 
 void init_instruction(Instruction *ins);
-void write_ins(Instruction *ins, uint8_t bt, int line);
-void free_ins(Instruction *ins);
-int add_const(Instruction *ins, Value val);
+void write_ins(PankVm *vm, Instruction *ins, uint8_t bt, int line);
+void free_ins(PankVm *vm, Instruction *ins);
+int add_const(PankVm *vm, Instruction *ins, Value val);
 bool make_changes_for_mod(Instruction *ins);
 #endif

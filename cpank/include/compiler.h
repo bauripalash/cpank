@@ -11,6 +11,8 @@
 #include "obj.h"
 
 typedef struct Parser {
+    PankVm *vm;
+    Lexer lexer;
     Token cur;
     Token prev;
     bool had_err;
@@ -48,6 +50,7 @@ typedef enum FuncType {
 } FuncType;
 
 typedef struct Compiler {
+    Parser *parser;
     ObjFunc *func;
     FuncType type;
     struct Compiler *enclosing;
@@ -57,10 +60,11 @@ typedef struct Compiler {
     Upval upvs[UINT8_COUNT];
 } Compiler;
 
-void init_comiler(Compiler *compiler, FuncType type);
+void init_compiler(Parser *parser, Compiler *compiler, Compiler *prevcomp,
+                   FuncType type);
 
-ObjFunc *compile(wchar_t *source);
-ObjFunc *end_compiler(void);
-void mark_compiler_roots(void);
-ObjFunc *compile_module(wchar_t *source);
+ObjFunc *compile(PankVm *vm, wchar_t *source);
+ObjFunc *end_compiler(Compiler *compiler);
+void mark_compiler_roots(PankVm *vm);
+ObjFunc *compile_module(PankVm *vm, wchar_t *source);
 #endif

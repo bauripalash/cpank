@@ -9,6 +9,7 @@
 #include "htable.h"
 #include "instruction.h"
 #include "value.h"
+// #include "pank.h"
 
 typedef enum {
     OBJ_STR = 0,
@@ -43,14 +44,14 @@ typedef struct ObjUpVal {
     Value closed;
 } ObjUpVal;
 
-typedef Value (*NativeFn)(int argc, Value *args);
+typedef Value (*NativeFn)(PankVm *vm, int argc, Value *args);
 
 typedef struct {
     Obj obj;
     NativeFn func;
 } ObjNative;
 
-ObjNative *new_native(NativeFn fn);
+ObjNative *new_native(PankVm *vm, NativeFn fn);
 
 typedef struct {
     Obj obj;
@@ -60,7 +61,7 @@ typedef struct {
     uint32_t global_owner;
     Htable *globals;
 } ObjClosure;
-ObjClosure *new_closure(ObjFunc *function, uint32_t global_owner);
+ObjClosure *new_closure(PankVm *vm, ObjFunc *function, uint32_t global_owner);
 
 struct ObjString {
     Obj obj;
@@ -81,9 +82,10 @@ typedef struct ObjArray {
     Valarr items;
 } ObjArray;
 
-ObjFunc *new_func(void);
-ObjUpVal *new_up_val(Value *val);
-ObjArray *new_array(void);
+ObjFunc *new_func(PankVm *vm);
+
+ObjUpVal *new_up_val(PankVm *vm, Value *val);
+ObjArray *new_array(PankVm *vm);
 ObjType get_obj_type(Value val);
 bool is_obj_type(Value val, ObjType ot);
 bool is_str_obj(Value val);
@@ -93,8 +95,8 @@ bool is_closure_obj(Value val);
 bool is_mod_obj(Value val);
 bool is_err_obj(Value val);
 bool is_array_obj(Value val);
-ObjErr *new_err_obj(wchar_t *errmsg);
-Value make_error(wchar_t *errmsg);
+ObjErr *new_err_obj(PankVm *vm, wchar_t *errmsg);
+Value make_error(PankVm *vm, wchar_t *errmsg);
 ObjErr *get_as_err(Value val);
 ObjFunc *get_as_func(Value val);
 ObjClosure *get_as_closure(Value val);
@@ -102,8 +104,8 @@ ObjString *get_as_string(Value val);
 ObjArray *get_as_array(Value val);
 wchar_t *get_as_native_string(Value val);
 NativeFn get_as_native(Value val);
-ObjString *copy_string(wchar_t *chars, int len);
-ObjString *take_string(wchar_t *chars, int len);
+ObjString *copy_string(PankVm *vm, wchar_t *chars, int len);
+ObjString *take_string(PankVm *vm, wchar_t *chars, int len);
 void print_obj(Value val);
 wchar_t *get_obj_type_as_string(ObjType o);
 uint32_t get_hash(const wchar_t *key, int len);

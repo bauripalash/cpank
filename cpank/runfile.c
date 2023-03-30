@@ -9,6 +9,7 @@
 
 #include "include/common.h"
 #include "include/openfile.h"
+#include "include/pank.h"
 #include "include/utils.h"
 #include "include/vm.h"
 
@@ -26,10 +27,10 @@ int run_file(const char *filepath) {
     setlocale(LC_CTYPE, "");
     mbstowcs(src, raw.source, raw.size + 1);
 
-    boot_vm();
+    PankVm *vm = boot_vm();
 
     // wprintf(L"SOURCE_W -> %ls", src);
-    IResult res = interpret(src);
+    IResult res = interpret(vm, src);
 
     switch (res) {
         case INTRP_RUNTIME_ERR:
@@ -50,7 +51,7 @@ int run_file(const char *filepath) {
     }
 
     // free(src);
-    free_vm();
+    free_vm(vm);
 
     free(src);
 

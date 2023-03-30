@@ -22,8 +22,8 @@ void init_table(Htable *table) {
     table->entries = NULL;
 }
 
-void free_table(Htable *table) {
-    FREE_ARR(Entry, table->entries, table->cap);
+void free_table(PankVm *vm, Htable *table) {
+    FREE_ARR(vm, Entry, table->entries, table->cap);
     init_table(table);
 }
 
@@ -50,12 +50,12 @@ static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
     }
 }
 
-static void adjust_cap(Htable *table, int cap) {
+static void adjust_cap(PankVm *vm, Htable *table, int cap) {
     // wprintf(L"ADJUST CAP -> len->%d | cap->%d | nowcap->%d\n" , table->len ,
     // table->cap , cap);
 
     // wprintf(L"loop -> table cap %d\n" , table->cap);
-    Entry *entries = ALLOC(Entry, cap);
+    Entry *entries = ALLOC(vm, Entry, cap);
     for (int i = 0; i < cap; i++) {
         entries[i].key = NULL;
         entries[i].val = make_nil();
@@ -86,7 +86,7 @@ static void adjust_cap(Htable *table, int cap) {
         dest->val = entry->val;
         table->len++;
     }
-    FREE_ARR(Entry, table->entries, table->cap);
+    FREE_ARR(vm, Entry, table->entries, table->cap);
 
     table->entries = entries;
     table->cap = cap;
@@ -95,11 +95,11 @@ static void adjust_cap(Htable *table, int cap) {
     // table->cap , cap);
 }
 
-bool table_set(Htable *table, ObjString *key, Value value) {
+bool table_set(PankVm *vm, Htable *table, ObjString *key, Value value) {
     if (table->len + 1 > table->cap * TABLE_MAX_LD) {
         int cap = GROW_CAP(table->cap);
         // wprintf(L"growing table for -> %ls\n" , key->chars);
-        adjust_cap(table, cap);
+        adjust_cap(vm, table, cap);
     }
 
     Entry *entry = find_entry(table->entries, table->cap, key);
@@ -149,11 +149,11 @@ bool table_del(Htable *table, ObjString *key) {
     return true;
 }
 
-void copy_table(Htable *from, Htable *to) {
+void copy_table(PankVm *vm, Htable *from, Htable *to) {
     for (int i = 0; i < from->cap; i++) {
         Entry *entry = &from->entries[i];
         if (entry->key != NULL) {
-            table_set(to, entry->key, entry->val);
+            table_set(vm, to, entry->key, entry->val);
         }
     }
 }
@@ -195,11 +195,11 @@ ObjString *table_find_str(Htable *table, wchar_t *chars, int len,
     }
 }
 
-void mark_table(Htable *table) {
+void mark_table(PankVm *vm, Htable *table) {
     for (int i = 0; i < table->cap; i++) {
         Entry *entry = &table->entries[i];
-        mark_obj((Obj *)entry->key);
-        mark_val(entry->val);
+        mark_obj(vm, (Obj *)entry->key);
+        mark_val(vm, entry->val);
     }
 }
 

@@ -1,6 +1,7 @@
 #ifndef cpank_value_h
 #define cpank_value_h
 #include "common.h"
+#include "pank.h"
 
 typedef struct Obj Obj;
 typedef struct ObjString ObjString;
@@ -44,8 +45,8 @@ typedef struct {
 } Valarr;
 
 void init_valarr(Valarr *array);
-void write_valarr(Valarr *array, Value value);
-void free_valarr(Valarr *array);
+void write_valarr(PankVm *vm, Valarr *array, Value value);
+void free_valarr(PankVm *vm, Valarr *array);
 void print_val(Value val);
 
 #endif

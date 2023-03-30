@@ -1,0 +1,6 @@
+fun hello(name)
+	show "hello " + name;
+end
+
+hello("palash");
+

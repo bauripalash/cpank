@@ -2,6 +2,7 @@
 #include <wchar.h>
 
 #include "include/obj.h"
+#include "include/pank.h"
 #include "include/utils.h"
 #include "include/value.h"
 #include "include/vm.h"
@@ -17,11 +18,12 @@ T tc(char *n, wchar_t *s, Value ex) {
 }
 
 Value fetch_last_pop(wchar_t *src) {
-    boot_vm();
-    interpret(src);
+    PankVm *vm = boot_vm();
 
-    Value result = get_last_pop();
-    // free_vm();
+    interpret(vm, src);
+
+    Value result = get_last_pop(vm);
+    free_vm(vm);
     return result;
 }
 
@@ -75,6 +77,6 @@ int main(void) {
         }
     }
 
-    free_vm();
+    // free_vm();
     return fail ? 1 : 0;
 }
