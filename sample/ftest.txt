@@ -1,5 +1,5 @@
 fun hello(name)
-	show "hello " + name;
+	show "Hey " + name;
 end
 
 hello("palash");

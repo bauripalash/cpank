@@ -7,7 +7,7 @@
 #include "include/value.h"
 #include "include/vm.h"
 
-#define DEBUG_PRINT_CODE
+// #define DEBUG_PRINT_CODE
 
 #ifdef DEBUG_PRINT_CODE
 #include "include/debug.h"
@@ -717,16 +717,15 @@ static void build_func(Compiler *compiler, Compiler *funcCompiler,
             if (funcCompiler->func->arity > 256) {
                 err_at_cur(funcCompiler->parser, L"too many function params");
             }
-            uint8_t con = parse_var(compiler, L"Expected param name");
-            define_var(compiler, con);
+            uint8_t con = parse_var(funcCompiler, L"Expected param name");
+            define_var(funcCompiler, con);
         } while (match_tok(funcCompiler, T_COMMA));
     }
 
     eat_tok(funcCompiler, T_RPAREN, L"expected ')' after func params");
     read_to_end(funcCompiler);
     ObjFunc *fn = end_compiler(funcCompiler);
-    emit_two(funcCompiler, OP_CLOSURE,
-             make_const(funcCompiler, make_obj_val(fn)));
+    emit_two(compiler, OP_CLOSURE, make_const(compiler, make_obj_val(fn)));
 
     for (int i = 0; i < fn->up_count; i++) {
         emit_bt(funcCompiler, funcCompiler->upvs[i].is_local ? 1 : 0);
@@ -735,11 +734,18 @@ static void build_func(Compiler *compiler, Compiler *funcCompiler,
     }
 }
 
-static void funct_declr(Compiler *compiler) {
+static void mk_func(Compiler *compiler, FuncType type) {
     Compiler funcCompiler;
+    build_func(compiler, &funcCompiler, type);
+    // end_compiler(&funcCompiler);
+}
+
+static void funct_declr(Compiler *compiler) {
+    // Compiler funcCompiler;
     uint8_t global = parse_var(compiler, L"Expected function name");
-    mark_init(compiler);
-    build_func(compiler, &funcCompiler, FTYPE_FUNC);
+    mk_func(compiler, FTYPE_FUNC);
+    // mark_init(compiler);
+    // build_func(compiler, &funcCompiler, FTYPE_FUNC);
     define_var(compiler, global);
 }
 

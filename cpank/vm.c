@@ -23,6 +23,8 @@
 #include "include/utils.h"
 #include "include/value.h"
 
+// #define DEBUG_STACK
+
 // PankVm vm;
 const wchar_t *default_mod = L"_d_";
 // #define DEBUG_STACK
@@ -467,7 +469,7 @@ IResult run_vm(PankVm *vm) {
     for (;;) {
 #ifdef DEBUG_STACK
         wprintf(L"------ STACK ----\n");
-        for (Value *slt = vm.stack; slt < vm.stack_top; slt++) {
+        for (Value *slt = vm->stack; slt < vm->stack_top; slt++) {
             wprintf(L"[ ");
             print_val(*slt);
             wprintf(L" ]\n");
@@ -482,6 +484,7 @@ IResult run_vm(PankVm *vm) {
 #endif
 
         uint8_t ins = read_bt(frame);
+        // cp_println(L"]]]]]]]]]] OPCODE -> %s" , print_opcode(ins));
         switch (ins) {
             case OP_END_MOD:
                 pop(vm);  // in modules last nil still exists
