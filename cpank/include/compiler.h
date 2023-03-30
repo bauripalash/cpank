@@ -65,6 +65,6 @@ void init_compiler(Parser *parser, Compiler *compiler, Compiler *prevcomp,
 
 ObjFunc *compile(PankVm *vm, wchar_t *source);
 ObjFunc *end_compiler(Compiler *compiler);
-void mark_compiler_roots(PankVm *vm);
+void mark_compiler_roots(PankVm *vm, Compiler *compiler);
 ObjFunc *compile_module(PankVm *vm, wchar_t *source);
 #endif

@@ -937,7 +937,7 @@ ObjFunc *compile_module(PankVm *vm, wchar_t *source) {
 
     ObjFunc *fn = end_compiler(&modcompiler);
 
-    mark_compiler_roots(vm);
+    mark_compiler_roots(vm, &modcompiler);
 
     if (!parser.had_err) {
         make_changes_for_mod(&fn->ins);
@@ -946,14 +946,14 @@ ObjFunc *compile_module(PankVm *vm, wchar_t *source) {
     return parser.had_err ? NULL : fn;
 }
 
-void mark_compiler_roots(PankVm *vm) {
-    Compiler *compiler = vm->compiler;
-    while (compiler != NULL) {
+void mark_compiler_roots(PankVm *vm, Compiler *compiler) {
+    do {
 #ifdef DEBUG_LOG_GC
 
         wprintf(L">>>>marking compiler function<<<<<\n");
 
 #endif
+
         mark_obj(vm, (Obj *)compiler->func);
 
 #ifdef DEBUG_LOG_GC
@@ -962,5 +962,5 @@ void mark_compiler_roots(PankVm *vm) {
 
 #endif
         compiler = compiler->enclosing;
-    }
+    } while (compiler != NULL);
 }

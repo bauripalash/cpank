@@ -33,6 +33,7 @@ void reset_stack(PankVm *vm) { vm->stack_top = vm->stack; }
 
 PankVm *boot_vm(void) {
     PankVm *vm = malloc(sizeof(PankVm));
+    memset(vm, 0, sizeof(PankVm));
     reset_stack(vm);
     gcon.is_paused = false;
     vm->objs = NULL;
@@ -176,6 +177,7 @@ void free_vm(PankVm *vm) {
         free_module(vm, &vm->modules[i]);
     }
     free_objs(vm);
+    free(vm);
 }
 
 Value get_last_pop(PankVm *vm) {

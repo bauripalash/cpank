@@ -268,7 +268,9 @@ void mark_roots(PankVm *vm) {
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] Marking Compiler Roots");
 #endif
-    mark_compiler_roots(vm);
+    if (vm->compiler != NULL) {
+        mark_compiler_roots(vm, vm->compiler);
+    }
 #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] Finished Marking Compiler Roots");
 #endif
