@@ -20,6 +20,7 @@ typedef enum {
     OBJ_MOD,
     OBJ_ARRAY,
     OBJ_ERR,
+    OBJ_HMAP,
 } ObjType;
 
 struct Obj {
@@ -84,6 +85,20 @@ typedef struct ObjArray {
     Valarr items;
 } ObjArray;
 
+typedef struct {
+    Value key;
+    Value val;
+    uint32_t hash;
+} HmapItem;
+
+typedef struct {
+    Obj obj;
+    int count;
+    int cap;
+    HmapItem *items;
+} ObjHashMap;
+
+ObjHashMap *new_hmap(PankVm *vm);
 ObjFunc *new_func(PankVm *vm);
 
 ObjUpVal *new_up_val(PankVm *vm, Value *val);

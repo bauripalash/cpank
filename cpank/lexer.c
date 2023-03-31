@@ -114,6 +114,8 @@ const char *toktype_to_string(TokType t) {
             return "T_LSBRACKET";
         case T_RSBRACKET:
             return "T_RSBRACKET";
+        case T_COLON:
+            return "T_COLON";
     };
 
     return "UNKNOWN_TOKEN";
@@ -392,6 +394,8 @@ Token get_tok(Lexer *lexer) {
             return mktok(lexer, T_DOT);
         case ';':
             return mktok(lexer, T_SEMICOLON);
+        case ':':
+            return mktok(lexer, T_COLON);
         case ',':
             return mktok(lexer, T_COMMA);
         case '!':

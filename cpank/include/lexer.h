@@ -27,6 +27,7 @@ typedef enum {
     T_EQ,
     // ==
     T_EQEQ,
+    T_COLON,
     // >
     T_GT,
     // >=

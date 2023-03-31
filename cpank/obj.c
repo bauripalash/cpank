@@ -1,5 +1,6 @@
 #include "include/obj.h"
 
+#include <math.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -100,6 +101,8 @@ wchar_t *get_obj_type_as_string(ObjType o) {
             return L"OBJ_ERR";
         case OBJ_ARRAY:
             return L"OBJ_ARRAY";
+        case OBJ_HMAP:
+            return L"OBJ_HMAP";
     }
 
     return L"OBJ_UNKNOWN";
@@ -271,4 +274,127 @@ ObjErr *new_err_obj(PankVm *vm, wchar_t *errmsg) {
 
 Value make_error(PankVm *vm, wchar_t *errmsg) {
     return make_obj_val(new_err_obj(vm, errmsg));
+}
+
+ObjHashMap *new_hmap(PankVm *vm) {
+    ObjHashMap *map = ALLOCATE_OBJ(vm, ObjHashMap, OBJ_HMAP);
+    map->cap = 0;
+    map->count = 0;
+    map->items = NULL;
+    return map;
+}
+
+static uint32_t get_obj_hash(Obj *obj) {
+    if (obj->type != OBJ_STR) {
+        return 0;
+    }
+
+    return ((ObjString *)obj)->hash;
+}
+
+static uint32_t hash_uint(uint32_t value) {
+    uint32_t hash = 0;
+    hash = ~value + (value << 18);
+    hash = hash ^ (hash >> 31);
+    hash = hash * 21;
+    hash = hash ^ (hash >> 11);
+    hash = hash + (hash << 6);
+    hash = hash ^ (hash >> 22);
+    return (uint32_t)(hash & 0x3fffffff);
+}
+
+static uint32_t get_value_hash(Value value) {
+    // VM Must check for invalid values!
+    switch (value.type) {
+        case V_BOOL:
+            return hash_uint((uint32_t)get_as_bool(value));
+        case V_NUM: {
+            double n = get_as_number(value);
+            if (n < 0 || ceil(n) != n) {
+                return 0;
+            } else {
+                return hash_uint((uint32_t)n);
+            }
+        }
+        case V_OBJ:
+            return get_obj_hash(get_as_obj(value));
+        case V_NIL:
+            return 0;
+    }
+}
+
+bool hmap_get(ObjHashMap *map, Value key, Value *val) {
+    if (map->count == 0) {
+        return false;
+    }
+    HmapItem *item = NULL;
+    uint32_t idx = get_value_hash(key) & map->cap;
+
+    for (;;) {
+        item = &map->items[idx];
+
+        if (is_nil(item->key)) {
+            if (is_obj(item->key) && get_as_obj(item->key) == NULL) {
+                return false;
+            }
+        }
+
+        if (is_equal(key, item->key)) {
+            break;
+        }
+
+        idx = (idx + 1) & (map->cap - 1);
+    }
+
+    *val = item->val;
+
+    return false;
+}
+
+void adjust_map_cap(PankVm *vm, ObjHashMap *map, int cap) {
+    HmapItem *items = ALLOC(vm, HmapItem, cap);
+    for (int i = 0; i < cap; i++) {
+        items[i].key = make_nil();
+        items[i].val = make_nil();
+    }
+
+    map->count = 0;
+    // HmapItem * olditems = map->items;
+}
+
+bool hmap_set(PankVm *vm, ObjHashMap *map, Value key, Value val) {
+    if (map->count + 1 > map->cap * 0.75) {
+        int cap = GROW_CAP(map->cap);
+        adjust_map_cap(vm, map, cap);
+    }
+
+    uint32_t index = get_value_hash(key) & (map->cap - 1);
+
+    HmapItem *buckt;
+    bool is_new_key = false;
+    HmapItem item;
+    item.key = key;
+    item.val = val;
+    item.hash = get_value_hash(key);
+
+    for (;;) {
+        buckt = &map->items[index];
+        if (is_nil(buckt->key)) {
+            is_new_key = true;
+            break;
+        } else {
+            if (is_equal(key, buckt->key)) {
+                break;
+            }
+        }
+
+        index = (index + 1) & (map->cap - 1);
+    }
+
+    *buckt = item;
+    if (is_new_key) {
+        map->count++;
+    }
+
+    return is_new_key;
 }
