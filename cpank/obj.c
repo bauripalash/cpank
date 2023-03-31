@@ -353,6 +353,19 @@ static uint32_t get_value_hash(Value value) {
     }
 }
 
+bool is_valid_hashmap_key(Value val) {
+    if (val.type == V_NIL) {
+        return false;
+    } else if (val.type == V_OBJ) {
+        Obj *o = get_as_obj(val);
+        if (o->type != OBJ_STR) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 static HmapItem *find_value_in_hmap(HmapItem *entries, int cap, Value key) {
     uint32_t key_hash = get_value_hash(key);
     uint8_t index = key_hash & (cap - 1);

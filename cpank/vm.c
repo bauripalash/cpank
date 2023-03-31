@@ -746,7 +746,15 @@ IResult run_vm(PankVm *vm) {
                 ObjHashMap *hmap = new_hmap(vm);
                 push(vm, make_obj_val(hmap));
                 for (int i = len * 2; i > 0; i -= 2) {
-                    hmap_set(vm, hmap, peek_vm(vm, i), peek_vm(vm, i - 1));
+                    Value key = peek_vm(vm, i);
+                    // print_val(key);
+                    if (!is_valid_hashmap_key(key)) {
+                        runtime_err(
+                            vm,
+                            L"this value can not be used as key for hashmaps");
+                        return INTRP_RUNTIME_ERR;
+                    }
+                    hmap_set(vm, hmap, key, peek_vm(vm, i - 1));
                 }
 
                 vm->stack_top -= len * 2 + 1;

@@ -185,11 +185,13 @@ void blacken_obj(PankVm *vm, Obj *obj) {
             for (int i = 0; i < array->len; i++) {
                 mark_val(vm, array->items.values[i]);
             }
+            break;
         }
         case OBJ_HMAP: {
             ObjHashMap *hmap = (ObjHashMap *)obj;
             for (int i = 0; i < hmap->cap; i++) {
                 HmapItem *item = &hmap->items[i];
+
                 mark_val(vm, item->key);
                 mark_val(vm, item->val);
             }

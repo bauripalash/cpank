@@ -136,6 +136,8 @@ ObjHashMap *get_as_hmap(Value val);
 bool is_map_obj(Value val);
 
 bool is_obj_equal(Obj *a, Obj *b);
+
+bool is_valid_hashmap_key(Value val);
 /*
 #define get_as_native(value) \
   (((ObjNative *)get_as_obj(value))->func)
