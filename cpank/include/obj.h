@@ -127,6 +127,15 @@ void print_obj(Value val);
 wchar_t *get_obj_type_as_string(ObjType o);
 uint32_t get_hash(const wchar_t *key, int len);
 
+bool hmap_get(ObjHashMap *map, Value key, Value *val);
+
+bool hmap_set(PankVm *vm, ObjHashMap *map, Value key, Value val);
+
+ObjHashMap *get_as_hmap(Value val);
+
+bool is_map_obj(Value val);
+
+bool is_obj_equal(Obj *a, Obj *b);
 /*
 #define get_as_native(value) \
   (((ObjNative *)get_as_obj(value))->func)

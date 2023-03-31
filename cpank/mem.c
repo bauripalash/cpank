@@ -108,6 +108,12 @@ void free_single_obj(PankVm *vm, Obj *obj) {
             FREE(vm, ObjArray, obj);
             break;
         }
+        case OBJ_HMAP: {
+            ObjHashMap *hmap = (ObjHashMap *)obj;
+            FREE_ARR(vm, HmapItem, hmap->items, hmap->cap);
+            FREE(vm, ObjHashMap, hmap);
+            break;
+        }
     }
 }
 
@@ -178,6 +184,14 @@ void blacken_obj(PankVm *vm, Obj *obj) {
             array->obj.is_marked = true;
             for (int i = 0; i < array->len; i++) {
                 mark_val(vm, array->items.values[i]);
+            }
+        }
+        case OBJ_HMAP: {
+            ObjHashMap *hmap = (ObjHashMap *)obj;
+            for (int i = 0; i < hmap->cap; i++) {
+                HmapItem *item = &hmap->items[i];
+                mark_val(vm, item->key);
+                mark_val(vm, item->val);
             }
         }
     }

@@ -741,33 +741,59 @@ IResult run_vm(PankVm *vm) {
                 push(vm, make_obj_val(array));
                 break;
             }
-            case OP_ARR_INDEX: {
-                Value raw_index = peek_vm(vm, 0);
-                if (!is_num(raw_index)) {
-                    runtime_err(vm, L"arrays can be only indexed with numbers");
-                    return INTRP_RUNTIME_ERR;
-                }
-                double index = get_as_number(raw_index);
-                if (index < 0 || ceil(index) != index) {
-                    runtime_err(
-                        vm, L"array index can only be non negetive integers");
-                    return INTRP_RUNTIME_ERR;
-                }
-                Value raw_array = peek_vm(vm, 1);
-                if (!is_array_obj(raw_array)) {
-                    runtime_err(vm, L"only arrays can be indexed");
-                    return INTRP_RUNTIME_ERR;
-                }
-                ObjArray *array = get_as_array(raw_array);
-                if (index >= array->len) {
-                    runtime_err(vm, L"Index out of range error");
-                    return INTRP_RUNTIME_ERR;
+            case OP_HMAP: {
+                int len = read_bt(frame);
+                ObjHashMap *hmap = new_hmap(vm);
+                push(vm, make_obj_val(hmap));
+                for (int i = len * 2; i > 0; i -= 2) {
+                    hmap_set(vm, hmap, peek_vm(vm, i), peek_vm(vm, i - 1));
                 }
 
-                Value val = array->items.values[(int)index];
-                pop(vm);
-                pop(vm);
-                push(vm, val);
+                vm->stack_top -= len * 2 + 1;
+                push(vm, make_obj_val(hmap));
+                break;
+            }
+            case OP_ARR_INDEX: {
+                Value raw_index = peek_vm(vm, 0);
+                Value raw_obj = peek_vm(vm, 1);
+                if (is_array_obj(raw_obj)) {
+                    if (!is_num(raw_index)) {
+                        runtime_err(vm,
+                                    L"arrays can be only indexed with numbers");
+                        return INTRP_RUNTIME_ERR;
+                    }
+                    double index = get_as_number(raw_index);
+                    if (index < 0 || ceil(index) != index) {
+                        runtime_err(
+                            vm,
+                            L"array index can only be non negetive integers");
+                        return INTRP_RUNTIME_ERR;
+                    }
+                    ObjArray *array = get_as_array(raw_obj);
+                    if (index >= array->len) {
+                        runtime_err(vm, L"Index out of range error");
+                        return INTRP_RUNTIME_ERR;
+                    }
+
+                    Value val = array->items.values[(int)index];
+                    pop(vm);
+                    pop(vm);
+                    push(vm, val);
+                } else if (is_map_obj(raw_obj)) {
+                    ObjHashMap *hmap = get_as_hmap(raw_obj);
+                    Value val;
+                    bool found = hmap_get(hmap, raw_index, &val);
+                    if (!found) {
+                        runtime_err(vm, L"key not found in hashmap");
+                        return INTRP_RUNTIME_ERR;
+                    }
+                    pop(vm);
+                    pop(vm);
+                    push(vm, val);
+                } else {
+                    runtime_err(vm, L"Only arrays and hashmaps can be indexed");
+                    return INTRP_RUNTIME_ERR;
+                }
 
                 break;
             }

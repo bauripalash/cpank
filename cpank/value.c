@@ -93,7 +93,7 @@ bool is_equal(Value left, Value right) {
         case V_NUM:
             return get_as_number(left) == get_as_number(right);
         case V_OBJ: {
-            return get_as_obj(left) == get_as_obj(right);
+            return is_obj_equal(get_as_obj(left), get_as_obj(right));
             // ObjString *l_string = get_as_string(left);
             // ObjString *r_string = get_as_string(right);
             // return l_string->len == r_string->len &&

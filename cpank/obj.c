@@ -47,6 +47,8 @@ bool is_str_obj(Value val) { return is_obj_type(val, OBJ_STR); }
 bool is_func_obj(Value val) { return is_obj_type(val, OBJ_FUNC); }
 bool is_native_obj(Value val) { return is_obj_type(val, OBJ_NATIVE); }
 bool is_closure_obj(Value val) { return is_obj_type(val, OBJ_CLOUSRE); }
+
+bool is_map_obj(Value val) { return is_obj_type(val, OBJ_HMAP); }
 bool is_mod_obj(Value val) { return is_obj_type(val, OBJ_MOD); }
 bool is_err_obj(Value val) { return is_obj_type(val, OBJ_ERR); }
 bool is_array_obj(Value val) { return is_obj_type(val, OBJ_ARRAY); }
@@ -67,6 +69,7 @@ ObjClosure *get_as_closure(Value val) { return (ObjClosure *)get_as_obj(val); }
 
 ObjMod *get_as_mod(Value val) { return (ObjMod *)get_as_obj(val); }
 
+ObjHashMap *get_as_hmap(Value val) { return (ObjHashMap *)get_as_obj(val); }
 ObjErr *get_as_err(Value val) { return (ObjErr *)get_as_obj(val); }
 ObjString *allocate_str(PankVm *vm, wchar_t *chars, int len, uint32_t hash) {
     ObjString *string = ALLOCATE_OBJ(vm, ObjString, OBJ_STR);
@@ -147,6 +150,18 @@ ObjString *take_string(PankVm *vm, wchar_t *chars, int len) {
 
 void print_function(ObjFunc *func) { cp_print(L"<fn %ls>", func->name->chars); }
 
+bool is_obj_equal(Obj *a, Obj *b) {
+    if (a->type != b->type) {
+        return false;
+    }
+    switch (a->type) {
+        case OBJ_STR:
+            return ((ObjString *)a)->hash == ((ObjString *)b)->hash;
+        default:
+            return false;
+    }
+}
+
 void print_obj(Value val) {
     switch (get_obj_type(val)) {
         case OBJ_STR:
@@ -205,6 +220,21 @@ void print_obj(Value val) {
                 cp_print(L", ");
             }
             cp_print(L"]");
+            break;
+        }
+        case OBJ_HMAP: {
+            ObjHashMap *map = get_as_hmap(val);
+            cp_print(L"{");
+            for (int i = 0; i < map->cap; i++) {
+                HmapItem *item = &map->items[i];
+                if (item != NULL && !is_nil(item->key)) {
+                    print_val(item->key);
+                    cp_print(L": ");
+                    print_val(item->val);
+                    cp_print(L" ,");
+                }
+            }
+            cp_print(L"}");
             break;
         }
         default: {
@@ -323,32 +353,40 @@ static uint32_t get_value_hash(Value value) {
     }
 }
 
+static HmapItem *find_value_in_hmap(HmapItem *entries, int cap, Value key) {
+    uint32_t key_hash = get_value_hash(key);
+    uint8_t index = key_hash & (cap - 1);
+    HmapItem *tombstone = NULL;
+    for (;;) {
+        HmapItem *entry = &entries[index];
+        if (is_nil(entry->key)) {
+            if (is_nil(entry->val)) {
+                return tombstone != NULL ? tombstone : entry;
+            } else {
+                if (tombstone == NULL) {
+                    tombstone = entry;
+                }
+            }
+
+        } else if (is_equal(entry->key, key)) {
+            return entry;
+        }
+
+        index = (index + 1) & (cap - 1);
+    }
+}
+
 bool hmap_get(ObjHashMap *map, Value key, Value *val) {
     if (map->count == 0) {
         return false;
     }
-    HmapItem *item = NULL;
-    uint32_t idx = get_value_hash(key) & map->cap;
-
-    for (;;) {
-        item = &map->items[idx];
-
-        if (is_nil(item->key)) {
-            if (is_obj(item->key) && get_as_obj(item->key) == NULL) {
-                return false;
-            }
-        }
-
-        if (is_equal(key, item->key)) {
-            break;
-        }
-
-        idx = (idx + 1) & (map->cap - 1);
+    HmapItem *item = find_value_in_hmap(map->items, map->cap, key);
+    if (item == NULL || is_nil(item->key)) {
+        return false;
     }
-
     *val = item->val;
 
-    return false;
+    return true;
 }
 
 void adjust_map_cap(PankVm *vm, ObjHashMap *map, int cap) {
@@ -359,7 +397,22 @@ void adjust_map_cap(PankVm *vm, ObjHashMap *map, int cap) {
     }
 
     map->count = 0;
-    // HmapItem * olditems = map->items;
+    HmapItem *olditems = map->items;
+    int oldcap = map->cap;
+
+    map->count = 0;
+    map->items = items;
+    map->cap = cap;
+
+    for (int i = 0; i < oldcap; i++) {
+        HmapItem *item = &olditems[i];
+        if (is_nil(item->key)) {
+            continue;
+        }
+        hmap_set(vm, map, item->key, item->val);
+    }
+
+    FREE_ARR(vm, HmapItem, olditems, oldcap);
 }
 
 bool hmap_set(PankVm *vm, ObjHashMap *map, Value key, Value val) {
@@ -390,6 +443,12 @@ bool hmap_set(PankVm *vm, ObjHashMap *map, Value key, Value val) {
 
         index = (index + 1) & (map->cap - 1);
     }
+
+    /*cp_print(L"H_1 -> KEY ->> ");
+    print_val(item.key);
+    cp_print(L" | VAL ->> ");
+    print_val(item.val);
+    cp_println(L"");*/
 
     *buckt = item;
     if (is_new_key) {

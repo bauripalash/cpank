@@ -1,0 +1,3 @@
+let d = {"name" : "palash" , "age" : 20 , 1 : 2};
+show d;
+show d[1];

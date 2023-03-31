@@ -129,6 +129,8 @@ int dissm_ins(Instruction *ins, int offset) {
             return simple_ins("OP_ERR", offset);
         case OP_ARR_INDEX:
             return simple_ins("OP_ARR_INDEX", offset);
+        case OP_HMAP:
+            return bt_ins("OP_HMAP", ins, offset);
         case OP_CLOSURE:
             offset++;
             uint8_t con = ins->code[offset++];
@@ -231,6 +233,8 @@ const char *print_opcode(Op op) {
             return "OP_ERR";
         case OP_ARR_INDEX:
             return "OP_ARR_INDEX";
+        case OP_HMAP:
+            return "OP_HMAP";
     }
     return "Unknown Opcode";
 }

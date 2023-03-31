@@ -8,7 +8,7 @@
 #include "include/value.h"
 #include "include/vm.h"
 
-// #define DEBUG_PRINT_CODE
+#define DEBUG_PRINT_CODE
 
 #ifdef DEBUG_PRINT_CODE
 #include "include/debug.h"
@@ -501,10 +501,26 @@ void read_dot(Compiler *compiler, bool can_assign) {
     }
 }
 
+void read_hmap(Compiler *compiler, bool can_assign) {
+    int count = 0;
+    do {
+        if (check_tok(compiler, T_RBRACE)) {
+            break;
+        }
+        read_expr(compiler);
+        eat_tok(compiler, T_COLON, L"expected ':' after hashmap key");
+        read_expr(compiler);
+        count++;
+    } while (match_tok(compiler, T_COMMA));
+
+    eat_tok(compiler, T_RBRACE, L"expected '}' after hashmap");
+    emit_two(compiler, OP_HMAP, (uint8_t)count);
+}
+
 ParseRule parse_rules[] = {
     [T_LPAREN] = {read_group, read_call, PREC_CALL},
     [T_RPAREN] = {NULL, NULL, PREC_NONE},
-    [T_LBRACE] = {NULL, NULL, PREC_NONE},
+    [T_LBRACE] = {read_hmap, NULL, PREC_NONE},
     [T_RBRACE] = {NULL, NULL, PREC_NONE},
     [T_COMMA] = {NULL, NULL, PREC_NONE},
     [T_DOT] = {NULL, read_dot, PREC_CALL},
