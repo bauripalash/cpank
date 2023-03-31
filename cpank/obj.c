@@ -160,9 +160,16 @@ void print_obj(Value val) {
             }
             break;
         }
-        case OBJ_NATIVE:
-            cp_print(L"<native_fn>");
+        case OBJ_NATIVE: {
+            ObjNative *native = (ObjNative *)get_as_obj(val);
+            if (native->name != NULL) {
+                cp_print(L"<native func '%ls'>", native->name);
+
+            } else {
+                cp_print(L"<native func >");
+            }
             break;
+        }
         case OBJ_CLOUSRE: {
             ObjClosure *cls = get_as_closure(val);
             if (cls != NULL && cls->func != NULL && cls->func->name != NULL) {
@@ -220,9 +227,14 @@ ObjArray *new_array(PankVm *vm) {
     return array;
 }
 
-ObjNative *new_native(PankVm *vm, NativeFn fn) {
+ObjNative *new_native(PankVm *vm, NativeFn fn, wchar_t *name) {
     ObjNative *native = ALLOCATE_OBJ(vm, ObjNative, OBJ_NATIVE);
     native->func = fn;
+    size_t namelen = wcslen(name) + 1;
+    native->name = (wchar_t *)malloc(sizeof(wchar_t) * namelen);
+    wmemset(native->name, 0, namelen);
+    wmemcpy(native->name, name, namelen);
+    native->name_len = namelen - 1;
     return native;
 }
 

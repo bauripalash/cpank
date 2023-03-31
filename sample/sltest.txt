@@ -16,4 +16,3 @@ show "loge";
 show m.loge(11);
 show "logx";
 show m.logx(10 , 11);
-

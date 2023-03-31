@@ -142,7 +142,7 @@ void free_module(PankVm *vm, Module *mod) {
 
 void define_native(PankVm *vm, wchar_t *name, NativeFn func) {
     push(vm, make_obj_val(copy_string(vm, name, (int)wcslen(name))));  // peek 1
-    push(vm, make_obj_val(new_native(vm, func)));                      // peek 0
+    push(vm, make_obj_val(new_native(vm, func, name)));                // peek 0
     table_set(vm, &vm->builtins, get_as_string(vm->stack[0]), vm->stack[1]);
     pop(vm);
     pop(vm);

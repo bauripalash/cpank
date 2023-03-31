@@ -49,9 +49,11 @@ typedef Value (*NativeFn)(PankVm *vm, int argc, Value *args);
 typedef struct {
     Obj obj;
     NativeFn func;
+    wchar_t *name;
+    int name_len;
 } ObjNative;
 
-ObjNative *new_native(PankVm *vm, NativeFn fn);
+ObjNative *new_native(PankVm *vm, NativeFn fn, wchar_t *name);
 
 typedef struct {
     Obj obj;

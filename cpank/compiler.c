@@ -8,7 +8,7 @@
 #include "include/value.h"
 #include "include/vm.h"
 
-//#define DEBUG_PRINT_CODE
+// #define DEBUG_PRINT_CODE
 
 #ifdef DEBUG_PRINT_CODE
 #include "include/debug.h"

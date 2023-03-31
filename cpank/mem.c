@@ -21,7 +21,7 @@ GcConfig gcon;
 
 // #define NOGC
 
- #define DEBUG_STRES_GC
+#define DEBUG_STRES_GC
 #ifdef DEBUG_LOG_GC
 #include "include/debug.h"
 #endif
@@ -76,6 +76,8 @@ void free_single_obj(PankVm *vm, Obj *obj) {
             break;
         }
         case OBJ_NATIVE: {
+            ObjNative *native = (ObjNative *)obj;
+            FREE_ARR(vm, wchar_t, native->name, native->name_len + 1);
             FREE(vm, ObjNative, obj);
             break;
         }

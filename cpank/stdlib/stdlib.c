@@ -26,7 +26,7 @@ int _push_stdlib(PankVm* vm, wchar_t* stdname, SL funcs[], int len) {
         SL* f = &funcs[i];
         ObjString* k = copy_string(vm, f->key, wcslen(f->key));
         push(vm, make_obj_val(k));
-        ObjNative* nf = new_native(vm, f->func);
+        ObjNative* nf = new_native(vm, f->func, f->key);
         nf->obj.is_gen = true;
         push(vm, make_obj_val(nf));
         table_set(vm, &smod->items, get_as_string(peek_vm(vm, 1)),
