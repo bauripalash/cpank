@@ -4,10 +4,11 @@
 #include "include/instruction.h"
 #include "include/mem.h"
 #include "include/obj.h"
+#include "include/utils.h"
 #include "include/value.h"
 #include "include/vm.h"
 
-// #define DEBUG_PRINT_CODE
+#define DEBUG_PRINT_CODE
 
 #ifdef DEBUG_PRINT_CODE
 #include "include/debug.h"
@@ -71,7 +72,8 @@ void init_compiler(Parser *parser, Compiler *compiler, Compiler *prevcomp,
     }
 
     Local *local = &compiler->locals[compiler->local_count++];
-    local->depth = 0;
+    local->depth = compiler->scope_depth;
+    // local->is_captd = false;
     local->name.start = L"";
     local->name.length = 0;
 }
@@ -385,7 +387,7 @@ void add_local(Compiler *compiler, Token name) {
     }
     Local *local = &compiler->locals[compiler->local_count++];
     local->name = name;
-    local->depth = -1;
+    local->depth = compiler->scope_depth;
     local->is_captd = false;
     // local->depth = current->scope_depth;
 }
@@ -728,24 +730,18 @@ static void build_func(Compiler *compiler, Compiler *funcCompiler,
     emit_two(compiler, OP_CLOSURE, make_const(compiler, make_obj_val(fn)));
 
     for (int i = 0; i < fn->up_count; i++) {
-        emit_bt(funcCompiler, funcCompiler->upvs[i].is_local ? 1 : 0);
-
-        emit_bt(funcCompiler, funcCompiler->upvs[i].index);
+        emit_bt(funcCompiler->enclosing,
+                funcCompiler->upvs[i].is_local ? 1 : 0);
+        emit_bt(funcCompiler->enclosing, funcCompiler->upvs[i].index);
     }
 }
 
-static void mk_func(Compiler *compiler, FuncType type) {
-    Compiler funcCompiler;
-    build_func(compiler, &funcCompiler, type);
-    // end_compiler(&funcCompiler);
-}
-
 static void funct_declr(Compiler *compiler) {
-    // Compiler funcCompiler;
+    Compiler funcCompiler;
     uint8_t global = parse_var(compiler, L"Expected function name");
-    mk_func(compiler, FTYPE_FUNC);
-    // mark_init(compiler);
-    // build_func(compiler, &funcCompiler, FTYPE_FUNC);
+    // mk_func(compiler, FTYPE_FUNC);
+    mark_init(compiler);
+    build_func(compiler, &funcCompiler, FTYPE_FUNC);
     define_var(compiler, global);
 }
 
@@ -869,15 +865,17 @@ static void read_stmt(Compiler *compiler) {
 
 ObjFunc *end_compiler(Compiler *compiler) {
     emit_return(compiler);
-    ObjFunc *func = compiler->func;
+    ObjFunc *function = compiler->func;
 #ifdef DEBUG_PRINT_CODE
     if (!compiler->parser->had_err) {
-        dissm_ins_chunk(cur_ins(compiler),
-                        func->name != NULL ? func->name->chars : L"<script>");
+        dissm_ins_chunk(cur_ins(compiler), compiler->func->name != NULL
+                                               ? compiler->func->name->chars
+                                               : L"<script>");
     }
 #endif
-    compiler = compiler->enclosing;
-    return func;
+    // compiler = compiler->enclosing;
+    compiler->parser->vm->compiler = compiler->enclosing;
+    return function;
 }
 
 ObjFunc *compile(PankVm *vm, wchar_t *source) {
@@ -947,20 +945,11 @@ ObjFunc *compile_module(PankVm *vm, wchar_t *source) {
 }
 
 void mark_compiler_roots(PankVm *vm, Compiler *compiler) {
-    do {
-#ifdef DEBUG_LOG_GC
+    Compiler *comp = compiler;
+    while (comp != NULL) {
+        // cp_color_println('b', L"COMP -> %d", comp->type);
+        mark_obj(vm, (Obj *)comp->func);
 
-        wprintf(L">>>>marking compiler function<<<<<\n");
-
-#endif
-
-        mark_obj(vm, (Obj *)compiler->func);
-
-#ifdef DEBUG_LOG_GC
-
-        wprintf(L">>>>finished marking compiler function<<<<<\n");
-
-#endif
-        compiler = compiler->enclosing;
-    } while (compiler != NULL);
+        comp = comp->enclosing;
+    }
 }
