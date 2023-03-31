@@ -8,7 +8,7 @@ test_cpank
 cpank.gmon.txt
 vgcore.*
 .cache/*
-
+massif.out.*
 # Prerequisites
 *.d
 

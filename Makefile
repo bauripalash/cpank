@@ -5,7 +5,7 @@ SRC=cpank/lexer.c cpank/bn.c cpank/runfile.c cpank/instruction.c cpank/mem.c cpa
 STDLIB_MODULES= cpank/stdlib/stdlib.c cpank/stdlib/math.c
 SRC+=$(STDLIB_MODULES)
 MAIN=cpank/main.c
-SAMPLE_TO_RUN=sample/closure.txt
+SAMPLE_TO_RUN=sample/fib_en.txt
 TESTMAIN=cpank/testmain.c
 OUTPUT=pank
 TESTOUTPUT=test_cpank
@@ -48,6 +48,9 @@ build:
 memcheck: build_uo 
 	valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(OUTPUT) $(SAMPLE_TO_RUN)
 
+massif: build_uo
+	valgrind --tool=massif ./$(OUTPUT) $(SAMPLE_TO_RUN)
+
 perf:
 	@echo "Building optimized with -g"
 	$(CC) -O3 $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g -pg
@@ -66,6 +69,11 @@ prof:
 clean:
 	rm ./$(OUTPUT)
 	rm ./$(TESTOUTPUT)
+	rm ./massif.out.*
+	rm ./perf.data.*
+	rm ./cpank.perf 
+	rm ./cpank.gmon.*
+	rm ./vgcore.*
 
 fmt:
 	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/stdlib/*.c
