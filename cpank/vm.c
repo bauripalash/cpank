@@ -418,7 +418,8 @@ static int import_custom(PankVm *vm, wchar_t *custom_name,
 }
 
 static int import_file(PankVm *vm, wchar_t *custom_name, wchar_t *import_name) {
-    if (wcscmp(import_name, L"math") == 0) {
+    if (wcscmp(import_name, STDMATH) == 0 ||
+        wcscmp(import_name, STDMATH_BN) == 0) {
         ObjString *strname = copy_string(vm, custom_name, wcslen(custom_name));
         push(vm, make_obj_val(strname));
         ObjMod *objmod = new_mod(vm, custom_name);
@@ -434,7 +435,11 @@ static int import_file(PankVm *vm, wchar_t *custom_name, wchar_t *import_name) {
         prx->proxy_name = objmod->name->chars;
 
         if (vm->stdlib_count < 1) {
-            push_stdlib_math(vm);
+            if (wcscmp(import_name, STDMATH) == 0) {
+                push_stdlib_math(vm);
+            } else if (wcscmp(import_name, STDMATH_BN) == 0) {
+                push_stdlib_math_bn(vm);
+            }
             StdlibMod *sm = &vm->stdlibs[0];
             sm->owners[sm->owner_count++] = mod->hash;
             prx->origin_name = sm->name;

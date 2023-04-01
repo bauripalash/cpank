@@ -2,10 +2,10 @@ CC=clang
 CFLAGS+=-std=c99 -Wall -pedantic -lm
 LINKS=-static -lgrapheme
 SRC=cpank/lexer.c cpank/bn.c cpank/runfile.c cpank/instruction.c cpank/mem.c cpank/debug.c cpank/value.c cpank/vm.c cpank/compiler.c cpank/obj.c cpank/htable.c cpank/utils.c cpank/openfile.c
-STDLIB_MODULES= cpank/stdlib/stdlib.c cpank/stdlib/math.c
+STDLIB_MODULES= cpank/stdlib/stdlib.c cpank/stdlib/math.c cpank/stdlib/bnmath.c
 SRC+=$(STDLIB_MODULES)
 MAIN=cpank/main.c
-SAMPLE_TO_RUN=sample/sltest.txt
+SAMPLE_TO_RUN=sample/math_sl_bn.txt
 TESTMAIN=cpank/testmain.c
 OUTPUT=pank
 TESTOUTPUT=test_cpank

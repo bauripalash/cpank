@@ -41,7 +41,7 @@ Value _math_add(PankVm* vm, int argc, Value* args) {
     return make_num(raw_result);
 }
 
-double _get_gcd(double a, double b) {
+static double _get_gcd(double a, double b) {
     double x = (a > 0) ? a : -a;
     double y = (b > 0) ? b : -b;
 
