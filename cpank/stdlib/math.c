@@ -6,6 +6,8 @@
 #include "../include/value.h"
 #include "../include/vm.h"
 
+#define _USE_MATH_DEFINES
+
 Value _math_pow(PankVm* vm, int argc, Value* args) {
     if (argc != 2) {
         return make_error(vm, L"math pow function only takes 2 arguments!");
@@ -133,8 +135,6 @@ Value _math_logx(PankVm* vm, int argc, Value* args) {
         return make_error(vm, L"math logx function only takes 2 arguments!");
     }
 
-    // if (args[0].type != args[1].type && args[0].type != V_NUM) {
-
     if (!is_num(args[0]) && !is_num(args[1])) {
         return make_error(vm, L"math logx function only works on numbers");
     }
@@ -145,13 +145,101 @@ Value _math_logx(PankVm* vm, int argc, Value* args) {
     return make_num(log(num) / log(base));
 }
 
-void push_stdlib_math(PankVm* vm) {
-    SL sls[] = {
-        msl(L"pow", _math_pow),    msl(L"add", _math_add),
-        msl(L"gcd", _math_gcd),    msl(L"lcm", _math_lcm),
-        msl(L"sqrt", _math_sqrt),  msl(L"log10", _math_log10),
-        msl(L"loge", _math_log_e), msl(L"logx", _math_logx),
-    };
+Value _math_sine(PankVm* vm, int argc, Value* args) {
+    if (argc != 1) {
+        return make_error(vm, L"math sin function takes only 1 arguments");
+    }
 
-    _push_stdlib(vm, L"math", sls, 8);
+    if (!is_num(args[0])) {
+        return make_error(vm, L"math sin function only works on numbers");
+    }
+
+    double n = get_as_number(args[0]);
+
+    return make_num(sin(n));
+}
+
+Value _math_cosine(PankVm* vm, int argc, Value* args) {
+    if (argc != 1) {
+        return make_error(vm, L"math cos function takes only 1 arguments");
+    }
+
+    if (!is_num(args[0])) {
+        return make_error(vm, L"math cos function only works on numbers");
+    }
+
+    double n = get_as_number(args[0]);
+
+    return make_num(cos(n));
+}
+
+Value _math_tangent(PankVm* vm, int argc, Value* args) {
+    if (argc != 1) {
+        return make_error(vm, L"math tan function takes only 1 arguments");
+    }
+
+    if (!is_num(args[0])) {
+        return make_error(vm, L"math tan function only works on numbers");
+    }
+
+    double n = get_as_number(args[0]);
+
+    return make_num(tan(n));
+}
+
+Value _math_to_degree(PankVm* vm, int argc, Value* args) {
+    if (argc != 1) {
+        return make_error(vm, L"math degree function takes only 1 arguments");
+    }
+
+    if (!is_num(args[0])) {
+        return make_error(vm, L"math degree function only works on numbers");
+    }
+
+    double n = get_as_number(args[0]);
+
+    return make_num(n * (180 / CONST_PI));
+}
+
+Value _math_to_radians(PankVm* vm, int argc, Value* args) {
+    if (argc != 1) {
+        return make_error(vm, L"math rad function takes only 1 arguments");
+    }
+
+    if (!is_num(args[0])) {
+        return make_error(vm, L"math rad function only works on numbers");
+    }
+
+    double n = get_as_number(args[0]);
+
+    return make_num(n * (CONST_PI / 180));
+}
+
+Value _math_get_pi(PankVm* vm, int argc, Value* args) {
+    if (argc != 0) {
+        return make_error(vm, L"math pi() function takes no arguments");
+    }
+
+    return make_num(CONST_PI);
+}
+
+Value _math_get_e(PankVm* vm, int argc, Value* args) {
+    if (argc != 0) {
+        return make_error(vm, L"math e() function takes no arguments");
+    }
+
+    return make_num(CONST_E);
+}
+
+void push_stdlib_math(PankVm* vm) {
+    SL sls[] = {msl(L"pow", _math_pow),        msl(L"add", _math_add),
+                msl(L"gcd", _math_gcd),        msl(L"lcm", _math_lcm),
+                msl(L"sqrt", _math_sqrt),      msl(L"log10", _math_log10),
+                msl(L"loge", _math_log_e),     msl(L"logx", _math_logx),
+                msl(L"sin", _math_sine),       msl(L"cos", _math_cosine),
+                msl(L"tan", _math_tangent),    msl(L"degree", _math_to_degree),
+                msl(L"rad", _math_to_radians), msl(L"pi", _math_get_pi),
+                msl(L"e", _math_get_e)};
+
+    _push_stdlib(vm, L"math", sls, 15);
 }
