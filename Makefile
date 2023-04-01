@@ -5,7 +5,7 @@ SRC=cpank/lexer.c cpank/bn.c cpank/runfile.c cpank/instruction.c cpank/mem.c cpa
 STDLIB_MODULES= cpank/stdlib/stdlib.c cpank/stdlib/math.c
 SRC+=$(STDLIB_MODULES)
 MAIN=cpank/main.c
-SAMPLE_TO_RUN=sample/fib_en.txt
+SAMPLE_TO_RUN=sample/fib_bn.txt
 TESTMAIN=cpank/testmain.c
 OUTPUT=pank
 TESTOUTPUT=test_cpank
@@ -19,7 +19,7 @@ check:
 	cppcheck -I $(INCLUDE_DIR) --enable=all $(MAIN) $(SRC)
 
 ctidy:
-	clang-tidy cpank/*.c -- -Icpank/include
+	clang-tidy $(SRC) $(STDLIB_MODULES) $(MAIN)  -- -Icpank/include
 
 debug: build_debug
 	gdb --args $(OUTPUT) $(SAMPLE_TO_RUN)
