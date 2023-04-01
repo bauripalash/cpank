@@ -48,6 +48,17 @@ void free_valarr(PankVm *vm, Valarr *array) {
 
 void print_val(Value val) {
     //  print_val_type(val.type);
+#ifdef NAN_BOXING
+    if (is_bool(val)) {
+        cp_print(L"%s", get_as_bool(val) ? "true" : "false");
+    } else if (is_nil(val)) {
+        cp_print(L"nil");
+    } else if (is_num(val)) {
+        cp_print(L"%f", get_as_number(val));
+    } else if (is_obj(val)) {
+        print_obj(val);
+    }
+#else
     switch (val.type) {
         case V_NUM:
             cp_print(L"%f", get_as_number(val));
@@ -62,25 +73,35 @@ void print_val(Value val) {
             print_obj(val);
             break;
     }
+#endif
 }
 
-bool is_bool(Value val) { return val.type == V_BOOL; }
+// bool is_bool(Value val) { return val.type == V_BOOL; }
 
-bool is_num(Value val) { return val.type == V_NUM; }
+// bool is_num(Value val) { return val.type == V_NUM; }
 
-bool is_nil(Value val) { return val.type == V_NIL; }
+// bool is_nil(Value val) { return val.type == V_NIL; }
 
-bool is_obj(Value val) { return val.type == V_OBJ; }
+// bool is_obj(Value val) { return val.type == V_OBJ; }
 
-bool get_as_bool(Value val) { return val.as.boolean; }
+// bool get_as_bool(Value val) { return val.as.boolean; }
 
-double get_as_number(Value val) { return val.as.num; }
+// double get_as_number(Value val) { return val.as.num; }
 
 bool is_falsey(Value val) {
     return is_nil(val) || (is_bool(val) && !get_as_bool(val));
 }
 
 bool is_equal(Value left, Value right) {
+#ifdef NAN_BOXING
+    if (is_num(left) && is_num(right)) {
+        return get_as_number(left) == get_as_number(right);
+    } else if (is_obj(left) && is_obj(right)) {
+        return is_obj_equal(get_as_obj(left), get_as_obj(right));
+    } else {
+        return left == right;
+    }
+#else
     if (left.type != right.type) {
         return false;
     }
@@ -103,32 +124,20 @@ bool is_equal(Value left, Value right) {
         default:
             return false;
     }
+#endif
 }
 
-Value make_num(double num) {
-    Value v;
-    v.type = V_NUM;
-    v.as.num = num;
-    return v;
-}
-
-Value make_bool(bool value) {
-    Value v;
-    v.type = V_BOOL;
-    v.as.boolean = value;
-    return v;
-}
-
+/*
 Value make_nil(void) {
     Value v;
     v.type = V_NIL;
     v.as.num = 0;
     return v;
-}
+}*/
 
-Value make_neg(Value value) {
+/*Value make_neg(Value value) {
     Value v;
     v.type = value.type;
     v.as.num = -value.as.num;
     return v;
-}
+}*/

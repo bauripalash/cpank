@@ -41,7 +41,7 @@ PankVm *boot_vm(void) {
     reset_stack(vm);
     gcon.is_paused = false;
     vm->objs = NULL;
-    vm->last_pop = make_nil();
+    vm->last_pop = make_nil;
 
     vm->bts_allocated = 0;
     vm->next_gc = 1024 * 1024;
@@ -565,7 +565,7 @@ IResult run_vm(PankVm *vm) {
                 }
                 break;
             case OP_NIL:
-                if (!push(vm, make_nil())) {
+                if (!push(vm, make_nil)) {
                     return INTRP_RUNTIME_ERR;
                 }
                 break;

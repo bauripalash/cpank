@@ -58,7 +58,7 @@ static void adjust_cap(PankVm *vm, Htable *table, int cap) {
     Entry *entries = ALLOC(vm, Entry, cap);
     for (int i = 0; i < cap; i++) {
         entries[i].key = NULL;
-        entries[i].val = make_nil();
+        entries[i].val = make_nil;
 
         // wprintf(L"loop -> table cap %d\n" , table->cap);
     }

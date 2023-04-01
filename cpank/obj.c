@@ -33,7 +33,7 @@ ObjUpVal *new_up_val(PankVm *vm, Value *val) {
     ObjUpVal *upv = ALLOCATE_OBJ(vm, ObjUpVal, OBJ_UPVAL);
     upv->location = val;
     upv->next = NULL;
-    upv->closed = make_nil();
+    upv->closed = make_nil;
     return upv;
 }
 
@@ -79,7 +79,7 @@ ObjString *allocate_str(PankVm *vm, wchar_t *chars, int len, uint32_t hash) {
 
     push(vm, make_obj_val(string));
 
-    table_set(vm, &vm->strings, string, make_nil());
+    table_set(vm, &vm->strings, string, make_nil);
     pop(vm);
     return string;
 }
@@ -215,8 +215,8 @@ void print_obj(Value val) {
             ObjArray *array = get_as_array(val);
             cp_print(L"[");
             for (int i = 0; i < array->len; i++) {
-                Value val = array->items.values[i];
-                print_val(val);
+                Value newval = array->items.values[i];
+                print_val(newval);
                 cp_print(L", ");
             }
             cp_print(L"]");
@@ -322,7 +322,8 @@ static uint32_t get_obj_hash(Obj *obj) {
     return ((ObjString *)obj)->hash;
 }
 
-static uint32_t hash_uint(uint32_t value) {
+#ifdef NAN_BOXING
+static uint32_t hash_uint(uint64_t value) {
     uint32_t hash = 0;
     hash = ~value + (value << 18);
     hash = hash ^ (hash >> 31);
@@ -333,30 +334,50 @@ static uint32_t hash_uint(uint32_t value) {
     return (uint32_t)(hash & 0x3fffffff);
 }
 
+#else
+static uint32_t hash_uint(uint32_t value) {
+    uint32_t hash = 0;
+    hash = ~value + (value << 18);
+    hash = hash ^ (hash >> 31);
+    hash = hash * 21;
+    hash = hash ^ (hash >> 11);
+    hash = hash + (hash << 6);
+    hash = hash ^ (hash >> 22);
+    return (uint32_t)(hash & 0x3fffffff);
+}
+#endif
+
 static uint32_t get_value_hash(Value value) {
     // VM Must check for invalid values!
-    switch (value.type) {
-        case V_BOOL:
-            return hash_uint((uint32_t)get_as_bool(value));
-        case V_NUM: {
-            double n = get_as_number(value);
-            if (n < 0 || ceil(n) != n) {
-                return 0;
-            } else {
-                return hash_uint((uint32_t)n);
-            }
-        }
-        case V_OBJ:
-            return get_obj_hash(get_as_obj(value));
-        case V_NIL:
-            return 0;
+    //
+#ifdef NAN_BOXING
+    if (is_obj(value)) {
+        return get_obj_hash(get_as_obj(value));
     }
+    return hash_uint(value);
+#else
+    if (is_bool(value)) {
+        return hash_uint((uint32_t)get_as_bool(value));
+    } else if (is_num(value)) {
+        double n = get_as_number(value);
+        if (n < 0 || ceil(n) != n) {
+            return 0;
+        } else {
+            return hash_uint((uint32_t)n);
+        }
+    } else if (is_obj(value)) {
+        return get_obj_hash(get_as_obj(value));
+    } else if (is_nil(value)) {
+        return 0;
+    }
+    return 0;
+#endif
 }
 
 bool is_valid_hashmap_key(Value val) {
-    if (val.type == V_NIL) {
+    if (is_nil(val)) {
         return false;
-    } else if (val.type == V_OBJ) {
+    } else if (is_obj(val)) {
         Obj *o = get_as_obj(val);
         if (o->type != OBJ_STR) {
             return false;
@@ -405,8 +426,8 @@ bool hmap_get(ObjHashMap *map, Value key, Value *val) {
 void adjust_map_cap(PankVm *vm, ObjHashMap *map, int cap) {
     HmapItem *items = ALLOC(vm, HmapItem, cap);
     for (int i = 0; i < cap; i++) {
-        items[i].key = make_nil();
-        items[i].val = make_nil();
+        items[i].key = make_nil;
+        items[i].val = make_nil;
     }
 
     map->count = 0;
