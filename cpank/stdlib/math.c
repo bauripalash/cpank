@@ -1,4 +1,6 @@
 #include <math.h>
+#include <stdlib.h>
+#include <time.h>
 #include <wchar.h>
 
 #include "../include/stdlib.h"
@@ -231,15 +233,128 @@ Value _math_get_e(PankVm* vm, int argc, Value* args) {
     return make_num(CONST_E);
 }
 
-void push_stdlib_math(PankVm* vm) {
-    SL sls[] = {msl(L"pow", _math_pow),        msl(L"add", _math_add),
-                msl(L"gcd", _math_gcd),        msl(L"lcm", _math_lcm),
-                msl(L"sqrt", _math_sqrt),      msl(L"log10", _math_log10),
-                msl(L"loge", _math_log_e),     msl(L"logx", _math_logx),
-                msl(L"sin", _math_sine),       msl(L"cos", _math_cosine),
-                msl(L"tan", _math_tangent),    msl(L"degree", _math_to_degree),
-                msl(L"rad", _math_to_radians), msl(L"pi", _math_get_pi),
-                msl(L"e", _math_get_e)};
+Value _math_str_to_num(PankVm* vm, int argc, Value* args) {
+    if (argc != 1) {
+        return make_error(
+            vm, L"math strtonum(...) function takes only 1 arguments");
+    }
 
-    _push_stdlib(vm, L"math", sls, 15);
+    if (!is_str_obj(args[0])) {
+        return make_error(vm,
+                          L"math strtonum(...) function only works on strings");
+    }
+
+    ObjString* ostr = get_as_string(args[0]);
+    double result = 0;
+    swscanf(ostr->chars, L"%lf", &result);
+    return make_num(result);
+}
+
+Value _math_get_random(PankVm* vm, int argc, Value* args) {
+    if (argc != 0) {
+        return make_error(vm, L"math randnum() function takes no arguments");
+    }
+    srand((unsigned int)time(0));
+    double result = ((double)rand() / (double)(RAND_MAX));
+
+    return make_num(result);
+}
+
+Value _math_get_random_from_range(PankVm* vm, int argc, Value* args) {
+    if (argc != 2) {
+        return make_error(vm, L"math random() function takes 2 arguments");
+    }
+    if (!is_num(args[0]) && !is_num(args[1])) {
+        return make_error(vm,
+                          L"math random(...) function only works on numbers");
+    }
+    srand((unsigned int)time(0));
+    double min = get_as_number(args[0]);
+    double max = get_as_number(args[1]);
+    double range = (max - min);
+    double div = RAND_MAX / range;
+    double result = min + (rand() / div);
+
+    return make_num(result);
+}
+
+Value _math_abs_num(PankVm* vm, int argc, Value* args) {
+    if (argc != 1) {
+        return make_error(vm, L"math abs(...) function takes only 1 arguments");
+    }
+
+    if (!is_num(args[0])) {
+        return make_error(vm, L"math abs(...) function only works on numbers");
+    }
+
+    double v = get_as_number(args[0]);
+
+    return make_num(fabs(v));
+}
+
+Value _math_round(PankVm* vm, int argc, Value* args) {
+    if (argc != 1) {
+        return make_error(vm,
+                          L"math round(...) function takes only 1 arguments");
+    }
+
+    if (!is_num(args[0])) {
+        return make_error(vm,
+                          L"math round(...) function only works on numbers");
+    }
+
+    double v = get_as_number(args[0]);
+
+    return make_num(round(v));
+}
+
+Value _math_get_infinity(PankVm* vm, int argc, Value* args) {
+    if (argc != 0) {
+        return make_error(vm, L"math infinity() function takes no arguments");
+    }
+
+    return make_num(INFINITY);
+}
+
+Value _math_ceil(PankVm* vm, int argc, Value* args) {
+    if (argc != 1) {
+        return make_error(vm,
+                          L"math ceil(...) function takes only 1 arguments");
+    }
+
+    if (!is_num(args[0])) {
+        return make_error(vm, L"math ceil(...) function only works on numbers");
+    }
+
+    double v = get_as_number(args[0]);
+    return make_num(ceil(v));
+}
+
+void push_stdlib_math(PankVm* vm) {
+    SL sls[] = {
+        msl(L"pow", _math_pow),
+        msl(L"add", _math_add),
+        msl(L"gcd", _math_gcd),
+        msl(L"lcm", _math_lcm),
+        msl(L"sqrt", _math_sqrt),
+        msl(L"log10", _math_log10),
+        msl(L"loge", _math_log_e),
+        msl(L"logx", _math_logx),
+        msl(L"sin", _math_sine),
+        msl(L"cos", _math_cosine),
+        msl(L"tan", _math_tangent),
+        msl(L"degree", _math_to_degree),
+        msl(L"rad", _math_to_radians),
+        msl(L"pi", _math_get_pi),
+        msl(L"e", _math_get_e),
+        msl(L"strtonum", _math_str_to_num),
+        msl(L"randnum", _math_get_random),
+        msl(L"random", _math_get_random_from_range),
+        msl(L"abs", _math_abs_num),
+        msl(L"round", _math_round),
+        msl(L"infinity", _math_get_infinity),
+        msl(L"ceil", _math_ceil),
+    };
+
+    _push_stdlib(vm, L"math", sls, 22);
 }
