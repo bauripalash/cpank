@@ -30,6 +30,10 @@ const wchar_t *default_mod = L"_d_";
 // #define DEBUG_STACK
 
 void reset_stack(PankVm *vm) { vm->stack_top = vm->stack; }
+ObjUpVal *capture_upv(PankVm *vm, Module *module, Value *local);
+void close_upval(Module *module, Value *last);
+bool call_val(PankVm *vm, Value calle, int argc);
+bool call(PankVm *vm, ObjClosure *closure, int origin, int argc);
 
 PankVm *boot_vm(void) {
     PankVm *vm = malloc(sizeof(PankVm));

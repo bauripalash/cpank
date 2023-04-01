@@ -18,4 +18,7 @@
 #define ERC_FILE_NOT_EXIST 13
 #define ERC_NO_MEM 14
 
+// #define DEBUG_PRINT_CODE
+#define NAN_BOXING
+
 #endif

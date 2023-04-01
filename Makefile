@@ -5,7 +5,7 @@ SRC=cpank/lexer.c cpank/bn.c cpank/runfile.c cpank/instruction.c cpank/mem.c cpa
 STDLIB_MODULES= cpank/stdlib/stdlib.c cpank/stdlib/math.c
 SRC+=$(STDLIB_MODULES)
 MAIN=cpank/main.c
-SAMPLE_TO_RUN=sample/maptest.txt
+SAMPLE_TO_RUN=sample/fib_en.txt
 TESTMAIN=cpank/testmain.c
 OUTPUT=pank
 TESTOUTPUT=test_cpank
@@ -17,6 +17,9 @@ run:
 
 check:
 	cppcheck -I $(INCLUDE_DIR) --enable=all $(MAIN) $(SRC)
+
+ctidy:
+	clang-tidy cpank/*.c -- -Icpank/include
 
 debug: build_debug
 	gdb --args $(OUTPUT) $(SAMPLE_TO_RUN)
@@ -42,7 +45,7 @@ build_uo:
 
 build:
 	@echo "Building optimized $(OUTPUT)"
-	$(CC) -O3 $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC)
+	$(CC) -O3 $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -flto
 	@echo "Finished building optimized $(OUTPUT)"
 
 memcheck: build_uo 
@@ -53,7 +56,7 @@ massif: build_uo
 
 perf:
 	@echo "Building optimized with -g"
-	$(CC) -O3 $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g -pg
+	$(CC) -O3 $(CFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) -g -pg -flto
 	@echo "Running Perf"
 	perf record -g -F 999 ./$(OUTPUT) $(SAMPLE_TO_RUN)
 	perf script -F +pid > cpank.perf
@@ -74,6 +77,7 @@ clean:
 	rm ./cpank.perf 
 	rm ./cpank.gmon.*
 	rm ./vgcore.*
+	rm -rf ./.cache/
 
 fmt:
 	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/stdlib/*.c

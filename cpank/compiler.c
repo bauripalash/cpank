@@ -8,8 +8,6 @@
 #include "include/value.h"
 #include "include/vm.h"
 
-#define DEBUG_PRINT_CODE
-
 #ifdef DEBUG_PRINT_CODE
 #include "include/debug.h"
 #endif
@@ -21,6 +19,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
+
+typedef enum Prec {
+    PREC_NONE,
+    PREC_ASSIGN,
+    PREC_OR,
+    PREC_AND,
+    PREC_EQ,
+    PREC_COMP,
+    PREC_TERM,
+    PREC_FACT,
+    PREC_UNARY,
+    PREC_CALL,
+    PREC_DEFAULT,
+} Prec;
 
 static void start_scope(Compiler *compiler);
 static void end_scope(Compiler *compiler);

@@ -11,22 +11,7 @@
 #include <wctype.h>
 
 #include "include/bn.h"
-// #include "include/token.h"
-
-static wchar_t BN_KW_LET[] = L"ধরি";
-static wchar_t BN_KW_SHOW[] = L"দেখাও";
-static wchar_t BN_KW_RETURN[] = L"ফেরাও";
-static wchar_t BN_KW_AND[] = L"এবং";
-static wchar_t BN_KW_OR[] = L"বা";
-static wchar_t BN_KW_IF[] = L"যদি";
-static wchar_t BN_KW_THEN[] = L"তাহলে";
-static wchar_t BN_KW_ELSE[] = L"নাহলে";
-static wchar_t BN_KW_END[] = L"শেষ";
-static wchar_t BN_KW_WHILE[] = L"যতক্ষণ";
-static wchar_t BN_KW_TRUE[] = L"সত্যি";
-static wchar_t BN_KW_FALSE[] = L"মিথ্যা";
-static wchar_t BN_KW_NIL[] = L"শূন্য";
-static wchar_t BN_KW_FUNC[] = L"কাজ";
+#include "include/token.h"
 
 const char *toktype_to_string(TokType t) {
     switch (t) {
@@ -129,7 +114,10 @@ char *token_to_string(Token *tk) {
 }
 
 // Lexer lexer;
-
+wchar_t next(Lexer *lexer) {
+    lexer->current++;
+    return lexer->current[-1];
+}
 bool match_char(Lexer *lexer, wchar_t c) {
     if (is_eof(lexer)) return false;
     if (*lexer->current != c) return false;
@@ -205,52 +193,55 @@ TokType get_ident_tok_type(wchar_t *input, int len) {
     swprintf(tc, (size_t)len + 1, input);
     // wprintf(L"TO_CHECK-> %ls\n" , tc);
     //
-    if (wcscmp(tc, L"let") == 0 || wcscmp(tc, L"dhori") == 0 ||
+    if (wcscmp(tc, EN_KW_LET) == 0 || wcscmp(tc, PHON_KW_LET) == 0 ||
         wcscmp(tc, BN_KW_LET) == 0) {
         tt = T_LET;
-    } else if (wcscmp(tc, L"show") == 0 || wcscmp(tc, L"dekhao") == 0 ||
+    } else if (wcscmp(tc, EN_KW_SHOW) == 0 || wcscmp(tc, PHON_KW_LET) == 0 ||
                wcscmp(tc, BN_KW_SHOW) == 0) {
         tt = T_SHOW;
-    } else if (wcscmp(tc, L"return") == 0 || wcscmp(tc, L"fearo") == 0 ||
+    } else if (wcscmp(tc, EN_KW_RETURN) == 0 ||
+               wcscmp(tc, PHON_KW_RETURN) == 0 ||
                wcscmp(tc, BN_KW_RETURN) == 0) {
         tt = T_RETURN;
-    } else if (wcscmp(tc, L"if") == 0 || wcscmp(tc, L"jodi") == 0 ||
+    } else if (wcscmp(tc, EN_KW_IF) == 0 || wcscmp(tc, PHON_KW_IF) == 0 ||
                wcscmp(tc, BN_KW_IF) == 0) {
         tt = T_IF;
-    } else if (wcscmp(tc, L"then") == 0 || wcscmp(tc, L"tahole") == 0 ||
+    } else if (wcscmp(tc, EN_KW_THEN) == 0 || wcscmp(tc, PHON_KW_THEN) == 0 ||
                wcscmp(tc, BN_KW_THEN) == 0) {
         tt = T_THEN;
-    } else if (wcscmp(tc, L"else") == 0 || wcscmp(tc, L"nahole") == 0 ||
+    } else if (wcscmp(tc, EN_KW_ELSE) == 0 || wcscmp(tc, PHON_KW_ELSE) == 0 ||
                wcscmp(tc, BN_KW_ELSE) == 0) {
         tt = T_ELSE;
-    } else if (wcscmp(tc, L"end") == 0 || wcscmp(tc, L"sesh") == 0 ||
+    } else if (wcscmp(tc, EN_KW_END) == 0 || wcscmp(tc, PHON_KW_END) == 0 ||
                wcscmp(tc, BN_KW_END) == 0) {
         tt = T_END;
 
-    } else if (wcscmp(tc, L"while") == 0 || wcscmp(tc, L"jotokkhon") == 0 ||
+    } else if (wcscmp(tc, EN_KW_WHILE) == 0 || wcscmp(tc, PHON_KW_WHILE) == 0 ||
                wcscmp(tc, BN_KW_WHILE) == 0) {
         tt = T_WHILE;
-    } else if (wcscmp(tc, L"and") == 0 || wcscmp(tc, L"ebong") == 0 ||
+    } else if (wcscmp(tc, EN_KW_AND) == 0 || wcscmp(tc, PHON_KW_AND) == 0 ||
                wcscmp(tc, BN_KW_AND) == 0) {
         tt = T_AND;
-    } else if (wcscmp(tc, L"or") == 0 || wcscmp(tc, L"ba") == 0 ||
+    } else if (wcscmp(tc, EN_KW_OR) == 0 || wcscmp(tc, PHON_KW_OR) == 0 ||
                wcscmp(tc, BN_KW_OR) == 0) {
         tt = T_OR;
-    } else if (wcscmp(tc, L"true") == 0 || wcscmp(tc, L"sotti") == 0 ||
+    } else if (wcscmp(tc, EN_KW_TRUE) == 0 || wcscmp(tc, PHON_KW_TRUE) == 0 ||
                wcscmp(tc, BN_KW_TRUE) == 0) {
         tt = T_TRUE;
-    } else if (wcscmp(tc, L"false") == 0 || wcscmp(tc, L"mittha") == 0 ||
+    } else if (wcscmp(tc, EN_KW_FALSE) == 0 || wcscmp(tc, PHON_KW_FALSE) == 0 ||
                wcscmp(tc, BN_KW_FALSE) == 0) {
         tt = T_FALSE;
-    } else if (wcscmp(tc, L"fun") == 0 || wcscmp(tc, L"kaj") == 0 ||
+    } else if (wcscmp(tc, EN_KW_FUNC) == 0 || wcscmp(tc, PHON_KW_FUNC) == 0 ||
                wcscmp(tc, BN_KW_FUNC) == 0) {
         tt = T_FUNC;
-    } else if (wcscmp(tc, L"nil") == 0 || wcscmp(tc, L"nil") == 0 ||
-               wcscmp(tc, BN_KW_NIL) == 0) {
+    } else if (wcscmp(tc, EN_KW_NIL) == 0 || wcscmp(tc, BN_KW_NIL) == 0) {
         tt = T_NIL;
-    } else if (wcscmp(tc, L"import") == 0) {
+    } else if (wcscmp(tc, EN_KW_IMPORT) == 0 ||
+               wcscmp(tc, PHON_KW_IMPORT) == 0 ||
+               wcscmp(tc, BN_KW_IMPORT) == 0) {
         tt = T_IMPORT;
-    } else if (wcscmp(tc, L"panic") == 0) {
+    } else if (wcscmp(tc, EN_KW_PANIC) == 0 || wcscmp(tc, PHON_KW_PANIC) == 0 ||
+               wcscmp(tc, BN_KW_IMPORT) == 0) {
         tt = T_MKERR;
 
     } else {
@@ -307,11 +298,6 @@ void skip_ws(Lexer *lexer) {
                 return;
         }
     }
-}
-
-wchar_t next(Lexer *lexer) {
-    lexer->current++;
-    return lexer->current[-1];
 }
 
 Token get_str_tok(Lexer *lexer) {

@@ -27,6 +27,13 @@ typedef enum {
     T_EQ,
     // ==
     T_EQEQ,
+    // . (dot) (full stop) (period)
+    T_DOT,
+    // !=
+    T_NOTEQ,
+    // !
+    T_BANG,
+    // :
     T_COLON,
     // >
     T_GT,
@@ -45,46 +52,40 @@ typedef enum {
     // for floats and integers
     T_NUM,
     // --> let <-- x = y
-    // let / dhori
+    // let / dhori (see `token.h`)
     T_LET,
-    // and / ebong
+    // and / ebong (see `token.h`)
     T_AND,
-    // or / ba
+    // or / ba (see `token.h`)
     T_OR,
-    // end / sesh
+    // end / sesh (see `token.h`)
     T_END,
-    // if / jodi
+    // if / jodi (see `token.h`)
     T_IF,
-    // then / tahole
+    // then / tahole (see `token.h`)
     T_THEN,
-    // else / nahole
+    // else / nahole (see `token.h`)
     T_ELSE,
-    // while / jotokkhon
+    // while / jotokkhon (see `token.h`)
     T_WHILE,
-    // show / dekhao
+    // show / dekhao (see `token.h`)
     T_SHOW,
-    // nil / shunno
+    // nil (see `token.h`)
     T_NIL,
-    // true / sotto
+    // true / sotto (see `token.h`)
     T_TRUE,
-    // false / mittha
+    // false / mittha (see `token.h`)
     T_FALSE,
-    // return / ferao
+    // return / ferao (see `token.h`)
     T_RETURN,
-    // fun / work
+    // fun / work (see `token.h`)
     T_FUNC,
-    // !
-    T_BANG,
 
+    // panic (see `token.h`)
     T_MKERR,
 
-    // . (dot) (full stop) (period)
-    T_DOT,
-
+    // import (see `token.h`)
     T_IMPORT,
-
-    // !=
-    T_NOTEQ,
 
     // Error , unknown token
     T_ERR,
@@ -107,25 +108,19 @@ typedef struct {
     int line;
 } Lexer;
 
+// get token type as string
 const char *toktype_to_string(TokType tt);
 
+// Convert token to string
 // you must free the result
 char *token_to_string(Token *t);
+
+// Initialize the lexer
 void boot_lexer(Lexer *lexer, wchar_t *src);
 
 // check if lexer at the end of input
 // Checks if current char is '\0'
 bool is_eof(Lexer *lexer);
 
-// Given a type craetes a token;
-Token mktok(Lexer *lexer, TokType type);
-Token err_tok(Lexer *lexer, wchar_t *msg);
-wchar_t next(Lexer *lexer);
+// Get the next token
 Token get_tok(Lexer *lexer);
-/*
-void init_lexer(const char * source);
-bool is_at_eof();
-Token make_tok(TokType type);
-Token next_token();
-void lex();
-*/

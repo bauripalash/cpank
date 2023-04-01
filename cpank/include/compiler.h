@@ -19,20 +19,6 @@ typedef struct Parser {
     bool panic_mode;
 } Parser;
 
-typedef enum Prec {
-    PREC_NONE,
-    PREC_ASSIGN,
-    PREC_OR,
-    PREC_AND,
-    PREC_EQ,
-    PREC_COMP,
-    PREC_TERM,
-    PREC_FACT,
-    PREC_UNARY,
-    PREC_CALL,
-    PREC_DEFAULT,
-} Prec;
-
 typedef struct Local {
     Token name;
     int depth;

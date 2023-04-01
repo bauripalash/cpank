@@ -13,8 +13,8 @@
 #include "value.h"
 
 #define FRAME_SIZE 64
-#define MODULES_MAX 10
-#define STDLIB_MAX 10
+#define MODULES_MAX 64
+#define STDLIB_MAX 64
 #define STACK_SIZE (FRAME_SIZE * UINT8_COUNT)
 
 typedef struct {
@@ -121,12 +121,8 @@ bool push(PankVm *vm, Value value);
 Value pop(PankVm *vm);
 Value peek_vm(PankVm *vm, int dist);
 Value get_last_pop(PankVm *vm);
-bool call_val(PankVm *vm, Value calle, int argc);
-bool call(PankVm *vm, ObjClosure *closure, int origin, int argc);
+
 void define_native(PankVm *vm, wchar_t *name, NativeFn func);
 Value clock_ntv_fn(PankVm *vm, int argc, Value *args);
-
-ObjUpVal *capture_upv(PankVm *vm, Module *module, Value *local);
-void close_upval(Module *module, Value *last);
 
 #endif
