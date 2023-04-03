@@ -1,4 +1,5 @@
 #include "include/compiler.h"
+#include <uchar.h>
 
 #include "include/common.h"
 #include "include/instruction.h"
@@ -906,7 +907,7 @@ ObjFunc *end_compiler(Compiler *compiler) {
     return function;
 }
 
-ObjFunc *compile(PankVm *vm, wchar_t *source) {
+ObjFunc *compile(PankVm *vm, char16_t *source) {
     Parser parser;
     parser.vm = vm;
     parser.had_err = false;
@@ -945,7 +946,7 @@ ObjFunc *compile(PankVm *vm, wchar_t *source) {
     return parser.had_err ? NULL : fn;
 }
 
-ObjFunc *compile_module(PankVm *vm, wchar_t *source) {
+ObjFunc *compile_module(PankVm *vm, char16_t *source) {
     Parser parser;
     parser.had_err = false;
     parser.panic_mode = false;

@@ -1,5 +1,6 @@
 #include "include/lexer.h"
 
+#include <bits/types/mbstate_t.h>
 #include <locale.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -7,11 +8,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <uchar.h>
 #include <wchar.h>
 #include <wctype.h>
 
 #include "include/bn.h"
 #include "include/token.h"
+
+int strlen16(const char16_t* strarg)
+{
+   if(!strarg)
+     return -1; //strarg is NULL pointer
+   const char16_t* str = strarg;
+   for(;*str;++str)
+     ; // empty body
+   return str-strarg;
+}
+
+char * c_to_c(const char16_t * input , int len){
+    mbstate_t state;
+    memset(&state, 0, sizeof(mbstate_t));
+
+    size_t insz = sizeof(char16_t) * (len);
+    char * o = (char*)malloc(MB_CUR_MAX * insz);
+    char * p = o;
+    int rc = 0;
+
+    for (int  i = 0; i < insz; i++) {
+        rc = c16rtomb(p, input[i], &state); 
+        p += rc;
+    }
+    return o;
+}
 
 const char *toktype_to_string(TokType t) {
     switch (t) {
@@ -106,19 +134,27 @@ const char *toktype_to_string(TokType t) {
     return "UNKNOWN_TOKEN";
 }
 
-char *token_to_string(Token *tk) {
-    size_t size_to_write = sizeof(char) * 16;
-    char *result = (char *)malloc(size_to_write);
-    snprintf(result, size_to_write, "T[%s]", toktype_to_string(tk->type));
-    return result;
+char *token_to_string(const Token *t) {
+    //wchar_t * wstr = (wchar_t*)malloc(sizeof(char16_t) * t->length);
+    //mbstowcs(wstr , t->start , t->length);
+    //size_t size_to_write = sizeof(char) * 16;
+    //char *result = (char *)malloc(size_to_write);
+    //snprintf(result, size_to_write, "T[%s]", toktype_to_string(tk->type));
+    //return result;
+ 
+    
+    //wprintf(L"char16_t ->>>>>> '%s'\n" , y);
+    
+    return "t";
 }
+
 
 // Lexer lexer;
 wchar_t next(Lexer *lexer) {
     lexer->current++;
     return lexer->current[-1];
 }
-bool match_char(Lexer *lexer, wchar_t c) {
+bool match_char(Lexer *lexer, char16_t c) {
     if (is_eof(lexer)) return false;
     if (*lexer->current != c) return false;
     lexer->current++;
@@ -131,7 +167,7 @@ wchar_t peek_next(Lexer *lexer) {
     return lexer->current[1];
 }
 
-void boot_lexer(Lexer *lexer, wchar_t *src) {
+void boot_lexer(Lexer *lexer, char16_t *src) {
     lexer->start = src;
     lexer->current = src;
     lexer->line = 1;
@@ -148,7 +184,7 @@ Token mktok(Lexer *lexer, TokType type) {
     return tok;
 }
 
-void btoe(wchar_t *input, int len) {
+void btoe(char16_t *input, int len) {
     for (int i = 0; i < len; i++) {
         if (input[i] == BN_NUM_ONE) {
             input[i] = '1';
@@ -187,61 +223,64 @@ Token mk_num_tok(Lexer *lexer) {
     return tok;
 }
 
-TokType get_ident_tok_type(wchar_t *input, int len) {
+TokType get_ident_tok_type(char16_t *input, int len) {
     TokType tt = T_LET;
-    wchar_t *tc = (wchar_t *)malloc(sizeof(wchar_t) * wcslen(input));
-    swprintf(tc, (size_t)len + 1, input);
+    //wchar_t *tc = (wchar_t *)malloc(sizeof(wchar_t) * strlen16(input));
+    //swprintf(tc, (size_t)len + 1, input);
     // wprintf(L"TO_CHECK-> %ls\n" , tc);
     //
-    if (wcscmp(tc, EN_KW_LET) == 0 || wcscmp(tc, PHON_KW_LET) == 0 ||
-        wcscmp(tc, BN_KW_LET) == 0) {
+    char * tc = c_to_c(input , len);
+    //wprintf(L"TC -> '%s' -> %d\n" , tc , len);
+
+    if (strncmp(tc, EN_KW_LET , len) == 0 || strncmp(tc, PHON_KW_LET , len) == 0 ||
+        strncmp(tc, BN_KW_LET , len) == 0) {
         tt = T_LET;
-    } else if (wcscmp(tc, EN_KW_SHOW) == 0 || wcscmp(tc, PHON_KW_LET) == 0 ||
-               wcscmp(tc, BN_KW_SHOW) == 0) {
+    } else if (strncmp(tc, EN_KW_SHOW , len) == 0 || strncmp(tc, PHON_KW_LET , len) == 0 ||
+               strncmp(tc, BN_KW_SHOW , len) == 0) {
         tt = T_SHOW;
-    } else if (wcscmp(tc, EN_KW_RETURN) == 0 ||
-               wcscmp(tc, PHON_KW_RETURN) == 0 ||
-               wcscmp(tc, BN_KW_RETURN) == 0) {
+    } else if (strncmp(tc, EN_KW_RETURN , len) == 0 ||
+               strncmp(tc, PHON_KW_RETURN , len) == 0 ||
+               strncmp(tc, BN_KW_RETURN , len) == 0) {
         tt = T_RETURN;
-    } else if (wcscmp(tc, EN_KW_IF) == 0 || wcscmp(tc, PHON_KW_IF) == 0 ||
-               wcscmp(tc, BN_KW_IF) == 0) {
+    } else if (strncmp(tc, EN_KW_IF , len ) == 0 || strncmp(tc, PHON_KW_IF , len ) == 0 ||
+               strncmp(tc, BN_KW_IF , len) == 0) {
         tt = T_IF;
-    } else if (wcscmp(tc, EN_KW_THEN) == 0 || wcscmp(tc, PHON_KW_THEN) == 0 ||
-               wcscmp(tc, BN_KW_THEN) == 0) {
+    } else if (strncmp(tc, EN_KW_THEN , len) == 0 || strncmp(tc, PHON_KW_THEN , len) == 0 ||
+               strncmp(tc, BN_KW_THEN , len) == 0) {
         tt = T_THEN;
-    } else if (wcscmp(tc, EN_KW_ELSE) == 0 || wcscmp(tc, PHON_KW_ELSE) == 0 ||
-               wcscmp(tc, BN_KW_ELSE) == 0) {
+    } else if (strncmp(tc, EN_KW_ELSE , len) == 0 || strncmp(tc, PHON_KW_ELSE , len) == 0 ||
+               strncmp(tc, BN_KW_ELSE , len) == 0) {
         tt = T_ELSE;
-    } else if (wcscmp(tc, EN_KW_END) == 0 || wcscmp(tc, PHON_KW_END) == 0 ||
-               wcscmp(tc, BN_KW_END) == 0) {
+    } else if (strncmp(tc, EN_KW_END , len) == 0 || strncmp(tc, PHON_KW_END , len) == 0 ||
+               strncmp(tc, BN_KW_END , len) == 0) {
         tt = T_END;
 
-    } else if (wcscmp(tc, EN_KW_WHILE) == 0 || wcscmp(tc, PHON_KW_WHILE) == 0 ||
-               wcscmp(tc, BN_KW_WHILE) == 0) {
+    } else if (strncmp(tc, EN_KW_WHILE , len) == 0 || strncmp(tc, PHON_KW_WHILE , len) == 0 ||
+               strncmp(tc, BN_KW_WHILE , len) == 0) {
         tt = T_WHILE;
-    } else if (wcscmp(tc, EN_KW_AND) == 0 || wcscmp(tc, PHON_KW_AND) == 0 ||
-               wcscmp(tc, BN_KW_AND) == 0) {
+    } else if (strncmp(tc, EN_KW_AND , len) == 0 || strncmp(tc, PHON_KW_AND, len) == 0 ||
+               strncmp(tc, BN_KW_AND , len) == 0) {
         tt = T_AND;
-    } else if (wcscmp(tc, EN_KW_OR) == 0 || wcscmp(tc, PHON_KW_OR) == 0 ||
-               wcscmp(tc, BN_KW_OR) == 0) {
+    } else if (strncmp(tc, EN_KW_OR , len) == 0 || strncmp(tc, PHON_KW_OR , len) == 0 ||
+               strncmp(tc, BN_KW_OR , len) == 0) {
         tt = T_OR;
-    } else if (wcscmp(tc, EN_KW_TRUE) == 0 || wcscmp(tc, PHON_KW_TRUE) == 0 ||
-               wcscmp(tc, BN_KW_TRUE) == 0) {
+    } else if (strncmp(tc, EN_KW_TRUE , len) == 0 || strncmp(tc, PHON_KW_TRUE , len) == 0 ||
+               strncmp(tc, BN_KW_TRUE , len) == 0) {
         tt = T_TRUE;
-    } else if (wcscmp(tc, EN_KW_FALSE) == 0 || wcscmp(tc, PHON_KW_FALSE) == 0 ||
-               wcscmp(tc, BN_KW_FALSE) == 0) {
+    } else if (strncmp(tc, EN_KW_FALSE , len) == 0 || strncmp(tc, PHON_KW_FALSE , len) == 0 ||
+               strncmp(tc, BN_KW_FALSE , len) == 0) {
         tt = T_FALSE;
-    } else if (wcscmp(tc, EN_KW_FUNC) == 0 || wcscmp(tc, PHON_KW_FUNC) == 0 ||
-               wcscmp(tc, BN_KW_FUNC) == 0) {
+    } else if (strncmp(tc, EN_KW_FUNC , len) == 0 || strncmp(tc, PHON_KW_FUNC , len) == 0 ||
+               strncmp(tc, BN_KW_FUNC , len) == 0) {
         tt = T_FUNC;
-    } else if (wcscmp(tc, EN_KW_NIL) == 0 || wcscmp(tc, BN_KW_NIL) == 0) {
+    } else if (strncmp(tc, EN_KW_NIL , len) == 0 || strncmp(tc, BN_KW_NIL , len) == 0) {
         tt = T_NIL;
-    } else if (wcscmp(tc, EN_KW_IMPORT) == 0 ||
-               wcscmp(tc, PHON_KW_IMPORT) == 0 ||
-               wcscmp(tc, BN_KW_IMPORT) == 0) {
+    } else if (strncmp(tc, EN_KW_IMPORT , len) == 0 ||
+               strncmp(tc, PHON_KW_IMPORT , len) == 0 ||
+               strncmp(tc, BN_KW_IMPORT , len) == 0) {
         tt = T_IMPORT;
-    } else if (wcscmp(tc, EN_KW_PANIC) == 0 || wcscmp(tc, PHON_KW_PANIC) == 0 ||
-               wcscmp(tc, BN_KW_IMPORT) == 0) {
+    } else if (strncmp(tc, EN_KW_PANIC , len) == 0 || strncmp(tc, PHON_KW_PANIC , len) == 0 ||
+               strncmp(tc, BN_KW_IMPORT , len) == 0) {
         tt = T_MKERR;
 
     } else {
@@ -262,11 +301,11 @@ Token mk_id_tok(Lexer *lexer) {
     return tok;
 }
 
-Token err_tok(Lexer *lexer, wchar_t *msg) {
+Token err_tok(Lexer *lexer, char16_t *msg) {
     Token tk;
     tk.type = T_ERR;
     tk.start = msg;
-    tk.length = (int)wcslen(msg);
+    tk.length = (int)strlen16(msg);
     tk.line = lexer->line;
     return tk;
 }
@@ -310,7 +349,7 @@ Token get_str_tok(Lexer *lexer) {
     }
 
     if (is_eof(lexer)) {
-        return err_tok(lexer, L"String is not terminated!");
+        return err_tok(lexer, u"String is not terminated!");
     }
     next(lexer);
     return mktok(lexer, T_STR);
@@ -415,5 +454,5 @@ Token get_tok(Lexer *lexer) {
 
     // wprintf(L"L-> %lc ", c);
 
-    return err_tok(lexer, L"Unknown character");
+    return err_tok(lexer, u"Unknown character");
 }
