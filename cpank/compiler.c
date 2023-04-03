@@ -88,7 +88,7 @@ void init_compiler(Parser *parser, Compiler *compiler, Compiler *prevcomp,
     Local *local = &compiler->locals[compiler->local_count++];
     local->depth = compiler->scope_depth;
     // local->is_captd = false;
-    local->name.start = L"";
+    local->name.start = u"";
     local->name.length = 0;
 }
 
@@ -96,7 +96,7 @@ void init_compiler(Parser *parser, Compiler *compiler, Compiler *prevcomp,
 static Instruction *cur_ins(Compiler *compiler) { return &compiler->func->ins; }
 
 // helper function for err(..) and err_at_cur(..)
-static void err_at(Parser *parser, Token *tok, wchar_t *msg) {
+static void err_at(Parser *parser, Token *tok, char16_t *msg) {
     if (parser->panic_mode) {
         return;
     }
@@ -116,12 +116,12 @@ static void err_at(Parser *parser, Token *tok, wchar_t *msg) {
 }
 
 // Throw error for previous token
-static void err(Parser *parser, wchar_t *msg) {
+static void err(Parser *parser, char16_t *msg) {
     err_at(parser, &parser->prev, msg);
 }
 
 // Throw error for current function
-static void err_at_cur(Parser *parser, wchar_t *msg) {
+static void err_at_cur(Parser *parser, char16_t *msg) {
     err_at(parser, &parser->cur, msg);
 }
 
@@ -163,7 +163,7 @@ static void emit_return(Compiler *compiler) {
 static uint8_t make_const(Compiler *compiler, Value val) {
     int con = add_const(compiler->parser->vm, cur_ins(compiler), val);
     if (con > UINT8_MAX) {
-        err(compiler->parser, L"Too many constants");
+        err(compiler->parser, u"Too many constants");
         return 0;
     }
 
@@ -196,7 +196,7 @@ void emit_loop(Compiler *compiler, int ls) {
     emit_bt(compiler, OP_LOOP);
     int offset = cur_ins(compiler)->len - ls + 2;
     if (offset > UINT16_MAX) {
-        err(compiler->parser, L"loop body too big");
+        err(compiler->parser, u"loop body too big");
     }
     emit_bt(compiler, (offset >> 8) & 0xFF);
     emit_bt(compiler, offset & 0xFF);
@@ -211,7 +211,7 @@ int emit_jump(Compiler *compiler, uint8_t ins) {
 void patch_jump(Compiler *compiler, int offset) {
     int jmp = cur_ins(compiler)->len - offset - 2;
     if (jmp > UINT16_MAX) {
-        err(compiler->parser, L"too big jump");
+        err(compiler->parser, u"too big jump");
     }
 
     cur_ins(compiler)->code[offset] = (jmp >> 8) & 0xFF;
@@ -238,7 +238,7 @@ void read_or(Compiler *compiler, bool can_assign) {
 // eat current token;
 // Matches current token
 // if true advance else throw error
-static void eat_tok(Compiler *compiler, TokType tt, wchar_t *errmsg) {
+static void eat_tok(Compiler *compiler, TokType tt, char16_t *errmsg) {
     if (compiler->parser->cur.type == tt) {
         advance(compiler->parser);
         return;
@@ -273,13 +273,13 @@ uint8_t read_arg_list(Compiler *compiler) {
         do {
             read_expr(compiler);
             if (argc == 255) {
-                err(compiler->parser, L"Too many arguments; more than 255");
+                err(compiler->parser, u"Too many arguments; more than 255");
             }
             argc++;
         } while (match_tok(compiler, T_COMMA));
     }
 
-    eat_tok(compiler, T_RPAREN, L"Expected ')' after arguments");
+    eat_tok(compiler, T_RPAREN, u"Expected ')' after arguments");
     return argc;
     ;
 }
@@ -291,7 +291,7 @@ void read_call(Compiler *compiler, bool can_assign) {
 
 void read_group(Compiler *compiler, bool can_assign) {
     read_expr(compiler);
-    eat_tok(compiler, T_RPAREN, L"Expected ')' after group expression");
+    eat_tok(compiler, T_RPAREN, u"Expected ')' after group expression");
 }
 
 void read_unary(Compiler *compiler, bool can_assign) {
@@ -378,25 +378,25 @@ void read_array(Compiler *compiler, bool can_assign) {
         do {
             read_expr(compiler);
             if (items == 255) {
-                err(compiler->parser, L"Too many arguments; more than 255");
+                err(compiler->parser, u"Too many arguments; more than 255");
             }
             items++;
         } while (match_tok(compiler, T_COMMA));
     }
 
-    eat_tok(compiler, T_RSBRACKET, L"Expected ']' after array literal");
+    eat_tok(compiler, T_RSBRACKET, u"Expected ']' after array literal");
     emit_two(compiler, OP_ARRAY, (uint8_t)items);
 }
 
 void read_index_expr(Compiler *compiler, bool can_assign) {
     read_expr(compiler);
-    eat_tok(compiler, T_RSBRACKET, L"Expected ']' after index expression");
+    eat_tok(compiler, T_RSBRACKET, u"Expected ']' after index expression");
     emit_bt(compiler, OP_ARR_INDEX);
 }
 
 void add_local(Compiler *compiler, Token name) {
     if (compiler->local_count == UINT8_COUNT) {
-        err(compiler->parser, L"too many local vars");
+        err(compiler->parser, u"too many local vars");
         return;
     }
     Local *local = &compiler->locals[compiler->local_count++];
@@ -411,7 +411,7 @@ bool id_eq(Token *l, Token *r) {
         return false;
     }
 
-    return wmemcmp(l->start, r->start, l->length) == 0;
+    return true;  // wmemcmp(l->start, r->start, l->length) == 0;
 }
 
 int resolve_local(Compiler *compiler, Token *token) {
@@ -420,7 +420,7 @@ int resolve_local(Compiler *compiler, Token *token) {
         if (id_eq(token, &local->name)) {
             if (local->depth == -1) {
                 err(compiler->parser,
-                    L"Can't read local var in its own initializer.");
+                    u"Can't read local var in its own initializer.");
             }
             return i;
         }
@@ -439,7 +439,7 @@ int add_upval(Compiler *compiler, uint8_t index, bool is_local) {
     }
 
     if (upc == UINT8_COUNT) {
-        err(compiler->parser, L"Too many closure vars");
+        err(compiler->parser, u"Too many closure vars");
         return 0;
     }
 
@@ -504,7 +504,7 @@ void read_var(Compiler *compiler, bool can_assign) {
 
 void read_dot(Compiler *compiler, bool can_assign) {
     eat_tok(compiler, T_ID,
-            L"expected function or field name after module name");
+            u"expected function or field name after module name");
     uint8_t name = make_id_const(compiler, &compiler->parser->prev);
 
     if (can_assign && match_tok(compiler, T_EQ)) {
@@ -522,12 +522,12 @@ void read_hmap(Compiler *compiler, bool can_assign) {
             break;
         }
         read_expr(compiler);
-        eat_tok(compiler, T_COLON, L"expected ':' after hashmap key");
+        eat_tok(compiler, T_COLON, u"expected ':' after hashmap key");
         read_expr(compiler);
         count++;
     } while (match_tok(compiler, T_COMMA));
 
-    eat_tok(compiler, T_RBRACE, L"expected '}' after hashmap");
+    eat_tok(compiler, T_RBRACE, u"expected '}' after hashmap");
     emit_two(compiler, OP_HMAP, (uint8_t)count);
 }
 
@@ -618,7 +618,7 @@ static void parse_prec(Compiler *compiler, Prec prec) {
     advance(compiler->parser);
     ParseFn pref_rule = get_parse_rule(compiler->parser->prev.type)->prefix;
     if (pref_rule == NULL) {
-        err(compiler->parser, L"Expected expression");
+        err(compiler->parser, u"Expected expression");
         return;
     }
     bool can_assign = prec <= PREC_ASSIGN;
@@ -631,7 +631,7 @@ static void parse_prec(Compiler *compiler, Prec prec) {
     }
 
     if (can_assign && match_tok(compiler, T_EQ)) {
-        err(compiler->parser, L"Invalid asssignment");
+        err(compiler->parser, u"Invalid asssignment");
     }
 }
 
@@ -641,7 +641,7 @@ static void return_stmt(Compiler *compiler) {
     // top level script must not have
     // return statement
     if (compiler->type == FTYPE_SCRIPT) {
-        err(compiler->parser, L"cannot return from top-level code/script");
+        err(compiler->parser, u"cannot return from top-level code/script");
     }
 
     // if there is a semicolon just after
@@ -652,7 +652,7 @@ static void return_stmt(Compiler *compiler) {
         // if expression after return is present
         // parse the expression and emit return
         read_expr(compiler);
-        eat_tok(compiler, T_SEMICOLON, L"expected ';' after return value");
+        eat_tok(compiler, T_SEMICOLON, u"expected ';' after return value");
         emit_bt(compiler, OP_RETURN);
     }
 }
@@ -663,13 +663,13 @@ static void return_stmt(Compiler *compiler) {
 // 1 + 2;
 static void read_expr_stmt(Compiler *compiler) {
     read_expr(compiler);
-    eat_tok(compiler, T_SEMICOLON, L"Expected ';' after expression statement");
+    eat_tok(compiler, T_SEMICOLON, u"Expected ';' after expression statement");
     emit_bt(compiler, OP_POP);
 }
 
 static void read_print_stmt(Compiler *compiler) {
     read_expr(compiler);
-    eat_tok(compiler, T_SEMICOLON, L"expected ';' after show stmt");
+    eat_tok(compiler, T_SEMICOLON, u"expected ';' after show stmt");
     emit_bt(compiler, OP_SHOW);
 }
 
@@ -687,13 +687,13 @@ static void declare_var(Compiler *compiler) {
 
         if (id_eq(name, &local->name)) {
             err(compiler->parser,
-                L"already a variable with this name in the current scope");
+                u"already a variable with this name in the current scope");
         }
     }
     add_local(compiler, *name);
 }
 
-static uint8_t parse_var(Compiler *compiler, wchar_t *errmsg) {
+static uint8_t parse_var(Compiler *compiler, char16_t *errmsg) {
     eat_tok(compiler, T_ID, errmsg);
     declare_var(compiler);
     if (compiler->scope_depth > 0) {
@@ -718,14 +718,14 @@ static void define_var(Compiler *compiler, uint8_t global) {
 }
 
 static void let_declr(Compiler *compiler) {
-    uint8_t global = parse_var(compiler, L"Expected variable name after let");
+    uint8_t global = parse_var(compiler, u"Expected variable name after let");
     if (match_tok(compiler, T_EQ)) {
         read_expr(compiler);
     } else {
         emit_bt(compiler, OP_NIL);
     }
 
-    eat_tok(compiler, T_SEMICOLON, L"expected ';' after variable declr");
+    eat_tok(compiler, T_SEMICOLON, u"expected ';' after variable declr");
     define_var(compiler, global);
 }
 
@@ -734,27 +734,27 @@ static void read_to_end(Compiler *compiler) {
         read_declr(compiler);
     }
 
-    eat_tok(compiler, T_END, L"Expected 'end' after stmts");
+    eat_tok(compiler, T_END, u"Expected 'end' after stmts");
 }
 
 static void build_func(Compiler *compiler, Compiler *funcCompiler,
                        FuncType type) {
     init_compiler(compiler->parser, funcCompiler, compiler, type);
     start_scope(funcCompiler);
-    eat_tok(funcCompiler, T_LPAREN, L"expected '(' after func name");
+    eat_tok(funcCompiler, T_LPAREN, u"expected '(' after func name");
 
     if (!check_tok(funcCompiler, T_RPAREN)) {
         do {
             funcCompiler->func->arity++;
             if (funcCompiler->func->arity > 256) {
-                err_at_cur(funcCompiler->parser, L"too many function params");
+                err_at_cur(funcCompiler->parser, u"too many function params");
             }
-            uint8_t con = parse_var(funcCompiler, L"Expected param name");
+            uint8_t con = parse_var(funcCompiler, u"Expected param name");
             define_var(funcCompiler, con);
         } while (match_tok(funcCompiler, T_COMMA));
     }
 
-    eat_tok(funcCompiler, T_RPAREN, L"expected ')' after func params");
+    eat_tok(funcCompiler, T_RPAREN, u"expected ')' after func params");
     read_to_end(funcCompiler);
     ObjFunc *fn = end_compiler(funcCompiler);
     emit_two(compiler, OP_CLOSURE, make_const(compiler, make_obj_val(fn)));
@@ -768,7 +768,7 @@ static void build_func(Compiler *compiler, Compiler *funcCompiler,
 
 static void funct_declr(Compiler *compiler) {
     Compiler funcCompiler;
-    uint8_t global = parse_var(compiler, L"Expected function name");
+    uint8_t global = parse_var(compiler, u"Expected function name");
     // mk_func(compiler, FTYPE_FUNC);
     mark_init(compiler);
     build_func(compiler, &funcCompiler, FTYPE_FUNC);
@@ -801,7 +801,7 @@ static void read_if_block(Compiler *compiler) {
 
 static void read_if_stmt(Compiler *compiler) {
     read_expr(compiler);
-    eat_tok(compiler, T_THEN, L"expected 'then'  after if expression");
+    eat_tok(compiler, T_THEN, u"expected 'then'  after if expression");
 
     int then_jump = emit_jump(compiler, OP_JMP_IF_FALSE);
     emit_bt(compiler, OP_POP);
@@ -816,7 +816,7 @@ static void read_if_stmt(Compiler *compiler) {
         read_to_end(compiler);
         end_scope(compiler);
     } else {
-        eat_tok(compiler, T_END, L"Expected end after if without else");
+        eat_tok(compiler, T_END, u"Expected end after if without else");
     }
 
     patch_jump(compiler, else_jmp);
@@ -824,9 +824,9 @@ static void read_if_stmt(Compiler *compiler) {
 
 static void read_while_stmt(Compiler *compiler) {
     int ls = cur_ins(compiler)->len;
-    eat_tok(compiler, T_LPAREN, L"expected '(' after 'while'");
+    eat_tok(compiler, T_LPAREN, u"expected '(' after 'while'");
     read_expr(compiler);
-    eat_tok(compiler, T_RPAREN, L"expected ')' after expression");
+    eat_tok(compiler, T_RPAREN, u"expected ')' after expression");
     int exitjmp = emit_jump(compiler, OP_JMP_IF_FALSE);
     emit_bt(compiler, OP_POP);
     start_scope(compiler);
@@ -839,11 +839,11 @@ static void read_while_stmt(Compiler *compiler) {
 }
 
 static void read_import_stmt(Compiler *compiler) {
-    eat_tok(compiler, T_ID, L"expected import name");
+    eat_tok(compiler, T_ID, u"expected import name");
     uint8_t index = make_id_const(compiler, &compiler->parser->prev);
     read_expr(compiler);
     eat_tok(compiler, T_SEMICOLON,
-            L"Expected semicolon after import file name");
+            u"Expected semicolon after import file name");
     emit_bt(compiler, OP_IMPORT_NONAME);
     emit_bt(compiler, index);
 }
@@ -853,12 +853,12 @@ static void read_block(Compiler *compiler) {
         read_declr(compiler);
     }
 
-    eat_tok(compiler, T_RBRACE, L"Expected '}' after block stmts");
+    eat_tok(compiler, T_RBRACE, u"Expected '}' after block stmts");
 }
 
 static void read_err_stmt(Compiler *compiler) {
     read_expr(compiler);
-    eat_tok(compiler, T_SEMICOLON, L"Expected ';' after error statement");
+    eat_tok(compiler, T_SEMICOLON, u"Expected ';' after error statement");
     emit_bt(compiler, OP_ERR);
 }
 
