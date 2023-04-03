@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <uchar.h>
 #include <wchar.h>
 
 #ifdef WIN32
@@ -14,6 +15,19 @@
 #else
 #include <unistd.h>
 #endif
+
+int copy_c16(char16_t *str, const char16_t *input, int len) {
+    memcpy(str, input, sizeof(char16_t) * len);
+    return (int)sizeof(char16_t) * len;
+}
+
+int strlen16(const char16_t *strarg) {
+    if (!strarg) return -1;  // strarg is NULL pointer
+    const char16_t *str = strarg;
+    for (; *str; ++str)
+        ;  // empty body
+    return str - strarg;
+}
 
 bool does_file_exist(const char *filepath) {
     FILE *file = fopen(filepath, "r");

@@ -15,27 +15,25 @@
 #include "include/bn.h"
 #include "include/token.h"
 
-int strlen16(const char16_t* strarg)
-{
-   if(!strarg)
-     return -1; //strarg is NULL pointer
-   const char16_t* str = strarg;
-   for(;*str;++str)
-     ; // empty body
-   return str-strarg;
+int strlen16(const char16_t *strarg) {
+    if (!strarg) return -1;  // strarg is NULL pointer
+    const char16_t *str = strarg;
+    for (; *str; ++str)
+        ;  // empty body
+    return str - strarg;
 }
 
-char * c_to_c(const char16_t * input , int len){
+char *c_to_c(const char16_t *input, int len) {
     mbstate_t state;
     memset(&state, 0, sizeof(mbstate_t));
 
     size_t insz = sizeof(char16_t) * (len);
-    char * o = (char*)malloc(MB_CUR_MAX * insz);
-    char * p = o;
+    char *o = (char *)malloc(MB_CUR_MAX * insz);
+    char *p = o;
     int rc = 0;
 
-    for (int  i = 0; i < insz; i++) {
-        rc = c16rtomb(p, input[i], &state); 
+    for (int i = 0; i < insz; i++) {
+        rc = c16rtomb(p, input[i], &state);
         p += rc;
     }
     return o;
@@ -135,19 +133,17 @@ const char *toktype_to_string(TokType t) {
 }
 
 char *token_to_string(const Token *t) {
-    //wchar_t * wstr = (wchar_t*)malloc(sizeof(char16_t) * t->length);
-    //mbstowcs(wstr , t->start , t->length);
-    //size_t size_to_write = sizeof(char) * 16;
-    //char *result = (char *)malloc(size_to_write);
-    //snprintf(result, size_to_write, "T[%s]", toktype_to_string(tk->type));
-    //return result;
- 
-    
-    //wprintf(L"char16_t ->>>>>> '%s'\n" , y);
-    
+    // wchar_t * wstr = (wchar_t*)malloc(sizeof(char16_t) * t->length);
+    // mbstowcs(wstr , t->start , t->length);
+    // size_t size_to_write = sizeof(char) * 16;
+    // char *result = (char *)malloc(size_to_write);
+    // snprintf(result, size_to_write, "T[%s]", toktype_to_string(tk->type));
+    // return result;
+
+    // wprintf(L"char16_t ->>>>>> '%s'\n" , y);
+
     return "t";
 }
-
 
 // Lexer lexer;
 wchar_t next(Lexer *lexer) {
@@ -225,62 +221,76 @@ Token mk_num_tok(Lexer *lexer) {
 
 TokType get_ident_tok_type(char16_t *input, int len) {
     TokType tt = T_LET;
-    //wchar_t *tc = (wchar_t *)malloc(sizeof(wchar_t) * strlen16(input));
-    //swprintf(tc, (size_t)len + 1, input);
-    // wprintf(L"TO_CHECK-> %ls\n" , tc);
+    // wchar_t *tc = (wchar_t *)malloc(sizeof(wchar_t) * strlen16(input));
+    // swprintf(tc, (size_t)len + 1, input);
+    //  wprintf(L"TO_CHECK-> %ls\n" , tc);
     //
-    char * tc = c_to_c(input , len);
-    //wprintf(L"TC -> '%s' -> %d\n" , tc , len);
+    char *tc = c_to_c(input, len);
+    // wprintf(L"TC -> '%s' -> %d\n" , tc , len);
 
-    if (strncmp(tc, EN_KW_LET , len) == 0 || strncmp(tc, PHON_KW_LET , len) == 0 ||
-        strncmp(tc, BN_KW_LET , len) == 0) {
+    if (strncmp(tc, EN_KW_LET, len) == 0 ||
+        strncmp(tc, PHON_KW_LET, len) == 0 ||
+        strncmp(tc, BN_KW_LET, len) == 0) {
         tt = T_LET;
-    } else if (strncmp(tc, EN_KW_SHOW , len) == 0 || strncmp(tc, PHON_KW_LET , len) == 0 ||
-               strncmp(tc, BN_KW_SHOW , len) == 0) {
+    } else if (strncmp(tc, EN_KW_SHOW, len) == 0 ||
+               strncmp(tc, PHON_KW_LET, len) == 0 ||
+               strncmp(tc, BN_KW_SHOW, len) == 0) {
         tt = T_SHOW;
-    } else if (strncmp(tc, EN_KW_RETURN , len) == 0 ||
-               strncmp(tc, PHON_KW_RETURN , len) == 0 ||
-               strncmp(tc, BN_KW_RETURN , len) == 0) {
+    } else if (strncmp(tc, EN_KW_RETURN, len) == 0 ||
+               strncmp(tc, PHON_KW_RETURN, len) == 0 ||
+               strncmp(tc, BN_KW_RETURN, len) == 0) {
         tt = T_RETURN;
-    } else if (strncmp(tc, EN_KW_IF , len ) == 0 || strncmp(tc, PHON_KW_IF , len ) == 0 ||
-               strncmp(tc, BN_KW_IF , len) == 0) {
+    } else if (strncmp(tc, EN_KW_IF, len) == 0 ||
+               strncmp(tc, PHON_KW_IF, len) == 0 ||
+               strncmp(tc, BN_KW_IF, len) == 0) {
         tt = T_IF;
-    } else if (strncmp(tc, EN_KW_THEN , len) == 0 || strncmp(tc, PHON_KW_THEN , len) == 0 ||
-               strncmp(tc, BN_KW_THEN , len) == 0) {
+    } else if (strncmp(tc, EN_KW_THEN, len) == 0 ||
+               strncmp(tc, PHON_KW_THEN, len) == 0 ||
+               strncmp(tc, BN_KW_THEN, len) == 0) {
         tt = T_THEN;
-    } else if (strncmp(tc, EN_KW_ELSE , len) == 0 || strncmp(tc, PHON_KW_ELSE , len) == 0 ||
-               strncmp(tc, BN_KW_ELSE , len) == 0) {
+    } else if (strncmp(tc, EN_KW_ELSE, len) == 0 ||
+               strncmp(tc, PHON_KW_ELSE, len) == 0 ||
+               strncmp(tc, BN_KW_ELSE, len) == 0) {
         tt = T_ELSE;
-    } else if (strncmp(tc, EN_KW_END , len) == 0 || strncmp(tc, PHON_KW_END , len) == 0 ||
-               strncmp(tc, BN_KW_END , len) == 0) {
+    } else if (strncmp(tc, EN_KW_END, len) == 0 ||
+               strncmp(tc, PHON_KW_END, len) == 0 ||
+               strncmp(tc, BN_KW_END, len) == 0) {
         tt = T_END;
 
-    } else if (strncmp(tc, EN_KW_WHILE , len) == 0 || strncmp(tc, PHON_KW_WHILE , len) == 0 ||
-               strncmp(tc, BN_KW_WHILE , len) == 0) {
+    } else if (strncmp(tc, EN_KW_WHILE, len) == 0 ||
+               strncmp(tc, PHON_KW_WHILE, len) == 0 ||
+               strncmp(tc, BN_KW_WHILE, len) == 0) {
         tt = T_WHILE;
-    } else if (strncmp(tc, EN_KW_AND , len) == 0 || strncmp(tc, PHON_KW_AND, len) == 0 ||
-               strncmp(tc, BN_KW_AND , len) == 0) {
+    } else if (strncmp(tc, EN_KW_AND, len) == 0 ||
+               strncmp(tc, PHON_KW_AND, len) == 0 ||
+               strncmp(tc, BN_KW_AND, len) == 0) {
         tt = T_AND;
-    } else if (strncmp(tc, EN_KW_OR , len) == 0 || strncmp(tc, PHON_KW_OR , len) == 0 ||
-               strncmp(tc, BN_KW_OR , len) == 0) {
+    } else if (strncmp(tc, EN_KW_OR, len) == 0 ||
+               strncmp(tc, PHON_KW_OR, len) == 0 ||
+               strncmp(tc, BN_KW_OR, len) == 0) {
         tt = T_OR;
-    } else if (strncmp(tc, EN_KW_TRUE , len) == 0 || strncmp(tc, PHON_KW_TRUE , len) == 0 ||
-               strncmp(tc, BN_KW_TRUE , len) == 0) {
+    } else if (strncmp(tc, EN_KW_TRUE, len) == 0 ||
+               strncmp(tc, PHON_KW_TRUE, len) == 0 ||
+               strncmp(tc, BN_KW_TRUE, len) == 0) {
         tt = T_TRUE;
-    } else if (strncmp(tc, EN_KW_FALSE , len) == 0 || strncmp(tc, PHON_KW_FALSE , len) == 0 ||
-               strncmp(tc, BN_KW_FALSE , len) == 0) {
+    } else if (strncmp(tc, EN_KW_FALSE, len) == 0 ||
+               strncmp(tc, PHON_KW_FALSE, len) == 0 ||
+               strncmp(tc, BN_KW_FALSE, len) == 0) {
         tt = T_FALSE;
-    } else if (strncmp(tc, EN_KW_FUNC , len) == 0 || strncmp(tc, PHON_KW_FUNC , len) == 0 ||
-               strncmp(tc, BN_KW_FUNC , len) == 0) {
+    } else if (strncmp(tc, EN_KW_FUNC, len) == 0 ||
+               strncmp(tc, PHON_KW_FUNC, len) == 0 ||
+               strncmp(tc, BN_KW_FUNC, len) == 0) {
         tt = T_FUNC;
-    } else if (strncmp(tc, EN_KW_NIL , len) == 0 || strncmp(tc, BN_KW_NIL , len) == 0) {
+    } else if (strncmp(tc, EN_KW_NIL, len) == 0 ||
+               strncmp(tc, BN_KW_NIL, len) == 0) {
         tt = T_NIL;
-    } else if (strncmp(tc, EN_KW_IMPORT , len) == 0 ||
-               strncmp(tc, PHON_KW_IMPORT , len) == 0 ||
-               strncmp(tc, BN_KW_IMPORT , len) == 0) {
+    } else if (strncmp(tc, EN_KW_IMPORT, len) == 0 ||
+               strncmp(tc, PHON_KW_IMPORT, len) == 0 ||
+               strncmp(tc, BN_KW_IMPORT, len) == 0) {
         tt = T_IMPORT;
-    } else if (strncmp(tc, EN_KW_PANIC , len) == 0 || strncmp(tc, PHON_KW_PANIC , len) == 0 ||
-               strncmp(tc, BN_KW_IMPORT , len) == 0) {
+    } else if (strncmp(tc, EN_KW_PANIC, len) == 0 ||
+               strncmp(tc, PHON_KW_PANIC, len) == 0 ||
+               strncmp(tc, BN_KW_IMPORT, len) == 0) {
         tt = T_MKERR;
 
     } else {

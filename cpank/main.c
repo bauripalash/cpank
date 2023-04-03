@@ -28,14 +28,12 @@
 const wchar_t version[] = L"v0.1.0";
 */
 
-int strlenx16(const char16_t* strarg)
-{
-   if(!strarg)
-     return -1; //strarg is NULL pointer
-   const char16_t* str = strarg;
-   for(;*str;++str)
-     ; // empty body
-   return str-strarg;
+int strlenx16(const char16_t* strarg) {
+    if (!strarg) return -1;  // strarg is NULL pointer
+    const char16_t* str = strarg;
+    for (; *str; ++str)
+        ;  // empty body
+    return str - strarg;
 }
 int main(int argc, char** argv) {
     setlocale(LC_CTYPE, "");
@@ -43,18 +41,18 @@ int main(int argc, char** argv) {
     // memset(&mb, 0, sizeof(mb));
     Lexer lexer;
     char16_t* s = u"show 1+2;";
-    //wprintf(L"%s | LEN -> %d\n" , s , strlenx16(s));
-    
+    // wprintf(L"%s | LEN -> %d\n" , s , strlenx16(s));
+
     boot_lexer(&lexer, s);
-    Token tok = get_tok(&lexer);
+    /*Token tok = get_tok(&lexer);
     while (tok.type != T_EOF) {
       wprintf(L"%s \n", toktype_to_string(tok.type));
      // free(x);
 
       tok = get_tok(&lexer);
-    }
-//PankVm * vm = boot_vm();
-  // compile(vm, s) ;
+    }*/
+    PankVm* vm = boot_vm();
+    compile(vm, s);
 
     /*if (argc != 2) {
         cp_println(help_msg);

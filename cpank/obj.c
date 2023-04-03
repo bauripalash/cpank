@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <uchar.h>
 #include <wchar.h>
 
 #include "include/common.h"
@@ -55,7 +56,7 @@ bool is_array_obj(Value val) { return is_obj_type(val, OBJ_ARRAY); }
 
 ObjString *get_as_string(Value val) { return (ObjString *)get_as_obj(val); }
 ObjFunc *get_as_func(Value val) { return (ObjFunc *)get_as_obj(val); }
-wchar_t *get_as_native_string(Value val) {
+char16_t *get_as_native_string(Value val) {
     Obj *o = get_as_obj(val);
     ObjString *os = (ObjString *)(o);
     return os->chars;
@@ -71,7 +72,7 @@ ObjMod *get_as_mod(Value val) { return (ObjMod *)get_as_obj(val); }
 
 ObjHashMap *get_as_hmap(Value val) { return (ObjHashMap *)get_as_obj(val); }
 ObjErr *get_as_err(Value val) { return (ObjErr *)get_as_obj(val); }
-ObjString *allocate_str(PankVm *vm, wchar_t *chars, int len, uint32_t hash) {
+ObjString *allocate_str(PankVm *vm, char16_t *chars, int len, uint32_t hash) {
     ObjString *string = ALLOCATE_OBJ(vm, ObjString, OBJ_STR);
     string->len = len;
     string->chars = chars;
@@ -111,7 +112,7 @@ wchar_t *get_obj_type_as_string(ObjType o) {
     return L"OBJ_UNKNOWN";
 }
 
-uint32_t get_hash(const wchar_t *key, int len) {
+uint32_t get_hash(const char16_t *key, int len) {
     uint32_t hash = 2166136261u;
     for (int i = 0; i < len; i++) {
         hash ^= (uint8_t)key[i];
@@ -120,22 +121,23 @@ uint32_t get_hash(const wchar_t *key, int len) {
     return hash;
 }
 
-ObjString *copy_string(PankVm *vm, wchar_t *chars, int len) {
+ObjString *copy_string(PankVm *vm, char16_t *chars, int len) {
     uint32_t hash = get_hash(chars, len);
     ObjString *interned = table_find_str(&vm->strings, chars, len, hash);
     if (interned != NULL) {
         return interned;
     }
-    wchar_t *heap_chars = ALLOC(vm, wchar_t, len + 1);
+    char16_t *heap_chars = ALLOC(vm, char16_t, len + 1);
 
-    wmemcpy(heap_chars, chars, len);
+    // wmemcpy(heap_chars, chars, len);
+    copy_c16(heap_chars, chars, len);
 
     heap_chars[len] = '\0';
 
     return allocate_str(vm, heap_chars, len, hash);
 }
 
-ObjString *take_string(PankVm *vm, wchar_t *chars, int len) {
+ObjString *take_string(PankVm *vm, char16_t *chars, int len) {
     uint32_t hash = get_hash(chars, len);
 
     ObjString *interned = table_find_str(&vm->strings, chars, len, hash);
@@ -285,24 +287,27 @@ ObjClosure *new_closure(PankVm *vm, ObjFunc *func, uint32_t global_owner) {
     return cls;
 }
 
-ObjMod *new_mod(PankVm *vm, wchar_t *name) {
+ObjMod *new_mod(PankVm *vm, char16_t *name) {
     ObjMod *mod = ALLOCATE_OBJ(vm, ObjMod, OBJ_MOD);
-    mod->name = copy_string(vm, name, wcslen(name));
+    mod->name = copy_string(vm, name, strlen16(name));
     return mod;
 }
 
-ObjErr *new_err_obj(PankVm *vm, wchar_t *errmsg) {
+ObjErr *new_err_obj(PankVm *vm, char16_t *errmsg) {
     ObjErr *err = ALLOCATE_OBJ(vm, ObjErr, OBJ_ERR);
-    err->errmsg = malloc(sizeof(wchar_t) * (wcslen(errmsg) + 1));
-    wmemset(err->errmsg, 0, wcslen(errmsg) + 1);
 
-    wmemcpy(err->errmsg, errmsg, wcslen(errmsg) + 1);
-    err->len = wcslen(errmsg) + 1;
+    err->errmsg = (char16_t *)malloc(sizeof(char16_t) * (strlen16(errmsg) + 1));
+    // wmemset(err->errmsg, 0, wcslen(errmsg) + 1);
+    memset(err->errmsg, 0, strlen16(errmsg) + 1);
+
+    // wmemcpy(err->errmsg, errmsg, wcslen(errmsg) + 1);
+    memcpy(err->errmsg, errmsg, strlen16(errmsg) + 1);
+    err->len = strlen16(errmsg) + 1;
     // copy_string(errmsg, wcslen(errmsg));
     return err;
 }
 
-Value make_error(PankVm *vm, wchar_t *errmsg) {
+Value make_error(PankVm *vm, char16_t *errmsg) {
     return make_obj_val(new_err_obj(vm, errmsg));
 }
 

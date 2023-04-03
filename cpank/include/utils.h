@@ -2,6 +2,7 @@
 #define cpank_utils_h
 
 #include <stdbool.h>
+#include <uchar.h>
 #include <wchar.h>
 
 #define ANSI_COLOR_BLACK L"\x1b[30m"
@@ -13,6 +14,10 @@
 #define ANSI_COLOR_CYAN L"\x1b[36m"
 #define ANSI_COLOR_WHITE L"\x1b[37m"
 #define ANSI_COLOR_RESET L"\x1b[0m"
+
+int copy_c16(char16_t *str, const char16_t *input, int len);
+
+int strlen16(const char16_t *strarg);
 
 // check if `filepath` exists
 bool does_file_exist(const char *filepath);

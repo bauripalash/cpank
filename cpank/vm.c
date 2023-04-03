@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <uchar.h>
 #include <wchar.h>
 
 #include "include/common.h"
@@ -1031,7 +1032,7 @@ bool call(PankVm *vm, ObjClosure *closure, int origin, int argc) {
     return true;
 }
 
-IResult interpret(PankVm *vm, wchar_t *source) {
+IResult interpret(PankVm *vm, char16_t *source) {
     ObjFunc *fn = compile(vm, source);
     if (fn == NULL) {
         return INTRP_COMPILE_ERR;

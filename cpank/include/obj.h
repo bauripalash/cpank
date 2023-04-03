@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <uchar.h>
 #include <wchar.h>
 
 #include "common.h"
@@ -69,14 +70,14 @@ ObjClosure *new_closure(PankVm *vm, ObjFunc *function, uint32_t global_owner);
 struct ObjString {
     Obj obj;
     int len;
-    wchar_t *chars;
+    char16_t *chars;
     uint32_t hash;
 };
 
 typedef struct {
     Obj obj;
     int len;
-    wchar_t *errmsg;
+    char16_t *errmsg;
 } ObjErr;
 
 typedef struct ObjArray {
@@ -112,20 +113,20 @@ bool is_closure_obj(Value val);
 bool is_mod_obj(Value val);
 bool is_err_obj(Value val);
 bool is_array_obj(Value val);
-ObjErr *new_err_obj(PankVm *vm, wchar_t *errmsg);
-Value make_error(PankVm *vm, wchar_t *errmsg);
+ObjErr *new_err_obj(PankVm *vm, char16_t *errmsg);
+Value make_error(PankVm *vm, char16_t *errmsg);
 ObjErr *get_as_err(Value val);
 ObjFunc *get_as_func(Value val);
 ObjClosure *get_as_closure(Value val);
 ObjString *get_as_string(Value val);
 ObjArray *get_as_array(Value val);
-wchar_t *get_as_native_string(Value val);
+char16_t *get_as_native_string(Value val);
 NativeFn get_as_native(Value val);
-ObjString *copy_string(PankVm *vm, wchar_t *chars, int len);
-ObjString *take_string(PankVm *vm, wchar_t *chars, int len);
+ObjString *copy_string(PankVm *vm, char16_t *chars, int len);
+ObjString *take_string(PankVm *vm, char16_t *chars, int len);
 void print_obj(Value val);
 wchar_t *get_obj_type_as_string(ObjType o);
-uint32_t get_hash(const wchar_t *key, int len);
+uint32_t get_hash(const char16_t *key, int len);
 
 bool hmap_get(ObjHashMap *map, Value key, Value *val);
 

@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <uchar.h>
 #include <wchar.h>
 
 #include "common.h"
@@ -61,8 +62,8 @@ typedef struct ObjMod {
 
 } ObjMod;
 Module *get_mod_by_hash(PankVm *vm, uint32_t hash);
-ObjMod *get_as_mod(Value val);               // defined in obj.c
-ObjMod *new_mod(PankVm *vm, wchar_t *name);  // define in obj.c
+ObjMod *get_as_mod(Value val);                // defined in obj.c
+ObjMod *new_mod(PankVm *vm, char16_t *name);  // define in obj.c
 
 void init_module(Module *mod, const wchar_t *name);
 Module *get_cur_mod(PankVm *vm);
@@ -116,7 +117,7 @@ PankVm *boot_vm(void);
 
 // Free the VM and all things it holds
 void free_vm(PankVm *vm);
-IResult interpret(PankVm *vm, wchar_t *source);
+IResult interpret(PankVm *vm, char16_t *source);
 bool push(PankVm *vm, Value value);
 Value pop(PankVm *vm);
 Value peek_vm(PankVm *vm, int dist);
