@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <uchar.h>
 #include <wchar.h>
 
 #include "include/instruction.h"
@@ -9,7 +10,7 @@
 #include "include/value.h"
 
 // disassemble instructions set
-void dissm_ins_chunk(Instruction *ins, const wchar_t *name) {
+void dissm_ins_chunk(Instruction *ins, const char16_t *name) {
     wprintf(L"----> %ls <----\n", name);
 
     for (int off = 0; off < ins->len;) {

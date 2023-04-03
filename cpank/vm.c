@@ -192,10 +192,12 @@ Value get_last_pop(PankVm *vm) {
 Module *get_cur_mod(PankVm *vm) { return vm->current_mod; }
 
 void runtime_err(PankVm *vm, char16_t *format, ...) {
+    char *strformat = c_to_c(format, 255);
     // setlocale(LC_CTYPE, "");
     va_list args;
     va_start(args, format);
-    vfwprintf(stderr, format, args);
+    // vfwprintf(stderr, format, args);
+    vfprintf(stderr, strformat, args);
     // vwprintf(format, args)
 
     va_end(args);
@@ -378,8 +380,8 @@ bool bin_lte(PankVm *vm) {
 
 static int import_custom(PankVm *vm, char16_t *custom_name,
                          char16_t *import_name) {
-    WSrcfile ws = wread_file(import_name);  // Warning import cycle
-
+    // WSrcfile ws = wread_file(import_name);  // Warning import cycle
+    Srcfile ws = read_file(c_to_c(import_name, strlen16(import_name)));
     if (ws.errcode != 0) {
         return ws.errcode;
     }
@@ -395,13 +397,13 @@ static int import_custom(PankVm *vm, char16_t *custom_name,
     push(vm, make_obj_val(objmod));  // peek 1
     // cp_println(L"-----> %ls", objmod->name->chars);
     vm->mod_names[vm->mod_count - 1] = objmod->name->hash;
-    ObjString *strname = copy_string(vm, custom_name, wcslen(custom_name));
+    ObjString *strname = copy_string(vm, custom_name, strlen16(custom_name));
     push(vm, make_obj_val(strname));  // peek 0
 
     table_set(vm, &get_cur_mod(vm)->globals, get_as_string(peek_vm(vm, 0)),
               peek_vm(vm, 1));
     vm->current_mod = mod;  // vm.mod_count - 1;
-    ObjFunc *newfn = compile_module(vm, ws.source);
+    ObjFunc *newfn = compile_module(vm, chto16(ws.source));
 
     if (newfn == NULL) {
         return ERC_COMPTIME;
@@ -421,9 +423,9 @@ static int import_custom(PankVm *vm, char16_t *custom_name,
 
 static int import_file(PankVm *vm, char16_t *custom_name,
                        char16_t *import_name) {
-    if (wcscmp(import_name, STDMATH) == 0 ||
-        wcscmp(import_name, STDMATH_BN) == 0) {
-        ObjString *strname = copy_string(vm, custom_name, wcslen(custom_name));
+    if (str16cmp(import_name, STDMATH) || str16cmp(import_name, STDMATH_BN)) {
+        ObjString *strname =
+            copy_string(vm, custom_name, strlen16(custom_name));
         push(vm, make_obj_val(strname));
         ObjMod *objmod = new_mod(vm, custom_name);
         push(vm, make_obj_val(objmod));
@@ -438,14 +440,15 @@ static int import_file(PankVm *vm, char16_t *custom_name,
         prx->proxy_name = objmod->name->chars;
 
         if (vm->stdlib_count < 1) {
-            if (wcscmp(import_name, STDMATH) == 0) {
+            if (str16cmp(import_name, STDMATH)) {
                 push_stdlib_math(vm);
-            } else if (wcscmp(import_name, STDMATH_BN) == 0) {
+            } else if (str16cmp(import_name, STDMATH_BN)) {
                 push_stdlib_math_bn(vm);
             }
             StdlibMod *sm = &vm->stdlibs[0];
             sm->owners[sm->owner_count++] = mod->hash;
             prx->origin_name = sm->name;
+
             prx->stdmod = sm;
         } else {
             for (int i = 0; i < vm->stdlib_count; i++) {

@@ -254,8 +254,10 @@ Value _bn_math_str_to_num(PankVm* vm, int argc, Value* args) {
     }
 
     ObjString* ostr = get_as_string(args[0]);
+    char* input = c_to_c(ostr->chars, ostr->len);
     double result = 0;
-    swscanf(ostr->chars, u"%lf", &result);
+    scanf(input, u"%lf", &result);
+
     return make_num(result);
 }
 

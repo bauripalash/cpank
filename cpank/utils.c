@@ -1,12 +1,16 @@
 #include "include/utils.h"
 
+#include <bits/types/mbstate_t.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <uchar.h>
 #include <wchar.h>
+
+#include "include/value.h"
 
 #ifdef WIN32
 #include <io.h>
@@ -43,6 +47,45 @@ char *c_to_c(const char16_t *input, int len) {
         p += rc;
     }
     return o;
+}
+
+bool str16cmp(const char16_t *str1, const char16_t *str2) {
+    if (strlen16(str1) != strlen16(str2)) {
+        return false;
+    }
+
+    for (int i = 0; i < strlen16(str1); i++) {
+        if (str1[i] != str2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+char16_t *chto16(char *input) {
+    mbstate_t state;
+    memset(&state, 0, sizeof(mbstate_t));
+    size_t insz = sizeof(char) * (strlen(input) + 1);
+    char16_t *output = (char16_t *)malloc(insz);
+    char *p_in = input, *end = input + insz;
+
+    char16_t *p_out = output;
+
+    size_t rc;
+    while ((rc = mbrtoc16(p_out, p_in, end - p_in, &state))) {
+        if (rc == (size_t)-1) {
+            break;
+        } else if (rc == (size_t)-2) {
+            break;
+        } else if (rc == (size_t)-3) {
+            p_out += 1;
+        } else {
+            p_in += rc;
+            p_out += 1;
+        }
+    }
+
+    return output;
 }
 
 bool does_file_exist(const char *filepath) {

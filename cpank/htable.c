@@ -8,6 +8,7 @@
 
 #include "include/mem.h"
 #include "include/obj.h"
+#include "include/utils.h"
 #include "include/value.h"
 
 #define TABLE_MAX_LD 0.75
@@ -43,7 +44,9 @@ static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
                 }
             }
         } else if (entry->key->len == key->len) {
-            if (strncmp(entry->key->chars, key->chars, key->len) == 0) {
+            //            if (strncmp(entry->key->chars, key->chars, key->len)
+            //            == 0) {
+            if (str16cmp(entry->key->chars, key->chars)) {
                 return entry;
             }
         }
@@ -189,7 +192,8 @@ ObjString *table_find_str(Htable *table, char16_t *chars, int len,
                 return NULL;
             }
         } else if (entry->key->len == len && entry->key->hash == hash &&
-                   strncmp(entry->key->chars, chars, entry->key->len) == 0) {
+                   // strncmp(entry->key->chars, chars, entry->key->len) == 0) {
+                   str16cmp(entry->key->chars, chars)) {
             return entry->key;
         }
 

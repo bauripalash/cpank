@@ -10,10 +10,11 @@
 #include "include/value.h"
 #include "include/vm.h"
 
+#define DEBUG_PRINT_CODE
+#define DEBUG_LEXER
 #ifdef DEBUG_PRINT_CODE
 #include "include/debug.h"
 #endif
-#define DEBUG_PRINT_CODE
 
 // #define DEBUG_LEXER
 
@@ -904,15 +905,13 @@ ObjFunc *end_compiler(Compiler *compiler) {
     if (!compiler->parser->had_err) {
         dissm_ins_chunk(cur_ins(compiler), compiler->func->name != NULL
                                                ? compiler->func->name->chars
-                                               : L"<script>");
+                                               : u"<script>");
     }
 #endif
     // compiler = compiler->enclosing;
     compiler->parser->vm->compiler = compiler->enclosing;
     return function;
 }
-
-#define DEBUG_LEXER
 
 ObjFunc *compile(PankVm *vm, char16_t *source) {
     Parser parser;

@@ -28,7 +28,7 @@ typedef struct {
 
 typedef struct StdlibMod {
     Htable items;
-    wchar_t *name;
+    char16_t *name;
     uint32_t hash;
     uint32_t owners[MODULES_MAX];
     int owner_count;
@@ -36,8 +36,8 @@ typedef struct StdlibMod {
 
 typedef struct StdProxy {
     StdlibMod *stdmod;
-    wchar_t *origin_name;
-    wchar_t *proxy_name;
+    char16_t *origin_name;
+    char16_t *proxy_name;
     uint32_t proxy_hash;
 } StdProxy;
 
@@ -52,7 +52,7 @@ typedef struct Module {
     ObjUpVal *open_upvs;
     bool is_default;
     struct Module *origin;
-    wchar_t *source_code;
+    char16_t *source_code;
 
 } Module;
 

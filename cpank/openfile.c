@@ -19,7 +19,7 @@ Srcfile read_file(const char *path) {
         return result;
     }
     result.errcode = 0;
-    FILE *file = fopen(path, "r");
+    FILE *file = fopen(path, "rb");
     if (file == NULL) {
         // fwprintf(stderr, L"Failed to open file %s\n", path);
         // cp_color_println('r' , L"Failed to open file %s" , path);
