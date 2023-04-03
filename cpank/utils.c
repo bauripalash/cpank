@@ -29,6 +29,22 @@ int strlen16(const char16_t *strarg) {
     return str - strarg;
 }
 
+char *c_to_c(const char16_t *input, int len) {
+    mbstate_t state;
+    memset(&state, 0, sizeof(mbstate_t));
+
+    size_t insz = sizeof(char16_t) * (len);
+    char *o = (char *)malloc(MB_CUR_MAX * insz);
+    char *p = o;
+    int rc = 0;
+
+    for (int i = 0; i < insz; i++) {
+        rc = c16rtomb(p, input[i], &state);
+        p += rc;
+    }
+    return o;
+}
+
 bool does_file_exist(const char *filepath) {
     FILE *file = fopen(filepath, "r");
     if (file == NULL) {

@@ -262,13 +262,13 @@ ObjArray *new_array(PankVm *vm) {
     return array;
 }
 
-ObjNative *new_native(PankVm *vm, NativeFn fn, wchar_t *name) {
+ObjNative *new_native(PankVm *vm, NativeFn fn, char16_t *name) {
     ObjNative *native = ALLOCATE_OBJ(vm, ObjNative, OBJ_NATIVE);
     native->func = fn;
-    size_t namelen = wcslen(name) + 1;
-    native->name = (wchar_t *)malloc(sizeof(wchar_t) * namelen);
-    wmemset(native->name, 0, namelen);
-    wmemcpy(native->name, name, namelen);
+    size_t namelen = strlen16(name) + 1;
+    native->name = (char16_t *)malloc(sizeof(char16_t) * namelen);
+    memset(native->name, 0, namelen);
+    memcpy(native->name, name, namelen);
     native->name_len = namelen - 1;
     return native;
 }

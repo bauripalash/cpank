@@ -2,6 +2,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
+#include <uchar.h>
 #include <wchar.h>
 
 #include "include/mem.h"
@@ -41,7 +43,7 @@ static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
                 }
             }
         } else if (entry->key->len == key->len) {
-            if (wcscmp(entry->key->chars, key->chars) == 0) {
+            if (strncmp(entry->key->chars, key->chars, key->len) == 0) {
                 return entry;
             }
         }
@@ -172,7 +174,7 @@ void print_table(Htable *table, char *name) {
     wprintf(L"<- END TABLE ->\n");
 }
 
-ObjString *table_find_str(Htable *table, wchar_t *chars, int len,
+ObjString *table_find_str(Htable *table, char16_t *chars, int len,
                           uint32_t hash) {
     if (table->len == 0) {
         return NULL;
@@ -187,7 +189,7 @@ ObjString *table_find_str(Htable *table, wchar_t *chars, int len,
                 return NULL;
             }
         } else if (entry->key->len == len && entry->key->hash == hash &&
-                   wcscmp(entry->key->chars, chars) == 0) {
+                   strncmp(entry->key->chars, chars, entry->key->len) == 0) {
             return entry->key;
         }
 

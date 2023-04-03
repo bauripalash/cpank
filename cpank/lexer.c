@@ -14,30 +14,7 @@
 
 #include "include/bn.h"
 #include "include/token.h"
-
-int strlen16(const char16_t *strarg) {
-    if (!strarg) return -1;  // strarg is NULL pointer
-    const char16_t *str = strarg;
-    for (; *str; ++str)
-        ;  // empty body
-    return str - strarg;
-}
-
-char *c_to_c(const char16_t *input, int len) {
-    mbstate_t state;
-    memset(&state, 0, sizeof(mbstate_t));
-
-    size_t insz = sizeof(char16_t) * (len);
-    char *o = (char *)malloc(MB_CUR_MAX * insz);
-    char *p = o;
-    int rc = 0;
-
-    for (int i = 0; i < insz; i++) {
-        rc = c16rtomb(p, input[i], &state);
-        p += rc;
-    }
-    return o;
-}
+#include "include/utils.h"
 
 const char *toktype_to_string(TokType t) {
     switch (t) {

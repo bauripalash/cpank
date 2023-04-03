@@ -1,6 +1,7 @@
 #ifndef cpank_stdlib_h
 #define cpank_stdlib_h
 
+#include <uchar.h>
 #include <wchar.h>
 
 #include "obj.h"
@@ -11,19 +12,19 @@
 #define CONST_E 2.71828182845904523536
 
 // Stdlib names
-#define STDMATH L"math"
-#define STDMATH_BN L"গণিত"
+#define STDMATH u"math"
+#define STDMATH_BN u"গণিত"
 
 typedef struct SL {
-    wchar_t* key;
+    char16_t* key;
     NativeFn func;
 } SL;
 
 // Return a Stdlib (SL) struct
-SL msl(wchar_t* key, NativeFn func);
+SL msl(char16_t* key, NativeFn func);
 
-int _push_stdlib(PankVm* vm, wchar_t* stdname, SL* funcs, int len);
-int _push_single_stdfunc(wchar_t* stdname, ObjString* key, NativeFn fn);
+int _push_stdlib(PankVm* vm, char16_t* stdname, SL* funcs, int len);
+int _push_single_stdfunc(char16_t* stdname, ObjString* key, NativeFn fn);
 void push_stdlib_math(PankVm* vm);
 void push_stdlib_math_bn(PankVm* vm);
 

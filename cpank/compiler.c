@@ -13,6 +13,7 @@
 #ifdef DEBUG_PRINT_CODE
 #include "include/debug.h"
 #endif
+#define DEBUG_PRINT_CODE
 
 // #define DEBUG_LEXER
 
@@ -179,7 +180,10 @@ static void emit_const(Compiler *compiler, Value value) {
 // parse numbers
 // double
 static void read_number(Compiler *compiler, bool can_assign) {
-    double val = wcstod(compiler->parser->prev.start, NULL);
+    char *str =
+        c_to_c(compiler->parser->prev.start, compiler->parser->prev.length);
+    // double val = 100 ;//wcstod(compiler->parser->prev.start, NULL);
+    double val = strtod(str, NULL);
     emit_const(compiler, make_num(val));
 }
 
@@ -908,6 +912,8 @@ ObjFunc *end_compiler(Compiler *compiler) {
     return function;
 }
 
+#define DEBUG_LEXER
+
 ObjFunc *compile(PankVm *vm, char16_t *source) {
     Parser parser;
     parser.vm = vm;
@@ -924,13 +930,13 @@ ObjFunc *compile(PankVm *vm, char16_t *source) {
     // compiler.parser->had_err = false;
     // compiler.parser->panic_mode = false;
 #ifdef DEBUG_LEXER
-    Token tk = get_tok();
+    Token tk = get_tok(&lexer);
     while (tk.type != T_EOF) {
         wprintf(L"TOK[%s][%.*ls]\n", toktype_to_string(tk.type), tk.length,
                 tk.start);
-        tk = get_tok();
+        tk = get_tok(&lexer);
     }
-    boot_lexer(source);
+    boot_lexer(&lexer, source);
 #endif
     // advance();
     advance(compiler.parser);

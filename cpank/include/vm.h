@@ -65,7 +65,7 @@ Module *get_mod_by_hash(PankVm *vm, uint32_t hash);
 ObjMod *get_as_mod(Value val);                // defined in obj.c
 ObjMod *new_mod(PankVm *vm, char16_t *name);  // define in obj.c
 
-void init_module(Module *mod, const wchar_t *name);
+void init_module(Module *mod, const char16_t *name);
 Module *get_cur_mod(PankVm *vm);
 bool is_default(Module *mod);
 
@@ -123,7 +123,7 @@ Value pop(PankVm *vm);
 Value peek_vm(PankVm *vm, int dist);
 Value get_last_pop(PankVm *vm);
 
-void define_native(PankVm *vm, wchar_t *name, NativeFn func);
+void define_native(PankVm *vm, char16_t *name, NativeFn func);
 Value clock_ntv_fn(PankVm *vm, int argc, Value *args);
 
 #endif

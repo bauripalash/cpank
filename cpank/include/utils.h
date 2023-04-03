@@ -19,6 +19,7 @@ int copy_c16(char16_t *str, const char16_t *input, int len);
 
 int strlen16(const char16_t *strarg);
 
+char *c_to_c(const char16_t *input, int len);
 // check if `filepath` exists
 bool does_file_exist(const char *filepath);
 

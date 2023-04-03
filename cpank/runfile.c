@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <uchar.h>
 #include <wchar.h>
 
 #include "include/common.h"
@@ -22,11 +23,11 @@ int run_file(const char *filepath) {
     }
     //  wprintf(L"SOURCE -> %s", raw.source);
     int errcode = 0;
-    wchar_t *src = (wchar_t *)malloc(sizeof(wchar_t) * raw.size);
-    //  wprintf(L"sizes: wchar_t -> %d | char -> %d\n" , sizeof(wchar_t) ,
+    // wchar_t *src = (wchar_t *)malloc(sizeof(wchar_t) * raw.size);
+    //   wprintf(L"sizes: wchar_t -> %d | char -> %d\n" , sizeof(wchar_t) ,
     setlocale(LC_CTYPE, "");
-    mbstowcs(src, raw.source, raw.size + 1);
-
+    // mbstowcs(src, raw.source, raw.size + 1);
+    char16_t src[] = u"show 1+2;";
     PankVm *vm = boot_vm();
 
     // wprintf(L"SOURCE_W -> %ls", src);
@@ -53,7 +54,7 @@ int run_file(const char *filepath) {
     // free(src);
     free_vm(vm);
 
-    free(src);
+    // free(src);
 
     free(raw.source);
     return errcode;
