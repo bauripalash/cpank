@@ -2,7 +2,6 @@
 #define cpank_lexer_h
 #include <stdbool.h>
 #include <uchar.h>
-#include <wchar.h>
 typedef enum {
     // ( -> Left Paren
     T_LPAREN,
@@ -98,16 +97,16 @@ typedef enum {
 
 typedef struct {
     TokType type;
-    char16_t *start;
+    char32_t *start;
     int length;
     int line;
 } Token;
 
 typedef struct {
     // start of lexeme;
-    char16_t *start;
+    char32_t *start;
     // current char being read;
-    char16_t *current;
+    char32_t *current;
     int line;
 } Lexer;
 
@@ -119,7 +118,7 @@ const char *toktype_to_string(TokType tt);
 char *token_to_string(const Token *t);
 
 // Initialize the lexer
-void boot_lexer(Lexer *lexer, char16_t *src);
+void boot_lexer(Lexer *lexer, char32_t *src);
 
 // check if lexer at the end of input
 // Checks if current char is '\0'

@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <uchar.h>
 #include <wchar.h>
 
 // Bengali Numbers
@@ -21,8 +22,8 @@
 
 // check if `c` is a bengali numbers
 // 0 to 9
-bool is_bn_num(wchar_t c);
+bool is_bn_num(char32_t c);
 
 // check if `c` is a bengali char
 // including numbers
-bool is_bn_char(wchar_t c);
+bool is_bn_char(char32_t c);

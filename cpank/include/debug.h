@@ -4,7 +4,7 @@
 #include <uchar.h>
 
 #include "instruction.h"
-void dissm_ins_chunk(Instruction *ins, const char16_t *name);
+void dissm_ins_chunk(Instruction *ins, const char32_t *name);
 int dissm_ins(Instruction *ins, int offset);
 const char *print_opcode(Op op);
 

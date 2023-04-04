@@ -12,19 +12,19 @@
 #define CONST_E 2.71828182845904523536
 
 // Stdlib names
-#define STDMATH u"math"
-#define STDMATH_BN u"গণিত"
+#define STDMATH U"math"
+#define STDMATH_BN U"গণিত"
 
 typedef struct SL {
-    char16_t* key;
+    char32_t* key;
     NativeFn func;
 } SL;
 
 // Return a Stdlib (SL) struct
-SL msl(char16_t* key, NativeFn func);
+SL msl(char32_t* key, NativeFn func);
 
-int _push_stdlib(PankVm* vm, char16_t* stdname, SL* funcs, int len);
-int _push_single_stdfunc(char16_t* stdname, ObjString* key, NativeFn fn);
+int _push_stdlib(PankVm* vm, char32_t* stdname, SL* funcs, int len);
+int _push_single_stdfunc(char32_t* stdname, ObjString* key, NativeFn fn);
 void push_stdlib_math(PankVm* vm);
 void push_stdlib_math_bn(PankVm* vm);
 

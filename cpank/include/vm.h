@@ -28,7 +28,7 @@ typedef struct {
 
 typedef struct StdlibMod {
     Htable items;
-    char16_t *name;
+    char32_t *name;
     uint32_t hash;
     uint32_t owners[MODULES_MAX];
     int owner_count;
@@ -36,8 +36,8 @@ typedef struct StdlibMod {
 
 typedef struct StdProxy {
     StdlibMod *stdmod;
-    char16_t *origin_name;
-    char16_t *proxy_name;
+    char32_t *origin_name;
+    char32_t *proxy_name;
     uint32_t proxy_hash;
 } StdProxy;
 
@@ -47,12 +47,12 @@ typedef struct Module {
     int stdlib_count;
     CallFrame frames[FRAME_SIZE];
     int frame_count;
-    wchar_t *name;
+    char32_t *name;
     uint32_t hash;
     ObjUpVal *open_upvs;
     bool is_default;
     struct Module *origin;
-    char16_t *source_code;
+    char32_t *source_code;
 
 } Module;
 
@@ -63,9 +63,9 @@ typedef struct ObjMod {
 } ObjMod;
 Module *get_mod_by_hash(PankVm *vm, uint32_t hash);
 ObjMod *get_as_mod(Value val);                // defined in obj.c
-ObjMod *new_mod(PankVm *vm, char16_t *name);  // define in obj.c
+ObjMod *new_mod(PankVm *vm, char32_t *name);  // define in obj.c
 
-void init_module(Module *mod, const char16_t *name);
+void init_module(Module *mod, const char32_t *name);
 Module *get_cur_mod(PankVm *vm);
 bool is_default(Module *mod);
 
@@ -117,13 +117,13 @@ PankVm *boot_vm(void);
 
 // Free the VM and all things it holds
 void free_vm(PankVm *vm);
-IResult interpret(PankVm *vm, char16_t *source);
+IResult interpret(PankVm *vm, char32_t *source);
 bool push(PankVm *vm, Value value);
 Value pop(PankVm *vm);
 Value peek_vm(PankVm *vm, int dist);
 Value get_last_pop(PankVm *vm);
 
-void define_native(PankVm *vm, char16_t *name, NativeFn func);
+void define_native(PankVm *vm, char32_t *name, NativeFn func);
 Value clock_ntv_fn(PankVm *vm, int argc, Value *args);
 
 #endif

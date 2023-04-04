@@ -9,12 +9,62 @@
 #include <stdlib.h>
 #include <string.h>
 #include <uchar.h>
-#include <wchar.h>
 #include <wctype.h>
 
 #include "include/bn.h"
-#include "include/token.h"
+// #include "include/token.h"
 #include "include/utils.h"
+
+const char EN_KW_LET[] = "let";
+const char EN_KW_SHOW[] = "show";
+const char EN_KW_RETURN[] = "return";
+const char EN_KW_IF[] = "if";
+const char EN_KW_THEN[] = "then";
+const char EN_KW_ELSE[] = "else";
+const char EN_KW_END[] = "end";
+const char EN_KW_WHILE[] = "while";
+const char EN_KW_AND[] = "and";
+const char EN_KW_OR[] = "or";
+const char EN_KW_TRUE[] = "true";
+const char EN_KW_FALSE[] = "false";
+const char EN_KW_FUNC[] = "fun";
+const char EN_KW_NIL[] = "nil";
+const char EN_KW_IMPORT[] = "import";
+const char EN_KW_PANIC[] = "panic";
+
+const char BN_KW_LET[] = "ধরি";
+const char BN_KW_SHOW[] = "দেখাও";
+const char BN_KW_RETURN[] = "ফেরাও";
+const char BN_KW_IF[] = "যদি";
+const char BN_KW_THEN[] = "তাহলে";
+const char BN_KW_ELSE[] = "নাহলে";
+const char BN_KW_END[] = "শেষ";
+const char BN_KW_WHILE[] = "যতক্ষণ";
+const char BN_KW_AND[] = "এবং";
+const char BN_KW_OR[] = "বা";
+const char BN_KW_TRUE[] = "সত্যি";
+const char BN_KW_FALSE[] = "মিথ্যা";
+const char BN_KW_FUNC[] = "কাজ";
+const char BN_KW_NIL[] = "নিল";
+const char BN_KW_IMPORT[] = "আনয়ন";
+const char BN_KW_PANIC[] = "গোলমাল";
+
+const char PHON_KW_LET[] = "dhori";
+const char PHON_KW_SHOW[] = "dekhao";
+const char PHON_KW_RETURN[] = "fearo";
+const char PHON_KW_IF[] = "jodi";
+const char PHON_KW_THEN[] = "tahole";
+const char PHON_KW_ELSE[] = "nahole";
+const char PHON_KW_END[] = "sesh";
+const char PHON_KW_WHILE[] = "jotokkhon";
+const char PHON_KW_AND[] = "ebong";
+const char PHON_KW_OR[] = "ba";
+const char PHON_KW_TRUE[] = "sotti";
+const char PHON_KW_FALSE[] = "mittha";
+const char PHON_KW_FUNC[] = "kaj";
+const char PHON_KW_NIL[] = "nil";
+const char PHON_KW_IMPORT[] = "anoyon";
+const char PHON_KW_PANIC[] = "golmal";
 
 const char *toktype_to_string(TokType t) {
     switch (t) {
@@ -123,24 +173,24 @@ char *token_to_string(const Token *t) {
 }
 
 // Lexer lexer;
-wchar_t next(Lexer *lexer) {
+char32_t next(Lexer *lexer) {
     lexer->current++;
     return lexer->current[-1];
 }
-bool match_char(Lexer *lexer, char16_t c) {
+bool match_char(Lexer *lexer, char32_t c) {
     if (is_eof(lexer)) return false;
     if (*lexer->current != c) return false;
     lexer->current++;
     return true;
 }
 
-wchar_t peek(Lexer *lexer) { return *lexer->current; }
-wchar_t peek_next(Lexer *lexer) {
+char32_t peek(Lexer *lexer) { return *lexer->current; }
+char32_t peek_next(Lexer *lexer) {
     if (is_eof(lexer)) return '\0';
     return lexer->current[1];
 }
 
-void boot_lexer(Lexer *lexer, char16_t *src) {
+void boot_lexer(Lexer *lexer, char32_t *src) {
     lexer->start = src;
     lexer->current = src;
     lexer->line = 1;
@@ -157,7 +207,7 @@ Token mktok(Lexer *lexer, TokType type) {
     return tok;
 }
 
-void btoe(char16_t *input, int len) {
+void btoe(char32_t *input, int len) {
     for (int i = 0; i < len; i++) {
         if (input[i] == BN_NUM_ONE) {
             input[i] = '1';
@@ -190,27 +240,45 @@ Token mk_num_tok(Lexer *lexer) {
     tok.length = (int)(lexer->current - lexer->start);
     tok.line = lexer->line;
 
-    btoe(tok.start, tok.length);
-    // wprintf(L"NUMBER-> %.*ls\n", tok.length, tok.start);
-    //  convert_bn_num_to_en(tok.start, tok.length);
+    // btoe(tok.start, tok.length);
+    //  wprintf(L"NUMBER-> %.*ls\n", tok.length, tok.start);
+    //   convert_bn_num_to_en(tok.start, tok.length);
     return tok;
 }
 
-TokType get_ident_tok_type(char16_t *input, int len) {
-    TokType tt = T_LET;
+bool match_kw(const char *input, const char *kw) {
+    return strncmp(input, kw, strlen(kw)) == 0;
+}
+
+TokType get_ident_tok_type(char32_t *input, int len) {
+    TokType tt = T_ID;
     // wchar_t *tc = (wchar_t *)malloc(sizeof(wchar_t) * strlen16(input));
     // swprintf(tc, (size_t)len + 1, input);
     //  wprintf(L"TO_CHECK-> %ls\n" , tc);
     //
     char *tc = c_to_c(input, len);
-    // wprintf(L"TC -> '%s' -> %d\n" , tc , len);
-
-    if (strncmp(tc, EN_KW_LET, len) == 0 ||
+    //wprintf(L"TC -> '%s' %d\n",tc , len);
+    if (match_kw(tc, EN_KW_LET)) {
+        tt = T_LET;
+    } else if (match_kw(tc, EN_KW_FUNC)) {
+        tt = T_FUNC;
+    } else if (match_kw(tc, EN_KW_IF)) {
+        tt = T_IF;
+    } else if (match_kw(tc, EN_KW_THEN)) {
+        tt = T_THEN;
+    } else if (match_kw(tc, EN_KW_END)) {
+        tt = T_END;
+    } else if (match_kw(tc, EN_KW_RETURN)) {
+        tt = T_RETURN;
+    } else if (match_kw(tc, EN_KW_SHOW)) {
+        tt = T_SHOW;
+    }
+    /*if (strncmp(tc, EN_KW_LET, len) == 0 ||
         strncmp(tc, PHON_KW_LET, len) == 0 ||
         strncmp(tc, BN_KW_LET, len) == 0) {
         tt = T_LET;
     } else if (strncmp(tc, EN_KW_SHOW, len) == 0 ||
-               strncmp(tc, PHON_KW_LET, len) == 0 ||
+               strncmp(tc, PHON_KW_SHOW, len) == 0 ||
                strncmp(tc, BN_KW_SHOW, len) == 0) {
         tt = T_SHOW;
     } else if (strncmp(tc, EN_KW_RETURN, len) == 0 ||
@@ -226,8 +294,7 @@ TokType get_ident_tok_type(char16_t *input, int len) {
                strncmp(tc, BN_KW_THEN, len) == 0) {
         tt = T_THEN;
     } else if (strncmp(tc, EN_KW_ELSE, len) == 0 ||
-               strncmp(tc, PHON_KW_ELSE, len) == 0 ||
-               strncmp(tc, BN_KW_ELSE, len) == 0) {
+               strncmp(tc, PHON_KW_ELSE, len) == 0) {
         tt = T_ELSE;
     } else if (strncmp(tc, EN_KW_END, len) == 0 ||
                strncmp(tc, PHON_KW_END, len) == 0 ||
@@ -267,12 +334,12 @@ TokType get_ident_tok_type(char16_t *input, int len) {
         tt = T_IMPORT;
     } else if (strncmp(tc, EN_KW_PANIC, len) == 0 ||
                strncmp(tc, PHON_KW_PANIC, len) == 0 ||
-               strncmp(tc, BN_KW_IMPORT, len) == 0) {
+               strncmp(tc, BN_KW_PANIC, len) == 0) {
         tt = T_MKERR;
 
     } else {
         tt = T_ID;
-    }
+    }*/
 
     free(tc);
 
@@ -288,7 +355,7 @@ Token mk_id_tok(Lexer *lexer) {
     return tok;
 }
 
-Token err_tok(Lexer *lexer, char16_t *msg) {
+Token err_tok(Lexer *lexer, char32_t *msg) {
     Token tk;
     tk.type = T_ERR;
     tk.start = msg;
@@ -297,14 +364,14 @@ Token err_tok(Lexer *lexer, char16_t *msg) {
     return tk;
 }
 
-bool is_en_num(wchar_t c) { return c >= '0' && c <= '9'; }
-bool is_en_alpha(wchar_t c) {
+bool is_en_num(char32_t c) { return c >= '0' && c <= '9'; }
+bool is_en_alpha(char32_t c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 
 void skip_ws(Lexer *lexer) {
     for (;;) {
-        wchar_t c = peek(lexer);
+        char32_t c = peek(lexer);
         switch (c) {
             case ' ':
             case '\r':
@@ -336,7 +403,7 @@ Token get_str_tok(Lexer *lexer) {
     }
 
     if (is_eof(lexer)) {
-        return err_tok(lexer, u"String is not terminated!");
+        return err_tok(lexer, U"String is not terminated!");
     }
     next(lexer);
     return mktok(lexer, T_STR);
@@ -373,7 +440,7 @@ Token get_tok(Lexer *lexer) {
     lexer->start = lexer->current;
     if (is_eof(lexer)) return mktok(lexer, T_EOF);
 
-    wchar_t c = next(lexer);
+    char32_t c = next(lexer);
     if (is_bn_num(c) || is_en_num(c)) {
         return get_num_tok(lexer);
         // wprintf(L"is number ");
@@ -441,5 +508,5 @@ Token get_tok(Lexer *lexer) {
 
     // wprintf(L"L-> %lc ", c);
 
-    return err_tok(lexer, u"Unknown character");
+    return err_tok(lexer, U"Unknown character");
 }

@@ -20,20 +20,20 @@
 #include <unistd.h>
 #endif
 
-int copy_c16(char16_t *str, const char16_t *input, int len) {
+int copy_c16(char32_t *str, const char32_t *input, int len) {
     memcpy(str, input, sizeof(char16_t) * len);
     return (int)sizeof(char16_t) * len;
 }
 
-int strlen16(const char16_t *strarg) {
+int strlen16(const char32_t *strarg) {
     if (!strarg) return -1;  // strarg is NULL pointer
-    const char16_t *str = strarg;
+    const char32_t *str = strarg;
     for (; *str; ++str)
         ;  // empty body
     return str - strarg;
 }
 
-char *c_to_c(const char16_t *input, int len) {
+char *c_to_c(const char32_t *input, int len) {
     mbstate_t state;
     memset(&state, 0, sizeof(mbstate_t));
 
@@ -43,13 +43,13 @@ char *c_to_c(const char16_t *input, int len) {
     int rc = 0;
 
     for (int i = 0; i < insz; i++) {
-        rc = c16rtomb(p, input[i], &state);
+        rc = c32rtomb(p, input[i], &state);
         p += rc;
     }
     return o;
 }
 
-bool str16cmp(const char16_t *str1, const char16_t *str2) {
+bool str16cmp(const char32_t *str1, const char32_t *str2) {
     if (strlen16(str1) != strlen16(str2)) {
         return false;
     }
@@ -62,26 +62,23 @@ bool str16cmp(const char16_t *str1, const char16_t *str2) {
     return true;
 }
 
-char16_t *chto16(char *input) {
+char32_t *chto16(char *input) {
     mbstate_t state;
-    memset(&state, 0, sizeof(mbstate_t));
-    size_t insz = sizeof(char) * (strlen(input) + 1);
-    char16_t *output = (char16_t *)malloc(insz);
-    char *p_in = input, *end = input + insz;
+    memset(&state, 0, sizeof(state));
 
-    char16_t *p_out = output;
+    char32_t *output =
+        (char32_t *)malloc(sizeof(char32_t) * (strlen(input) + 1));
+    size_t x = 0;
+    size_t y = 0;
 
-    size_t rc;
-    while ((rc = mbrtoc16(p_out, p_in, end - p_in, &state))) {
-        if (rc == (size_t)-1) {
+    while (input[x] != '\0') {
+        char32_t c3;
+        size_t rs = mbrtoc32(&c3, &input[x], MB_CUR_MAX, &state);
+        if (rs == (size_t)-1 || rs == (size_t)-2) {
             break;
-        } else if (rc == (size_t)-2) {
-            break;
-        } else if (rc == (size_t)-3) {
-            p_out += 1;
         } else {
-            p_in += rc;
-            p_out += 1;
+            output[y++] = c3;
+            x += rs;
         }
     }
 

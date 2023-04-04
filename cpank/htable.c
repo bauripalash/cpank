@@ -177,7 +177,7 @@ void print_table(Htable *table, char *name) {
     wprintf(L"<- END TABLE ->\n");
 }
 
-ObjString *table_find_str(Htable *table, char16_t *chars, int len,
+ObjString *table_find_str(Htable *table, char32_t *chars, int len,
                           uint32_t hash) {
     if (table->len == 0) {
         return NULL;

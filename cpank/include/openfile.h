@@ -2,6 +2,7 @@
 #define cpank_openfile_h
 
 #include <stddef.h>
+#include <uchar.h>
 
 // * char * source -> Source code content (you must free it)
 // * size_t size -> size of the source file
@@ -15,7 +16,7 @@ typedef struct Srcfile {
 // * wchar_t * source -> Source code content (you must free it)
 // * size_t size -> size of the source file
 typedef struct WSrcfile {
-    wchar_t *source;
+    char32_t *source;
     size_t size;
     int errcode;
 
@@ -29,10 +30,10 @@ Srcfile read_file(const char *path);
 // Widechar equivalent of Srcfile read_file(..)
 // see `read_file` & `WSrcfile`
 // you must free `WSrcfile.source`
-WSrcfile wread_file(wchar_t *path);
+WSrcfile wread_file(char32_t *path);
 
 // Given `/foodir/bar/hello.txt` returns `hello`
 // ** Unimplemented **
-wchar_t *get_name_from_path(const char *path);
+char32_t *get_name_from_path(const char *path);
 
 #endif

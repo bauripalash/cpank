@@ -10,7 +10,7 @@
 #include "include/value.h"
 
 // disassemble instructions set
-void dissm_ins_chunk(Instruction *ins, const char16_t *name) {
+void dissm_ins_chunk(Instruction *ins, const char32_t *name) {
     wprintf(L"----> %ls <----\n", name);
 
     for (int off = 0; off < ins->len;) {

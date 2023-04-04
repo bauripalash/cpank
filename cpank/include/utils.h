@@ -15,15 +15,15 @@
 #define ANSI_COLOR_WHITE L"\x1b[37m"
 #define ANSI_COLOR_RESET L"\x1b[0m"
 
-int copy_c16(char16_t *str, const char16_t *input, int len);
+int copy_c16(char32_t *str, const char32_t *input, int len);
 
-int strlen16(const char16_t *strarg);
+int strlen16(const char32_t *strarg);
 
-char *c_to_c(const char16_t *input, int len);
+char *c_to_c(const char32_t *input, int len);
 
-bool str16cmp(const char16_t *str1, const char16_t *str2);
+bool str16cmp(const char32_t *str1, const char32_t *str2);
 
-char16_t *chto16(char *input);
+char32_t *chto16(char *input);
 // check if `filepath` exists
 bool does_file_exist(const char *filepath);
 

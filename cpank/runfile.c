@@ -16,20 +16,26 @@
 
 int run_file(const char *filepath) {
     setlocale(LC_CTYPE, "");
-    // WSrcfile raw = wread_file(filepath);
-    // if (raw.errcode != 0) {
-    //     cp_println(L"Failed to read file '%s' -> error code %d", filepath,
-    //               raw.errcode);
-    //    exit(1);
-    //}
-    //  wprintf(L"SOURCE -> %s", raw.source);
+    // char * path = c_to_c(filepath, strlen16(filepath));
+    // char32_t * path = chto16(filepath);
+    // WSrcfile raw = wread_file(path);
+    Srcfile raw = read_file(filepath);
+
+    if (raw.errcode != 0) {
+        cp_println(L"Failed to read file '%s' -> error code %d", filepath,
+                   raw.errcode);
+        exit(1);
+    }
+    // cp_println(L"source -> %s\n" , raw.source);
+    //   wprintf(L"SOURCE -> %s", raw.source);
     int errcode = 0;
+    char32_t *src = chto16(raw.source);
     // wchar_t *src = (wchar_t *)malloc(sizeof(wchar_t) * raw.size);
     //   wprintf(L"sizes: wchar_t -> %d | char -> %d\n" , sizeof(wchar_t) ,
     // char16_t * src = chto16(raw.source);
     // cp_println(L"source -> %s" , raw.source);
     // mbstowcs(src, raw.source, raw.size + 1);
-    char16_t src[] = u"let x= 1+2; show x;";
+    // char32_t src[] = U"let x= 1+2; show x;";
     PankVm *vm = boot_vm();
 
     // wprintf(L"SOURCE_W -> %ls", src);
@@ -56,8 +62,8 @@ int run_file(const char *filepath) {
     // free(src);
     free_vm(vm);
 
-    // free(src);
+    free(src);
 
-    // free(raw.source);
+    free(raw.source);
     return errcode;
 }

@@ -9,7 +9,7 @@
 #include "../include/utils.h"
 #include "../include/vm.h"
 
-int _push_stdlib(PankVm* vm, char16_t* stdname, SL funcs[], int len) {
+int _push_stdlib(PankVm* vm, char32_t* stdname, SL funcs[], int len) {
     uint32_t name_hash = get_hash(stdname, strlen16(stdname));
     for (int i = 0; i < vm->stdlib_count; i++) {
         if (vm->stdlibs[i].hash == name_hash) {
@@ -41,4 +41,4 @@ int _push_stdlib(PankVm* vm, char16_t* stdname, SL funcs[], int len) {
     return 0;
 }
 
-SL msl(char16_t* key, NativeFn func) { return (SL){.key = key, .func = func}; }
+SL msl(char32_t* key, NativeFn func) { return (SL){.key = key, .func = func}; }
