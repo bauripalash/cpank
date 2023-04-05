@@ -258,38 +258,53 @@ TokType get_ident_tok_type(char32_t *input, int len) {
     //
     char *tc = c_to_c(input, len);
     // wprintf(L"TC -> '%s' %d\n",tc , len);
-    if (match_kw(tc, EN_KW_LET) || match_kw(tc, BN_KW_LET) || match_kw(tc, PHON_KW_LET)) {
+    if (match_kw(tc, EN_KW_LET) || match_kw(tc, BN_KW_LET) ||
+        match_kw(tc, PHON_KW_LET)) {
         tt = T_LET;
-    } else if (match_kw(tc, EN_KW_SHOW) || match_kw(tc, BN_KW_SHOW) || match_kw(tc, PHON_KW_SHOW)) {
+    } else if (match_kw(tc, EN_KW_SHOW) || match_kw(tc, BN_KW_SHOW) ||
+               match_kw(tc, PHON_KW_SHOW)) {
         tt = T_SHOW;
-    } else if (match_kw(tc, EN_KW_RETURN) || match_kw(tc, BN_KW_RETURN) || match_kw(tc, PHON_KW_RETURN)){
+    } else if (match_kw(tc, EN_KW_RETURN) || match_kw(tc, BN_KW_RETURN) ||
+               match_kw(tc, PHON_KW_RETURN)) {
         tt = T_RETURN;
-    } else if (match_kw(tc, EN_KW_IF) || match_kw(tc, BN_KW_IF) || match_kw(tc, PHON_KW_IF) ) {
+    } else if (match_kw(tc, EN_KW_IF) || match_kw(tc, BN_KW_IF) ||
+               match_kw(tc, PHON_KW_IF)) {
         tt = T_IF;
-    } else if (match_kw(tc, EN_KW_THEN) || match_kw(tc, BN_KW_THEN) || match_kw(tc, PHON_KW_THEN)) {
+    } else if (match_kw(tc, EN_KW_THEN) || match_kw(tc, BN_KW_THEN) ||
+               match_kw(tc, PHON_KW_THEN)) {
         tt = T_THEN;
-    } else if (match_kw(tc, EN_KW_ELSE)|| match_kw(tc, BN_KW_ELSE) || match_kw(tc, PHON_KW_ELSE) ) {
+    } else if (match_kw(tc, EN_KW_ELSE) || match_kw(tc, BN_KW_ELSE) ||
+               match_kw(tc, PHON_KW_ELSE)) {
         tt = T_ELSE;
-    } else if (match_kw(tc, EN_KW_END) || match_kw(tc, BN_KW_END) || match_kw(tc, PHON_KW_END)) {
+    } else if (match_kw(tc, EN_KW_END) || match_kw(tc, BN_KW_END) ||
+               match_kw(tc, PHON_KW_END)) {
         tt = T_END;
-    } else if (match_kw(tc, EN_KW_WHILE) || match_kw(tc, BN_KW_WHILE) || match_kw(tc, PHON_KW_WHILE)) {
+    } else if (match_kw(tc, EN_KW_WHILE) || match_kw(tc, BN_KW_WHILE) ||
+               match_kw(tc, PHON_KW_WHILE)) {
         tt = T_WHILE;
-    } else if (match_kw(tc, EN_KW_AND) || match_kw(tc, BN_KW_AND) || match_kw(tc, PHON_KW_AND)) {
+    } else if (match_kw(tc, EN_KW_AND) || match_kw(tc, BN_KW_AND) ||
+               match_kw(tc, PHON_KW_AND)) {
         tt = T_AND;
-    } else if (match_kw(tc, EN_KW_OR) || match_kw(tc, BN_KW_OR) || match_kw(tc, PHON_KW_OR)) {
+    } else if (match_kw(tc, EN_KW_OR) || match_kw(tc, BN_KW_OR) ||
+               match_kw(tc, PHON_KW_OR)) {
         tt = T_OR;
-    } else if (match_kw(tc, EN_KW_TRUE) || match_kw(tc, BN_KW_TRUE) || match_kw(tc, PHON_KW_TRUE)) {
+    } else if (match_kw(tc, EN_KW_TRUE) || match_kw(tc, BN_KW_TRUE) ||
+               match_kw(tc, PHON_KW_TRUE)) {
         tt = T_TRUE;
-    } else if (match_kw(tc, EN_KW_FALSE) || match_kw(tc, BN_KW_FALSE) || match_kw(tc, PHON_KW_FALSE)) {
+    } else if (match_kw(tc, EN_KW_FALSE) || match_kw(tc, BN_KW_FALSE) ||
+               match_kw(tc, PHON_KW_FALSE)) {
         tt = T_FALSE;
-    } else if (match_kw(tc, EN_KW_FUNC) || match_kw(tc, BN_KW_FUNC) || match_kw(tc, PHON_KW_FUNC)) {
+    } else if (match_kw(tc, EN_KW_FUNC) || match_kw(tc, BN_KW_FUNC) ||
+               match_kw(tc, PHON_KW_FUNC)) {
         tt = T_FUNC;
     } else if (match_kw(tc, EN_KW_NIL) || match_kw(tc, BN_KW_NIL)) {
         tt = T_NIL;
-    }else if (match_kw(tc, EN_KW_IMPORT) || match_kw(tc, BN_KW_IMPORT) || match_kw(tc, PHON_KW_IMPORT)) {
-    tt = T_IMPORT;
-    }else if (match_kw(tc, EN_KW_PANIC) || match_kw(tc, BN_KW_PANIC) || match_kw(tc, PHON_KW_PANIC)) {
-    tt = T_MKERR;
+    } else if (match_kw(tc, EN_KW_IMPORT) || match_kw(tc, BN_KW_IMPORT) ||
+               match_kw(tc, PHON_KW_IMPORT)) {
+        tt = T_IMPORT;
+    } else if (match_kw(tc, EN_KW_PANIC) || match_kw(tc, BN_KW_PANIC) ||
+               match_kw(tc, PHON_KW_PANIC)) {
+        tt = T_MKERR;
     }
     /*if (strncmp(tc, EN_KW_LET, len) == 0 ||
         strncmp(tc, PHON_KW_LET, len) == 0 ||

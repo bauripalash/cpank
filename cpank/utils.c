@@ -1,6 +1,7 @@
 #include "include/utils.h"
 
 #include <bits/types/mbstate_t.h>
+#include <locale.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -36,7 +37,22 @@ int strlen16(const char32_t *strarg) {
 char *c_to_c(const char32_t *input, int len) {
     mbstate_t state;
     memset(&state, 0, sizeof(mbstate_t));
+    char *o = (char *)malloc((strlen16(input) * MB_CUR_MAX + 1) * sizeof(char));
+    setlocale(LC_ALL, "");
+    const char32_t *sr = input;
+    size_t slen = strlen16(input);
+    char *dest = o;
+    while (slen > 0) {
+        size_t rs = c32rtomb(dest, *sr, &state);
+        if (rs == (size_t)-1) {
+            break;
+        }
 
+        sr++;
+        slen--;
+        dest += rs;
+    }
+    /*
     size_t insz = sizeof(char16_t) * (len);
     char *o = (char *)malloc(MB_CUR_MAX * insz);
     char *p = o;
@@ -49,6 +65,7 @@ char *c_to_c(const char32_t *input, int len) {
         }
         p += rc;
     }
+    */
     return o;
 }
 
@@ -66,13 +83,11 @@ bool str16cmp(const char32_t *str1, const char32_t *str2) {
 }
 
 char32_t *chto16(char *input) {
-    mbstate_t state;
-    memset(&state, 0, sizeof(state));
+    mbstate_t state = {0};
     size_t osz = sizeof(char32_t) * (strlen(input) + 1);
-    char32_t *output =
-        (char32_t *)malloc(osz);
+    char32_t *output = (char32_t *)malloc(osz);
     if (output == NULL) {
-    return NULL;
+        return NULL;
     }
     memset(output, 0, osz);
     size_t x = 0;
