@@ -128,12 +128,16 @@ ObjString *copy_string(PankVm *vm, char32_t *chars, int len) {
         return interned;
     }
     char32_t *heap_chars = ALLOC(vm, char32_t, len + 1);
+    // char32_t * heap_chars = (char32_t*)malloc(sizeof(char32_t) * (len + 1));
 
     // wmemcpy(heap_chars, chars, len);
-    copy_c16(heap_chars, chars, len);
+    // copy_c16(heap_chars, chars, len);
+    memcpy(heap_chars, chars, (sizeof(char32_t)) * (len));
 
     heap_chars[len] = '\0';
 
+    // cp_println(L"COPY_STRING -> %S -> %S - >%d\n" , heap_chars , chars ,
+    // len);
     return allocate_str(vm, heap_chars, len, hash);
 }
 

@@ -44,6 +44,9 @@ char *c_to_c(const char32_t *input, int len) {
 
     for (int i = 0; i < insz; i++) {
         rc = c32rtomb(p, input[i], &state);
+        if (rc == (size_t)-1) {
+        break;
+        }
         p += rc;
     }
     return o;
@@ -65,16 +68,20 @@ bool str16cmp(const char32_t *str1, const char32_t *str2) {
 char32_t *chto16(char *input) {
     mbstate_t state;
     memset(&state, 0, sizeof(state));
-
+    size_t osz = sizeof(char32_t) * (strlen(input) + 1);
     char32_t *output =
-        (char32_t *)malloc(sizeof(char32_t) * (strlen(input) + 1));
+        (char32_t *)malloc(osz);
+    if (output == NULL) {
+    return NULL;
+    }
+    memset(output, 0, osz);
     size_t x = 0;
     size_t y = 0;
 
     while (input[x] != '\0') {
         char32_t c3;
         size_t rs = mbrtoc32(&c3, &input[x], MB_CUR_MAX, &state);
-        if (rs == (size_t)-1 || rs == (size_t)-2) {
+        if (rs == (size_t)-1 || rs == (size_t)-2 || rs == (size_t)-3) {
             break;
         } else {
             output[y++] = c3;

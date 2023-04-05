@@ -185,6 +185,7 @@ static void read_number(Compiler *compiler, bool can_assign) {
         c_to_c(compiler->parser->prev.start, compiler->parser->prev.length);
     // double val = 100 ;//wcstod(compiler->parser->prev.start, NULL);
     double val = strtod(str, NULL);
+    free(str);
     emit_const(compiler, make_num(val));
 }
 
