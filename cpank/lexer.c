@@ -15,56 +15,58 @@
 // #include "include/token.h"
 #include "include/utils.h"
 
-const char EN_KW_LET[] = "let";
-const char EN_KW_SHOW[] = "show";
-const char EN_KW_RETURN[] = "return";
-const char EN_KW_IF[] = "if";
-const char EN_KW_THEN[] = "then";
-const char EN_KW_ELSE[] = "else";
-const char EN_KW_END[] = "end";
-const char EN_KW_WHILE[] = "while";
-const char EN_KW_AND[] = "and";
-const char EN_KW_OR[] = "or";
-const char EN_KW_TRUE[] = "true";
-const char EN_KW_FALSE[] = "false";
-const char EN_KW_FUNC[] = "fun";
-const char EN_KW_NIL[] = "nil";
-const char EN_KW_IMPORT[] = "import";
-const char EN_KW_PANIC[] = "panic";
+const char32_t EN_KW_LET[] = U"let";
+const char32_t EN_KW_SHOW[] = U"show";
+const char32_t EN_KW_RETURN[] = U"return";
+const char32_t EN_KW_IF[] = U"if";
+const char32_t EN_KW_THEN[] = U"then";
+const char32_t EN_KW_ELSE[] = U"else";
+const char32_t EN_KW_END[] = U"end";
+const char32_t EN_KW_WHILE[] = U"while";
+const char32_t EN_KW_AND[] = U"and";
+const char32_t EN_KW_OR[] = U"or";
+const char32_t EN_KW_TRUE[] = U"true";
+const char32_t EN_KW_FALSE[] = U"false";
+const char32_t EN_KW_FUNC[] = U"fun";
+const char32_t EN_KW_NIL[] = U"nil";
+const char32_t EN_KW_IMPORT[] = U"import";
+const char32_t EN_KW_PANIC[] = U"panic";
 
-const char BN_KW_LET[] = "ধরি";
-const char BN_KW_SHOW[] = "দেখাও";
-const char BN_KW_RETURN[] = "ফেরাও";
-const char BN_KW_IF[] = "যদি";
-const char BN_KW_THEN[] = "তাহলে";
-const char BN_KW_ELSE[] = "নাহলে";
-const char BN_KW_END[] = "শেষ";
-const char BN_KW_WHILE[] = "যতক্ষণ";
-const char BN_KW_AND[] = "এবং";
-const char BN_KW_OR[] = "বা";
-const char BN_KW_TRUE[] = "সত্যি";
-const char BN_KW_FALSE[] = "মিথ্যা";
-const char BN_KW_FUNC[] = "কাজ";
-const char BN_KW_NIL[] = "নিল";
-const char BN_KW_IMPORT[] = "আনয়ন";
-const char BN_KW_PANIC[] = "গোলমাল";
+const char32_t BN_KW_LET[] = U"\u09a7\u09b0\u09bf";
 
-const char PHON_KW_LET[] = "dhori";
-const char PHON_KW_SHOW[] = "dekhao";
-const char PHON_KW_RETURN[] = "fearo";
-const char PHON_KW_IF[] = "jodi";
-const char PHON_KW_THEN[] = "tahole";
-const char PHON_KW_ELSE[] = "nahole";
-const char PHON_KW_END[] = "sesh";
-const char PHON_KW_WHILE[] = "jotokkhon";
-const char PHON_KW_AND[] = "ebong";
-const char PHON_KW_OR[] = "ba";
-const char PHON_KW_TRUE[] = "sotti";
-const char PHON_KW_FALSE[] = "mittha";
-const char PHON_KW_FUNC[] = "kaj";
-const char PHON_KW_NIL[] = "nil";
-const char PHON_KW_IMPORT[] = "anoyon";
-const char PHON_KW_PANIC[] = "golmal";
+// const char32_t BN_KW_LET[] = U"ধরি";
+const char32_t BN_KW_SHOW[] = U"\u09a6\u09c7\u0996\u09be\u0993";
+const char32_t BN_KW_RETURN[] = U"\u09ab\u09c7\u09b0\u09be\u0993";
+const char32_t BN_KW_IF[] = U"\u09af\u09a6\u09bf";
+const char32_t BN_KW_THEN[] = U"\u09a4\u09be\u09b9\u09b2\u09c7";
+const char32_t BN_KW_ELSE[] = U"\u09a8\u09be\u09b9\u09b2\u09c7";
+const char32_t BN_KW_END[] = U"\u09b6\u09c7\u09b7";
+const char32_t BN_KW_WHILE[] = U"\u09af\u09a4\u0995\u09cd\u09b7\u09a3";
+const char32_t BN_KW_AND[] = U"\u098f\u09ac\u0982";
+const char32_t BN_KW_OR[] = U"\u09ac\u09be";
+const char32_t BN_KW_TRUE[] = U"\u09b8\u09a4\u09cd\u09af\u09bf";
+const char32_t BN_KW_FALSE[] = U"\u09ae\u09bf\u09a5\u09cd\u09af\u09be";
+const char32_t BN_KW_FUNC[] = U"\u0995\u09be\u099c";
+const char32_t BN_KW_NIL[] = U"\u09a8\u09bf\u09b2";
+const char32_t BN_KW_IMPORT[] = U"\u0986\u09a8\u09df\u09a8";
+const char32_t BN_KW_PANIC[] = U"\u0997\u09cb\u09b2\u09ae\u09be\u09b2";
+
+const char32_t PHON_KW_LET[] = U"dhori";
+const char32_t PHON_KW_SHOW[] = U"dekhao";
+const char32_t PHON_KW_RETURN[] = U"fearo";
+const char32_t PHON_KW_IF[] = U"jodi";
+const char32_t PHON_KW_THEN[] = U"tahole";
+const char32_t PHON_KW_ELSE[] = U"nahole";
+const char32_t PHON_KW_END[] = U"sesh";
+const char32_t PHON_KW_WHILE[] = U"jotokkhon";
+const char32_t PHON_KW_AND[] = U"ebong";
+const char32_t PHON_KW_OR[] = U"ba";
+const char32_t PHON_KW_TRUE[] = U"sotti";
+const char32_t PHON_KW_FALSE[] = U"mittha";
+const char32_t PHON_KW_FUNC[] = U"kaj";
+const char32_t PHON_KW_NIL[] = U"nil";
+const char32_t PHON_KW_IMPORT[] = U"anoyon";
+const char32_t PHON_KW_PANIC[] = U"golmal";
 
 const char *toktype_to_string(TokType t) {
     switch (t) {
@@ -246,135 +248,67 @@ Token mk_num_tok(Lexer *lexer) {
     return tok;
 }
 
-bool match_kw(const char *input, const char *kw) {
-    return strncmp(input, kw, strlen(kw)) == 0;
+bool match_kw(const char32_t *input, const char32_t *kw, int len) {
+    return str16cmp_n(input, kw, len);
 }
 
 TokType get_ident_tok_type(char32_t *input, int len) {
     TokType tt = T_ID;
-    // wchar_t *tc = (wchar_t *)malloc(sizeof(wchar_t) * strlen16(input));
-    // swprintf(tc, (size_t)len + 1, input);
-    //  wprintf(L"TO_CHECK-> %ls\n" , tc);
-    //
-    char *tc = c_to_c(input, len);
-    // wprintf(L"TC -> '%s' %d\n",tc , len);
-    if (match_kw(tc, EN_KW_LET) || match_kw(tc, BN_KW_LET) ||
-        match_kw(tc, PHON_KW_LET)) {
+    char32_t *tc = input;
+
+    if (match_kw(tc, EN_KW_LET, len) || match_kw(tc, BN_KW_LET, len) ||
+        match_kw(tc, PHON_KW_LET, len)) {
         tt = T_LET;
-    } else if (match_kw(tc, EN_KW_SHOW) || match_kw(tc, BN_KW_SHOW) ||
-               match_kw(tc, PHON_KW_SHOW)) {
+    } else if (match_kw(tc, EN_KW_SHOW, len) || match_kw(tc, BN_KW_SHOW, len) ||
+               match_kw(tc, PHON_KW_SHOW, len)) {
         tt = T_SHOW;
-    } else if (match_kw(tc, EN_KW_RETURN) || match_kw(tc, BN_KW_RETURN) ||
-               match_kw(tc, PHON_KW_RETURN)) {
+    } else if (match_kw(tc, EN_KW_RETURN, len) ||
+               match_kw(tc, BN_KW_RETURN, len) ||
+               match_kw(tc, PHON_KW_RETURN, len)) {
         tt = T_RETURN;
-    } else if (match_kw(tc, EN_KW_IF) || match_kw(tc, BN_KW_IF) ||
-               match_kw(tc, PHON_KW_IF)) {
+    } else if (match_kw(tc, EN_KW_IF, len) || match_kw(tc, BN_KW_IF, len) ||
+               match_kw(tc, PHON_KW_IF, len)) {
         tt = T_IF;
-    } else if (match_kw(tc, EN_KW_THEN) || match_kw(tc, BN_KW_THEN) ||
-               match_kw(tc, PHON_KW_THEN)) {
+    } else if (match_kw(tc, EN_KW_THEN, len) || match_kw(tc, BN_KW_THEN, len) ||
+               match_kw(tc, PHON_KW_THEN, len)) {
         tt = T_THEN;
-    } else if (match_kw(tc, EN_KW_ELSE) || match_kw(tc, BN_KW_ELSE) ||
-               match_kw(tc, PHON_KW_ELSE)) {
+    } else if (match_kw(tc, EN_KW_ELSE, len) || match_kw(tc, BN_KW_ELSE, len) ||
+               match_kw(tc, PHON_KW_ELSE, len)) {
         tt = T_ELSE;
-    } else if (match_kw(tc, EN_KW_END) || match_kw(tc, BN_KW_END) ||
-               match_kw(tc, PHON_KW_END)) {
+    } else if (match_kw(tc, EN_KW_END, len) || match_kw(tc, BN_KW_END, len) ||
+               match_kw(tc, PHON_KW_END, len)) {
         tt = T_END;
-    } else if (match_kw(tc, EN_KW_WHILE) || match_kw(tc, BN_KW_WHILE) ||
-               match_kw(tc, PHON_KW_WHILE)) {
+    } else if (match_kw(tc, EN_KW_WHILE, len) ||
+               match_kw(tc, BN_KW_WHILE, len) ||
+               match_kw(tc, PHON_KW_WHILE, len)) {
         tt = T_WHILE;
-    } else if (match_kw(tc, EN_KW_AND) || match_kw(tc, BN_KW_AND) ||
-               match_kw(tc, PHON_KW_AND)) {
+    } else if (match_kw(tc, EN_KW_AND, len) || match_kw(tc, BN_KW_AND, len) ||
+               match_kw(tc, PHON_KW_AND, len)) {
         tt = T_AND;
-    } else if (match_kw(tc, EN_KW_OR) || match_kw(tc, BN_KW_OR) ||
-               match_kw(tc, PHON_KW_OR)) {
+    } else if (match_kw(tc, EN_KW_OR, len) || match_kw(tc, BN_KW_OR, len) ||
+               match_kw(tc, PHON_KW_OR, len)) {
         tt = T_OR;
-    } else if (match_kw(tc, EN_KW_TRUE) || match_kw(tc, BN_KW_TRUE) ||
-               match_kw(tc, PHON_KW_TRUE)) {
+    } else if (match_kw(tc, EN_KW_TRUE, len) || match_kw(tc, BN_KW_TRUE, len) ||
+               match_kw(tc, PHON_KW_TRUE, len)) {
         tt = T_TRUE;
-    } else if (match_kw(tc, EN_KW_FALSE) || match_kw(tc, BN_KW_FALSE) ||
-               match_kw(tc, PHON_KW_FALSE)) {
+    } else if (match_kw(tc, EN_KW_FALSE, len) ||
+               match_kw(tc, BN_KW_FALSE, len) ||
+               match_kw(tc, PHON_KW_FALSE, len)) {
         tt = T_FALSE;
-    } else if (match_kw(tc, EN_KW_FUNC) || match_kw(tc, BN_KW_FUNC) ||
-               match_kw(tc, PHON_KW_FUNC)) {
+    } else if (match_kw(tc, EN_KW_FUNC, len) || match_kw(tc, BN_KW_FUNC, len) ||
+               match_kw(tc, PHON_KW_FUNC, len)) {
         tt = T_FUNC;
-    } else if (match_kw(tc, EN_KW_NIL) || match_kw(tc, BN_KW_NIL)) {
+    } else if (match_kw(tc, EN_KW_NIL, len) || match_kw(tc, BN_KW_NIL, len)) {
         tt = T_NIL;
-    } else if (match_kw(tc, EN_KW_IMPORT) || match_kw(tc, BN_KW_IMPORT) ||
-               match_kw(tc, PHON_KW_IMPORT)) {
+    } else if (match_kw(tc, EN_KW_IMPORT, len) ||
+               match_kw(tc, BN_KW_IMPORT, len) ||
+               match_kw(tc, PHON_KW_IMPORT, len)) {
         tt = T_IMPORT;
-    } else if (match_kw(tc, EN_KW_PANIC) || match_kw(tc, BN_KW_PANIC) ||
-               match_kw(tc, PHON_KW_PANIC)) {
+    } else if (match_kw(tc, EN_KW_PANIC, len) ||
+               match_kw(tc, BN_KW_PANIC, len) ||
+               match_kw(tc, PHON_KW_PANIC, len)) {
         tt = T_MKERR;
     }
-    /*if (strncmp(tc, EN_KW_LET, len) == 0 ||
-        strncmp(tc, PHON_KW_LET, len) == 0 ||
-        strncmp(tc, BN_KW_LET, len) == 0) {
-        tt = T_LET;
-    } else if (strncmp(tc, EN_KW_SHOW, len) == 0 ||
-               strncmp(tc, PHON_KW_SHOW, len) == 0 ||
-               strncmp(tc, BN_KW_SHOW, len) == 0) {
-        tt = T_SHOW;
-    } else if (strncmp(tc, EN_KW_RETURN, len) == 0 ||
-               strncmp(tc, PHON_KW_RETURN, len) == 0 ||
-               strncmp(tc, BN_KW_RETURN, len) == 0) {
-        tt = T_RETURN;
-    } else if (strncmp(tc, EN_KW_IF, len) == 0 ||
-               strncmp(tc, PHON_KW_IF, len) == 0 ||
-               strncmp(tc, BN_KW_IF, len) == 0) {
-        tt = T_IF;
-    } else if (strncmp(tc, EN_KW_THEN, len) == 0 ||
-               strncmp(tc, PHON_KW_THEN, len) == 0 ||
-               strncmp(tc, BN_KW_THEN, len) == 0) {
-        tt = T_THEN;
-    } else if (strncmp(tc, EN_KW_ELSE, len) == 0 ||
-               strncmp(tc, PHON_KW_ELSE, len) == 0) {
-        tt = T_ELSE;
-    } else if (strncmp(tc, EN_KW_END, len) == 0 ||
-               strncmp(tc, PHON_KW_END, len) == 0 ||
-               strncmp(tc, BN_KW_END, len) == 0) {
-        tt = T_END;
-
-    } else if (strncmp(tc, EN_KW_WHILE, len) == 0 ||
-               strncmp(tc, PHON_KW_WHILE, len) == 0 ||
-               strncmp(tc, BN_KW_WHILE, len) == 0) {
-        tt = T_WHILE;
-    } else if (strncmp(tc, EN_KW_AND, len) == 0 ||
-               strncmp(tc, PHON_KW_AND, len) == 0 ||
-               strncmp(tc, BN_KW_AND, len) == 0) {
-        tt = T_AND;
-    } else if (strncmp(tc, EN_KW_OR, len) == 0 ||
-               strncmp(tc, PHON_KW_OR, len) == 0 ||
-               strncmp(tc, BN_KW_OR, len) == 0) {
-        tt = T_OR;
-    } else if (strncmp(tc, EN_KW_TRUE, len) == 0 ||
-               strncmp(tc, PHON_KW_TRUE, len) == 0 ||
-               strncmp(tc, BN_KW_TRUE, len) == 0) {
-        tt = T_TRUE;
-    } else if (strncmp(tc, EN_KW_FALSE, len) == 0 ||
-               strncmp(tc, PHON_KW_FALSE, len) == 0 ||
-               strncmp(tc, BN_KW_FALSE, len) == 0) {
-        tt = T_FALSE;
-    } else if (strncmp(tc, EN_KW_FUNC, len) == 0 ||
-               strncmp(tc, PHON_KW_FUNC, len) == 0 ||
-               strncmp(tc, BN_KW_FUNC, len) == 0) {
-        tt = T_FUNC;
-    } else if (strncmp(tc, EN_KW_NIL, len) == 0 ||
-               strncmp(tc, BN_KW_NIL, len) == 0) {
-        tt = T_NIL;
-    } else if (strncmp(tc, EN_KW_IMPORT, len) == 0 ||
-               strncmp(tc, PHON_KW_IMPORT, len) == 0 ||
-               strncmp(tc, BN_KW_IMPORT, len) == 0) {
-        tt = T_IMPORT;
-    } else if (strncmp(tc, EN_KW_PANIC, len) == 0 ||
-               strncmp(tc, PHON_KW_PANIC, len) == 0 ||
-               strncmp(tc, BN_KW_PANIC, len) == 0) {
-        tt = T_MKERR;
-
-    } else {
-        tt = T_ID;
-    }*/
-
-    free(tc);
 
     return tt;
 }
