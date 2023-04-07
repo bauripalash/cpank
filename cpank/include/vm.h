@@ -13,10 +13,10 @@
 #include "obj.h"
 #include "value.h"
 
-#define FRAME_SIZE 64
+#define FRAME_SIZE  64
 #define MODULES_MAX 64
-#define STDLIB_MAX 64
-#define STACK_SIZE (FRAME_SIZE * UINT8_COUNT)
+#define STDLIB_MAX  64
+#define STACK_SIZE  (FRAME_SIZE * UINT8_COUNT)
 
 typedef struct {
     ObjClosure *closure;

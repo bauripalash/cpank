@@ -5,15 +5,15 @@
 #include <uchar.h>
 #include <wchar.h>
 
-#define ANSI_COLOR_BLACK L"\x1b[30m"
-#define ANSI_COLOR_RED L"\x1b[31m"
-#define ANSI_COLOR_GREEN L"\x1b[32m"
+#define ANSI_COLOR_BLACK  L"\x1b[30m"
+#define ANSI_COLOR_RED    L"\x1b[31m"
+#define ANSI_COLOR_GREEN  L"\x1b[32m"
 #define ANSI_COLOR_YELLOW L"\x1b[33m"
-#define ANSI_COLOR_BLUE L"\x1b[34m"
+#define ANSI_COLOR_BLUE   L"\x1b[34m"
 #define ANSI_COLOR_PURPLE L"\x1b[35m"
-#define ANSI_COLOR_CYAN L"\x1b[36m"
-#define ANSI_COLOR_WHITE L"\x1b[37m"
-#define ANSI_COLOR_RESET L"\x1b[0m"
+#define ANSI_COLOR_CYAN   L"\x1b[36m"
+#define ANSI_COLOR_WHITE  L"\x1b[37m"
+#define ANSI_COLOR_RESET  L"\x1b[0m"
 
 int copy_c16(char32_t *str, const char32_t *input, int len);
 

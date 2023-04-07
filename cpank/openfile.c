@@ -10,6 +10,10 @@
 #include "include/common.h"
 #include "include/utils.h"
 
+#ifdef IS_WIN
+#include <windows.h>
+#endif
+
 Srcfile read_file(const char *path) {
     Srcfile result;
 
@@ -20,7 +24,15 @@ Srcfile read_file(const char *path) {
         return result;
     }
     result.errcode = 0;
+
+#ifdef IS_WIN
+    wchar_t *fname = (wchar_t *)malloc((strlen(path) + 1) * sizeof(wchar_t));
+    MultiByteToWideChar(CP_UTF8, 0, path, -1, fname, strlen(path) + 1);
+    FILE *file = _wfopen(fname, L"rb, ccs=UTF-8");
+#else
     FILE *file = fopen(path, "rb");
+#endif
+
     if (file == NULL) {
         // fwprintf(stderr, L"Failed to open file %s\n", path);
         // cp_color_println('r' , L"Failed to open file %s" , path);

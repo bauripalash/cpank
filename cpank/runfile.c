@@ -26,19 +26,11 @@ int run_file(const char *filepath) {
                    raw.errcode);
         exit(1);
     }
-    // cp_println(L"source -> %s\n" , raw.source);
-    //   wprintf(L"SOURCE -> %s", raw.source);
     int errcode = 0;
     char32_t *src = chto16(raw.source);
-    // wchar_t *src = (wchar_t *)malloc(sizeof(wchar_t) * raw.size);
-    //   wprintf(L"sizes: wchar_t -> %d | char -> %d\n" , sizeof(wchar_t) ,
-    // char16_t * src = chto16(raw.source);
-    // cp_println(L"source -> %s" , raw.source);
-    // mbstowcs(src, raw.source, raw.size + 1);
-    // char32_t src[] = U"let x= 1+2; show x;";
+
     PankVm *vm = boot_vm();
 
-    // wprintf(L"SOURCE_W -> %ls", src);
     IResult res = interpret(vm, src);
 
     switch (res) {

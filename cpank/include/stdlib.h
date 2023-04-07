@@ -6,13 +6,13 @@
 
 #include "obj.h"
 
-#define MAX_STDLIB_ERR 1
+#define MAX_STDLIB_ERR               1
 #define STDLIB_ALREADY_EXIST_WARNING 2
-#define CONST_PI 3.14159265358979323846
-#define CONST_E 2.71828182845904523536
+#define CONST_PI                     3.14159265358979323846
+#define CONST_E                      2.71828182845904523536
 
 // Stdlib names
-#define STDMATH U"math"
+#define STDMATH    U"math"
 #define STDMATH_BN U"গণিত"
 
 typedef struct SL {

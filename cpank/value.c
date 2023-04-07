@@ -10,16 +10,16 @@
 void print_val_type(ValType vt) {
     switch (vt) {
         case V_NIL:
-            wprintf(L"NIL");
+            cp_print(L"NIL");
             break;
         case V_BOOL:
-            wprintf(L"BOOL");
+            cp_print(L"BOOL");
             break;
         case V_NUM:
-            wprintf(L"NUM");
+            cp_print(L"NUM");
             break;
         case V_OBJ:
-            wprintf(L"OBJ");
+            cp_print(L"OBJ");
             break;
     }
 }
@@ -50,7 +50,11 @@ void print_val(Value val) {
     //  print_val_type(val.type);
 #ifdef NAN_BOXING
     if (is_bool(val)) {
+#ifdef IS_WIN
+        cp_print(L"%S", get_as_bool(val) ? "true" : "false");
+#else
         cp_print(L"%s", get_as_bool(val) ? "true" : "false");
+#endif
     } else if (is_nil(val)) {
         cp_print(L"nil");
     } else if (is_num(val)) {
@@ -64,7 +68,11 @@ void print_val(Value val) {
             cp_print(L"%f", get_as_number(val));
             break;
         case V_BOOL:
+#ifdef IS_WIN
+            cp_print(L"%S", get_as_bool(val) ? "true" : "false");
+#else
             cp_print(L"%s", get_as_bool(val) ? "true" : "false");
+#endif
             break;
         case V_NIL:
             cp_print(L"nil");

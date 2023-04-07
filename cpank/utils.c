@@ -11,11 +11,12 @@
 #include <uchar.h>
 #include <wchar.h>
 
+#include "include/common.h"
 #include "include/value.h"
 
-#ifdef _WIN32
+#ifdef IS_WIN
 #include <io.h>
-#define F_OK 0
+#define F_OK   0
 #define access _access
 #else
 #include <unistd.h>

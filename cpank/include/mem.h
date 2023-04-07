@@ -14,7 +14,7 @@
     (type *)rallc(vm, ptr, sizeof(type) * (oc), sizeof(type) * (nc))
 
 #define FREE_ARR(vm, type, ptr, oc) rallc(vm, ptr, sizeof(type) * (oc), 0)
-#define FREE(vm, type, ptr) rallc(vm, ptr, sizeof(type), 0)
+#define FREE(vm, type, ptr)         rallc(vm, ptr, sizeof(type), 0)
 
 typedef struct GcConfig {
     bool is_paused;
