@@ -23,6 +23,11 @@ char *c_to_c(const char32_t *input, int len);
 
 bool str16cmp(const char32_t *str1, const char32_t *str2);
 
+bool str16cmp_n(const char32_t *big, const char32_t *small, int len);
+
+bool str16cmp_gen(const char32_t *big, const char32_t *small);
+
+bool str16cmp_gen_n(const char32_t *big, const char32_t *small, int len);
 char32_t *chto16(char *input);
 // check if `filepath` exists
 bool does_file_exist(const char *filepath);

@@ -21,4 +21,18 @@
 // #define DEBUG_PRINT_CODE
 #define NAN_BOXING
 
+#ifdef _WIN32
+#ifndef _UNICODE
+#define _UNICODE
+#endif
+
+#ifndef UNICODE
+#define UNICODE
+#endif  // !UNICODE
+#endif
+
+#ifdef _WIN32
+#define IS_WIN
+#endif
+
 #endif

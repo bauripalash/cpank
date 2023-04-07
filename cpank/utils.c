@@ -13,7 +13,7 @@
 
 #include "include/value.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <io.h>
 #define F_OK 0
 #define access _access
@@ -28,45 +28,31 @@ int copy_c16(char32_t *str, const char32_t *input, int len) {
 
 int strlen16(const char32_t *strarg) {
     if (!strarg) return -1;  // strarg is NULL pointer
-    const char32_t *str = strarg;
-    for (; *str; ++str)
-        ;  // empty body
-    return str - strarg;
+    int len = 0;
+    while (strarg[len] != U'\0') {
+        len++;
+    }
+    return len;
 }
 
 char *c_to_c(const char32_t *input, int len) {
-    mbstate_t state;
-    memset(&state, 0, sizeof(mbstate_t));
-    char *o = (char *)malloc((strlen16(input) * MB_CUR_MAX + 1) * sizeof(char));
-    setlocale(LC_ALL, "");
-    const char32_t *sr = input;
-    size_t slen = strlen16(input);
-    char *dest = o;
-    while (slen > 0) {
-        size_t rs = c32rtomb(dest, *sr, &state);
-        if (rs == (size_t)-1) {
-            break;
-        }
-
-        sr++;
-        slen--;
-        dest += rs;
-    }
-    /*
-    size_t insz = sizeof(char16_t) * (len);
-    char *o = (char *)malloc(MB_CUR_MAX * insz);
-    char *p = o;
-    int rc = 0;
-
-    for (int i = 0; i < insz; i++) {
-        rc = c32rtomb(p, input[i], &state);
-        if (rc == (size_t)-1) {
-        break;
-        }
+    mbstate_t state = {0};
+    setlocale(LC_ALL, "bn_IN.utf8");
+    size_t in_size = strlen16(input) + 1;
+    char *output = (char *)malloc(MB_CUR_MAX * in_size);
+    if (output == NULL) return "";
+    memset(output, 0, in_size);
+    char *p = output;
+    for (size_t n = 0; n < in_size; n++) {
+        size_t rc = c32rtomb(p, input[n], &state);
+        if (rc == (size_t)-1) break;
         p += rc;
     }
-    */
-    return o;
+
+    // output = (char *)realloc(output, strlen(output));
+    // size_t os = p - output;
+    // cp_println(L"sz ->%S\n", output);
+    return output;
 }
 
 bool str16cmp(const char32_t *str1, const char32_t *str2) {
@@ -81,10 +67,56 @@ bool str16cmp(const char32_t *str1, const char32_t *str2) {
     }
     return true;
 }
+bool str16cmp_n(const char32_t *big, const char32_t *small, int len) {
+    if (strlen16(small) != len) {
+        return false;
+    }
+
+    for (int i = 0; i < len; i++) {
+        if ((uint32_t)big[i] != (uint16_t)small[i]) {
+            return false; /* code */
+        }
+
+        /* code */
+    }
+
+    return true;
+}
+
+bool str16cmp_gen(const char32_t *big, const char32_t *small) {
+    if (strlen16(small) != strlen16(big)) {
+        return false;
+    }
+
+    for (int i = 0; i < strlen16(big); i++) {
+        // cp_println(L"-->> %#x | %#x\n" , big[i] , small[i]);
+        if ((uint32_t)big[i] != (uint16_t)small[i]) {
+            return false; /* code */
+        }
+
+        /* code */
+    }
+
+    return true;
+}
+
+bool str16cmp_gen_n(const char32_t *big, const char32_t *small, int len) {
+    for (int i = 0; i < len; i++) {
+        // cp_println(L"-->> %#x | %#x\n" , big[i] , small[i]);
+        if ((uint32_t)big[i] != (uint16_t)small[i]) {
+            return false; /* code */
+        }
+
+        /* code */
+    }
+
+    return true;
+}
 
 char32_t *chto16(char *input) {
     mbstate_t state = {0};
     size_t osz = sizeof(char32_t) * (strlen(input) + 1);
+    setlocale(LC_ALL, "bn_IN.utf8");
     char32_t *output = (char32_t *)malloc(osz);
     if (output == NULL) {
         return NULL;
@@ -106,7 +138,6 @@ char32_t *chto16(char *input) {
 
     return output;
 }
-
 bool does_file_exist(const char *filepath) {
     FILE *file = fopen(filepath, "r");
     if (file == NULL) {

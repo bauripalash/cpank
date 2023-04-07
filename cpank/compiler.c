@@ -103,6 +103,8 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg) {
         return;
     }
 
+    char *msg_str = c_to_c(msg, 0);
+
     parser->panic_mode = true;
     fwprintf(stderr, L"[l %d] Error ", tok->line);
 
@@ -110,10 +112,13 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg) {
         fwprintf(stderr, L"at end");
     } else if (tok->type == T_ERR) {
     } else {
-        fwprintf(stderr, L" at %.*ls", tok->length, tok->start);
+        char *t_str = c_to_c(tok->start, tok->length);
+        fwprintf(stderr, L" at %.*S", tok->length, t_str);
+        free(t_str);
     }
 
-    fwprintf(stderr, L" : %ls\n\n", msg);
+    fwprintf(stderr, L" : %S\n\n", msg_str);
+    free(msg_str);
     parser->had_err = true;
 }
 
@@ -416,8 +421,7 @@ bool id_eq(Token *l, Token *r) {
     if (l->length != r->length) {
         return false;
     }
-
-    return true;  // wmemcmp(l->start, r->start, l->length) == 0;
+    return str16cmp_gen_n(l->start, r->start, l->length);
 }
 
 int resolve_local(Compiler *compiler, Token *token) {
@@ -932,8 +936,15 @@ ObjFunc *compile(PankVm *vm, char32_t *source) {
 #ifdef DEBUG_LEXER
     Token tk = get_tok(&lexer);
     while (tk.type != T_EOF) {
-        wprintf(L"TOK[%s][%.*ls]\n", toktype_to_string(tk.type), tk.length,
-                tk.start);
+#ifdef IS_WIN
+        char *tokstr = c_to_c(tk.start, 0);
+        cp_println(L"TOK[%S][%.*S]\n", toktype_to_string(tk.type), tk.length,
+                   tokstr);
+#else
+        cp_println(L"TOK[%s][%.*ls]", toktype_to_string(tk.type), tk.length,
+                   tk.start);
+#endif
+
         tk = get_tok(&lexer);
     }
     boot_lexer(&lexer, source);
