@@ -46,7 +46,7 @@ static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
         } else if (entry->key->len == key->len) {
             //            if (strncmp(entry->key->chars, key->chars, key->len)
             //            == 0) {
-            if (str16cmp(entry->key->chars, key->chars)) {
+            if (str16cmp_gen(entry->key->chars, key->chars)) {
                 return entry;
             }
         }
@@ -193,7 +193,7 @@ ObjString *table_find_str(Htable *table, char32_t *chars, int len,
             }
         } else if (entry->key->len == len && entry->key->hash == hash &&
                    // strncmp(entry->key->chars, chars, entry->key->len) == 0) {
-                   str16cmp(entry->key->chars, chars)) {
+                   entry->key->hash == get_hash(chars, strlen16(chars))) {
             return entry->key;
         }
 
