@@ -1,19 +1,21 @@
-#include <assert.h>
 #include <locale.h>
-#include <stdbool.h>
 #include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <uchar.h>
 #include <wchar.h>
 
-#include "include/compiler.h"
-#include "include/lexer.h"
-#include "include/pank.h"
+#include "include/common.h"
 #include "include/runfile.h"
 #include "include/utils.h"
-#include "include/vm.h"
+
+#if defined(IS_WIN) || defined(_WIN32)
+#include <fcntl.h>
+#include <io.h>
+#include <windows.h>
+
+#define CP_UTF8 65001
+
+#endif
 
 const wchar_t help_msg[] =
     L"Pankti programming language; an interpreted bengali programming "
@@ -28,69 +30,14 @@ const wchar_t help_msg[] =
 
 const wchar_t version[] = L"v0.1.0";
 
-int strlenx16(const char16_t* strarg) {
-    if (!strarg) return -1;  // strarg is NULL pointer
-    const char16_t* str = strarg;
-    for (; *str; ++str)
-        ;  // empty body
-    return str - strarg;
-}
 int main(int argc, char** argv) {
     setlocale(LC_CTYPE, "en_US.utf8");
-    /*char * s = u8"hello world";
-    //const size_t insz = sizeof s / sizeof *s;
-    const size_t insz = sizeof(char) * (strlen(s) + 1);
-    mbstate_t mb = {0};
-    char * pin = s;
-    char * end = s + insz;
 
-    char32_t * out = (char32_t*)malloc(sizeof(char32_t) * (strlen(s) + 1));
-    char32_t * pot = out;
+#if defined(IS_WIN) || defined(_WIN32)
+    SetConsoleOutputCP(CP_UTF8);
+    int old = _setmode(_fileno(stdout), _O_U16TEXT);
+#endif  // _WIN32
 
-    size_t rc ;//= mbrtoc32(pot, pin, end - pin , &mb);
-    size_t i = 0;
-    size_t j = 0;
-    while (s[i] != '\0'){
-        char32_t c32;
-        size_t result = mbrtoc32(&c32, &s[i], MB_CUR_MAX, &mb);
-        if (result == (size_t)-1 || result == (size_t)-2) {
-        break;
-        }else{
-            out[j++] = c32;
-            i += result;
-        }
-    }
-
-    while ((rc = mbrtoc32(pot, pin, MB_CUR_MAX , &mb))){
-        assert(rc != (size_t)-1);
-        if (rc == (size_t)-1) break; // invalid input
-        if (rc == (size_t)-2) break;
-        pin += rc;
-        ++pot;
-    }
-
-    printf("-> %s | %ls\n" , s , out);
-    printf("-> %zu | %zu\n" , insz , (size_t)1);
-    printf("-> %zu\n" , end - pin);
-    free(out);
-    //printf("-> %zu -> %s\n-> %s\n" , rc , pot , out);
-    //free(out);
-
-    //Lexer lexer;
-    //char32_t* s = U"দেখাও ১+2;";
-    // wprintf(L"%s | LEN -> %d\n" , s , strlenx16(s));
-
-    //boot_lexer(&lexer, s);
-    //Token tok = get_tok(&lexer);
-    //while (tok.type != T_EOF) {
-    //  wprintf(L"%s \n", toktype_to_string(tok.type));
-     // free(x);
-
-    //  tok = get_tok(&lexer);
-    //}
-    // PankVm* vm = boot_vm();
-    // compile(vm, s);
-*/
     if (argc != 2) {
         cp_println(help_msg);
         return 0;
@@ -110,6 +57,4 @@ int main(int argc, char** argv) {
             }
         }
     }
-    // cp_color_println('g', L"start program");
-    // cp_color_println('g', L"end program");
 }
