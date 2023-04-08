@@ -1,6 +1,5 @@
 #include "include/utils.h"
 
-#include <bits/types/mbstate_t.h>
 #include <locale.h>
 #include <stdarg.h>
 #include <stdbool.h>

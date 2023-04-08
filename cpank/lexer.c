@@ -1,6 +1,5 @@
 #include "include/lexer.h"
 
-#include <bits/types/mbstate_t.h>
 #include <locale.h>
 #include <stdbool.h>
 #include <stddef.h>
