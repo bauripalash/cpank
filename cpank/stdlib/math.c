@@ -248,8 +248,7 @@ Value _math_str_to_num(PankVm* vm, int argc, Value* args) {
 
     ObjString* ostr = get_as_string(args[0]);
     char* input = c_to_c(ostr->chars, ostr->len);
-    double result = 0;
-    scanf(input, U"%lf", &result);
+    double result = strtod(input, NULL);
 
     return make_num(result);
 }

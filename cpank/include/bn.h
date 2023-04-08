@@ -3,16 +3,16 @@
 #include <wchar.h>
 
 // Bengali Numbers
-#define BN_NUM_ZERO  0x09E6
-#define BN_NUM_ONE   0x09E7
-#define BN_NUM_TWO   0x09E8
-#define BN_NUM_THREE 0x09E9
-#define BN_NUM_FOUR  0x09EA
-#define BN_NUM_FIVE  0x09EB
-#define BN_NUM_SIX   0x09EC
-#define BN_NUM_SEVEN 0x09ED
-#define BN_NUM_EIGHT 0x09EE
-#define BN_NUM_NINE  0x09EF
+#define BN_NUM_ZERO  U'\u09E6'
+#define BN_NUM_ONE   U'\u09E7'
+#define BN_NUM_TWO   U'\u09E8'
+#define BN_NUM_THREE U'\u09E9'
+#define BN_NUM_FOUR  U'\u09EA'
+#define BN_NUM_FIVE  U'\u09EB'
+#define BN_NUM_SIX   U'\u09EC'
+#define BN_NUM_SEVEN U'\u09ED'
+#define BN_NUM_EIGHT U'\u09EE'
+#define BN_NUM_NINE  U'\u09EF'
 
 // Bengali unicode range start
 // including numbers
@@ -27,3 +27,5 @@ bool is_bn_num(char32_t c);
 // check if `c` is a bengali char
 // including numbers
 bool is_bn_char(char32_t c);
+
+bool conv_bn_to_en_num(char32_t* str, int len);

@@ -241,10 +241,7 @@ Token mk_num_tok(Lexer *lexer) {
     tok.start = lexer->start;
     tok.length = (int)(lexer->current - lexer->start);
     tok.line = lexer->line;
-
-    // btoe(tok.start, tok.length);
-    //  wprintf(L"NUMBER-> %.*ls\n", tok.length, tok.start);
-    //   convert_bn_num_to_en(tok.start, tok.length);
+    conv_bn_to_en_num(tok.start, tok.length);
     return tok;
 }
 
