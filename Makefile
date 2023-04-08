@@ -27,7 +27,7 @@ debug: build_debug
 
 build_test:
 	@echo "Building for testing"
-	$(CC) $(CFLAGS) -o $(TESTOUTPUT) $(TESTMAIN) $(SRC)
+	$(CC) -g $(CFLAGS) -o $(TESTOUTPUT) $(TESTMAIN) $(SRC)
 	@echo "Finished building for testing"
 
 test: build_test

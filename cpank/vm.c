@@ -36,6 +36,8 @@ void close_upval(Module *module, Value *last);
 bool call_val(PankVm *vm, Value calle, int argc);
 bool call(PankVm *vm, ObjClosure *closure, int origin, int argc);
 
+Value asserteq_ntv_fn(PankVm *vm, int argc, Value *args);
+
 PankVm *boot_vm(void) {
     PankVm *vm = malloc(sizeof(PankVm));
     memset(vm, 0, sizeof(PankVm));
@@ -62,6 +64,7 @@ PankVm *boot_vm(void) {
     vm->mod_names[vm->mod_count] = get_hash(default_mod, strlen16(default_mod));
     vm->current_mod = dmod;
     define_native(vm, U"clock", clock_ntv_fn);
+    define_native(vm, U"asserteq", asserteq_ntv_fn);
     return vm;
 }
 
@@ -192,10 +195,11 @@ Value get_last_pop(PankVm *vm) {
 Module *get_cur_mod(PankVm *vm) { return vm->current_mod; }
 
 void runtime_err(PankVm *vm, char32_t *format, ...) {
-    char *strformat = c_to_c(format, 255);
+    char *strformat = c_to_c(format, 0);
     // setlocale(LC_CTYPE, "");
     va_list args;
     va_start(args, format);
+
     // vfwprintf(stderr, format, args);
     vfprintf(stderr, strformat, args);
     // vwprintf(format, args)
@@ -988,6 +992,18 @@ Value clock_ntv_fn(PankVm *vm, int argc, Value *args) {
     return make_num((double)clock() / CLOCKS_PER_SEC);
 }
 
+Value asserteq_ntv_fn(PankVm *vm, int argc, Value *args) {
+    if (argc != 2) {
+        return make_error(vm, U"asserteq(a, b) takes only 2 arguments");
+    }
+
+    if (!is_equal(args[0], args[1])) {
+        return make_bool(false);
+    }
+
+    return make_bool(true);
+}
+
 bool call_val(PankVm *vm, Value calle, int argc) {
     int origin = get_cur_mod(vm)->frame_count - 1;
     if (is_obj(calle)) {
@@ -999,7 +1015,10 @@ bool call_val(PankVm *vm, Value calle, int argc) {
                 Value result = native(vm, argc, vm->stack_top - argc);
                 vm->stack_top -= argc + 1;
                 if (is_err_obj(result)) {
-                    runtime_err(vm, get_as_err(result)->errmsg);
+                    ObjErr *er = get_as_err(result);
+                    char32_t *msg32 = chto16(er->errmsg);
+                    runtime_err(vm, msg32);
+                    free(msg32);
                     return false;
                 }
                 if (!push(vm, result)) return false;

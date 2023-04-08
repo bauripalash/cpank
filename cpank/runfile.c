@@ -35,12 +35,12 @@ int run_file(const char *filepath) {
 
     switch (res) {
         case INTRP_RUNTIME_ERR:
-            wprintf(L"Runtime error occured!\n");
+            cp_println(L"\nRuntime error occured!");
             errcode = ERC_RUNTIME;
             break;
             ;
         case INTRP_COMPILE_ERR:
-            wprintf(L"Compiler error occured!\n");
+            cp_println(L"\nCompiler error occured!");
             errcode = ERC_COMPTIME;
             break;
             ;

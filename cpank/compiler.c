@@ -10,8 +10,8 @@
 #include "include/value.h"
 #include "include/vm.h"
 
-#define DEBUG_PRINT_CODE
-#define DEBUG_LEXER
+// #define DEBUG_PRINT_CODE
+// #define DEBUG_LEXER
 #ifdef DEBUG_PRINT_CODE
 #include "include/debug.h"
 #endif

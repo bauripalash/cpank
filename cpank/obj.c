@@ -334,13 +334,15 @@ ObjMod *new_mod(PankVm *vm, char32_t *name) {
 ObjErr *new_err_obj(PankVm *vm, char32_t *errmsg) {
     ObjErr *err = ALLOCATE_OBJ(vm, ObjErr, OBJ_ERR);
 
-    err->errmsg = (char32_t *)malloc(sizeof(char32_t) * (strlen16(errmsg) + 1));
+    err->errmsg = c_to_c(
+        errmsg,
+        0);  //(char32_t *)malloc(sizeof(char32_t) * (strlen16(errmsg) + 1));
     // wmemset(err->errmsg, 0, wcslen(errmsg) + 1);
-    memset(err->errmsg, 0, strlen16(errmsg) + 1);
+    //    memset(err->errmsg, 0, strlen16(errmsg) + 1);
 
     // wmemcpy(err->errmsg, errmsg, wcslen(errmsg) + 1);
-    memcpy(err->errmsg, errmsg, strlen16(errmsg) + 1);
-    err->len = strlen16(errmsg) + 1;
+    //    memcpy(err->errmsg, errmsg, strlen16(errmsg) + 1);
+    err->len = strlen(err->errmsg) + 1;
     // copy_string(errmsg, wcslen(errmsg));
     return err;
 }

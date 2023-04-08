@@ -77,7 +77,7 @@ struct ObjString {
 typedef struct {
     Obj obj;
     int len;
-    char32_t *errmsg;
+    char *errmsg;
 } ObjErr;
 
 typedef struct ObjArray {

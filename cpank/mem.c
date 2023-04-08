@@ -97,7 +97,7 @@ void free_single_obj(PankVm *vm, Obj *obj) {
         }
         case OBJ_ERR: {
             ObjErr *err = (ObjErr *)obj;
-            FREE_ARR(vm, wchar_t, err->errmsg, err->len + 1);
+            FREE_ARR(vm, char, err->errmsg, err->len + 1);
 
             FREE(vm, ObjErr, obj);
             break;
