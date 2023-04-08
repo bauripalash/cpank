@@ -2,6 +2,7 @@
 #define cpank_value_h
 #include <stdint.h>
 #include <string.h>
+#include <uchar.h>
 
 #include "common.h"
 #include "pank.h"

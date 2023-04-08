@@ -14,6 +14,7 @@
 // Stdlib names
 #define STDMATH    U"math"
 #define STDMATH_BN U"গণিত"
+#define STDOS      U"os"
 
 typedef struct SL {
     char32_t* key;
@@ -27,5 +28,5 @@ int _push_stdlib(PankVm* vm, char32_t* stdname, SL* funcs, int len);
 int _push_single_stdfunc(char32_t* stdname, ObjString* key, NativeFn fn);
 void push_stdlib_math(PankVm* vm);
 void push_stdlib_math_bn(PankVm* vm);
-
+void push_stdlib_os(PankVm* vm);
 #endif

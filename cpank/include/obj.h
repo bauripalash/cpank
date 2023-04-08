@@ -139,6 +139,8 @@ bool is_map_obj(Value val);
 bool is_obj_equal(Obj *a, Obj *b);
 
 bool is_valid_hashmap_key(Value val);
+
+Value make_str(PankVm *vm, char32_t *str);
 /*
 #define get_as_native(value) \
   (((ObjNative *)get_as_obj(value))->func)

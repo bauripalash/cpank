@@ -536,3 +536,7 @@ bool hmap_set(PankVm *vm, ObjHashMap *map, Value key, Value val) {
 
     return is_new_key;
 }
+
+Value make_str(PankVm *vm, char32_t *str) {
+    return make_obj_val(copy_string(vm, str, strlen16(str)));
+}
