@@ -272,12 +272,26 @@ void add_string(PankVm *vm) {
     ObjString *r = get_as_string(peek_vm(vm, 0));
     ObjString *l = get_as_string(peek_vm(vm, 1));
 
-    int newlen = l->len + r->len;
-    char32_t *newchars = ALLOC(vm, char32_t, newlen + 1);
-    memcpy(newchars, l->chars, l->len);
-    memcpy(newchars + l->len, r->chars, r->len);
-    newchars[newlen] = '\0';
-    ObjString *new_obj = take_string(vm, newchars, newlen);
+    char *l_str = c_to_c(l->chars, 0);
+    char *r_str = c_to_c(r->chars, 0);
+    size_t new_size = sizeof(char) * (strlen(l_str) + strlen(r_str) + 1);
+    char *new_str = (char *)malloc(new_size);
+    if (new_str == NULL) {
+        runtime_err(
+            vm,
+            U"Failed to allocate memory for joining strings\n Internal Error");
+    }
+    memset(new_str, 0, new_size);
+    strcat(new_str, l_str);
+    strcat(new_str, r_str);
+    char32_t *result_str = chto16(new_str);
+    int ssz = strlen16(result_str);
+
+    free(l_str);
+    free(r_str);
+    free(new_str);
+
+    ObjString *new_obj = take_string(vm, result_str, ssz);
     pop(vm);
     pop(vm);
     push(vm, make_obj_val(new_obj));
