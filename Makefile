@@ -5,9 +5,9 @@ SRC=cpank/lexer.c cpank/bn.c cpank/runfile.c cpank/instruction.c cpank/mem.c cpa
 STDLIB_MODULES= cpank/stdlib/*.c
 SRC+=$(STDLIB_MODULES)
 MAIN=cpank/main.c
-SAMPLE_TO_RUN=sample/0.pank
+SAMPLE_TO_RUN=sample/stdarr.pank
 TESTMAIN=cpank/testmain.c
-OUTPUT=pank
+OUTPUT=pankti
 TESTOUTPUT=test_cpank
 INCLUDE_DIR=cpank/include/
 
@@ -72,6 +72,7 @@ prof:
 clean:
 	rm -f ./$(OUTPUT)
 	rm -f ./$(TESTOUTPUT)
+	rm -rf ./panktiw
 	rm -f ./massif.out.*
 	rm -f ./perf.data.*
 	rm -f ./cpank.perf 

@@ -16,6 +16,7 @@
 #define STDMATH_BN U"গণিত"
 #define STDOS      U"os"
 #define STDCOMMON  U"common"
+#define STDARRAY   U"array"
 
 typedef struct SL {
     char32_t* key;
@@ -31,4 +32,5 @@ void push_stdlib_math(PankVm* vm);
 void push_stdlib_math_bn(PankVm* vm);
 void push_stdlib_os(PankVm* vm);
 void push_stdlib_common(PankVm* vm);
+void push_stdlib_array(PankVm* vm);
 #endif

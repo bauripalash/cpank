@@ -97,6 +97,7 @@ typedef struct {
 void init_valarr(Valarr *array);
 void write_valarr(PankVm *vm, Valarr *array, Value value);
 void free_valarr(PankVm *vm, Valarr *array);
+void pop_valarr(PankVm *vm, Valarr *array);
 void print_val(Value val);
 
 #endif

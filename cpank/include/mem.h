@@ -28,5 +28,6 @@ void free_objs(PankVm *vm);
 void mark_val(PankVm *vm, Value val);
 void mark_obj(PankVm *vm, Obj *obj);
 void free_single_obj(PankVm *vm, Obj *obj);
+void free_value(PankVm *vm, Value val);
 
 #endif

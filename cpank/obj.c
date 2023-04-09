@@ -253,28 +253,38 @@ void print_obj(Value val) {
         }
         case OBJ_ARRAY: {
             ObjArray *array = get_as_array(val);
-            cp_print(L"[");
-            for (int i = 0; i < array->len; i++) {
+            int ln = array->items.len;
+
+            cp_print(L"[ ");
+            for (int i = 0; i < ln; i++) {
                 Value newval = array->items.values[i];
                 print_val(newval);
-                cp_print(L", ");
+                if (i + 1 != ln) {
+                    cp_print(L", ");
+                }
             }
-            cp_print(L"]");
+            cp_print(L" ]");
             break;
         }
         case OBJ_HMAP: {
             ObjHashMap *map = get_as_hmap(val);
-            cp_print(L"{");
-            for (int i = 0; i < map->cap; i++) {
+            int mcap = map->cap;
+            int mlen = map->count;
+            int cur = 0;
+            cp_print(L"{ ");
+            for (int i = 0; i < mcap; i++) {
                 HmapItem *item = &map->items[i];
                 if (item != NULL && !is_nil(item->key)) {
                     print_val(item->key);
                     cp_print(L": ");
                     print_val(item->val);
-                    cp_print(L" ,");
+                    if (cur + 1 != mlen) {
+                        cp_print(L" ,");
+                    }
+                    cur++;
                 }
             }
-            cp_print(L"}");
+            cp_print(L" }");
             break;
         }
         default: {

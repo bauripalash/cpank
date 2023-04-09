@@ -1,0 +1,12 @@
+import a "array";
+
+let x = ["hello" , "world"];
+show x;
+a.pop(x);
+show x;
+
+let name = "palash";
+a.push(x  , name);
+a.push(x , "bauri");
+show x;
+show name + " bauri";

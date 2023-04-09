@@ -41,6 +41,8 @@ void write_valarr(PankVm *vm, Valarr *array, Value value) {
     array->len++;
 }
 
+void pop_valarr(PankVm *vm, Valarr *array) { array->len--; }
+
 void free_valarr(PankVm *vm, Valarr *array) {
     FREE_ARR(vm, Value, array->values, array->cap);
     init_valarr(array);

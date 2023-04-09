@@ -117,6 +117,15 @@ void free_single_obj(PankVm *vm, Obj *obj) {
     }
 }
 
+void free_value(PankVm *vm, Value val) {
+    if (is_obj(val)) {
+        free_single_obj(vm, get_as_obj(val));
+        return;
+    } else {
+        return;
+    }
+}
+
 void free_objs(PankVm *vm) {
     Obj *object = vm->objs;
     while (object != NULL) {
