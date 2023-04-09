@@ -6,12 +6,12 @@
 #include "value.h"
 
 #define ALLOC(vm, type, count) \
-    (type *)rallc(vm, NULL, 0, sizeof(type) * (count))
+ (type *)rallc(vm, NULL, 0, sizeof(type) * (count))
 
 #define GROW_CAP(cap) ((cap) < 8 ? 8 : (cap)*2)
 
 #define GROW_ARR(vm, type, ptr, oc, nc) \
-    (type *)rallc(vm, ptr, sizeof(type) * (oc), sizeof(type) * (nc))
+ (type *)rallc(vm, ptr, sizeof(type) * (oc), sizeof(type) * (nc))
 
 #define FREE_ARR(vm, type, ptr, oc) rallc(vm, ptr, sizeof(type) * (oc), 0)
 #define FREE(vm, type, ptr)         rallc(vm, ptr, sizeof(type), 0)

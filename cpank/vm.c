@@ -77,6 +77,11 @@ void free_stdlibs(PankVm *vm) {
     }
 }
 
+bool is_stdlib(char32_t *name) {
+    return str16cmp(name, STDOS) || str16cmp(name, STDMATH) ||
+           str16cmp(name, STDMATH_BN) || str16cmp(name, STDCOMMON);
+}
+
 void init_module(Module *mod, const char32_t *name) {
     init_table(&mod->globals);
     // init_stdlib_module();
@@ -441,8 +446,7 @@ static int import_custom(PankVm *vm, char32_t *custom_name,
 
 static int import_file(PankVm *vm, char32_t *custom_name,
                        char32_t *import_name) {
-    if (str16cmp(import_name, STDMATH) || str16cmp(import_name, STDMATH_BN) ||
-        str16cmp(import_name, STDOS)) {
+    if (is_stdlib(import_name)) {
         ObjString *strname =
             copy_string(vm, custom_name, strlen16(custom_name));
         push(vm, make_obj_val(strname));
@@ -465,6 +469,8 @@ static int import_file(PankVm *vm, char32_t *custom_name,
                 push_stdlib_math_bn(vm);
             } else if (str16cmp(import_name, STDOS)) {
                 push_stdlib_os(vm);
+            } else if (str16cmp(import_name, STDCOMMON)) {
+                push_stdlib_common(vm);
             }
             StdlibMod *sm = &vm->stdlibs[0];
             sm->owners[sm->owner_count++] = mod->hash;

@@ -20,19 +20,26 @@
 
 // #define DEBUG_PRINT_CODE
 #define NAN_BOXING
-
-#ifdef _WIN32
-#ifndef _UNICODE
-#define _UNICODE
+#if defined(_WIN32) || defined(_WIN64)
+ #define IS_WIN
 #endif
 
-#ifndef UNICODE
-#define UNICODE
-#endif  // !UNICODE
+#if defined(__unix__)
+ #define IS_UNIX
 #endif
 
-#ifdef _WIN32
-#define IS_WIN
+#if defined(__APPLE__) || defined(__MACH__)
+ #define IS_MAC
+#endif
+
+#ifdef IS_WIN
+ #ifndef _UNICODE
+  #define _UNICODE
+ #endif
+
+ #ifndef UNICODE
+  #define UNICODE
+ #endif  // !UNICODE
 #endif
 
 #endif

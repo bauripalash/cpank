@@ -10,8 +10,6 @@
 #include "../include/value.h"
 #include "../include/vm.h"
 
-#define _USE_MATH_DEFINES
-
 Value _math_pow(PankVm* vm, int argc, Value* args) {
     if (argc != 2) {
         return make_error(vm, U"math pow function only takes 2 arguments!");
@@ -22,14 +20,18 @@ Value _math_pow(PankVm* vm, int argc, Value* args) {
     }
 
     double a = get_as_number(args[0]);
+
     double b = get_as_number(args[1]);
     double raw_result = pow(a, b);
     return make_num(raw_result);
 }
 
 Value _math_add(PankVm* vm, int argc, Value* args) {
+    // STD_ARGC_ERR(vm, "add(a b)", 2, "2");
+
     if (argc != 2) {
-        return make_error(vm, U"math add function only takes 2 arguments!");
+        return make_error(vm,
+                          U"math's add(a,b) function only takes 2 arguments!");
     }
 
     //    if (args[0].type != args[1].type && args[0].type != V_NUM) {

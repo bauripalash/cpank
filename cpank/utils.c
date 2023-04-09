@@ -14,11 +14,11 @@
 #include "include/value.h"
 
 #ifdef IS_WIN
-#include <io.h>
-#define F_OK   0
-#define access _access
+ #include <io.h>
+ #define F_OK   0
+ #define access _access
 #else
-#include <unistd.h>
+ #include <unistd.h>
 #endif
 
 int copy_c16(char32_t *str, const char32_t *input, int len) {

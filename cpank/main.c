@@ -9,11 +9,11 @@
 #include "include/utils.h"
 
 #if defined(IS_WIN) || defined(_WIN32)
-#include <fcntl.h>
-#include <io.h>
-#include <windows.h>
+ #include <fcntl.h>
+ #include <io.h>
+ #include <windows.h>
 
-#define CP_UTF8 65001
+ #define CP_UTF8 65001
 
 #endif
 

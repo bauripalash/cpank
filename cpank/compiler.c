@@ -13,7 +13,7 @@
 // #define DEBUG_PRINT_CODE
 // #define DEBUG_LEXER
 #ifdef DEBUG_PRINT_CODE
-#include "include/debug.h"
+ #include "include/debug.h"
 #endif
 
 // #define DEBUG_LEXER
@@ -936,14 +936,14 @@ ObjFunc *compile(PankVm *vm, char32_t *source) {
 #ifdef DEBUG_LEXER
     Token tk = get_tok(&lexer);
     while (tk.type != T_EOF) {
-#ifdef IS_WIN
+ #ifdef IS_WIN
         char *tokstr = c_to_c(tk.start, 0);
         cp_println(L"TOK[%S][%.*S]\n", toktype_to_string(tk.type), tk.length,
                    tokstr);
-#else
+ #else
         cp_println(L"TOK[%s][%.*ls]", toktype_to_string(tk.type), tk.length,
                    tk.start);
-#endif
+ #endif
 
         tk = get_tok(&lexer);
     }

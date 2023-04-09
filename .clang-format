@@ -24,10 +24,10 @@ AlignConsecutiveDeclarations:
   PadOperators:    false
 AlignConsecutiveMacros:
   Enabled:         true
-  AcrossEmptyLines: false
+  AcrossEmptyLines: true
   AcrossComments:  false
   AlignCompound:   false
-  PadOperators:    false
+  PadOperators:    true
 AlignEscapedNewlines: Left
 AlignOperands:   Align
 AlignTrailingComments: true
@@ -125,7 +125,7 @@ IndentAccessModifiers: false
 IndentCaseLabels: true
 IndentCaseBlocks: false
 IndentGotoLabels: true
-IndentPPDirectives: None
+IndentPPDirectives: BeforeHash
 IndentExternBlock: AfterExternBlock
 IndentRequiresClause: true
 IndentWidth:     4
@@ -156,7 +156,7 @@ PenaltyExcessCharacter: 1000000
 PenaltyReturnTypeOnItsOwnLine: 200
 PenaltyIndentedWhitespace: 0
 PointerAlignment: Left
-PPIndentWidth:   -1
+PPIndentWidth:   1
 RawStringFormats:
   - Language:        Cpp
     Delimiters:

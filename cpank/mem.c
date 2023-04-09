@@ -23,7 +23,7 @@ GcConfig gcon;
 
 #define DEBUG_STRES_GC
 #ifdef DEBUG_LOG_GC
-#include "include/debug.h"
+ #include "include/debug.h"
 #endif
 
 #define GC_HEAD_GROW_FACT 2
@@ -362,59 +362,59 @@ void mark_obj(PankVm *vm, Obj *obj) {
 void collect_garbage(PankVm *vm) {
 #ifndef NOGC
     // setlocale(LC_CTYPE, "");
-#ifdef DEBUG_LOG_GC
+ #ifdef DEBUG_LOG_GC
     cp_color_println('y', L"[GC] === GC START ====");
     size_t before = vm->bts_allocated;
-#endif
+ #endif
 
-#ifdef DEBUG_LOG_GC
+ #ifdef DEBUG_LOG_GC
     // wprintf(L"gc marking roots -> \n");
     cp_println(L"[GC] -- Marking Roots --");
-#endif
+ #endif
 
     mark_roots(vm);
 
-#ifdef DEBUG_LOG_GC
+ #ifdef DEBUG_LOG_GC
     // wprintf(L"finished marking roots -> \n");
     cp_println(L"[GC] -- Finished Marking Roots --");
 
     cp_println(L"[GC] -- Tracing Refs --");
-#endif
+ #endif
     trace_refs(vm);
 
-#ifdef DEBUG_LOG_GC
+ #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] -- Finished Tracing Refs --");
-#endif
+ #endif
 
-#ifdef DEBUG_LOG_GC
+ #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] -- Removing White Strings --");
-#endif
+ #endif
 
     table_remove_white(&vm->strings);
 
-#ifdef DEBUG_LOG_GC
+ #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] -- Finished Removing White Strings --");
-#endif
+ #endif
 
-#ifdef DEBUG_LOG_GC
+ #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] -- Sweeping --");
-#endif
+ #endif
 
     sweep(vm);
 
-#ifdef DEBUG_LOG_GC
+ #ifdef DEBUG_LOG_GC
     cp_println(L"[GC] -- Finished Sweeping --");
-#endif
+ #endif
 
     vm->next_gc = vm->bts_allocated * GC_HEAD_GROW_FACT;
 
-#ifdef DEBUG_LOG_GC
+ #ifdef DEBUG_LOG_GC
 
     cp_color_println('y', L"[GC] === GC END ====");
     // wprintf(L"-- gc end\n");
     cp_println(L"[GC] collected %zu bytes (from %zu to %zu) next at %zu",
                before - vm->bts_allocated, before, vm->bts_allocated,
                vm->next_gc);
-#endif
+ #endif
 #endif
 }

@@ -15,6 +15,7 @@
 #define STDMATH    U"math"
 #define STDMATH_BN U"গণিত"
 #define STDOS      U"os"
+#define STDCOMMON  U"common"
 
 typedef struct SL {
     char32_t* key;
@@ -29,4 +30,5 @@ int _push_single_stdfunc(char32_t* stdname, ObjString* key, NativeFn fn);
 void push_stdlib_math(PankVm* vm);
 void push_stdlib_math_bn(PankVm* vm);
 void push_stdlib_os(PankVm* vm);
+void push_stdlib_common(PankVm* vm);
 #endif
