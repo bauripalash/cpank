@@ -43,6 +43,34 @@ Value _arr_push(PankVm* vm, int argc, Value* args) {
     return make_nil;
 }
 
+Value _arr_join_two_arr(PankVm * vm , int argc , Value * args){
+    if (argc != 2) {
+        return make_error(vm, U"array join(a,b) takes only 2 arguments!");
+    }
+
+if (!is_array_obj(args[0]) || !is_array_obj(args[1])) {
+        return make_error(
+            vm,
+            U"two argument must be the array you want to join");
+    }
+
+    ObjArray* one = get_as_array(args[0]);
+    ObjArray* two = get_as_array(args[1]);
+    ObjArray * result = new_array(vm);
+int ln = 0;
+    for (int i = 0; i < one->len; i++) {
+        write_valarr(vm, &result->items, one->items.values[i]); 
+        ln++;
+    }
+    for (int i = 0; i < two->len; i++) {
+        write_valarr(vm, &result->items,two->items.values[i]); 
+        ln++;
+    }
+    result->len = ln;
+
+    return make_obj_val(result);
+}
+
 void push_stdlib_array(PankVm* vm) {
     SL sls[] = {
         msl(U"pop", _arr_pop),
