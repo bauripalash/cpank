@@ -70,13 +70,13 @@ prof:
 
 
 clean:
-	rm ./$(OUTPUT)
-	rm ./$(TESTOUTPUT)
-	rm ./massif.out.*
-	rm ./perf.data.*
-	rm ./cpank.perf 
-	rm ./cpank.gmon.*
-	rm ./vgcore.*
+	rm -f ./$(OUTPUT)
+	rm -f ./$(TESTOUTPUT)
+	rm -f ./massif.out.*
+	rm -f ./perf.data.*
+	rm -f ./cpank.perf 
+	rm -f ./cpank.gmon.*
+	rm -f ./vgcore.*
 	rm -rf ./.cache/
 
 fmt:
