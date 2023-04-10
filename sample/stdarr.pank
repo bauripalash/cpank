@@ -10,3 +10,8 @@ a.push(x  , name);
 a.push(x , "bauri");
 show x;
 show name + " bauri";
+
+let y = ["how" , "are" , "you"];
+show y;
+let z = a.join(x,y);
+show z;
