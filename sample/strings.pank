@@ -1,0 +1,5 @@
+let name = "Palash";
+show name;
+let g = name[0];
+show g;
+show name + g;

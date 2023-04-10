@@ -810,7 +810,32 @@ IResult run_vm(PankVm *vm) {
             case OP_ARR_INDEX: {
                 Value raw_index = peek_vm(vm, 0);
                 Value raw_obj = peek_vm(vm, 1);
-                if (is_array_obj(raw_obj)) {
+                if (is_str_obj(raw_obj)) {
+                    if (!is_num(raw_index)) {
+                        runtime_err(
+                            vm, U"Strings can only be indexed with numbers");
+                        return INTRP_RUNTIME_ERR;
+                    }
+                    double index = get_as_number(raw_index);
+                    if (index < 0 && ceil(index) != index) {
+                        runtime_err(vm,
+                                    U"strings can be only indexed with "
+                                    U"non-negetive integers");
+                        return INTRP_RUNTIME_ERR;
+                    }
+                    ObjString *s = get_as_string(raw_obj);
+                    if (index >= s->len) {
+                        runtime_err(
+                            vm, U"index out of range; max index = %d ; got %d",
+                            s->len - 1, (int)index);
+                        return INTRP_RUNTIME_ERR;
+                    }
+                    char32_t item = s->chars[(int)index];
+                    ObjString *newobjstring = copy_string(vm, &item, 1);
+                    pop(vm);
+                    pop(vm);
+                    push(vm, make_obj_val(newobjstring));
+                } else if (is_array_obj(raw_obj)) {
                     if (!is_num(raw_index)) {
                         runtime_err(vm,
                                     U"arrays can be only indexed with numbers");
