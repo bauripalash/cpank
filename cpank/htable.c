@@ -43,12 +43,14 @@ static Entry *find_entry(Entry *entries, int cap, ObjString *key) {
                     tombstone = entry;
                 }
             }
-        } else if (entry->key->len == key->len) {
+        } else if (entry->key->len == key->len &&
+                   entry->key->hash == key->hash) {
             //            if (strncmp(entry->key->chars, key->chars, key->len)
             //            == 0) {
-            if (str16cmp_gen(entry->key->chars, key->chars)) {
-                return entry;
-            }
+            // if (str16cmp_gen_n(entry->key->chars, key->chars , key->len)) {
+            //            if (entry->key->hash == key->hash) {
+            return entry;
+            //          }
         }
 
         index = (index + 1) & (cap - 1);
