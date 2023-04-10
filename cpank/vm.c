@@ -80,7 +80,7 @@ void free_stdlibs(PankVm *vm) {
 bool is_stdlib(char32_t *name) {
     return str16cmp(name, STDOS) || str16cmp(name, STDMATH) ||
            str16cmp(name, STDMATH_BN) || str16cmp(name, STDCOMMON) ||
-           str16cmp(name, STDARRAY);
+           str16cmp(name, STDARRAY) || str16cmp(name, STDSTR);
 }
 
 void init_module(Module *mod, const char32_t *name) {
@@ -474,6 +474,8 @@ static int import_file(PankVm *vm, char32_t *custom_name,
                 push_stdlib_common(vm);
             } else if (str16cmp(import_name, STDARRAY)) {
                 push_stdlib_array(vm);
+            } else if (str16cmp(import_name, STDSTR)) {
+                push_stdlib_string(vm);
             }
 
             StdlibMod *sm = &vm->stdlibs[0];

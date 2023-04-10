@@ -3,3 +3,6 @@ show name;
 let g = name[0];
 show g;
 show name + g;
+import s "str";
+let x = "hello,world,how,are,you";
+s.split(x , ",");
