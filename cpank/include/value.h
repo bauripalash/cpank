@@ -89,6 +89,7 @@ void print_val_type(ValType vt);
 bool is_falsey(Value val);
 bool is_equal(Value left, Value right);
 char32_t *get_val_type_str(Value val, bool isbn);
+char32_t *value_to_string(Value val);
 
 typedef struct {
     int cap;

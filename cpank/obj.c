@@ -1,9 +1,11 @@
 #include "include/obj.h"
 
+#include <locale.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <uchar.h>
@@ -182,7 +184,7 @@ ObjString *take_string(PankVm *vm, char32_t *chars, int len) {
     ObjString *interned = table_find_str(&vm->strings, chars, len, hash);
 
     if (interned != NULL) {
-        FREE_ARR(vm, wchar_t, chars, len + 1);
+        FREE_ARR(vm, char32_t, chars, len + 1);
         return interned;
     }
 
@@ -209,6 +211,78 @@ bool is_obj_equal(Obj *a, Obj *b) {
         default:
             return false;
     }
+}
+
+char32_t *obj_to_string(Value val) {
+    switch (get_obj_type(val)) {
+        case OBJ_STR:
+            return get_as_native_string(val);
+        case OBJ_UPVAL:
+            return chto16("upvalue");
+        case OBJ_NATIVE: {
+            ObjNative *n = (ObjNative *)get_as_obj(val);
+
+            if (n->name != NULL && n->name_len > 0) {
+                setlocale(LC_ALL, "bn_IN.UTF-8");
+                char *nm = c_to_c(n->name, n->name_len + 1);
+                int len = snprintf(NULL, 0, "<native fn %s>", nm);
+                char *cres = (char *)malloc(sizeof(char) * (len + 1));
+                snprintf(cres, len + 1, "<native fn %s>", nm);
+                char32_t *result = chto16(cres);
+                free(cres);
+                free(nm);
+                return result;
+
+            } else {
+                return chto16("<native func>");
+            }
+        }
+        case OBJ_FUNC: {
+            ObjFunc *f = (ObjFunc *)get_as_obj(val);
+            if (f->name != NULL) {
+                setlocale(LC_ALL, "bn_IN.UTF-8");
+                char *nm = c_to_c(f->name->chars, f->name->len);
+                int len = snprintf(NULL, 0, "<func %s>", nm);
+                char *cres = (char *)malloc(sizeof(char) * (len + 1));
+                snprintf(cres, len + 1, "<func %s>", nm);
+                char32_t *result = chto16(cres);
+                free(cres);
+                free(nm);
+                return result;
+            } else {
+                return chto16("<func>");
+            }
+        }
+        case OBJ_CLOUSRE: {
+            ObjClosure *cl = (ObjClosure *)get_as_obj(val);
+            ObjFunc *f = cl->func;
+            if (f->name != NULL) {
+                setlocale(LC_ALL, "bn_IN.UTF-8");
+                char *nm = c_to_c(f->name->chars, f->name->len);
+                int len = snprintf(NULL, 0, "<func %s>", nm);
+                char *cres = (char *)malloc(sizeof(char) * (len + 1));
+                snprintf(cres, len + 1, "<func %s>", nm);
+                char32_t *result = chto16(cres);
+                free(cres);
+                free(nm);
+                return result;
+            } else {
+                return chto16("<func>");
+            }
+        }
+        case OBJ_MOD: {
+            ObjMod *mod = (ObjMod *)get_as_obj(val);
+            char *nm = c_to_c(mod->name->chars, mod->name->len);
+            int len = snprintf(NULL, 0, "<module %s>", nm);
+            char *cres = (char *)malloc(sizeof(char) * (len + 1));
+            snprintf(cres, len + 1, "<module %s>", nm);
+            char32_t *result = chto16(cres);
+            free(cres);
+            free(nm);
+            return result;
+        }
+    }
+    return chto16("unknown");
 }
 
 void print_obj(Value val) {
@@ -351,7 +425,8 @@ ObjNative *new_native(PankVm *vm, NativeFn fn, char32_t *name) {
     size_t namelen = strlen16(name) + 1;
     native->name = (char32_t *)malloc(sizeof(char32_t) * namelen);
     memset(native->name, 0, namelen);
-    memcpy(native->name, name, namelen);
+    // memcpy(native->name, name, namelen);
+    copy_c16(native->name, name, namelen);
     native->name_len = namelen - 1;
     return native;
 }

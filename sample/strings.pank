@@ -8,12 +8,35 @@ let x = "hello,world,how,are,you";
 show s.split(x , ",");
 let y = "helloworld";
 show s.split(y, ",");
-show type(name);
-show type(1);
-show type(true);
-show type([1,2]);
-show type({"hello" : "world"});
-show type(type);
-show type(s.split);
-show type(s);
-দেখাও প্রকার(১);
+#show type(name);
+#show type(1);
+#show type(true);
+#show type([1,2]);
+#show type({"hello" : "world"});
+#show type(type);
+#show type(s.split);
+#show type(s);
+#দেখাও প্রকার(১);
+let z = s.string(1);
+show z;
+show type(z);
+let z = s.string(true);
+show z;
+show type(z);
+let z = s.string(nil);
+show z;
+show type(z);
+let z = s.string(s.string);
+show z;
+show type(z);
+
+kaj nam()
+	show 1;
+end
+let z = s.string(nam);
+show z;
+show type(z);
+
+let z = s.string(s);
+show z;
+show type(z);

@@ -41,12 +41,29 @@ Value _str_split_delim(PankVm* vm, int argc, Value* args) {
     for (int i = 0; i < len; i++) {
         pop(vm);
     }
-
     return make_obj_val(arr);
 }
 
-void push_stdlib_string(PankVm* vm) {
-    SL sls[] = {msl(U"split", _str_split_delim)};
+Value _str_to_str(PankVm* vm, int argc, Value* args) {
+    if (argc != 1) {
+        return make_error(vm, U"string(a) function takes only single argument");
+    }
 
-    _push_stdlib(vm, U"str", sls, 1);
+    Value val = args[0];
+    if (is_str_obj(val)) {
+        return val;
+    }
+
+    char32_t* val_str = value_to_string(val);
+    ObjString* str = copy_string(vm, val_str, strlen16(val_str));
+    push(vm, make_obj_val(str));
+    free(val_str);
+
+    return pop(vm);
+}
+
+void push_stdlib_string(PankVm* vm) {
+    SL sls[] = {msl(U"split", _str_split_delim), msl(U"string", _str_to_str)};
+
+    _push_stdlib(vm, U"str", sls, 2);
 }

@@ -22,7 +22,7 @@
 #endif
 
 int copy_c16(char32_t *str, const char32_t *input, int len) {
-    memcpy(str, input, sizeof(char16_t) * len);
+    memcpy(str, input, sizeof(char32_t) * len);
     return (int)sizeof(char16_t) * len;
 }
 

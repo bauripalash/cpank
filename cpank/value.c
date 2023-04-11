@@ -1,6 +1,9 @@
 #include "include/value.h"
 
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <uchar.h>
 #include <wchar.h>
 
 #include "include/bn.h"
@@ -41,6 +44,26 @@ char32_t *get_val_type_str(Value val, bool isbn) {
     }
 
     return U"unknown";
+}
+
+char32_t *value_to_string(Value val) {
+    if (is_num(val)) {
+        double num = get_as_number(val);
+        int length = snprintf(NULL, 0, "%f", num);
+        char *str = malloc(length + 1);
+        snprintf(str, length + 1, "%f", num);
+        char32_t *res = chto16(str);
+        free(str);
+        return res;
+    } else if (is_nil(val)) {
+        return chto16("nil");
+    } else if (is_bool(val)) {
+        bool v = get_as_bool(val);
+        return v ? chto16("true") : chto16("false");
+    } else if (is_obj(val)) {
+        return obj_to_string(val);
+    }
+    return chto16("");
 }
 
 void init_valarr(Valarr *array) {
