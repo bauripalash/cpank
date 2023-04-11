@@ -29,6 +29,12 @@ bool str16cmp_gen(const char32_t *big, const char32_t *small);
 
 bool str16cmp_gen_n(const char32_t *big, const char32_t *small, int len);
 char32_t *chto16(char *input);
+
+// use must free return value;
+// as well as each token inside return value;
+// should do NULL check for return value;
+// which suggests memory allocation failed;
+char32_t **split32(char32_t *str, char32_t *delimiter, int *len);
 // check if `filepath` exists
 bool does_file_exist(const char *filepath);
 

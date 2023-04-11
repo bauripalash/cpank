@@ -9,6 +9,7 @@
 #include <uchar.h>
 #include <wchar.h>
 
+#include "include/bn.h"
 #include "include/common.h"
 #include "include/instruction.h"
 #include "include/mem.h"
@@ -16,7 +17,41 @@
 #include "include/value.h"
 #include "include/vm.h"
 
+#define MOD_NAME                      U"module"
+#define STR_NAME                      U"string"
+#define ERR_NAME                      U"error"
+#define FUNC_NAME                     U"function"
+#define HMAP_NAME                     U"hashmap"
+#define CLOSURE_NAME                  U"closure"
+#define ARRAY_NAME                    U"array"
+#define NATIVE_NAME                   U"native"
+#define UPVAL_NAME                    U"upvalue"
+
 #define ALLOCATE_OBJ(vm, type, otype) (type *)alloc_obj(vm, sizeof(type), otype)
+
+char32_t *get_obj_type_str(Value val, bool isbn) {
+    ObjType tp = get_obj_type(val);
+    switch (tp) {
+        case OBJ_MOD:
+            return isbn ? MOD_NAME_BN : MOD_NAME;
+        case OBJ_STR:
+            return isbn ? STR_NAME_BN : STR_NAME;
+        case OBJ_ERR:
+            return isbn ? ERR_NAME_BN : ERR_NAME;
+        case OBJ_FUNC:
+            return isbn ? FUNC_NAME_BN : FUNC_NAME;
+        case OBJ_HMAP:
+            return isbn ? HMAP_NAME_BN : HMAP_NAME;
+        case OBJ_CLOUSRE:
+            return isbn ? CLOSURE_NAME_BN : CLOSURE_NAME;
+        case OBJ_NATIVE:
+            return isbn ? NATIVE_NAME_BN : NATIVE_NAME;
+        case OBJ_ARRAY:
+            return isbn ? ARRAY_NAME_BN : ARRAY_NAME;
+        case OBJ_UPVAL:
+            return isbn ? UPVAL_NAME_BN : UPVAL_NAME;
+    }
+}
 
 Obj *alloc_obj(PankVm *vm, size_t size, ObjType type) {
     Obj *obj = (Obj *)rallc(vm, NULL, 0, size);

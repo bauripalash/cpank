@@ -105,6 +105,7 @@ ObjFunc *new_func(PankVm *vm);
 ObjUpVal *new_up_val(PankVm *vm, Value *val);
 ObjArray *new_array(PankVm *vm);
 ObjType get_obj_type(Value val);
+char32_t *get_obj_type_str(Value val, bool isbn);
 bool is_obj_type(Value val, ObjType ot);
 bool is_str_obj(Value val);
 bool is_func_obj(Value val);

@@ -13,6 +13,7 @@
 #include <uchar.h>
 #include <wchar.h>
 
+#include "include/builtins.h"
 #include "include/common.h"
 #include "include/compiler.h"
 #include "include/debug.h"
@@ -35,8 +36,6 @@ ObjUpVal *capture_upv(PankVm *vm, Module *module, Value *local);
 void close_upval(Module *module, Value *last);
 bool call_val(PankVm *vm, Value calle, int argc);
 bool call(PankVm *vm, ObjClosure *closure, int origin, int argc);
-
-Value asserteq_ntv_fn(PankVm *vm, int argc, Value *args);
 
 PankVm *boot_vm(void) {
     PankVm *vm = malloc(sizeof(PankVm));
@@ -63,8 +62,10 @@ PankVm *boot_vm(void) {
     dmod->origin = NULL;
     vm->mod_names[vm->mod_count] = get_hash(default_mod, strlen16(default_mod));
     vm->current_mod = dmod;
-    define_native(vm, U"clock", clock_ntv_fn);
-    define_native(vm, U"asserteq", asserteq_ntv_fn);
+    define_native(vm, clock_ntv_name, clock_ntv_fn);
+    define_native(vm, asserteq_ntv_name, asserteq_ntv_fn);
+    define_native(vm, type_ntv_name, type_ntv_fn);
+    define_native(vm, bn_native_fn_name, bn_type_ntv_fn);
     return vm;
 }
 
@@ -1040,22 +1041,6 @@ ObjUpVal *capture_upv(PankVm *vm, Module *module, Value *local) {
         prev->next = new_upv;
     }
     return new_upv;
-}
-
-Value clock_ntv_fn(PankVm *vm, int argc, Value *args) {
-    return make_num((double)clock() / CLOCKS_PER_SEC);
-}
-
-Value asserteq_ntv_fn(PankVm *vm, int argc, Value *args) {
-    if (argc != 2) {
-        return make_error(vm, U"asserteq(a, b) takes only 2 arguments");
-    }
-
-    if (!is_equal(args[0], args[1])) {
-        return make_bool(false);
-    }
-
-    return make_bool(true);
 }
 
 bool call_val(PankVm *vm, Value calle, int argc) {

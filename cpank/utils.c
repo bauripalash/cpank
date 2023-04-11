@@ -138,6 +138,65 @@ char32_t *chto16(char *input) {
 
     return output;
 }
+
+// Got help from a stackoverflow answer which I asked myself
+// https://stackoverflow.com/a/75982886/7917825
+// The commented code is my origin solution which had some
+// memory errors;;
+char32_t **split32(char32_t *str, char32_t *delimiter, int *len) {
+    *len = 1;
+    char32_t delim = delimiter[0];
+    char32_t *s = str;
+    while (*s != U'\0') {
+        if (*s == delim) {
+            (*len)++;
+        }
+        s++;
+    }
+    char32_t **tokens = (char32_t **)calloc((*len), sizeof(char32_t *));
+    if (tokens == NULL) {
+        return NULL;
+    }
+    int start = 0, end = 0, i = 0;
+    do {
+        if ((str[end] == delim) || (str[end] == U'\0')) {
+            tokens[i] =
+                (char32_t *)malloc(sizeof(char32_t) * (end - start + 1));
+            if (tokens[i] == NULL) {
+                return NULL;
+            }
+            memcpy(tokens[i], &str[start], sizeof(char32_t) * (end - start));
+            tokens[i][end - start] = U'\0';
+            start = end + 1;
+            i++;
+        }
+    } while (str[end++] != U'\0');
+    // char32_t *p = str;
+    // int i = 0;
+    /*while (*p) {
+        int tok_len = 0;
+        while (p[tok_len] && p[tok_len] != delim) {
+            tok_len++;
+        }
+        tokens[i] = (char32_t *)malloc(sizeof(char32_t) * (tok_len + 1));
+        if (tokens[i] == NULL) {
+            return NULL;
+        }
+        memcpy(tokens[i], p, tok_len * sizeof(char32_t));
+        tokens[i][tok_len] = '\0';
+        p += tok_len;
+        p += (*p != '\0') ? 1 : 0;
+
+        i++;
+    }
+
+    if (tokens[*len - 1] == NULL) {
+        tokens[i] = malloc(1 * sizeof(char32_t));
+        tokens[i][0] = U'\0';
+    }*/
+    return tokens;
+}
+
 bool does_file_exist(const char *filepath) {
     FILE *file = fopen(filepath, "r");
     if (file == NULL) {

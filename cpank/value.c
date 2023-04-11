@@ -3,9 +3,14 @@
 #include <stdbool.h>
 #include <wchar.h>
 
+#include "include/bn.h"
 #include "include/mem.h"
 #include "include/obj.h"
 #include "include/utils.h"
+
+#define NUMBER_NAME U"number"
+#define NIL_NAME    U"nil"
+#define BOOL_NAME   U"bool"
 
 void print_val_type(ValType vt) {
     switch (vt) {
@@ -22,6 +27,20 @@ void print_val_type(ValType vt) {
             cp_print(L"OBJ");
             break;
     }
+}
+
+char32_t *get_val_type_str(Value val, bool isbn) {
+    if (is_num(val)) {
+        return isbn ? NUMBER_NAME_BN : NUMBER_NAME;
+    } else if (is_nil(val)) {
+        return isbn ? NIL_NAME_BN : NIL_NAME;
+    } else if (is_bool(val)) {
+        return isbn ? BOOL_NAME_BN : BOOL_NAME;
+    } else if (is_obj(val)) {
+        return get_obj_type_str(val, isbn);
+    }
+
+    return U"unknown";
 }
 
 void init_valarr(Valarr *array) {

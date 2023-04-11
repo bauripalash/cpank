@@ -13,8 +13,6 @@
 #include "../include/value.h"
 #include "../include/vm.h"
 
-
-
 Value _str_split_delim(PankVm* vm, int argc, Value* args) {
     if (argc != 2) {
         return make_error(
@@ -24,15 +22,27 @@ Value _str_split_delim(PankVm* vm, int argc, Value* args) {
         return make_error(vm, U"both arguments must be string for split(a ,b)");
     }
     ObjString* rawstr = get_as_string(args[0]);
-    char* char_str = c_to_c(rawstr->chars, rawstr->len);
     ObjString* delim = get_as_string(args[1]);
-    char* char_delim = c_to_c(delim->chars, delim->len);
+    ObjArray* arr = new_array(vm);
+    push(vm, make_obj_val(arr));
+    int len = 0;
+    char32_t** tokens = split32(rawstr->chars, delim->chars, &len);
 
-    free(char_str);
-    free(char_delim);
-    cp_println(L"split(a,b) -> TODO:");
+    for (int i = 0; i < len; i++) {
+        Value o = make_obj_val(copy_string(vm, tokens[i], strlen16(tokens[i])));
 
-    return make_nil;
+        push(vm, o);
+        write_valarr(vm, &arr->items, o);
+        free(tokens[i]);
+    }
+    arr->len = arr->items.len;
+    free(tokens);
+    pop(vm);
+    for (int i = 0; i < len; i++) {
+        pop(vm);
+    }
+
+    return make_obj_val(arr);
 }
 
 void push_stdlib_string(PankVm* vm) {

@@ -122,8 +122,8 @@ bool push(PankVm *vm, Value value);
 Value pop(PankVm *vm);
 Value peek_vm(PankVm *vm, int dist);
 Value get_last_pop(PankVm *vm);
+void print_stack(PankVm *vm);
 
 void define_native(PankVm *vm, char32_t *name, NativeFn func);
-Value clock_ntv_fn(PankVm *vm, int argc, Value *args);
 
 #endif

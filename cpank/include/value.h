@@ -1,5 +1,6 @@
 #ifndef cpank_value_h
 #define cpank_value_h
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 #include <uchar.h>
@@ -87,6 +88,7 @@ void print_val_type(ValType vt);
 
 bool is_falsey(Value val);
 bool is_equal(Value left, Value right);
+char32_t *get_val_type_str(Value val, bool isbn);
 
 typedef struct {
     int cap;
