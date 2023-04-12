@@ -42,6 +42,7 @@ import s "str";
 #show type(z);
 
 let m = {"hello" : "world" , 1:-12.1 , "s" : "x"};
+show m[1];
 show type(m);
 let z = s.string(m);
 show z;

@@ -12,6 +12,7 @@
 #include <uchar.h>
 #include <wchar.h>
 
+#include "ext/xxhash/xxhash.h"
 #include "include/bn.h"
 #include "include/common.h"
 #include "include/instruction.h"
@@ -116,7 +117,7 @@ ObjMod *get_as_mod(Value val) { return (ObjMod *)get_as_obj(val); }
 
 ObjHashMap *get_as_hmap(Value val) { return (ObjHashMap *)get_as_obj(val); }
 ObjErr *get_as_err(Value val) { return (ObjErr *)get_as_obj(val); }
-ObjString *allocate_str(PankVm *vm, char32_t *chars, int len, uint32_t hash) {
+ObjString *allocate_str(PankVm *vm, char32_t *chars, int len, uint64_t hash) {
     ObjString *string = ALLOCATE_OBJ(vm, ObjString, OBJ_STR);
     string->len = len;
     string->chars = chars;
@@ -156,17 +157,20 @@ wchar_t *get_obj_type_as_string(ObjType o) {
     return L"OBJ_UNKNOWN";
 }
 
-uint32_t get_hash(const char32_t *key, int len) {
-    uint32_t hash = 2166136261u;
+uint64_t get_hash(const char32_t *key, int len) {
+    /*uint32_t hash = 2166136261u;
     for (int i = 0; i < len; i++) {
         hash ^= (uint8_t)key[i];
         hash *= 16777619;
     }
-    return hash;
+    return hash;*/
+
+    XXH64_hash_t hash = XXH3_64bits(key, sizeof(char32_t) * len);
+    return (uint64_t)hash;
 }
 
 ObjString *copy_string(PankVm *vm, char32_t *chars, int len) {
-    uint32_t hash = get_hash(chars, len);
+    uint64_t hash = get_hash(chars, len);
     ObjString *interned = table_find_str(&vm->strings, chars, len, hash);
     if (interned != NULL) {
         return interned;
@@ -219,8 +223,6 @@ bool is_obj_equal(Obj *a, Obj *b) {
             return false;
     }
 }
-
-
 
 char32_t *obj_to_string(PankVm *vm, Value val) {
     switch (get_obj_type(val)) {
@@ -601,7 +603,7 @@ ObjHashMap *new_hmap(PankVm *vm) {
     return map;
 }
 
-static uint32_t get_obj_hash(Obj *obj) {
+static uint64_t get_obj_hash(Obj *obj) {
     if (obj->type != OBJ_STR) {
         return 0;
     }
@@ -610,15 +612,20 @@ static uint32_t get_obj_hash(Obj *obj) {
 }
 
 #ifdef NAN_BOXING
-static uint32_t hash_uint(uint64_t value) {
-    uint32_t hash = 0;
+static uint64_t hash_uint(uint64_t value) {
+    uint64_t x = value;
+    /*uint32_t hash = 0;
     hash = ~value + (value << 18);
     hash = hash ^ (hash >> 31);
     hash = hash * 21;
     hash = hash ^ (hash >> 11);
     hash = hash + (hash << 6);
     hash = hash ^ (hash >> 22);
-    return (uint32_t)(hash & 0x3fffffff);
+    return (uint64_t)(hash & 0x3fffffff);*/
+    x = (x ^ (x >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
+    x = (x ^ (x >> 27)) * UINT64_C(0x94d049bb133111eb);
+    x = x ^ (x >> 31);
+    return x;
 }
 
 #else
@@ -675,7 +682,7 @@ bool is_valid_hashmap_key(Value val) {
 }
 
 static HmapItem *find_value_in_hmap(HmapItem *entries, int cap, Value key) {
-    uint32_t key_hash = get_value_hash(key);
+    uint64_t key_hash = get_value_hash(key);
     uint8_t index = key_hash & (cap - 1);
     HmapItem *tombstone = NULL;
     for (;;) {

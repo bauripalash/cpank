@@ -71,7 +71,7 @@ struct ObjString {
     Obj obj;
     int len;
     char32_t *chars;
-    uint32_t hash;
+    uint64_t hash;
 };
 
 typedef struct {
@@ -89,7 +89,7 @@ typedef struct ObjArray {
 typedef struct {
     Value key;
     Value val;
-    uint32_t hash;
+    uint64_t hash;
 } HmapItem;
 
 typedef struct {
@@ -127,7 +127,7 @@ ObjString *copy_string(PankVm *vm, char32_t *chars, int len);
 ObjString *take_string(PankVm *vm, char32_t *chars, int len);
 void print_obj(Value val);
 wchar_t *get_obj_type_as_string(ObjType o);
-uint32_t get_hash(const char32_t *key, int len);
+uint64_t get_hash(const char32_t *key, int len);
 
 bool hmap_get(ObjHashMap *map, Value key, Value *val);
 
@@ -142,7 +142,6 @@ bool is_obj_equal(Obj *a, Obj *b);
 bool is_valid_hashmap_key(Value val);
 
 Value make_str(PankVm *vm, char32_t *str);
-
 
 // There 'must' be some bugs or edge cases, testing is required
 char32_t *obj_to_string(PankVm *vm, Value val);

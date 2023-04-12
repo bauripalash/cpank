@@ -3,7 +3,9 @@ CFLAGS+=-std=c11 -Wall -pedantic
 LINKS=-lm
 SRC=cpank/lexer.c cpank/bn.c cpank/runfile.c cpank/instruction.c cpank/mem.c cpank/debug.c cpank/value.c cpank/vm.c cpank/compiler.c cpank/obj.c cpank/htable.c cpank/utils.c cpank/openfile.c cpank/builtins.c
 STDLIB_MODULES= cpank/stdlib/*.c
+EXTERNAL=cpank/ext/xxhash/xxhash.c
 SRC+=$(STDLIB_MODULES)
+SRC+=$(EXTERNAL)
 MAIN=cpank/main.c
 SAMPLE_TO_RUN=sample/strings.pank
 TESTMAIN=cpank/testmain.c
