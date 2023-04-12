@@ -143,6 +143,8 @@ bool is_valid_hashmap_key(Value val);
 
 Value make_str(PankVm *vm, char32_t *str);
 
+
+// There 'must' be some bugs or edge cases, testing is required
 char32_t *obj_to_string(PankVm *vm, Value val);
 /*
 #define get_as_native(value) \
