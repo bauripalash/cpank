@@ -30,6 +30,7 @@ bool str16cmp_gen(const char32_t *big, const char32_t *small);
 bool str16cmp_gen_n(const char32_t *big, const char32_t *small, int len);
 char32_t *chto16(char *input);
 
+bool is_int(double val);
 // use must free return value;
 // as well as each token inside return value;
 // should do NULL check for return value;

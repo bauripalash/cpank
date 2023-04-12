@@ -46,22 +46,32 @@ char32_t *get_val_type_str(Value val, bool isbn) {
     return U"unknown";
 }
 
-char32_t *value_to_string(Value val) {
+char32_t *value_to_string(PankVm *vm, Value val) {
     if (is_num(val)) {
         double num = get_as_number(val);
-        int length = snprintf(NULL, 0, "%f", num);
-        char *str = malloc(length + 1);
-        snprintf(str, length + 1, "%f", num);
-        char32_t *res = chto16(str);
-        free(str);
-        return res;
+        if (is_int(num)) {
+            int inum = (int)num;
+            int length = snprintf(NULL, 0, "%d", inum);
+            char *str = (char *)malloc(length + 1);
+            snprintf(str, length + 1, "%d", inum);
+            char32_t *res = chto16(str);
+            free(str);
+            return res;
+        } else {
+            int length = snprintf(NULL, 0, "%g", num);
+            char *str = malloc(length + 1);
+            snprintf(str, length + 1, "%g", num);
+            char32_t *res = chto16(str);
+            free(str);
+            return res;
+        }
     } else if (is_nil(val)) {
         return chto16("nil");
     } else if (is_bool(val)) {
         bool v = get_as_bool(val);
         return v ? chto16("true") : chto16("false");
     } else if (is_obj(val)) {
-        return obj_to_string(val);
+        return obj_to_string(vm, val);
     }
     return chto16("");
 }
@@ -102,7 +112,12 @@ void print_val(Value val) {
     } else if (is_nil(val)) {
         cp_print(L"nil");
     } else if (is_num(val)) {
-        cp_print(L"%f", get_as_number(val));
+        double num = get_as_number(val);
+        if (is_int(num)) {
+            cp_print(L"%d", (int)num);
+        } else {
+            cp_print(L"%g", num);
+        }
     } else if (is_obj(val)) {
         print_obj(val);
     }

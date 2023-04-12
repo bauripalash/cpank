@@ -50,11 +50,8 @@ Value _str_to_str(PankVm* vm, int argc, Value* args) {
     }
 
     Value val = args[0];
-    if (is_str_obj(val)) {
-        return val;
-    }
 
-    char32_t* val_str = value_to_string(val);
+    char32_t* val_str = value_to_string(vm, val);
     ObjString* str = copy_string(vm, val_str, strlen16(val_str));
     push(vm, make_obj_val(str));
     free(val_str);

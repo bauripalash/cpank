@@ -2,6 +2,7 @@
 
 #include <locale.h>
 #include <math.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -15,6 +16,7 @@
 #include "include/common.h"
 #include "include/instruction.h"
 #include "include/mem.h"
+#include "include/openfile.h"
 #include "include/utils.h"
 #include "include/value.h"
 #include "include/vm.h"
@@ -97,6 +99,11 @@ char32_t *get_as_native_string(Value val) {
     Obj *o = get_as_obj(val);
     ObjString *os = (ObjString *)(o);
     return os->chars;
+}
+char32_t *duplicate_string(ObjString *str) {
+    char32_t *dupstr = (char32_t *)calloc((str->len + 1), sizeof(char32_t));
+    copy_c16(dupstr, str->chars, str->len + 1);
+    return dupstr;
 }
 
 NativeFn get_as_native(Value val) {
@@ -213,10 +220,15 @@ bool is_obj_equal(Obj *a, Obj *b) {
     }
 }
 
-char32_t *obj_to_string(Value val) {
+char32_t *obj_to_string(PankVm *vm, Value val) {
     switch (get_obj_type(val)) {
         case OBJ_STR:
-            return get_as_native_string(val);
+            return duplicate_string((ObjString *)get_as_obj(val));
+        case OBJ_ERR: {
+            ObjErr *er = get_as_err(val);
+            return chto16(er->errmsg);
+        }
+
         case OBJ_UPVAL:
             return chto16("upvalue");
         case OBJ_NATIVE: {
@@ -280,6 +292,114 @@ char32_t *obj_to_string(Value val) {
             free(cres);
             free(nm);
             return result;
+        }
+        case OBJ_HMAP: {
+            setlocale(LC_ALL, "bn_IN.UTF-8");
+            ObjHashMap *hmap = get_as_hmap(val);
+            char32_t *sep = U": ";
+            int sep_len = 2;
+            char32_t *comma = U", ";
+            int comma_len = 2;
+            char32_t lbrack[] = U"{ ";
+            int lbrack_len = 2;
+            char32_t rbrack[] = U"}";
+            int rbrack_len = 1;
+            int total_len = 0;
+            char32_t **result =
+                (char32_t **)calloc(hmap->count, sizeof(char32_t *));
+
+            int len = 0;
+            for (int i = 0; i < hmap->cap; i++) {
+                HmapItem *hitem = &hmap->items[i];
+                if (hitem != NULL && !is_nil(hitem->key)) {
+                    int index = len;
+                    char32_t *k_str = value_to_string(vm, hitem->key);
+                    int klen = strlen16(k_str);
+                    char32_t *v_str = value_to_string(vm, hitem->val);
+                    int vlen = strlen16(v_str);
+                    int needlen = klen + sep_len + vlen + comma_len;
+                    result[index] =
+                        (char32_t *)malloc((needlen + 1) * sizeof(char32_t));
+                    char32_t *ptr = result[index];
+                    copy_c16(ptr, k_str, klen);
+                    ptr += klen;
+                    copy_c16(ptr, sep, sep_len);
+
+                    ptr += sep_len;
+
+                    copy_c16(ptr, v_str, vlen);
+                    ptr += vlen;
+                    copy_c16(ptr, comma, comma_len);
+                    ptr += comma_len;
+
+                    *ptr = U'\0';
+                    free(k_str);
+                    free(v_str);
+                    total_len += needlen;
+                    len++;
+                }
+            }
+
+            char32_t *res = (char32_t *)calloc(
+                total_len + lbrack_len + rbrack_len + 1, sizeof(char32_t));
+
+            char32_t *ptr = res;
+            copy_c16(ptr, lbrack, lbrack_len);
+            ptr += lbrack_len;
+
+            for (int i = 0; i < len; i++) {
+                int rlen = strlen16(result[i]);
+                copy_c16(ptr, result[i], rlen);
+                free(result[i]);
+                ptr += rlen;
+            }
+
+            copy_c16(ptr, rbrack, rbrack_len);
+            ptr += rbrack_len;
+            *ptr = U'\0';
+            free(result);
+            char32_t *rr = res;
+            return rr;
+        }
+        case OBJ_ARRAY: {
+            ObjArray *arr = get_as_array(val);
+            char32_t *comma = U", ";
+            int comma_len = 2;
+            char32_t lbrack[] = U"[ ";
+            int lbrack_len = 2;
+            char32_t rbrack[] = U"]";
+            int rbrack_len = 1;
+            setlocale(LC_ALL, "bn_IN.UTF-8");
+            char32_t **result =
+                (char32_t **)calloc(arr->items.len, sizeof(char32_t *));
+            int total_len = 0;
+            for (int i = 0; i < arr->items.len; i++) {
+                result[i] = value_to_string(vm, arr->items.values[i]);
+                int ilen = strlen16(result[i]);
+
+                total_len += ilen;
+            }
+
+            char32_t *res =
+                (char32_t *)calloc((total_len + lbrack_len + rbrack_len +
+                                    (total_len * comma_len) + 1),
+                                   sizeof(char32_t));
+            char32_t *ptr = res;
+            copy_c16(ptr, lbrack, lbrack_len);
+            ptr += lbrack_len;
+            for (int i = 0; i < arr->items.len; i++) {
+                int rlen = strlen16(result[i]);
+                copy_c16(ptr, result[i], rlen);
+                ptr += rlen;
+                copy_c16(ptr, comma, comma_len);
+                ptr += comma_len;
+                free(result[i]);
+            }
+            copy_c16(ptr, rbrack, rbrack_len);
+            ptr += rbrack_len;
+            *ptr = U'\0';
+            free(result);
+            return res;
         }
     }
     return chto16("unknown");

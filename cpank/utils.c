@@ -1,6 +1,7 @@
 #include "include/utils.h"
 
 #include <locale.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -195,6 +196,13 @@ char32_t **split32(char32_t *str, char32_t *delimiter, int *len) {
         tokens[i][0] = U'\0';
     }*/
     return tokens;
+}
+
+bool is_int(double val) {
+    if (ceil(val) != val) {
+        return false;
+    }
+    return true;
 }
 
 bool does_file_exist(const char *filepath) {
