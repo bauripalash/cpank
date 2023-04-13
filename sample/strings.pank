@@ -52,3 +52,5 @@ show type(m);
 let z = s.string(m);
 show z;
 
+import ms "math";
+show ms.pi();

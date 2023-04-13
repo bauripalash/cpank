@@ -51,6 +51,7 @@ PankVm *boot_vm(void) {
     vm->gray_count = 0;
     vm->gray_stack = NULL;
     vm->mod_count = 0;
+    vm->stdlib_count = 0;
 
     init_table(&vm->strings);
     init_table(&vm->builtins);
@@ -458,7 +459,6 @@ static int import_file(PankVm *vm, char32_t *custom_name,
         Module *mod = get_cur_mod(vm);
         table_set(vm, &mod->globals, get_as_string(peek_vm(vm, 1)),
                   peek_vm(vm, 0));
-
         StdProxy *prx = &mod->stdproxy[mod->stdlib_count++];
 
         prx->proxy_hash = objmod->name->hash;
@@ -479,21 +479,47 @@ static int import_file(PankVm *vm, char32_t *custom_name,
                 push_stdlib_string(vm);
             }
 
-            StdlibMod *sm = &vm->stdlibs[0];
+            StdlibMod *sm = &vm->stdlibs[vm->stdlib_count - 1];
             sm->owners[sm->owner_count++] = mod->hash;
             prx->origin_name = sm->name;
 
             prx->stdmod = sm;
         } else {
+            bool found = false;
             for (int i = 0; i < vm->stdlib_count; i++) {
                 StdlibMod *sm = &vm->stdlibs[i];
                 if (sm->hash == objmod->name->hash) {
+                    found = true;
                     prx->origin_name = sm->name;
                     prx->stdmod = sm;
                     sm->owners[sm->owner_count++] = mod->hash;
+                    // cp_color_println('r', L"SM -> %s", sm->name);
+                    break;
                 }
             }
+            if (!found) {
+                if (str16cmp(import_name, STDMATH)) {
+                    push_stdlib_math(vm);
+                } else if (str16cmp(import_name, STDMATH_BN)) {
+                    push_stdlib_math_bn(vm);
+                } else if (str16cmp(import_name, STDOS)) {
+                    push_stdlib_os(vm);
+                } else if (str16cmp(import_name, STDCOMMON)) {
+                    push_stdlib_common(vm);
+                } else if (str16cmp(import_name, STDARRAY)) {
+                    push_stdlib_array(vm);
+                } else if (str16cmp(import_name, STDSTR)) {
+                    push_stdlib_string(vm);
+                }
+                StdlibMod *sm = &vm->stdlibs[vm->stdlib_count - 1];
+                sm->owners[sm->owner_count++] = mod->hash;
+                prx->origin_name = sm->name;
+
+                prx->stdmod = sm;
+            }
         }
+
+        // cp_println(L"count -> %d" , vm->stdlib_count);
 
         pop(vm);
         pop(vm);
