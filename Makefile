@@ -83,4 +83,4 @@ clean:
 	rm -rf ./.cache/
 
 fmt:
-	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/stdlib/*.c
+	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/include/helper/*.h cpank/stdlib/*.c

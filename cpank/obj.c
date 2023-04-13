@@ -613,19 +613,15 @@ static uint64_t get_obj_hash(Obj *obj) {
 
 #ifdef NAN_BOXING
 static uint64_t hash_uint(uint64_t value) {
-    uint64_t x = value;
-    /*uint32_t hash = 0;
+    // uint64_t x = value;
+    uint32_t hash = 0;
     hash = ~value + (value << 18);
     hash = hash ^ (hash >> 31);
     hash = hash * 21;
     hash = hash ^ (hash >> 11);
     hash = hash + (hash << 6);
     hash = hash ^ (hash >> 22);
-    return (uint64_t)(hash & 0x3fffffff);*/
-    x = (x ^ (x >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
-    x = (x ^ (x >> 27)) * UINT64_C(0x94d049bb133111eb);
-    x = x ^ (x >> 31);
-    return x;
+    return (uint64_t)(hash & 0x3fffffff);
 }
 
 #else

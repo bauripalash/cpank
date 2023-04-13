@@ -12,6 +12,17 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "helper/arch.h"
+// PANK_ARCH_64 --> x86_64 / 64bit
+// PANK_ARCH_32 --> x86 / 32bit
+// PANK_ARCH_ARM --> ARM (32bit / 64bit)
+#include "helper/os.h"
+// PANK_OS_ANDROID --> Android
+// PANK_OS_WIN  --> Windows
+// PANK_OS_LINUX --> Linux (& unix like)
+// PANK_OS_UNIX --> Unix or Unix like
+// PANK_OS_MACOS --> Mac OS
+
 #define ERC_RUNTIME        10
 #define ERC_COMPTIME       11
 #define ERC_FAIL_TO_OPEN   12
@@ -19,16 +30,18 @@
 #define ERC_NO_MEM         14
 
 // #define DEBUG_PRINT_CODE
-#define NAN_BOXING
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(PANK_ARCH_64)
+ #define NAN_BOXING
+#endif
+#ifdef PANK_OS_WIN
  #define IS_WIN
 #endif
 
-#if defined(__unix__)
+#if defined(PANK_OS_LINUX) || defined(PANK_OS_UNIX)
  #define IS_UNIX
 #endif
 
-#if defined(__APPLE__) || defined(__MACH__)
+#if defined(PANK_OS_MACOS)
  #define IS_MAC
 #endif
 

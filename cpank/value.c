@@ -58,9 +58,9 @@ char32_t *value_to_string(PankVm *vm, Value val) {
             free(str);
             return res;
         } else {
-            int length = snprintf(NULL, 0, "%g", num);
+            int length = snprintf(NULL, 0, "%lg", num);
             char *str = malloc(length + 1);
-            snprintf(str, length + 1, "%g", num);
+            snprintf(str, length + 1, "%lg", num);
             char32_t *res = chto16(str);
             free(str);
             return res;
@@ -124,7 +124,7 @@ void print_val(Value val) {
 #else
     switch (val.type) {
         case V_NUM:
-            cp_print(L"%f", get_as_number(val));
+            cp_print(L"%g", get_as_number(val));
             break;
         case V_BOOL:
  #ifdef IS_WIN

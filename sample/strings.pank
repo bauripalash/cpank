@@ -51,3 +51,4 @@ let m = [1,2,3,"hello" , 1.2];
 show type(m);
 let z = s.string(m);
 show z;
+

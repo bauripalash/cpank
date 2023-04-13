@@ -1,3 +1,5 @@
+#include "../include/helper/os.h"
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <uchar.h>
@@ -11,29 +13,35 @@ Value _os_get_name(PankVm* vm, int argc, Value* args) {
     if (argc != 0) {
         return make_error(vm, U"os name() function doesn't take any arguments");
     }
-#if defined(IS_WIN)
+#if defined(PANK_OS_LINUX)
+    return make_str(vm, U"linux");
+#elif defined(PANK_OS_WIN)
     return make_str(vm, U"windows");
-#elif defined(IS_UNIX)
+#elif define(PANK_OS_UNIX)
     return make_str(vm, U"unix");
+#elif defined(PANK_OS_ANDROID)
+    return make_str(vm, U"android");
+#elif defined(PANK_OS_MACOS)
+    return make_str(vm, U"macos");
 #else
     return make_str(vm, U"unknown");
 #endif
 }
 
 Value _os_get_arch(PankVm* vm, int argc, Value* args) {
-    if (sizeof(void*) == (size_t)8) {
-        return make_str(vm, U"64");
-    } else if (sizeof(void*) == (size_t)4) {
-        return make_str(vm, U"32");
-    } else {
-        return make_str(vm, U"0");
-    }
+#if defined(PANK_ARCH_64)
+    return make_str(vm, U"64");
+#elif defined(PANK_ARCH_32)
+    return make_str(vm, U"32");
+#elif define(PANK_ARCH_ARM)
+    return make_str(vm, U"arm");
+#endif
 }
 
 Value _os_get_username(PankVm* vm, int argc, Value* args) {
-#if defined(IS_WIN)
+#if defined(PANK_OS_WINDOWS)
     char* username = getenv("USERNAME");
-#elif defined(IS_UNIX)
+#elif defined(PANK_OS_LINUX) || defined(PANK_OS_UNIX) || defined(PANK_OS_MACOS)
     char* username = getenv("USER");
 #else
     char* username = NULL;
@@ -50,9 +58,9 @@ Value _os_get_username(PankVm* vm, int argc, Value* args) {
 
 Value _os_get_homedir(PankVm* vm, int argc, Value* args) {
     // TODO: Make more fail proof
-#ifdef IS_UNIX
+#if defined(PANK_OS_UNIX) || defined(PANK_OS_LINUX)
     char* hdir = getenv("HOME");
-#elif IS_WIN
+#elif defined(PANK_OS_WINDOWS)
     char* hdir = getenv("USERPROFILE");
 #else
     char* hdir = NULL;
