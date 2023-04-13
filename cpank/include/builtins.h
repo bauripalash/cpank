@@ -1,3 +1,5 @@
+/* vim: set fileencoding=utf-8 tabstop=4 shiftwidth=4 expandtab */
+
 #ifndef cpank_builtins_h
 #define cpank_builtins_h
 #include <uchar.h>

@@ -1,3 +1,5 @@
+/* vim: set fileencoding=utf-8 tabstop=4 shiftwidth=4 expandtab */
+
 #include "include/lexer.h"
 
 #include <locale.h>
