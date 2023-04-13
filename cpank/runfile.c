@@ -16,8 +16,8 @@
 
 int run_file(const char *filepath) {
     setlocale(LC_CTYPE, "");
-    // char * path = c_to_c(filepath, strlen16(filepath));
-    // char32_t * path = chto16(filepath);
+    // char * path = c_to_c(filepath, strlen32(filepath));
+    // char32_t * path = char_to_32(filepath);
     // WSrcfile raw = wread_file(path);
     Srcfile raw = read_file(filepath);
 
@@ -27,7 +27,7 @@ int run_file(const char *filepath) {
         exit(1);
     }
     int errcode = 0;
-    char32_t *src = chto16(raw.source);
+    char32_t *src = char_to_32(raw.source);
 
     PankVm *vm = boot_vm();
 

@@ -75,9 +75,9 @@ WSrcfile wread_file(char32_t *path) {
     result.size = 0;
 
     result.errcode = 0;
-    // size_t path_size = sizeof(char32_t) * (strlen16(path) + 1);
+    // size_t path_size = sizeof(char32_t) * (strlen32(path) + 1);
     char *cpath =
-        c_to_c(path, strlen16(path) + 1);  // malloc(sizeof(char) * path_size);
+        c_to_c(path, strlen32(path) + 1);  // malloc(sizeof(char) * path_size);
 
     if (cpath == NULL) {
         result.errcode = ERC_NO_MEM;
@@ -94,7 +94,7 @@ WSrcfile wread_file(char32_t *path) {
     }
     // size_t result_size = sizeof(wchar_t) * raw.size;
     // result.source = (wchar_t *)malloc(result_size);
-    result.source = chto16(raw.source);
+    result.source = char_to_32(raw.source);
     if (result.source == NULL) {
         result.errcode = ERC_NO_MEM;
         free(cpath);

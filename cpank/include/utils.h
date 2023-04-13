@@ -15,20 +15,20 @@
 #define ANSI_COLOR_WHITE  L"\x1b[37m"
 #define ANSI_COLOR_RESET  L"\x1b[0m"
 
-int copy_c16(char32_t *str, const char32_t *input, int len);
+int copy_c32(char32_t *str, const char32_t *input, int len);
 
-int strlen16(const char32_t *strarg);
+int strlen32(const char32_t *strarg);
 
 char *c_to_c(const char32_t *input, int len);
 
-bool str16cmp(const char32_t *str1, const char32_t *str2);
+bool str32cmp(const char32_t *str1, const char32_t *str2);
 
-bool str16cmp_n(const char32_t *big, const char32_t *small, int len);
+bool str32cmp_n(const char32_t *big, const char32_t *small, int len);
 
-bool str16cmp_gen(const char32_t *big, const char32_t *small);
+bool str32cmp_gen(const char32_t *big, const char32_t *small);
 
-bool str16cmp_gen_n(const char32_t *big, const char32_t *small, int len);
-char32_t *chto16(char *input);
+bool str32cmp_gen_n(const char32_t *big, const char32_t *small, int len);
+char32_t *char_to_32(char *input);
 
 bool is_int(double val);
 // use must free return value;

@@ -103,7 +103,7 @@ char32_t *get_as_native_string(Value val) {
 }
 char32_t *duplicate_string(ObjString *str) {
     char32_t *dupstr = (char32_t *)calloc((str->len + 1), sizeof(char32_t));
-    copy_c16(dupstr, str->chars, str->len + 1);
+    copy_c32(dupstr, str->chars, str->len + 1);
     return dupstr;
 }
 
@@ -179,7 +179,7 @@ ObjString *copy_string(PankVm *vm, char32_t *chars, int len) {
     // char32_t * heap_chars = (char32_t*)malloc(sizeof(char32_t) * (len + 1));
 
     // wmemcpy(heap_chars, chars, len);
-    // copy_c16(heap_chars, chars, len);
+    // copy_c32(heap_chars, chars, len);
     memcpy(heap_chars, chars, (sizeof(char32_t)) * (len));
 
     heap_chars[len] = '\0';
@@ -230,11 +230,11 @@ char32_t *obj_to_string(PankVm *vm, Value val) {
             return duplicate_string((ObjString *)get_as_obj(val));
         case OBJ_ERR: {
             ObjErr *er = get_as_err(val);
-            return chto16(er->errmsg);
+            return char_to_32(er->errmsg);
         }
 
         case OBJ_UPVAL:
-            return chto16("upvalue");
+            return char_to_32("upvalue");
         case OBJ_NATIVE: {
             ObjNative *n = (ObjNative *)get_as_obj(val);
 
@@ -244,13 +244,13 @@ char32_t *obj_to_string(PankVm *vm, Value val) {
                 int len = snprintf(NULL, 0, "<native fn %s>", nm);
                 char *cres = (char *)malloc(sizeof(char) * (len + 1));
                 snprintf(cres, len + 1, "<native fn %s>", nm);
-                char32_t *result = chto16(cres);
+                char32_t *result = char_to_32(cres);
                 free(cres);
                 free(nm);
                 return result;
 
             } else {
-                return chto16("<native func>");
+                return char_to_32("<native func>");
             }
         }
         case OBJ_FUNC: {
@@ -261,12 +261,12 @@ char32_t *obj_to_string(PankVm *vm, Value val) {
                 int len = snprintf(NULL, 0, "<func %s>", nm);
                 char *cres = (char *)malloc(sizeof(char) * (len + 1));
                 snprintf(cres, len + 1, "<func %s>", nm);
-                char32_t *result = chto16(cres);
+                char32_t *result = char_to_32(cres);
                 free(cres);
                 free(nm);
                 return result;
             } else {
-                return chto16("<func>");
+                return char_to_32("<func>");
             }
         }
         case OBJ_CLOUSRE: {
@@ -278,12 +278,12 @@ char32_t *obj_to_string(PankVm *vm, Value val) {
                 int len = snprintf(NULL, 0, "<func %s>", nm);
                 char *cres = (char *)malloc(sizeof(char) * (len + 1));
                 snprintf(cres, len + 1, "<func %s>", nm);
-                char32_t *result = chto16(cres);
+                char32_t *result = char_to_32(cres);
                 free(cres);
                 free(nm);
                 return result;
             } else {
-                return chto16("<func>");
+                return char_to_32("<func>");
             }
         }
         case OBJ_MOD: {
@@ -292,7 +292,7 @@ char32_t *obj_to_string(PankVm *vm, Value val) {
             int len = snprintf(NULL, 0, "<module %s>", nm);
             char *cres = (char *)malloc(sizeof(char) * (len + 1));
             snprintf(cres, len + 1, "<module %s>", nm);
-            char32_t *result = chto16(cres);
+            char32_t *result = char_to_32(cres);
             free(cres);
             free(nm);
             return result;
@@ -318,22 +318,22 @@ char32_t *obj_to_string(PankVm *vm, Value val) {
                 if (hitem != NULL && !is_nil(hitem->key)) {
                     int index = len;
                     char32_t *k_str = value_to_string(vm, hitem->key);
-                    int klen = strlen16(k_str);
+                    int klen = strlen32(k_str);
                     char32_t *v_str = value_to_string(vm, hitem->val);
-                    int vlen = strlen16(v_str);
+                    int vlen = strlen32(v_str);
                     int needlen = klen + sep_len + vlen + comma_len;
                     result[index] =
                         (char32_t *)malloc((needlen + 1) * sizeof(char32_t));
                     char32_t *ptr = result[index];
-                    copy_c16(ptr, k_str, klen);
+                    copy_c32(ptr, k_str, klen);
                     ptr += klen;
-                    copy_c16(ptr, sep, sep_len);
+                    copy_c32(ptr, sep, sep_len);
 
                     ptr += sep_len;
 
-                    copy_c16(ptr, v_str, vlen);
+                    copy_c32(ptr, v_str, vlen);
                     ptr += vlen;
-                    copy_c16(ptr, comma, comma_len);
+                    copy_c32(ptr, comma, comma_len);
                     ptr += comma_len;
 
                     *ptr = U'\0';
@@ -348,17 +348,17 @@ char32_t *obj_to_string(PankVm *vm, Value val) {
                 total_len + lbrack_len + rbrack_len + 1, sizeof(char32_t));
 
             char32_t *ptr = res;
-            copy_c16(ptr, lbrack, lbrack_len);
+            copy_c32(ptr, lbrack, lbrack_len);
             ptr += lbrack_len;
 
             for (int i = 0; i < len; i++) {
-                int rlen = strlen16(result[i]);
-                copy_c16(ptr, result[i], rlen);
+                int rlen = strlen32(result[i]);
+                copy_c32(ptr, result[i], rlen);
                 free(result[i]);
                 ptr += rlen;
             }
 
-            copy_c16(ptr, rbrack, rbrack_len);
+            copy_c32(ptr, rbrack, rbrack_len);
             ptr += rbrack_len;
             *ptr = U'\0';
             free(result);
@@ -379,7 +379,7 @@ char32_t *obj_to_string(PankVm *vm, Value val) {
             int total_len = 0;
             for (int i = 0; i < arr->items.len; i++) {
                 result[i] = value_to_string(vm, arr->items.values[i]);
-                int ilen = strlen16(result[i]);
+                int ilen = strlen32(result[i]);
 
                 total_len += ilen;
             }
@@ -389,24 +389,24 @@ char32_t *obj_to_string(PankVm *vm, Value val) {
                                     (total_len * comma_len) + 1),
                                    sizeof(char32_t));
             char32_t *ptr = res;
-            copy_c16(ptr, lbrack, lbrack_len);
+            copy_c32(ptr, lbrack, lbrack_len);
             ptr += lbrack_len;
             for (int i = 0; i < arr->items.len; i++) {
-                int rlen = strlen16(result[i]);
-                copy_c16(ptr, result[i], rlen);
+                int rlen = strlen32(result[i]);
+                copy_c32(ptr, result[i], rlen);
                 ptr += rlen;
-                copy_c16(ptr, comma, comma_len);
+                copy_c32(ptr, comma, comma_len);
                 ptr += comma_len;
                 free(result[i]);
             }
-            copy_c16(ptr, rbrack, rbrack_len);
+            copy_c32(ptr, rbrack, rbrack_len);
             ptr += rbrack_len;
             *ptr = U'\0';
             free(result);
             return res;
         }
     }
-    return chto16("unknown");
+    return char_to_32("unknown");
 }
 
 void print_obj(Value val) {
@@ -546,11 +546,11 @@ ObjArray *new_array(PankVm *vm) {
 ObjNative *new_native(PankVm *vm, NativeFn fn, char32_t *name) {
     ObjNative *native = ALLOCATE_OBJ(vm, ObjNative, OBJ_NATIVE);
     native->func = fn;
-    size_t namelen = strlen16(name) + 1;
+    size_t namelen = strlen32(name) + 1;
     native->name = (char32_t *)malloc(sizeof(char32_t) * namelen);
     memset(native->name, 0, namelen);
     // memcpy(native->name, name, namelen);
-    copy_c16(native->name, name, namelen);
+    copy_c32(native->name, name, namelen);
     native->name_len = namelen - 1;
     return native;
 }
@@ -571,7 +571,7 @@ ObjClosure *new_closure(PankVm *vm, ObjFunc *func, uint32_t global_owner) {
 
 ObjMod *new_mod(PankVm *vm, char32_t *name) {
     ObjMod *mod = ALLOCATE_OBJ(vm, ObjMod, OBJ_MOD);
-    mod->name = copy_string(vm, name, strlen16(name));
+    mod->name = copy_string(vm, name, strlen32(name));
     return mod;
 }
 
@@ -580,12 +580,12 @@ ObjErr *new_err_obj(PankVm *vm, char32_t *errmsg) {
 
     err->errmsg = c_to_c(
         errmsg,
-        0);  //(char32_t *)malloc(sizeof(char32_t) * (strlen16(errmsg) + 1));
+        0);  //(char32_t *)malloc(sizeof(char32_t) * (strlen32(errmsg) + 1));
     // wmemset(err->errmsg, 0, wcslen(errmsg) + 1);
-    //    memset(err->errmsg, 0, strlen16(errmsg) + 1);
+    //    memset(err->errmsg, 0, strlen32(errmsg) + 1);
 
     // wmemcpy(err->errmsg, errmsg, wcslen(errmsg) + 1);
-    //    memcpy(err->errmsg, errmsg, strlen16(errmsg) + 1);
+    //    memcpy(err->errmsg, errmsg, strlen32(errmsg) + 1);
     err->len = strlen(err->errmsg) + 1;
     // copy_string(errmsg, wcslen(errmsg));
     return err;
@@ -783,5 +783,5 @@ bool hmap_set(PankVm *vm, ObjHashMap *map, Value key, Value val) {
 }
 
 Value make_str(PankVm *vm, char32_t *str) {
-    return make_obj_val(copy_string(vm, str, strlen16(str)));
+    return make_obj_val(copy_string(vm, str, strlen32(str)));
 }

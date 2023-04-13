@@ -49,7 +49,7 @@ Value _os_get_username(PankVm* vm, int argc, Value* args) {
     if (username == NULL) {
         return make_str(vm, U"unknown");
     } else {
-        char32_t* un = chto16(username);
+        char32_t* un = char_to_32(username);
         Value result = make_str(vm, un);
         free(un);
         return result;
@@ -68,7 +68,7 @@ Value _os_get_homedir(PankVm* vm, int argc, Value* args) {
     if (hdir == NULL) {
         return make_str(vm, U"unknown");
     } else {
-        char32_t* hd = chto16(hdir);
+        char32_t* hd = char_to_32(hdir);
         Value result = make_str(vm, hd);
         free(hd);
         return result;

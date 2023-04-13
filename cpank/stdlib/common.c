@@ -45,7 +45,7 @@ Value _common_readline(PankVm* vm, int argc, Value* args) {
     if (raw_line == NULL) {
         return make_str(vm, U"");
     } else {
-        char32_t* ln = chto16(raw_line);
+        char32_t* ln = char_to_32(raw_line);
         Value result = make_str(vm, ln);
         free(ln);
         free(raw_line);

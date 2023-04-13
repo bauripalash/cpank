@@ -245,7 +245,7 @@ Token mk_num_tok(Lexer *lexer) {
 }
 
 bool match_kw(const char32_t *input, const char32_t *kw, int len) {
-    return str16cmp_n(input, kw, len);
+    return str32cmp_n(input, kw, len);
 }
 
 TokType get_ident_tok_type(char32_t *input, int len) {
@@ -322,7 +322,7 @@ Token err_tok(Lexer *lexer, char32_t *msg) {
     Token tk;
     tk.type = T_ERR;
     tk.start = msg;
-    tk.length = (int)strlen16(msg);
+    tk.length = (int)strlen32(msg);
     tk.line = lexer->line;
     return tk;
 }

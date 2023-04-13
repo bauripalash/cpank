@@ -11,7 +11,7 @@
 #include "../include/vm.h"
 
 int _push_stdlib(PankVm* vm, char32_t* stdname, SL funcs[], int len) {
-    uint32_t name_hash = get_hash(stdname, strlen16(stdname));
+    uint32_t name_hash = get_hash(stdname, strlen32(stdname));
     for (int i = 0; i < vm->stdlib_count; i++) {
         if (vm->stdlibs[i].hash == name_hash) {
             return STDLIB_ALREADY_EXIST_WARNING;
@@ -26,7 +26,7 @@ int _push_stdlib(PankVm* vm, char32_t* stdname, SL funcs[], int len) {
 
     for (int i = 0; i < len; i++) {
         SL* f = &funcs[i];
-        ObjString* k = copy_string(vm, f->key, strlen16(f->key));
+        ObjString* k = copy_string(vm, f->key, strlen32(f->key));
         push(vm, make_obj_val(k));
         ObjNative* nf = new_native(vm, f->func, f->key);
         nf->obj.is_gen = true;

@@ -54,26 +54,26 @@ char32_t *value_to_string(PankVm *vm, Value val) {
             int length = snprintf(NULL, 0, "%d", inum);
             char *str = (char *)malloc(length + 1);
             snprintf(str, length + 1, "%d", inum);
-            char32_t *res = chto16(str);
+            char32_t *res = char_to_32(str);
             free(str);
             return res;
         } else {
             int length = snprintf(NULL, 0, "%lg", num);
             char *str = malloc(length + 1);
             snprintf(str, length + 1, "%lg", num);
-            char32_t *res = chto16(str);
+            char32_t *res = char_to_32(str);
             free(str);
             return res;
         }
     } else if (is_nil(val)) {
-        return chto16("nil");
+        return char_to_32("nil");
     } else if (is_bool(val)) {
         bool v = get_as_bool(val);
-        return v ? chto16("true") : chto16("false");
+        return v ? char_to_32("true") : char_to_32("false");
     } else if (is_obj(val)) {
         return obj_to_string(vm, val);
     }
-    return chto16("");
+    return char_to_32("");
 }
 
 void init_valarr(Valarr *array) {

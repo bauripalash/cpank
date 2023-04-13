@@ -29,7 +29,7 @@ Value _str_split_delim(PankVm* vm, int argc, Value* args) {
     char32_t** tokens = split32(rawstr->chars, delim->chars, &len);
 
     for (int i = 0; i < len; i++) {
-        Value o = make_obj_val(copy_string(vm, tokens[i], strlen16(tokens[i])));
+        Value o = make_obj_val(copy_string(vm, tokens[i], strlen32(tokens[i])));
 
         push(vm, o);
         write_valarr(vm, &arr->items, o);
@@ -52,7 +52,7 @@ Value _str_to_str(PankVm* vm, int argc, Value* args) {
     Value val = args[0];
 
     char32_t* val_str = value_to_string(vm, val);
-    ObjString* str = copy_string(vm, val_str, strlen16(val_str));
+    ObjString* str = copy_string(vm, val_str, strlen32(val_str));
     push(vm, make_obj_val(str));
     free(val_str);
 

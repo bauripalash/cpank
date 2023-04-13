@@ -421,7 +421,7 @@ bool id_eq(Token *l, Token *r) {
     if (l->length != r->length) {
         return false;
     }
-    return str16cmp_gen_n(l->start, r->start, l->length);
+    return str32cmp_gen_n(l->start, r->start, l->length);
 }
 
 int resolve_local(Compiler *compiler, Token *token) {

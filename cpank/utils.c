@@ -22,12 +22,12 @@
  #include <unistd.h>
 #endif
 
-int copy_c16(char32_t *str, const char32_t *input, int len) {
+int copy_c32(char32_t *str, const char32_t *input, int len) {
     memcpy(str, input, sizeof(char32_t) * len);
-    return (int)sizeof(char16_t) * len;
+    return (int)sizeof(char32_t) * len;
 }
 
-int strlen16(const char32_t *strarg) {
+int strlen32(const char32_t *strarg) {
     if (!strarg) return -1;  // strarg is NULL pointer
     int len = 0;
     while (strarg[len] != U'\0') {
@@ -39,7 +39,7 @@ int strlen16(const char32_t *strarg) {
 char *c_to_c(const char32_t *input, int len) {
     mbstate_t state = {0};
     setlocale(LC_ALL, "bn_IN.utf8");
-    size_t in_size = strlen16(input) + 1;
+    size_t in_size = strlen32(input) + 1;
     char *output = (char *)malloc(MB_CUR_MAX * in_size);
     if (output == NULL) return "";
     memset(output, 0, in_size);
@@ -56,20 +56,20 @@ char *c_to_c(const char32_t *input, int len) {
     return output;
 }
 
-bool str16cmp(const char32_t *str1, const char32_t *str2) {
-    if (strlen16(str1) != strlen16(str2)) {
+bool str32cmp(const char32_t *str1, const char32_t *str2) {
+    if (strlen32(str1) != strlen32(str2)) {
         return false;
     }
 
-    for (int i = 0; i < strlen16(str1); i++) {
+    for (int i = 0; i < strlen32(str1); i++) {
         if (str1[i] != str2[i]) {
             return false;
         }
     }
     return true;
 }
-bool str16cmp_n(const char32_t *big, const char32_t *small, int len) {
-    if (strlen16(small) != len) {
+bool str32cmp_n(const char32_t *big, const char32_t *small, int len) {
+    if (strlen32(small) != len) {
         return false;
     }
 
@@ -84,12 +84,12 @@ bool str16cmp_n(const char32_t *big, const char32_t *small, int len) {
     return true;
 }
 
-bool str16cmp_gen(const char32_t *big, const char32_t *small) {
-    if (strlen16(small) != strlen16(big)) {
+bool str32cmp_gen(const char32_t *big, const char32_t *small) {
+    if (strlen32(small) != strlen32(big)) {
         return false;
     }
 
-    for (int i = 0; i < strlen16(big); i++) {
+    for (int i = 0; i < strlen32(big); i++) {
         // cp_println(L"-->> %#x | %#x\n" , big[i] , small[i]);
         if ((uint32_t)big[i] != (uint16_t)small[i]) {
             return false; /* code */
@@ -101,7 +101,7 @@ bool str16cmp_gen(const char32_t *big, const char32_t *small) {
     return true;
 }
 
-bool str16cmp_gen_n(const char32_t *big, const char32_t *small, int len) {
+bool str32cmp_gen_n(const char32_t *big, const char32_t *small, int len) {
     for (int i = 0; i < len; i++) {
         // cp_println(L"-->> %#x | %#x\n" , big[i] , small[i]);
         if ((uint32_t)big[i] != (uint16_t)small[i]) {
@@ -114,7 +114,7 @@ bool str16cmp_gen_n(const char32_t *big, const char32_t *small, int len) {
     return true;
 }
 
-char32_t *chto16(char *input) {
+char32_t *char_to_32(char *input) {
     mbstate_t state = {0};
     size_t osz = sizeof(char32_t) * (strlen(input) + 1);
     setlocale(LC_ALL, "bn_IN.utf8");
