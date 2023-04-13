@@ -3,6 +3,7 @@
 #include "include/runfile.h"
 
 #include <locale.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,7 +32,7 @@ int run_file(const char *filepath) {
     int errcode = 0;
     char32_t *src = char_to_32(raw.source);
 
-    PankVm *vm = boot_vm();
+    PankVm *vm = boot_vm(true);
 
     IResult res = interpret(vm, src);
 

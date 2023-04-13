@@ -71,9 +71,33 @@ void init_module(Module *mod, const char32_t *name);
 Module *get_cur_mod(PankVm *vm);
 bool is_default(Module *mod);
 
+#define PBUFFER_GROW_BY   2
+#define PBUFFER_INIT_SIZE 512
+
+typedef struct PrintBuffer {
+    char32_t *buff;
+    int cap;
+    int len;
+    char32_t *ptr;
+
+} PrintBuffer;
+
+bool init_pbuffer(PrintBuffer *buffer);
+int grow_pbuffer(PrintBuffer *buffer, int atleast);
+bool free_pbuffer(PrintBuffer *buffer);
+int write_pbuffer(PrintBuffer *buffer, char *fmt, ...);
+int write_pbuffer_with_arglist(PrintBuffer *buffer, char *fmt, va_list ap,
+                               int len);
+bool init_zero_pbuffer(PrintBuffer *buffer);
+void print_pbuffer(PrintBuffer *buffer);
+// you must free the result
+char32_t *get_trimmed(PrintBuffer *buffer);
+
 // The Vm struct
 struct _Vm {
     Compiler *compiler;
+    bool need_buffer;
+    PrintBuffer buffer;
     // The stack with max size of STACK_SIZE
     Value stack[STACK_SIZE];
     // Top of the stack
@@ -115,7 +139,7 @@ typedef enum {
 // extern Vm vm;
 
 // Initilalize the VM
-PankVm *boot_vm(void);
+PankVm *boot_vm(bool need_buffer);
 
 // Free the VM and all things it holds
 void free_vm(PankVm *vm);

@@ -29,6 +29,112 @@
 
 // #define DEBUG_STACK
 
+bool init_pbuffer(PrintBuffer *buffer) {
+    buffer->buff = (char32_t *)calloc(PBUFFER_INIT_SIZE, sizeof(char32_t));
+    if (buffer->buff == NULL) {
+        return false;
+    }
+    buffer->cap = PBUFFER_INIT_SIZE;
+    buffer->len = 0;
+    buffer->ptr = buffer->buff;
+    return true;
+}
+
+bool init_zero_pbuffer(PrintBuffer *buffer) {
+    buffer->buff = NULL;
+    buffer->cap = 0;
+    buffer->len = 0;
+    buffer->ptr = NULL;
+    return true;
+}
+
+bool free_pbuffer(PrintBuffer *buffer) {
+    free(buffer->buff);
+    buffer->cap = 0;
+    buffer->len = 0;
+    buffer->ptr = NULL;
+    return true;
+}
+
+int grow_pbuffer(PrintBuffer *buffer, int atleast) {
+    int newcap = (buffer->cap + atleast + 1) * PBUFFER_GROW_BY;
+    buffer->buff = realloc(buffer->buff, newcap * sizeof(char32_t));
+    buffer->cap = newcap;
+    return newcap;
+}
+
+int write_pbuffer(PrintBuffer *buffer, char *fmt, ...) {
+    if (buffer->ptr == NULL) {
+        return 0;
+    }
+    va_list ap;
+    va_start(ap, fmt);
+    int len = vsnprintf(NULL, 0, fmt, ap);
+    va_start(ap, fmt);
+    char *temp_buff = calloc(len + 1, sizeof(char));
+    if (temp_buff == NULL) {
+        return 0;
+    }
+    // int avil = buffer->cap - buffer->len;
+    int w = vsnprintf(temp_buff, len + 1, fmt, ap);
+    if (w <= 0) {
+        return 0;
+    }
+    char32_t *temp32buff = char_to_32(temp_buff);
+    int tbsz = strlen32(temp32buff);
+    if (tbsz + buffer->len + 1 > buffer->cap) {
+        grow_pbuffer(buffer, tbsz + 1);
+    }
+
+    copy_c32(buffer->ptr, temp32buff, tbsz);
+    free(temp_buff);
+    free(temp32buff);
+    buffer->ptr += tbsz;
+    buffer->len += tbsz;
+    return tbsz;
+}
+
+int write_pbuffer_with_arglist(PrintBuffer *buffer, char *fmt, va_list ap,
+                               int len) {
+    char *temp_buff = calloc(len + 1, sizeof(char));
+    if (temp_buff == NULL) {
+        return 0;
+    }
+
+    int w = vsnprintf(temp_buff, len + 1, fmt, ap);
+    if (w <= 0) {
+        return 0;
+    }
+
+    char32_t *temp32buff = char_to_32(temp_buff);
+    int tbsz = strlen32(temp32buff);
+    if (tbsz + buffer->len + 1 > buffer->cap) {
+        grow_pbuffer(buffer, tbsz + 1);
+    }
+
+    copy_c32(buffer->ptr, temp32buff, tbsz);
+    free(temp_buff);
+    free(temp32buff);
+    buffer->ptr += tbsz;
+    buffer->len += tbsz;
+    return tbsz;
+}
+
+void print_pbuffer(PrintBuffer *buffer) {
+    if (buffer->ptr != NULL && buffer->len > 0) {
+        cp_print(L"%.*ls", buffer->len, buffer->buff);
+    }
+}
+
+char32_t *get_trimmed(PrintBuffer *buffer) {
+    char32_t *result = (char32_t *)calloc(buffer->len + 1, sizeof(char32_t));
+    char32_t *ptr = result;
+    copy_c32(ptr, buffer->buff, buffer->len);
+    ptr += buffer->len;
+    *ptr = U'\0';
+    return result;
+}
+
 // PankVm vm;
 const char32_t *default_mod = U"_d_";
 // #define DEBUG_STACK
@@ -39,13 +145,18 @@ void close_upval(Module *module, Value *last);
 bool call_val(PankVm *vm, Value calle, int argc);
 bool call(PankVm *vm, ObjClosure *closure, int origin, int argc);
 
-PankVm *boot_vm(void) {
+PankVm *boot_vm(bool need_buffer) {
     PankVm *vm = malloc(sizeof(PankVm));
     memset(vm, 0, sizeof(PankVm));
     reset_stack(vm);
     gcon.is_paused = false;
     vm->objs = NULL;
     vm->last_pop = make_nil;
+    vm->need_buffer = need_buffer;
+
+    if (need_buffer) {
+        init_pbuffer(&vm->buffer);
+    }
 
     vm->bts_allocated = 0;
     vm->next_gc = 1024 * 1024;
@@ -69,6 +180,7 @@ PankVm *boot_vm(void) {
     define_native(vm, asserteq_ntv_name, asserteq_ntv_fn);
     define_native(vm, type_ntv_name, type_ntv_fn);
     define_native(vm, bn_native_fn_name, bn_type_ntv_fn);
+    // write_pbuffer(&vm->buffer, "hello world %ls" , L"how are you\n");
     return vm;
 }
 
@@ -196,6 +308,13 @@ void free_vm(PankVm *vm) {
         free_module(vm, &vm->modules[i]);
     }
     free_objs(vm);
+    if (vm->need_buffer) {
+        char32_t *res = get_trimmed(&vm->buffer);
+        cp_print(L"%ls", res);
+        free(res);
+        // print_pbuffer(&vm->buffer);
+        free_pbuffer(&vm->buffer);
+    }
     free(vm);
 }
 
@@ -211,7 +330,15 @@ void runtime_err(PankVm *vm, char32_t *format, ...) {
     va_start(args, format);
 
     // vfwprintf(stderr, format, args);
-    vfprintf(stderr, strformat, args);
+    if (vm->need_buffer) {
+        int len = vsnprintf(NULL, 0, strformat, args);
+        va_start(args, format);
+        write_pbuffer_with_arglist(&vm->buffer, strformat, args, len);
+        va_start(args, format);
+        // write_pbuffer(PrintBuffer *buffer, char *fmt, ...)
+    } else {
+        vfprintf(stderr, strformat, args);
+    }
     // vwprintf(format, args)
 
     va_end(args);
@@ -224,11 +351,24 @@ void runtime_err(PankVm *vm, char32_t *format, ...) {
         ObjFunc *fn = frm->closure->func;
         size_t inst = frm->ip - fn->ins.code - 1;  // vm.ip - vm.ins->code - 1;
         int line = fn->ins.lines[inst];            // vm.ins->lines[inst];
-        fwprintf(stderr, L"Error [line %d] in \n", line);
-        if (fn->name == NULL) {
-            fwprintf(stderr, L"script\n");
+        if (vm->need_buffer) {
+            write_pbuffer(&vm->buffer, "Error [line %d] in \n", line);
         } else {
-            fwprintf(stderr, L"%.*ls()", fn->name->len, fn->name->chars);
+            fwprintf(stderr, L"Error [line %d] in \n", line);
+        }
+        if (fn->name == NULL) {
+            if (vm->need_buffer) {
+                write_pbuffer(&vm->buffer, "script\n");
+            } else {
+                fwprintf(stderr, L"script\n");
+            }
+        } else {
+            if (vm->need_buffer) {
+                write_pbuffer(&vm->buffer, "%.*ls", fn->name->len,
+                              fn->name->chars);
+            } else {
+                fwprintf(stderr, L"%.*ls()", fn->name->len, fn->name->chars);
+            }
         }
     }
 
@@ -690,13 +830,20 @@ IResult run_vm(PankVm *vm) {
             case OP_FALSE:
                 if (!push(vm, make_bool(false))) return INTRP_RUNTIME_ERR;
                 break;
-            case OP_SHOW:
-                cp_print(L"p~~ ");
+            case OP_SHOW: {
                 Value to_show = pop(vm);
                 vm->last_pop = to_show;
-                print_val(to_show);
-                cp_print(L"\n");
+                if (vm->need_buffer) {
+                    char32_t *vl = value_to_string(vm, to_show);
+                    write_pbuffer(&vm->buffer, "p~~ %ls\n", vl);
+                    free(vl);
+                } else {
+                    cp_print(L"p~~ ");
+                    print_val(to_show);
+                    cp_print(L"\n");
+                }
                 break;
+            }
             case OP_DEF_GLOB: {
                 ObjString *nm = read_str_const(frame);
                 table_set(vm, frame->globals, nm, peek_vm(vm, 0));
