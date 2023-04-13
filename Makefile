@@ -16,8 +16,6 @@ INCLUDE_DIR=cpank/include/
 fetchext:
 	wget https://github.com/Cyan4973/xxHash/raw/dev/xxhash.c -O $(EXTERNAL)
 	wget https://github.com/Cyan4973/xxHash/raw/dev/xxhash.h -O cpank/ext/xxhash/xxhash.h
-	
-
 
 run:
 	$(CC) $(CFLAGS) -g -o $(OUTPUT) $(MAIN) $(SRC) $(LINKS)
