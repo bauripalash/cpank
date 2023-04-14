@@ -8,11 +8,12 @@ SRC+=$(STDLIB_MODULES)
 SRC+=$(EXTERNAL)
 MAIN=cpank/main.c
 SAMPLE_TO_RUN=sample/strings.pank
-TESTMAIN=cpank/testmain.c
+TESTMAIN=testmain.c
 APIMAIN=cpank/api.c
 OUTPUT=pankti
 TESTOUTPUT=test_cpank
 INCLUDE_DIR=cpank/include/
+PANKTI_VERSION=$(shell cat ./VERSION)
 
 fetchext:
 	wget https://github.com/Cyan4973/xxHash/raw/dev/xxhash.c -O $(EXTERNAL)
@@ -22,12 +23,12 @@ run:
 	$(CC) $(CFLAGS) -g -o $(OUTPUT) $(MAIN) $(SRC) $(LINKS)
 	./$(OUTPUT) $(SAMPLE_TO_RUN)
 
-api:
-	gcc $(CFLAGS) -c -fPIC $(SRC) $(APIMAIN) $(LINKS)
-	mkdir -p cpobjs
-	mv *.o ./cpobjs
-	ar rcs ./cpobjs/*.o
-	rm -f *.o
+andapi:
+	mkdir -p dist
+	@echo "Building Android API"
+	@echo "v${PANKTI_VERSION}"
+	CGO_ENABLED=1 ANDROID_NDK_HOME=$(HOME)/Android/Sdk/ndk/25.1.8937393/ gomobile bind -v -o dist/panktijapi-$(PANKTI_VERSION).aar -target=android -javapkg=in.palashbauri.panktijapi -androidapi 19 ./gopkg
+	cp gopkg/gopkg.pom dist/panktijapi-$(PANKTI_VERSION).pom
 
 
 
@@ -90,12 +91,15 @@ clean:
 	rm -f ./$(TESTOUTPUT)
 	rm -rf ./panktiw
 	rm -f ./massif.out.*
+	rm -rf ./perf.data
 	rm -f ./perf.data.*
 	rm -f ./cpank.perf 
 	rm -f ./cpank.gmon.*
 	rm -f ./vgcore.*
 	rm -rf ./.cache/
 	rm -rf *.o
+	rm -rf *.out
+	rm -rf dist/
 
 fmt:
 	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/include/helper/*.h cpank/stdlib/*.c

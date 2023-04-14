@@ -1,6 +1,7 @@
 pank
 .ccls-cache
 gmon.out
+dist/
 cpank.perf
 perf.data
 perf.data.old

@@ -1,14 +1,15 @@
 /* vim: set fileencoding=utf-8 tabstop=4 shiftwidth=4 expandtab */
-
+//go:build tmain
+// +build tmain
 #include <stdbool.h>
 #include <uchar.h>
 #include <wchar.h>
 
-#include "include/obj.h"
-#include "include/pank.h"
-#include "include/utils.h"
-#include "include/value.h"
-#include "include/vm.h"
+#include "cpank/include/obj.h"
+#include "cpank/include/pank.h"
+#include "cpank/include/utils.h"
+#include "cpank/include/value.h"
+#include "cpank/include/vm.h"
 
 typedef struct {
     char *name;
@@ -21,7 +22,7 @@ T tc(char *n, char32_t *s, Value ex) {
 }
 
 Value fetch_last_pop(char32_t *src) {
-    PankVm *vm = boot_vm();
+    PankVm *vm = boot_vm(false);
     interpret(vm, src);
     Value result = get_last_pop(vm);
     free_vm(vm);
