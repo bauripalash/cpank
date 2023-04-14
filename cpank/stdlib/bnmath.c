@@ -46,7 +46,7 @@ Value _bn_math_add(PankVm* vm, int argc, Value* args) {
     return make_num(raw_result);
 }
 
-static double _get_gcd(double a, double b) {
+static double _get_gcd_bn(double a, double b) {
     double x = (a > 0) ? a : -a;
     double y = (b > 0) ? b : -b;
 
@@ -78,7 +78,7 @@ Value _bn_math_gcd(PankVm* vm, int argc, Value* args) {
     double a = get_as_number(args[0]);
     double b = get_as_number(args[1]);
 
-    return make_num(_get_gcd(a, b));
+    return make_num(_get_gcd_bn(a, b));
 }
 
 Value _bn_math_lcm(PankVm* vm, int argc, Value* args) {
@@ -94,7 +94,7 @@ Value _bn_math_lcm(PankVm* vm, int argc, Value* args) {
     double a = get_as_number(args[0]);
     double b = get_as_number(args[1]);
 
-    return make_num(a * b / _get_gcd(a, b));
+    return make_num(a * b / _get_gcd_bn(a, b));
 }
 
 Value _bn_math_sqrt(PankVm* vm, int argc, Value* args) {

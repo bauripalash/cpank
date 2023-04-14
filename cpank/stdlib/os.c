@@ -19,7 +19,7 @@ Value _os_get_name(PankVm* vm, int argc, Value* args) {
     return make_str(vm, U"linux");
 #elif defined(PANK_OS_WIN)
     return make_str(vm, U"windows");
-#elif define(PANK_OS_UNIX)
+#elif defined(PANK_OS_UNIX)
     return make_str(vm, U"unix");
 #elif defined(PANK_OS_ANDROID)
     return make_str(vm, U"android");
@@ -35,7 +35,7 @@ Value _os_get_arch(PankVm* vm, int argc, Value* args) {
     return make_str(vm, U"64");
 #elif defined(PANK_ARCH_32)
     return make_str(vm, U"32");
-#elif define(PANK_ARCH_ARM)
+#elif defined(PANK_ARCH_ARM)
     return make_str(vm, U"arm");
 #endif
 }

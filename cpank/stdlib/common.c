@@ -13,7 +13,7 @@
 
 // Copied line by line from:
 // https://stackoverflow.com/a/314422/7917825
-char* getline(void) {
+char* getline_char(void) {
     char *line = malloc(100), *linep = line;
     size_t lenmax = 100, len = lenmax;
     int c;
@@ -43,7 +43,7 @@ char* getline(void) {
 }
 
 Value _common_readline(PankVm* vm, int argc, Value* args) {
-    char* raw_line = getline();
+    char* raw_line = getline_char();
     if (raw_line == NULL) {
         return make_str(vm, U"");
     } else {

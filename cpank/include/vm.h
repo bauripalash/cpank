@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <uchar.h>
 #include <wchar.h>
+#include <stdarg.h>
 
 #include "common.h"
 #include "compiler.h"

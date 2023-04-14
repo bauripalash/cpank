@@ -9,6 +9,7 @@ SRC+=$(EXTERNAL)
 MAIN=cpank/main.c
 SAMPLE_TO_RUN=sample/strings.pank
 TESTMAIN=cpank/testmain.c
+APIMAIN=cpank/api.c
 OUTPUT=pankti
 TESTOUTPUT=test_cpank
 INCLUDE_DIR=cpank/include/
@@ -20,6 +21,15 @@ fetchext:
 run:
 	$(CC) $(CFLAGS) -g -o $(OUTPUT) $(MAIN) $(SRC) $(LINKS)
 	./$(OUTPUT) $(SAMPLE_TO_RUN)
+
+api:
+	gcc $(CFLAGS) -c -fPIC $(SRC) $(APIMAIN) $(LINKS)
+	mkdir -p cpobjs
+	mv *.o ./cpobjs
+	ar rcs ./cpobjs/*.o
+	rm -f *.o
+
+
 
 check:
 	cppcheck -I $(INCLUDE_DIR) --enable=all $(MAIN) $(SRC)
@@ -85,6 +95,7 @@ clean:
 	rm -f ./cpank.gmon.*
 	rm -f ./vgcore.*
 	rm -rf ./.cache/
+	rm -rf *.o
 
 fmt:
 	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/include/helper/*.h cpank/stdlib/*.c
