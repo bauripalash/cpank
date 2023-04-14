@@ -179,6 +179,7 @@ void blacken_obj(PankVm *vm, Obj *obj) {
         }
         case OBJ_MOD: {
             ObjMod *md = (ObjMod *)obj;
+            md->obj.is_marked = true;
 
             mark_obj(vm, (Obj *)md->name);
             break;
@@ -263,7 +264,6 @@ void mark_roots(PankVm *vm) {
 
     for (int i = 0; i < vm->mod_count; i++) {
         Module *mod = &vm->modules[i];
-
         mark_table(vm, &mod->globals);
     }
 #ifdef DEBUG_LOG_GC

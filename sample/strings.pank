@@ -1,56 +1,15 @@
-#let name = "Palash";
-#show name;
-#let g = name[0];
-#show g;
-#show name + g;
 import s "str";
-#let x = "hello,world,how,are,you";
-#show s.split(x , ",");
-#let y = "helloworld";
-#show s.split(y, ",");
-#show type(name);
-#show type(1);
-#show type(true);
-#show type([1,2]);
-#show type({"hello" : "world"});
-#show type(type);
-#show type(s.split);
-#show type(s);
-#দেখাও প্রকার(১);
-#let z = s.string(1);
-#show z;
-#show type(z);
-#let z = s.string(true);
-#show z;
-#show type(z);
-#let z = s.string(nil);
-#show z;
-#show type(z);
-#let z = s.string(s.string);
-#show z;
-#show type(z);
-
-#kaj nam()
-#	show 1;
-#end
-#let z = s.string(nam);
-#show z;
-#show type(z);
-
-#let z = s.string(s);
-#show z;
-#show type(z);
-
-let m = {"hello" : "world" , 1:-12.1 , "s" : "x"};
-show m[1];
-show type(m);
-let z = s.string(m);
-show z;
 
 let m = [1,2,3,"hello" , 1.2];
 show type(m);
+show len(m);
 let z = s.string(m);
 show z;
-
-import ms "math";
-show ms.pi();
+show type(z);
+show len(z);
+show z[0];
+import m "math";
+show m.pi();
+import o "os";
+show o.name();
+show o.arch();

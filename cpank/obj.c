@@ -573,7 +573,11 @@ ObjClosure *new_closure(PankVm *vm, ObjFunc *func, uint32_t global_owner) {
 
 ObjMod *new_mod(PankVm *vm, char32_t *name) {
     ObjMod *mod = ALLOCATE_OBJ(vm, ObjMod, OBJ_MOD);
+    push(vm, make_obj_val(mod));
     mod->name = copy_string(vm, name, strlen32(name));
+    // cp_color_println('b' , L"modname -> %ls" , mod->name->chars);
+    pop(vm);
+    // print_stack(vm);
     return mod;
 }
 

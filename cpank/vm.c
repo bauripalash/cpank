@@ -19,6 +19,7 @@
 #include "include/common.h"
 #include "include/compiler.h"
 #include "include/debug.h"
+#include "include/htable.h"
 #include "include/instruction.h"
 #include "include/mem.h"
 #include "include/obj.h"
@@ -180,6 +181,7 @@ PankVm *boot_vm(bool need_buffer) {
     define_native(vm, asserteq_ntv_name, asserteq_ntv_fn);
     define_native(vm, type_ntv_name, type_ntv_fn);
     define_native(vm, bn_native_fn_name, bn_type_ntv_fn);
+    define_native(vm, len_ntv_name, len_ntv_fn);
     // write_pbuffer(&vm->buffer, "hello world %ls" , L"how are you\n");
     return vm;
 }
@@ -595,12 +597,19 @@ static int import_file(PankVm *vm, char32_t *custom_name,
         ObjString *strname =
             copy_string(vm, custom_name, strlen32(custom_name));
         push(vm, make_obj_val(strname));
+        // cp_println(L"--->>>>> %ls" , custom_name);
         ObjMod *objmod = new_mod(vm, custom_name);
+        // print_stack(vm);
         push(vm, make_obj_val(objmod));
+        // cp_println(L"-----------------------------");
+        // print_val(peek_vm(vm, 1));
+
+        // cp_println(L"\n-----------------------------");
 
         Module *mod = get_cur_mod(vm);
         table_set(vm, &mod->globals, get_as_string(peek_vm(vm, 1)),
                   peek_vm(vm, 0));
+        //        print_table(&mod->globals , "globals");
         StdProxy *prx = &mod->stdproxy[mod->stdlib_count++];
 
         prx->proxy_hash = objmod->name->hash;
@@ -621,7 +630,7 @@ static int import_file(PankVm *vm, char32_t *custom_name,
                 push_stdlib_string(vm);
             }
 
-            StdlibMod *sm = &vm->stdlibs[vm->stdlib_count - 1];
+            StdlibMod *sm = &vm->stdlibs[0];
             sm->owners[sm->owner_count++] = mod->hash;
             prx->origin_name = sm->name;
 
@@ -661,8 +670,10 @@ static int import_file(PankVm *vm, char32_t *custom_name,
             }
         }
 
-        // cp_println(L"count -> %d" , vm->stdlib_count);
-
+        //// cp_println(L"count -> %d" , vm->stdlib_count);
+        // cp_println(L"---> peek0 ");
+        // print_val(peek_vm(vm, 0));
+        // print_stack(vm);
         pop(vm);
         pop(vm);
         return 0;
@@ -703,6 +714,8 @@ IResult run_vm(PankVm *vm) {
 #endif
 
         uint8_t ins = read_bt(frame);
+        // print_stack(vm);
+
         // cp_println(L"]]]]]]]]]] OPCODE -> %s" , print_opcode(ins));
         switch (ins) {
             case OP_END_MOD:
@@ -1121,14 +1134,16 @@ IResult run_vm(PankVm *vm) {
             }
 
             case OP_GET_MOD_PROP: {
+                // print_val(peek_vm(vm, 0));
                 if (!is_mod_obj(peek_vm(vm, 0))) {
                     runtime_err(vm, U"Module object is not a module");
                     return INTRP_RUNTIME_ERR;
                 }
                 ObjMod *modname = get_as_mod(peek_vm(vm, 0));
 
-                // cp_color_println('r', L"modname -> %ls | %ld",
-                // modname->name->chars , modname->name->hash);
+                // cp_color_println('r', L"modname ->
+                // %ls",modname->name->chars);
+                //  modname->name->chars , modname->name->hash);
 
                 ObjString *prop = read_str_const(frame);
                 // cp_color_println('b', L"prop -> %ls" , prop->chars);
