@@ -30,7 +30,7 @@ char* read_line(void) {
 
         if (len == cap) {
             cap *= 2;
-            line = (char*)realloc(line, cap + 1);
+            line = (char*)realloc(line, cap);
             if (line == NULL) {
                 return NULL;
             }
