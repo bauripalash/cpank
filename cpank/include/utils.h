@@ -4,8 +4,11 @@
 #define cpank_utils_h
 
 #include <stdbool.h>
+#include <stdint.h>
 #include <uchar.h>
 #include <wchar.h>
+
+#include "helper/os.h"
 
 #define ANSI_COLOR_BLACK  L"\x1b[30m"
 #define ANSI_COLOR_RED    L"\x1b[31m"
@@ -16,6 +19,20 @@
 #define ANSI_COLOR_CYAN   L"\x1b[36m"
 #define ANSI_COLOR_WHITE  L"\x1b[37m"
 #define ANSI_COLOR_RESET  L"\x1b[0m"
+
+#define OS_UNIX_CODE      0
+#define OS_LINUX_CODE     0
+#define OS_WIN_CODE       1
+#define OS_MACOS_CODE     2
+#define OS_ANDROID_CODE   3
+#define OS_UNKNOWN_CODE   4
+
+// Linux / Unix = 0
+// Win = 1
+// Mac = 2
+// Android 3
+// Unknown = 4
+uint8_t get_os_code(void);
 
 int copy_c32(char32_t *str, const char32_t *input, int len);
 

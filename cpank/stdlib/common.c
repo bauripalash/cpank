@@ -5,53 +5,47 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <uchar.h>
 
 #include "../include/stdlib.h"
 #include "../include/utils.h"
 #include "../include/value.h"
 
-
-// Copied line by line from:
-// https://stackoverflow.com/a/314422/7917825
-char* getline_char(void) {
-    char *line = malloc(100), *linep = line;
-    size_t lenmax = 100, len = lenmax;
+char* read_line(void) {
+    size_t cap = 128;
+    char* line = malloc(cap);
+    if (line == NULL) {
+        return NULL;
+    }
+    int len = 0;
     int c;
-
-    if (line == NULL) return NULL;
 
     for (;;) {
         c = fgetc(stdin);
-        if (c == EOF) break;
-
-        if (--len == 0) {
-            len = lenmax;
-            char* linen = realloc(linep, lenmax *= 2);
-
-            if (linen == NULL) {
-                if (linep != NULL) {
-                    free(linep);
-                    return NULL;
-                } else {
-                    return NULL;
-                }
-            }
-            line = linen + (line - linep);
-            linep = linen;
+        if (c == EOF || c == '\n') {
+            break;
         }
+        line[len++] = (char)c;
 
-        if ((*line++ = c) == '\n') break;
+        if (len == cap) {
+            cap *= 2;
+            line = (char*)realloc(line, cap + 1);
+            if (line == NULL) {
+                return NULL;
+            }
+        }
     }
-    *line = '\0';
-    return linep;
+    line[len] = '\0';
+
+    return line;
 }
 
-
-
-
 Value _common_readline(PankVm* vm, int argc, Value* args) {
-    char* raw_line = getline_char();
+    if (get_os_code() == OS_ANDROID_CODE) {
+        return make_error(vm, U"readline does not work on android yet!");
+    }
+    char* raw_line = read_line();
 
     if (raw_line == NULL) {
         return make_str(vm, U"");

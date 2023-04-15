@@ -14,6 +14,7 @@
 #include <wchar.h>
 
 #include "include/common.h"
+#include "include/helper/os.h"
 #include "include/value.h"
 
 #ifdef IS_WIN
@@ -23,6 +24,20 @@
 #else
  #include <unistd.h>
 #endif
+
+uint8_t get_os_code(void) {
+#if defined(PANK_OS_ANDROID)
+    return OS_ANDROID_CODE;
+#elif defined(PANK_OS_MACOS)
+    return OS_MACOS_CODE;
+#elif defined(PANK_OS_WIN)
+    return OS_WIN_CODE;
+#elif defined(PANK_OS_UNIX) || defined(PANK_OS_LINUX)
+    return OS_LINUX_CODE;
+#else
+    return OS_UNKNOWN_CODE;
+#endif
+}
 
 int copy_c32(char32_t *str, const char32_t *input, int len) {
     memcpy(str, input, sizeof(char32_t) * len);
