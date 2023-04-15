@@ -3,11 +3,11 @@
 #ifndef cpank_vm_h
 #define cpank_vm_h
 
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <uchar.h>
 #include <wchar.h>
-#include <stdarg.h>
 
 #include "common.h"
 #include "compiler.h"

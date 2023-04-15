@@ -58,6 +58,8 @@ char32_t *get_obj_type_str(Value val, bool isbn) {
         case OBJ_UPVAL:
             return isbn ? UPVAL_NAME_BN : UPVAL_NAME;
     }
+
+    return U"OBJ_UNKNOWN";
 }
 
 Obj *alloc_obj(PankVm *vm, size_t size, ObjType type) {

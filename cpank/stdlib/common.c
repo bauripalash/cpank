@@ -11,6 +11,7 @@
 #include "../include/utils.h"
 #include "../include/value.h"
 
+
 // Copied line by line from:
 // https://stackoverflow.com/a/314422/7917825
 char* getline_char(void) {
@@ -29,8 +30,12 @@ char* getline_char(void) {
             char* linen = realloc(linep, lenmax *= 2);
 
             if (linen == NULL) {
-                free(linep);
-                return NULL;
+                if (linep != NULL) {
+                    free(linep);
+                    return NULL;
+                } else {
+                    return NULL;
+                }
             }
             line = linen + (line - linep);
             linep = linen;
@@ -42,8 +47,12 @@ char* getline_char(void) {
     return linep;
 }
 
+
+
+
 Value _common_readline(PankVm* vm, int argc, Value* args) {
     char* raw_line = getline_char();
+
     if (raw_line == NULL) {
         return make_str(vm, U"");
     } else {

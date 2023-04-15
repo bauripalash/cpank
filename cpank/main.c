@@ -1,6 +1,6 @@
 /* vim: set fileencoding=utf-8 tabstop=4 shiftwidth=4 expandtab */
-//go:build tmain
-// +build tmain
+// go:build tmain
+//  +build tmain
 #include <locale.h>
 #include <stddef.h>
 #include <stdlib.h>
