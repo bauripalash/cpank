@@ -20,6 +20,7 @@
 #define STDCOMMON  U"common"
 #define STDARRAY   U"array"
 #define STDSTR     U"str"
+#define STDFILE    U"file"
 
 typedef struct SL {
     char32_t* key;
@@ -37,4 +38,5 @@ void push_stdlib_os(PankVm* vm);
 void push_stdlib_common(PankVm* vm);
 void push_stdlib_array(PankVm* vm);
 void push_stdlib_string(PankVm* vm);
+void push_stdlib_file(PankVm* vm);
 #endif

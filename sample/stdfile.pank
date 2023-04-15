@@ -1,0 +1,4 @@
+import f "file";
+import os "os";
+show f.exists("main.go");
+show os.curdir();

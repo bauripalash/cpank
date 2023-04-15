@@ -34,6 +34,9 @@
 // Unknown = 4
 uint8_t get_os_code(void);
 
+//You must free the result;
+char * get_cur_dir(void);
+
 int copy_c32(char32_t *str, const char32_t *input, int len);
 
 int strlen32(const char32_t *strarg);

@@ -198,7 +198,8 @@ void free_stdlibs(PankVm *vm) {
 bool is_stdlib(char32_t *name) {
     return str32cmp(name, STDOS) || str32cmp(name, STDMATH) ||
            str32cmp(name, STDMATH_BN) || str32cmp(name, STDCOMMON) ||
-           str32cmp(name, STDARRAY) || str32cmp(name, STDSTR);
+           str32cmp(name, STDARRAY) || str32cmp(name, STDSTR) ||
+           str32cmp(name, STDFILE);
 }
 
 void init_module(Module *mod, const char32_t *name) {
@@ -591,6 +592,24 @@ static int import_custom(PankVm *vm, char32_t *custom_name,
     return 0;
 }
 
+void add_stdlib(PankVm *vm, char32_t *import_name) {
+    if (str32cmp(import_name, STDMATH)) {
+        push_stdlib_math(vm);
+    } else if (str32cmp(import_name, STDMATH_BN)) {
+        push_stdlib_math_bn(vm);
+    } else if (str32cmp(import_name, STDOS)) {
+        push_stdlib_os(vm);
+    } else if (str32cmp(import_name, STDCOMMON)) {
+        push_stdlib_common(vm);
+    } else if (str32cmp(import_name, STDARRAY)) {
+        push_stdlib_array(vm);
+    } else if (str32cmp(import_name, STDSTR)) {
+        push_stdlib_string(vm);
+    } else if (str32cmp(import_name, STDFILE)) {
+        push_stdlib_file(vm);
+    }
+}
+
 static int import_file(PankVm *vm, char32_t *custom_name,
                        char32_t *import_name) {
     if (is_stdlib(import_name)) {
@@ -616,19 +635,7 @@ static int import_file(PankVm *vm, char32_t *custom_name,
         prx->proxy_name = objmod->name->chars;
 
         if (vm->stdlib_count < 1) {
-            if (str32cmp(import_name, STDMATH)) {
-                push_stdlib_math(vm);
-            } else if (str32cmp(import_name, STDMATH_BN)) {
-                push_stdlib_math_bn(vm);
-            } else if (str32cmp(import_name, STDOS)) {
-                push_stdlib_os(vm);
-            } else if (str32cmp(import_name, STDCOMMON)) {
-                push_stdlib_common(vm);
-            } else if (str32cmp(import_name, STDARRAY)) {
-                push_stdlib_array(vm);
-            } else if (str32cmp(import_name, STDSTR)) {
-                push_stdlib_string(vm);
-            }
+            add_stdlib(vm, import_name);
 
             StdlibMod *sm = &vm->stdlibs[0];
             sm->owners[sm->owner_count++] = mod->hash;
@@ -649,19 +656,8 @@ static int import_file(PankVm *vm, char32_t *custom_name,
                 }
             }
             if (!found) {
-                if (str32cmp(import_name, STDMATH)) {
-                    push_stdlib_math(vm);
-                } else if (str32cmp(import_name, STDMATH_BN)) {
-                    push_stdlib_math_bn(vm);
-                } else if (str32cmp(import_name, STDOS)) {
-                    push_stdlib_os(vm);
-                } else if (str32cmp(import_name, STDCOMMON)) {
-                    push_stdlib_common(vm);
-                } else if (str32cmp(import_name, STDARRAY)) {
-                    push_stdlib_array(vm);
-                } else if (str32cmp(import_name, STDSTR)) {
-                    push_stdlib_string(vm);
-                }
+                add_stdlib(vm, import_name);
+
                 StdlibMod *sm = &vm->stdlibs[vm->stdlib_count - 1];
                 sm->owners[sm->owner_count++] = mod->hash;
                 prx->origin_name = sm->name;
