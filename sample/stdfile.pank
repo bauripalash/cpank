@@ -3,6 +3,14 @@ import os "os";
 let curdir = os.curdir();
 let filename = curdir + "/" + "main.go";
 show f.exists(filename);
-let fstr = f.readfile(filename);
-show fstr;
+let afile = curdir + "/" + "cpank";
+show f.isfile(afile);
+show f.isdir(afile);
+show f.create_empty("xyz.txt");
+show f.rename("xyz.txt" , "abc.txt");
+show f.delete("abc.txt");
+#let fstr = f.readfile(filename);
+#show fstr;
+
+
 
