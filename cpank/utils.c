@@ -13,28 +13,26 @@
 #include <uchar.h>
 #include <wchar.h>
 
-
-
 #include "include/common.h"
 #include "include/helper/os.h"
 #include "include/value.h"
 
-#if defined (PANK_OS_UNIX) || defined (PANK_OS_LINUX)
-    #include <unistd.h>
+#if defined(PANK_OS_UNIX) || defined(PANK_OS_LINUX)
+ #include <unistd.h>
 #else
-    #include <direct.h>
+ #include <direct.h>
 #endif
 
-char * get_cur_dir(void){
-    char * p;
-    
-#if defined (PANK_OS_UNIX) || defined (PANK_OS_LINUX)
+char *get_cur_dir(void) {
+    char *p;
+
+#if defined(PANK_OS_UNIX) || defined(PANK_OS_LINUX)
     p = getcwd(NULL, 0);
-#else 
-    p = _getcwd(NULL , 0);
+#else
+    p = _getcwd(NULL, 0);
 #endif
     if (p == NULL) {
-    return c_to_c(U"", 0);
+        return c_to_c(U"", 0);
     }
     return p;
 }

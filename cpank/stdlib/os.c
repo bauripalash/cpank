@@ -78,19 +78,22 @@ Value _os_get_homedir(PankVm* vm, int argc, Value* args) {
     return make_num(0);
 }
 
-Value _os_get_cwd(PankVm * vm , int argc , Value *args){
-    char * rawdir = get_cur_dir();
-    char32_t * result = char_to_32(rawdir);
+Value _os_get_cwd(PankVm* vm, int argc, Value* args) {
+    if (argc != 0) {
+        return make_error(vm, U"curdir() takes no arguments");
+    }
+    char* rawdir = get_cur_dir();
+    char32_t* result = char_to_32(rawdir);
     free(rawdir);
-    return make_str(vm, result);
+    Value res = make_str(vm, result);
+    free(result);
+    return res;
 }
 
 void push_stdlib_os(PankVm* vm) {
     SL sls[] = {
-        msl(U"name", _os_get_name),
-        msl(U"arch", _os_get_arch),
-        msl(U"user", _os_get_username),
-        msl(U"home", _os_get_homedir),
+        msl(U"name", _os_get_name),     msl(U"arch", _os_get_arch),
+        msl(U"user", _os_get_username), msl(U"home", _os_get_homedir),
         msl(U"curdir", _os_get_cwd),
     };
 

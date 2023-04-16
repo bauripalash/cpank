@@ -1,4 +1,8 @@
 import f "file";
 import os "os";
-show f.exists("main.go");
-show os.curdir();
+let curdir = os.curdir();
+let filename = curdir + "/" + "main.go";
+show f.exists(filename);
+let fstr = f.readfile(filename);
+show fstr;
+
