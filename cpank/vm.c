@@ -375,6 +375,8 @@ void runtime_err(PankVm *vm, char32_t *format, ...) {
         }
     }
 
+    free(strformat);
+
     reset_stack(vm);
 }
 
