@@ -22,6 +22,11 @@
 #define STDSTR     U"str"
 #define STDFILE    U"file"
 
+#define check_argc_count(funcname, want, got)                    \
+ if (argc != want) {                                             \
+  return make_argc_want_mismatch_error(vm, funcname, want, got); \
+ }
+
 typedef struct SL {
     char32_t* key;
     NativeFn func;

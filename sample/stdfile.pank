@@ -3,6 +3,7 @@ import os "os";
 let curdir = os.curdir();
 let filename = curdir + "/" + "main.go";
 show f.exists(filename);
+
 let afile = curdir + "/" + "cpank";
 show f.isfile(afile);
 show f.isdir(afile);

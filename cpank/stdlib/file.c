@@ -3,11 +3,21 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <uchar.h>
 
 #include "../include/helper/os.h"
 #include "../include/openfile.h"
 #include "../include/stdlib.h"
 #include "../include/utils.h"
+
+#define _NUM_TO_STR(x) #x
+#define NUMTOSTR(x)    _NUM_TO_STR(x)
+
+#define no_android(funcname)                                                   \
+ if (get_os_code() == OS_ANDROID_CODE) {                                       \
+  return make_error(vm,                                                        \
+                    U"file function " funcname " do not work on android yet"); \
+ }
 
 bool check_is_file(char* path) {
 #ifdef PANK_OS_WINDOWS
@@ -36,12 +46,14 @@ bool check_is_dir(char* path) {
 }
 
 Value _file_exists(PankVm* vm, int argc, Value* args) {
-    if (get_os_code() == OS_ANDROID_CODE) {
-        return make_error(vm, U"exists(path) does not work on android yet");
-    }
-    if (argc != 1) {
+    //    char argstr[100];
+    //    sprintf(argstr, "%d", argc);
+    no_android("exists(path)");
+    check_argc_count("exists(path)", 1, argc);
+    /*if (argc != 1) {
+
         return make_error(vm, U"exists(a) only takes single argument");
-    }
+    }*/
     if (!is_str_obj(args[0])) {
         return make_error(vm, U"argument to exists(a) must be a string");
     }
@@ -59,12 +71,8 @@ Value _file_exists(PankVm* vm, int argc, Value* args) {
 }
 
 Value _file_read_file_as_string(PankVm* vm, int argc, Value* args) {
-    if (get_os_code() == OS_ANDROID_CODE) {
-        return make_error(vm, U"readfile(path) does not work on android yet");
-    }
-    if (argc != 1) {
-        return make_error(vm, U"readfile(path) takes only single argument");
-    }
+    no_android("readfile(path)");
+    check_argc_count("readile(path)", 1, argc);
 
     if (!is_str_obj(args[0])) {
         return make_error(
@@ -84,12 +92,9 @@ Value _file_read_file_as_string(PankVm* vm, int argc, Value* args) {
 }
 
 Value _file_is_file(PankVm* vm, int argc, Value* args) {
-    if (get_os_code() == OS_ANDROID_CODE) {
-        return make_error(vm, U"isfile(path) does not work on android yet");
-    }
-    if (argc != 1) {
-        return make_error(vm, U"isfile(path) takes only single argument");
-    }
+    no_android("isfile(path)");
+    check_argc_count("isfile(path)", 1, argc);
+
     if (!is_str_obj(args[0])) {
         return make_error(
             vm, U"argument to isfile(path <- string) must be a string");
@@ -104,16 +109,8 @@ Value _file_is_file(PankVm* vm, int argc, Value* args) {
 }
 
 Value _file_is_dir(PankVm* vm, int argc, Value* args) {
-    if (get_os_code() == OS_ANDROID_CODE) {
-        return make_error(vm, U"isdir(path) does not work on android yet");
-    }
-    if (argc != 1) {
-        return make_error(vm, U"isdir(path) takes only single argument");
-    }
-    if (!is_str_obj(args[0])) {
-        return make_error(
-            vm, U"argument to isdir(path <- string) must be a string");
-    }
+    no_android("isdir(path)");
+    check_argc_count("isdir(path)", 1, argc);
 
     ObjString* wpath = (ObjString*)get_as_obj(args[0]);
     char* path = c_to_c(wpath->chars, wpath->len);
@@ -124,13 +121,8 @@ Value _file_is_dir(PankVm* vm, int argc, Value* args) {
 }
 
 Value _file_create_empty_file(PankVm* vm, int argc, Value* args) {
-    if (get_os_code() == OS_ANDROID_CODE) {
-        return make_error(vm,
-                          U"create_empty(path) does not work on android yet");
-    }
-    if (argc != 1) {
-        return make_error(vm, U"create_empty(path) takes only single argument");
-    }
+    no_android("create_empty(path)");
+    check_argc_count("create_empty(path)", 1, argc);
     if (!is_str_obj(args[0])) {
         return make_error(
             vm, U"argument to create_empty(path <- string) must be a string");
@@ -150,13 +142,9 @@ Value _file_create_empty_file(PankVm* vm, int argc, Value* args) {
 }
 
 Value _file_rename(PankVm* vm, int argc, Value* args) {
-    if (get_os_code() == OS_ANDROID_CODE) {
-        return make_error(vm, U"rename(path) does not work on android yet");
-    }
-    if (argc != 2) {
-        return make_error(vm,
-                          U"rename(oldname , newname) takes only 2 argument");
-    }
+    no_android("rename(old , new)");
+    check_argc_count("rename(old , new)", 2, argc);
+
     if (!is_str_obj(args[0]) || !is_str_obj(args[1])) {
         return make_error(vm,
                           U"argument to rename(old <- string , new <- string) "
@@ -177,12 +165,9 @@ Value _file_rename(PankVm* vm, int argc, Value* args) {
 }
 
 Value _file_delete(PankVm* vm, int argc, Value* args) {
-    if (get_os_code() == OS_ANDROID_CODE) {
-        return make_error(vm, U"delete(path) does not work on android yet");
-    }
-    if (argc != 1) {
-        return make_error(vm, U"delete(path) takes only single argument");
-    }
+    no_android("delete(path)");
+    check_argc_count("delete(path)", 1, argc);
+
     if (!is_str_obj(args[0])) {
         return make_error(
             vm, U"argument to delete(path <- string) must be a string");

@@ -604,6 +604,22 @@ Value make_error(PankVm *vm, char32_t *errmsg) {
     return make_obj_val(new_err_obj(vm, errmsg));
 }
 
+Value make_argc_want_mismatch_error(PankVm *vm, char *funname, int want,
+                                    int got) {
+    ObjErr *err = ALLOCATE_OBJ(vm, ObjErr, OBJ_ERR);
+    err->errmsg = NULL;
+    push(vm, make_obj_val(err));
+    int len = snprintf(NULL, 0,
+                       "function '%s' wants %d argument(s) but got %d instead!",
+                       funname, want, got);
+    err->errmsg = (char *)calloc(len + 1, sizeof(char));
+    snprintf(err->errmsg, len + 1,
+             "function '%s' wants %d argument(s) but got %d instead!", funname,
+             want, got);
+    err->len = len;
+    return pop(vm);
+}
+
 ObjHashMap *new_hmap(PankVm *vm) {
     ObjHashMap *map = ALLOCATE_OBJ(vm, ObjHashMap, OBJ_HMAP);
     map->cap = 0;
