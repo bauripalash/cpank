@@ -148,6 +148,8 @@ Value make_str(PankVm *vm, char32_t *str);
 Value make_argc_want_mismatch_error(PankVm *vm, char *funname, int want,
                                     int got);
 
+Value make_bn_argc_want_mismatch_error(PankVm *vm, char *funname, int want,
+                                       int got);
 // There 'must' be some bugs or edge cases, testing is required
 char32_t *obj_to_string(PankVm *vm, Value val);
 /*

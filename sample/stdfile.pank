@@ -2,13 +2,20 @@ import f "file";
 import os "os";
 let curdir = os.curdir();
 let filename = curdir + "/" + "main.go";
-show f.exists(filename , 1);
+show "does exists " + filename;
+show f.exists(filename);
 
 let afile = curdir + "/" + "cpank";
+show "is file -> " + afile; 
 show f.isfile(afile);
+show "is dir -> " + afile; 
 show f.isdir(afile);
+
+show "create empty 'xyz.txt'"; 
 show f.create_empty("xyz.txt");
+show "rename 'xyz.txt' to 'abc.txt'"; 
 show f.rename("xyz.txt" , "abc.txt");
+show "delete 'abc.txt'"; 
 show f.delete("abc.txt");
 #let fstr = f.readfile(filename);
 #show fstr;

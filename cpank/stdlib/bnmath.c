@@ -14,10 +14,7 @@
 #define _USE_MATH_DEFINES
 
 Value _bn_math_pow(PankVm* vm, int argc, Value* args) {
-    if (argc != 2) {
-        return make_error(vm,
-                          U"গণিতের ঘাত(ক , খ) কাজটি মাত্র দুটি মান গ্রহণ করে!");
-    }
+    bn_check_argc_count("ঘাত(ক, খ)", 2, argc);
 
     if (!is_num(args[0]) && !is_num(args[1])) {
         return make_error(vm, U"গণিতের ঘাত(ক , খ) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
@@ -30,10 +27,7 @@ Value _bn_math_pow(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_add(PankVm* vm, int argc, Value* args) {
-    if (argc != 2) {
-        return make_error(vm,
-                          U"গণিতের যোগ(ক , খ) কাজটি মাত্র দুটি মান গ্রহণ করে!");
-    }
+    bn_check_argc_count("যোগ(ক, খ)", 2, argc);
 
     //    if (args[0].type != args[1].type && args[0].type != V_NUM) {
     if (!is_num(args[0]) && !is_num(args[1])) {
@@ -62,12 +56,7 @@ static double _get_gcd_bn(double a, double b) {
 }
 
 Value _bn_math_gcd(PankVm* vm, int argc, Value* args) {
-    if (argc != 2) {
-        // return make_nil();
-
-        return make_error(vm,
-                          U"গণিতের গসাগু(ক , খ) কাজটি মাত্র দুটি মান গ্রহণ করে!");
-    }
+    bn_check_argc_count("গসাগু(ক, খ)", 2, argc);
 
     //    if (args[0].type != args[1].type && args[0].type != V_NUM) {
     if (!is_num(args[0]) && !is_num(args[1])) {
@@ -82,10 +71,8 @@ Value _bn_math_gcd(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_lcm(PankVm* vm, int argc, Value* args) {
-    if (argc != 2) {
-        return make_error(vm,
-                          U"গণিতের লসাগু(ক , খ) কাজটি মাত্র দুটি মান গ্রহণ করে!");
-    }
+    bn_check_argc_count("লসাগু(ক, খ)", 2, argc);
+
     if (!is_num(args[0]) && !is_num(args[1])) {
         //    if (args[0].type != args[1].type && args[0].type != V_NUM) {
         return make_error(vm,
@@ -98,9 +85,7 @@ Value _bn_math_lcm(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_sqrt(PankVm* vm, int argc, Value* args) {
-    if (argc != 1) {
-        return make_error(vm, U"গণিতের বর্গমূল(ক) কাজটি মাত্র একটি মান গ্রহণ করে!");
-    }
+    bn_check_argc_count("বর্গমূল(ক)", 1, argc);
 
     if (!is_num(args[0])) {
         return make_error(vm, U"গণিতের বর্গমূল(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
@@ -111,9 +96,7 @@ Value _bn_math_sqrt(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_log10(PankVm* vm, int argc, Value* args) {
-    if (argc != 1) {
-        return make_error(vm, U"গণিতের লগদশ(ক) কাজটি মাত্র একটি মান গ্রহণ করে!");
-    }
+    bn_check_argc_count("লগদশ(ক)", 1, argc);
 
     // if (args[0].type != V_NUM) {
 
@@ -126,9 +109,7 @@ Value _bn_math_log10(PankVm* vm, int argc, Value* args) {
 }
 // Log base e
 Value _bn_math_log_e(PankVm* vm, int argc, Value* args) {
-    if (argc != 1) {
-        return make_error(vm, U"গণিতের লগ(ক) কাজটি মাত্র একটি মান গ্রহণ করে!");
-    }
+    bn_check_argc_count("লগ(ক)", 1, argc);
 
     // if (args[0].type != V_NUM) {
     //
@@ -142,10 +123,7 @@ Value _bn_math_log_e(PankVm* vm, int argc, Value* args) {
 
 // Log base X
 Value _bn_math_logx(PankVm* vm, int argc, Value* args) {
-    if (argc != 2) {
-        return make_error(vm,
-                          U"গণিতের লগবেস(ক , খ) কাজটি মাত্র দুটি মান গ্রহণ করে!");
-    }
+    bn_check_argc_count("লগবেস(ক, খ)", 2, argc);
 
     if (!is_num(args[0]) && !is_num(args[1])) {
         return make_error(vm,
@@ -159,9 +137,7 @@ Value _bn_math_logx(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_sine(PankVm* vm, int argc, Value* args) {
-    if (argc != 1) {
-        return make_error(vm, U"গণিতের সাইন(ক) কাজটি মাত্র একটি মান গ্রহণ করে!");
-    }
+    bn_check_argc_count("সাইন(ক)", 1, argc);
 
     if (!is_num(args[0])) {
         return make_error(vm, U"গণিতের সাইন(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
@@ -173,9 +149,7 @@ Value _bn_math_sine(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_cosine(PankVm* vm, int argc, Value* args) {
-    if (argc != 1) {
-        return make_error(vm, U"গণিতের কস(ক) কাজটি মাত্র একটি মান গ্রহণ করে!");
-    }
+    bn_check_argc_count("কস(ক)", 1, argc);
 
     if (!is_num(args[0])) {
         return make_error(vm, U"গণিতের কস(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
@@ -187,9 +161,7 @@ Value _bn_math_cosine(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_tangent(PankVm* vm, int argc, Value* args) {
-    if (argc != 1) {
-        return make_error(vm, U"গণিতের ট্যান(ক) কাজটি মাত্র একটি মান গ্রহণ করে!");
-    }
+    bn_check_argc_count("ট্যান(ক)", 1, argc);
 
     if (!is_num(args[0])) {
         return make_error(vm, U"গণিতের ট্যান(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
@@ -201,9 +173,7 @@ Value _bn_math_tangent(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_to_degree(PankVm* vm, int argc, Value* args) {
-    if (argc != 1) {
-        return make_error(vm, U"গণিতের ডিগ্রি(ক) কাজটি মাত্র একটি মান গ্রহণ করে!");
-    }
+    bn_check_argc_count("ডিগ্রি(ক)", 1, argc);
 
     if (!is_num(args[0])) {
         return make_error(vm, U"গণিতের ডিগ্রি(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
@@ -215,10 +185,7 @@ Value _bn_math_to_degree(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_to_radians(PankVm* vm, int argc, Value* args) {
-    if (argc != 1) {
-        return make_error(vm,
-                          U"গণিতের রেডিয়ান(ক) কাজটি মাত্র একটি মান গ্রহণ করে!");
-    }
+    bn_check_argc_count("রেডিয়ান(ক)", 1, argc);
 
     if (!is_num(args[0])) {
         return make_error(vm, U"গণিতের রেডিয়ান(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
@@ -230,25 +197,19 @@ Value _bn_math_to_radians(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_get_pi(PankVm* vm, int argc, Value* args) {
-    if (argc != 0) {
-        return make_error(vm, U"গণিতের পাই() কাজটি কোনো মান গ্রহণ করেনা!");
-    }
+    bn_check_argc_count("পাই()", 0, argc);
 
     return make_num(CONST_PI);
 }
 
 Value _bn_math_get_e(PankVm* vm, int argc, Value* args) {
-    if (argc != 0) {
-        return make_error(vm, U"গণিতের ই()) কাজটি কোনো মান গ্রহণ করেনা!");
-    }
+    bn_check_argc_count("ই()", 0, argc);
 
     return make_num(CONST_E);
 }
 
 Value _bn_math_str_to_num(PankVm* vm, int argc, Value* args) {
-    if (argc != 1) {
-        return make_error(vm, U"গণিতের সংখ্যা(ক) কাজটি মাত্র একটি মান গ্রহণ করে!");
-    }
+    bn_check_argc_count("সংখ্যা(ক)", 1, argc);
 
     if (!is_str_obj(args[0])) {
         return make_error(
@@ -264,10 +225,7 @@ Value _bn_math_str_to_num(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_get_random(PankVm* vm, int argc, Value* args) {
-    if (argc != 0) {
-        return make_error(
-            vm, U"গণিতের এলোমেলো_সংখ্যা(ক) কাজটি একটি মাত্র মান গ্রহণ করে ");
-    }
+    bn_check_argc_count("এলোমেলো_সংখ্যা(ক)", 1, argc);
     if (!is_num(args[0])) {
         return make_error(
             vm, U"গণিতের এলোমেলো_সংখ্যা(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
@@ -279,10 +237,7 @@ Value _bn_math_get_random(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_get_random_from_range(PankVm* vm, int argc, Value* args) {
-    if (argc != 2) {
-        return make_error(
-            vm, U"গণিতের এলোমেলো(নিম্ন, উচ্চ) কাজটি মাত্র দুটি মান গ্রহণ করে ");
-    }
+    bn_check_argc_count("এলোমেলো(নিম্ন, উচ্চ)", 2, argc);
     if (!is_num(args[0]) && !is_num(args[1])) {
         return make_error(
             vm, U"গণিতের এলোমেলো(নিম্ন, উচ্চ) কাজটি শুধুমাত্র সংখ্যা মান গ্রহণ করে");
@@ -298,9 +253,7 @@ Value _bn_math_get_random_from_range(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_abs_num(PankVm* vm, int argc, Value* args) {
-    if (argc != 1) {
-        return make_error(vm, U"গণিতের পরম(ক) কাজটি একটি মাত্র মান গ্রহণ করে");
-    }
+    bn_check_argc_count("পরম(ক)", 1, argc);
 
     if (!is_num(args[0])) {
         return make_error(vm, U"গণিতের পরম(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
@@ -312,9 +265,7 @@ Value _bn_math_abs_num(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_round(PankVm* vm, int argc, Value* args) {
-    if (argc != 1) {
-        return make_error(vm, U"গণিতের রাউন্ড(ক) কাজটি একটি মাত্র মান গ্রহণ করে");
-    }
+    bn_check_argc_count("রাউন্ড(ক)", 1, argc);
 
     if (!is_num(args[0])) {
         return make_error(vm, U"গণিতের রাউন্ড(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
@@ -326,17 +277,13 @@ Value _bn_math_round(PankVm* vm, int argc, Value* args) {
 }
 
 Value _bn_math_get_infinity(PankVm* vm, int argc, Value* args) {
-    if (argc != 0) {
-        return make_error(vm, U"গণিতের অসীম() কাজটি কোনো মান গ্রহণ করে না");
-    }
+    bn_check_argc_count("অসীম()", 0, argc);
 
     return make_num(INFINITY);
 }
 
 Value _bn_math_ceil(PankVm* vm, int argc, Value* args) {
-    if (argc != 1) {
-        return make_error(vm, U"গণিতের সিল(ক) কাজটি একটি মাত্র মান গ্রহণ করে");
-    }
+    bn_check_argc_count("সিল(ক)", 1, argc);
 
     if (!is_num(args[0])) {
         return make_error(vm, U"গণিতের সিল(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");

@@ -810,3 +810,19 @@ bool hmap_set(PankVm *vm, ObjHashMap *map, Value key, Value val) {
 Value make_str(PankVm *vm, char32_t *str) {
     return make_obj_val(copy_string(vm, str, strlen32(str)));
 }
+
+Value make_bn_argc_want_mismatch_error(PankVm *vm, char *funname, int want,
+                                       int got) {
+    ObjErr *err = ALLOCATE_OBJ(vm, ObjErr, OBJ_ERR);
+    err->errmsg = NULL;
+    push(vm, make_obj_val(err));
+    int len = snprintf(
+        NULL, 0, "কাজ '%s' এর জন্য %d টি চলরাশি দরকার কিন্তু %d টি পাওয়া গেল!",
+        funname, want, got);
+    err->errmsg = (char *)calloc(len + 1, sizeof(char));
+    snprintf(err->errmsg, len + 1,
+             "কাজ '%s' এর জন্য %d টি চলরাশি দরকার কিন্তু %d টি পাওয়া গেল!",
+             funname, want, got);
+    err->len = len;
+    return pop(vm);
+}
