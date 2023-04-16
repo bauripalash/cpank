@@ -36,6 +36,9 @@ bool check_is_dir(char* path) {
 }
 
 Value _file_exists(PankVm* vm, int argc, Value* args) {
+    if (get_os_code() == OS_ANDROID_CODE) {
+        return make_error(vm, U"exists(path) does not work on android yet");
+    }
     if (argc != 1) {
         return make_error(vm, U"exists(a) only takes single argument");
     }
@@ -81,6 +84,9 @@ Value _file_read_file_as_string(PankVm* vm, int argc, Value* args) {
 }
 
 Value _file_is_file(PankVm* vm, int argc, Value* args) {
+    if (get_os_code() == OS_ANDROID_CODE) {
+        return make_error(vm, U"isfile(path) does not work on android yet");
+    }
     if (argc != 1) {
         return make_error(vm, U"isfile(path) takes only single argument");
     }
@@ -98,6 +104,9 @@ Value _file_is_file(PankVm* vm, int argc, Value* args) {
 }
 
 Value _file_is_dir(PankVm* vm, int argc, Value* args) {
+    if (get_os_code() == OS_ANDROID_CODE) {
+        return make_error(vm, U"isdir(path) does not work on android yet");
+    }
     if (argc != 1) {
         return make_error(vm, U"isdir(path) takes only single argument");
     }
@@ -115,6 +124,10 @@ Value _file_is_dir(PankVm* vm, int argc, Value* args) {
 }
 
 Value _file_create_empty_file(PankVm* vm, int argc, Value* args) {
+    if (get_os_code() == OS_ANDROID_CODE) {
+        return make_error(vm,
+                          U"create_empty(path) does not work on android yet");
+    }
     if (argc != 1) {
         return make_error(vm, U"create_empty(path) takes only single argument");
     }
@@ -137,6 +150,9 @@ Value _file_create_empty_file(PankVm* vm, int argc, Value* args) {
 }
 
 Value _file_rename(PankVm* vm, int argc, Value* args) {
+    if (get_os_code() == OS_ANDROID_CODE) {
+        return make_error(vm, U"rename(path) does not work on android yet");
+    }
     if (argc != 2) {
         return make_error(vm,
                           U"rename(oldname , newname) takes only 2 argument");
@@ -161,6 +177,9 @@ Value _file_rename(PankVm* vm, int argc, Value* args) {
 }
 
 Value _file_delete(PankVm* vm, int argc, Value* args) {
+    if (get_os_code() == OS_ANDROID_CODE) {
+        return make_error(vm, U"delete(path) does not work on android yet");
+    }
     if (argc != 1) {
         return make_error(vm, U"delete(path) takes only single argument");
     }
