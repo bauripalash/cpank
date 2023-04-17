@@ -95,6 +95,7 @@ typedef enum {
     T_ERR,
     // End of script
     T_EOF,
+    T_UNKNOWN,
 } TokType;
 
 typedef struct {

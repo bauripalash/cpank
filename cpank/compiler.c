@@ -5,6 +5,7 @@
 #include <uchar.h>
 
 #include "include/common.h"
+#include "include/errmsgs.h"
 #include "include/instruction.h"
 #include "include/lexer.h"
 #include "include/mem.h"
@@ -148,11 +149,14 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
             }
         }
     } else if (tok->type == T_ERR) {
+    } else if (tok->type == T_UNKNOWN) {
         if (parser->vm->need_buffer) {
-            write_pbuffer(&parser->vm->buffer, "-> %.*ls <-", tok->length,
-                          tok->start);
+            write_pbuffer(&parser->vm->buffer, "-> %.*ls <- : %ls\n",
+                          tok->length, tok->start,
+                          geterrmsg(EMSG_UNKNOWN_CHAR));
         } else {
-            cp_err_print(L"-> %.*ls <-", tok->length, tok->start);
+            cp_err_println(L"-> %.*ls <- : %ls", tok->length, tok->start,
+                           geterrmsg(EMSG_UNKNOWN_CHAR));
         }
     } else {
         char *t_str = c_to_c(tok->start, tok->length);
@@ -162,19 +166,21 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
 #if defined(PANK_OS_WINDOWS)
             fwprintf(stderr, L" at %.*S", tok->length, t_str);
 #else
-            fwprintf(stderr, L" at -> %s <- ", t_str);
+            cp_err_println(L" at -> %s <- ", t_str);
 #endif
         }
         free(t_str);
     }
-    if (parser->vm->need_buffer) {
-        write_pbuffer(&parser->vm->buffer, " : %s\n\n", msg_str);
-    } else {
+    if (tok->type != T_UNKNOWN) {
+        if (parser->vm->need_buffer) {
+            write_pbuffer(&parser->vm->buffer, " : %s\n\n", msg_str);
+        } else {
 #if defined(PANK_OS_WINDOWS)
-        cp_err_println(L" : %S\n", msg_str);
+            cp_err_println(L" : %S\n", msg_str);
 #else
-        cp_err_println(L" : %s\n", msg_str);
+            cp_err_println(L" : %s\n", msg_str);
 #endif
+        }
     }
     free(msg_str);
     parser->had_err = true;
@@ -194,10 +200,10 @@ static void advance(Parser *parser) {
     parser->prev = parser->cur;
     for (;;) {
         parser->cur = get_tok(&parser->lexer);
-        if (parser->cur.type != T_ERR) {
-            break;
+        if (parser->cur.type == T_ERR || parser->cur.type == T_UNKNOWN) {
+            err_at_cur(parser, parser->cur.start);
         } else {
-            err_at_cur(parser, U"Unknown character found!");
+            break;
         }
     }
 }
@@ -348,7 +354,7 @@ uint8_t read_arg_list(Compiler *compiler) {
         } while (match_tok(compiler, T_COMMA));
     }
 
-    eat_tok(compiler, T_RPAREN, U"Expected ')' after arguments");
+    eat_tok(compiler, T_RPAREN, geterrmsg(EMSG_RBRAC_AFTER_ARG));
     return argc;
     ;
 }
@@ -453,7 +459,7 @@ void read_array(Compiler *compiler, bool can_assign) {
         } while (match_tok(compiler, T_COMMA));
     }
 
-    eat_tok(compiler, T_RSBRACKET, U"Expected ']' after array literal");
+    eat_tok(compiler, T_RSBRACKET, geterrmsg(EMSG_RBRAC_AFTER_ARR));
     emit_two(compiler, OP_ARRAY, (uint8_t)items);
 }
 
@@ -733,7 +739,11 @@ static void return_stmt(Compiler *compiler) {
 // 1 + 2;
 static void read_expr_stmt(Compiler *compiler) {
     read_expr(compiler);
-    eat_tok(compiler, T_SEMICOLON, U"Expected ';' after expression statement");
+
+    if (check_tok(compiler, T_SEMICOLON)) {
+        eat_tok(compiler, T_SEMICOLON,
+                U"Expected ';' after expression statement");
+    }
     emit_bt(compiler, OP_POP);
 }
 

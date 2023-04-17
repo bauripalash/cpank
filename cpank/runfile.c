@@ -38,7 +38,7 @@ int run_file(const char *filepath) {
             if (vm->need_buffer) {
                 write_pbuffer(&vm->buffer, "\nRuntime error occured\n");
             } else {
-                cp_println(L"\nRuntime error occured!");
+                cp_err_println(L"\nRuntime error occured!");
             }
             errcode = ERC_RUNTIME;
             break;
@@ -47,7 +47,7 @@ int run_file(const char *filepath) {
             if (vm->need_buffer) {
                 write_pbuffer(&vm->buffer, "\nCompiler error occured\n");
             } else {
-                cp_println(L"\nCompiler error occured!");
+                cp_err_println(L"\nCompiler error occured!");
             }
             errcode = ERC_COMPTIME;
             break;

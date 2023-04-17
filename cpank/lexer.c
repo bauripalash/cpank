@@ -157,6 +157,8 @@ const char *toktype_to_string(TokType t) {
             return "T_RSBRACKET";
         case T_COLON:
             return "T_COLON";
+        case T_UNKNOWN:
+            return "T_UNKNOWN";
     };
 
     return "UNKNOWN_TOKEN";
@@ -362,10 +364,20 @@ Token mk_id_tok(Lexer *lexer) {
 Token err_tok(Lexer *lexer, char32_t *msg) {
     Token tk;
     tk.type = T_ERR;
-    tk.start = lexer->start;                           // msg;
-    tk.length = (int)(lexer->current - lexer->start);  // (int)strlen32(msg);
+    tk.start = msg;
+    tk.length = (int)strlen32(msg);
     tk.line = lexer->line;
     tk.colpos = lexer->col;
+    return tk;
+}
+
+Token unknown_tok(Lexer *lexer) {
+    Token tk;
+    tk.type = T_UNKNOWN;
+    tk.start = lexer->start;
+    tk.length = (int)(lexer->current - lexer->start);
+    tk.colpos = lexer->col;
+    tk.line = lexer->line;
     return tk;
 }
 
@@ -514,5 +526,5 @@ Token get_tok(Lexer *lexer) {
 
     // wprintf(L"L-> %lc ", c);
 
-    return err_tok(lexer, U"Unknown character");
+    return unknown_tok(lexer);
 }

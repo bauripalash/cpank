@@ -1,2 +1,5 @@
-let a @ 0 
-show a+1
+kaj nach(a)
+	dekhao a + " is dancing"
+sesh
+
+nach("palash"
