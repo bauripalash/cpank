@@ -120,7 +120,7 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
         if (parser->vm->need_buffer) {
             write_pbuffer(&parser->vm->buffer, "%d | %ls\n", lineindex, line);
         } else {
-            cp_err_println(L"%d | %ls\n", lineindex, line);
+            cp_err_print(L"%d | %ls\n", lineindex, line);
         }
         // fwprintf(stderr, L"%d | %ls\n", lineindex, line);
 
@@ -129,22 +129,22 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
     if (parser->vm->need_buffer) {
         write_pbuffer(&parser->vm->buffer, "[L %d] Error ", tok->line);
     } else {
-        cp_err_println(L"[l %d] Error ", tok->line);
+        cp_err_print(L"[l %d] Error ", tok->line);
     }
 
     if (tok->type == T_EOF) {
         if (parser->vm->need_buffer) {
             write_pbuffer(&parser->vm->buffer, "at end");
         } else {
-            cp_err_println(L"at end");
+            cp_err_print(L"at end");
         }
         if (atcur) {
             if (parser->vm->need_buffer) {
                 write_pbuffer(&parser->vm->buffer, "->%.*ls<-",
                               parser->prev.length, parser->prev.start);
             } else {
-                cp_err_println(L"->%.*ls<-", parser->prev.length,
-                               parser->prev.start);
+                cp_err_print(L"->%.*ls<-", parser->prev.length,
+                             parser->prev.start);
             }
         }
     } else if (tok->type == T_ERR) {
@@ -152,7 +152,7 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
             write_pbuffer(&parser->vm->buffer, "-> %.*ls <-", tok->length,
                           tok->start);
         } else {
-            cp_err_println(L"-> %.*ls <-", tok->length, tok->start);
+            cp_err_print(L"-> %.*ls <-", tok->length, tok->start);
         }
     } else {
         char *t_str = c_to_c(tok->start, tok->length);
@@ -171,9 +171,9 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
         write_pbuffer(&parser->vm->buffer, " : %s\n\n", msg_str);
     } else {
 #if defined(PANK_OS_WINDOWS)
-        fwprintf(stderr, L" : %S\n\n", msg_str);
+        cp_err_println(L" : %S\n", msg_str);
 #else
-        fwprintf(stderr, L" : %s\n\n", msg_str);
+        cp_err_println(L" : %s\n", msg_str);
 #endif
     }
     free(msg_str);
