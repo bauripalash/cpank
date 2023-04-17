@@ -6,6 +6,7 @@
 
 #include "include/common.h"
 #include "include/instruction.h"
+#include "include/lexer.h"
 #include "include/mem.h"
 #include "include/obj.h"
 #include "include/utils.h"
@@ -100,7 +101,7 @@ void init_compiler(Parser *parser, Compiler *compiler, Compiler *prevcomp,
 static Instruction *cur_ins(Compiler *compiler) { return &compiler->func->ins; }
 
 // helper function for err(..) and err_at_cur(..)
-static void err_at(Parser *parser, Token *tok, char32_t *msg) {
+static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
     if (parser->panic_mode) {
         return;
     }
@@ -108,30 +109,51 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg) {
     char *msg_str = c_to_c(msg, 0);
 
     parser->panic_mode = true;
+    int lineindex = 1;
+    if (atcur) {
+        lineindex = parser->prev.line;
+    } else {
+        lineindex = parser->cur.line;
+    }
+    char32_t *line = get_line(&parser->lexer, lineindex);
+    if (line != NULL) {
+        fwprintf(stderr, L"%d | %ls\n", lineindex, line);
+    }
     fwprintf(stderr, L"[l %d] Error ", tok->line);
 
     if (tok->type == T_EOF) {
         fwprintf(stderr, L"at end");
+        if (atcur) {
+            fwprintf(stderr, L"->%.*ls<-", parser->prev.length,
+                     parser->prev.start);
+        }
     } else if (tok->type == T_ERR) {
     } else {
         char *t_str = c_to_c(tok->start, tok->length);
+#if defined(PANK_OS_WINDOWS)
         fwprintf(stderr, L" at %.*S", tok->length, t_str);
+#else
+        fwprintf(stderr, L" at -> %s <- ", t_str);
+#endif
         free(t_str);
     }
-
+#if defined(PANK_OS_WINDOWS)
     fwprintf(stderr, L" : %S\n\n", msg_str);
+#else
+    fwprintf(stderr, L" : %s\n\n", msg_str);
+#endif
     free(msg_str);
     parser->had_err = true;
 }
 
 // Throw error for previous token
 static void err(Parser *parser, char32_t *msg) {
-    err_at(parser, &parser->prev, msg);
+    err_at(parser, &parser->prev, msg, false);
 }
 
 // Throw error for current function
 static void err_at_cur(Parser *parser, char32_t *msg) {
-    err_at(parser, &parser->cur, msg);
+    err_at(parser, &parser->cur, msg, true);
 }
 
 static void advance(Parser *parser) {

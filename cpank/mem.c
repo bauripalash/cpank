@@ -23,7 +23,7 @@ GcConfig gcon;
 
 // #define NOGC
 
-#define DEBUG_STRES_GC
+// #define DEBUG_STRES_GC
 #ifdef DEBUG_LOG_GC
  #include "include/debug.h"
 #endif

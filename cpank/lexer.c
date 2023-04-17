@@ -15,6 +15,7 @@
 #include "include/bn.h"
 // #include "include/token.h"
 #include "include/utils.h"
+#include "include/value.h"
 
 const char32_t EN_KW_LET[] = U"let";
 const char32_t EN_KW_SHOW[] = U"show";
@@ -175,6 +176,29 @@ char *token_to_string(const Token *t) {
     return "t";
 }
 
+char32_t *get_line(Lexer *lexer, int line) {
+    if (lexer->line < line) {
+        return NULL;
+    }
+    int lineindex = line - 1;
+    int linecount = 0;
+    char32_t **lines = split32(lexer->src, U"\n", &linecount);
+    if (lines == NULL) {
+        return NULL;
+    }
+    for (int i = 0; i < linecount; i++) {
+        if (i == lineindex) {
+            return lines[i];
+        } else {
+            free(lines[i]);
+        }
+    }
+
+    free(lines);
+
+    return NULL;
+}
+
 // Lexer lexer;
 char32_t next(Lexer *lexer) {
     lexer->current++;
@@ -196,6 +220,7 @@ char32_t peek_next(Lexer *lexer) {
 void boot_lexer(Lexer *lexer, char32_t *src) {
     lexer->start = src;
     lexer->current = src;
+    lexer->src = src;
     lexer->line = 1;
 }
 

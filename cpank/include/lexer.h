@@ -102,6 +102,7 @@ typedef struct {
     char32_t *start;
     int length;
     int line;
+    int colpos;
 } Token;
 
 typedef struct {
@@ -110,10 +111,13 @@ typedef struct {
     // current char being read;
     char32_t *current;
     int line;
+    char32_t *src;
 } Lexer;
 
 // get token type as string
 const char *toktype_to_string(TokType tt);
+
+char32_t *get_line(Lexer *lexer, int line);
 
 // Convert token to string
 // you must free the result
