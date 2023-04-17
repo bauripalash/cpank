@@ -802,7 +802,7 @@ static void define_var(Compiler *compiler, uint8_t global) {
 }
 
 static void let_declr(Compiler *compiler) {
-    uint8_t global = parse_var(compiler, U"Expected variable name after let");
+    uint8_t global = parse_var(compiler, geterrmsg(EMSG_NO_VAR_AFTER_LET));
     if (match_tok(compiler, T_EQ)) {
         read_expr(compiler);
     } else {
@@ -827,7 +827,7 @@ static void build_func(Compiler *compiler, Compiler *funcCompiler,
                        FuncType type) {
     init_compiler(compiler->parser, funcCompiler, compiler, type);
     start_scope(funcCompiler);
-    eat_tok(funcCompiler, T_LPAREN, U"expected '(' after func name");
+    eat_tok(funcCompiler, T_LPAREN, geterrmsg(EMSG_LBRAC_AFTER_FUNC_NAME));
 
     if (!check_tok(funcCompiler, T_RPAREN)) {
         do {

@@ -34,7 +34,7 @@ const wchar_t help_msg[] =
 const wchar_t version[] = L"v0.1.0";
 
 int main(int argc, char** argv) {
-    setlocale(LC_CTYPE, "en_US.utf8");
+    setlocale(LC_CTYPE, "");
 
 #if defined(IS_WIN) || defined(_WIN32)
     SetConsoleOutputCP(CP_UTF8);
