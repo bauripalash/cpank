@@ -19,9 +19,6 @@
 
 int run_file(const char *filepath) {
     setlocale(LC_CTYPE, "");
-    // char * path = c_to_c(filepath, strlen32(filepath));
-    // char32_t * path = char_to_32(filepath);
-    // WSrcfile raw = wread_file(path);
     Srcfile raw = read_file(filepath);
 
     if (raw.errcode != 0) {
