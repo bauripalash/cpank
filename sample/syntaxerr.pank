@@ -1,5 +1,2 @@
-show 1;
-if @ then
-
-	show 1;
-end
+let a = 0 
+show a+1

@@ -36,7 +36,6 @@ const char32_t EN_KW_PANIC[] = U"panic";
 
 const char32_t BN_KW_LET[] = U"\u09a7\u09b0\u09bf";
 
-// const char32_t BN_KW_LET[] = U"ধরি";
 const char32_t BN_KW_SHOW[] = U"\u09a6\u09c7\u0996\u09be\u0993";
 const char32_t BN_KW_RETURN[] = U"\u09ab\u09c7\u09b0\u09be\u0993";
 const char32_t BN_KW_IF[] = U"\u09af\u09a6\u09bf";
@@ -201,6 +200,7 @@ char32_t *get_line(Lexer *lexer, int line) {
 
 // Lexer lexer;
 char32_t next(Lexer *lexer) {
+    lexer->col++;
     lexer->current++;
     return lexer->current[-1];
 }
@@ -222,6 +222,7 @@ void boot_lexer(Lexer *lexer, char32_t *src) {
     lexer->current = src;
     lexer->src = src;
     lexer->line = 1;
+    lexer->col = 1;
 }
 
 bool is_eof(Lexer *lexer) { return *lexer->current == '\0'; }
@@ -267,6 +268,7 @@ Token mk_num_tok(Lexer *lexer) {
     tok.start = lexer->start;
     tok.length = (int)(lexer->current - lexer->start);
     tok.line = lexer->line;
+    tok.colpos = lexer->col;
     conv_bn_to_en_num(tok.start, tok.length);
     return tok;
 }
@@ -342,15 +344,17 @@ Token mk_id_tok(Lexer *lexer) {
     tok.length = (int)(lexer->current - lexer->start);
     tok.line = lexer->line;
     tok.type = get_ident_tok_type(tok.start, tok.length);
+    tok.colpos = lexer->col;
     return tok;
 }
 
 Token err_tok(Lexer *lexer, char32_t *msg) {
     Token tk;
     tk.type = T_ERR;
-    tk.start = msg;
-    tk.length = (int)strlen32(msg);
+    tk.start = lexer->start;                           // msg;
+    tk.length = (int)(lexer->current - lexer->start);  // (int)strlen32(msg);
     tk.line = lexer->line;
+    tk.colpos = lexer->col;
     return tk;
 }
 
@@ -370,6 +374,7 @@ void skip_ws(Lexer *lexer) {
                 break;
             case '\n':
                 lexer->line++;
+                lexer->col = 1;
                 next(lexer);
                 break;
             case '#':

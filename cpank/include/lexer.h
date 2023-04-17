@@ -110,7 +110,11 @@ typedef struct {
     char32_t *start;
     // current char being read;
     char32_t *current;
+    // current line number
     int line;
+    // current column position
+    int col;
+    // original source code; for error reporting purpose
     char32_t *src;
 } Lexer;
 

@@ -128,6 +128,7 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
                      parser->prev.start);
         }
     } else if (tok->type == T_ERR) {
+        fwprintf(stderr, L"-> %.*ls <-", tok->length, tok->start);
     } else {
         char *t_str = c_to_c(tok->start, tok->length);
 #if defined(PANK_OS_WINDOWS)
@@ -163,7 +164,7 @@ static void advance(Parser *parser) {
         if (parser->cur.type != T_ERR) {
             break;
         } else {
-            err_at_cur(parser, parser->cur.start);
+            err_at_cur(parser, U"Unknown character found!");
         }
     }
 }
@@ -686,7 +687,9 @@ static void return_stmt(Compiler *compiler) {
         // if expression after return is present
         // parse the expression and emit return
         read_expr(compiler);
-        eat_tok(compiler, T_SEMICOLON, U"expected ';' after return value");
+        if (check_tok(compiler, T_SEMICOLON)) {
+            eat_tok(compiler, T_SEMICOLON, U"expected ';' after return value");
+        }
         emit_bt(compiler, OP_RETURN);
     }
 }
@@ -703,7 +706,11 @@ static void read_expr_stmt(Compiler *compiler) {
 
 static void read_print_stmt(Compiler *compiler) {
     read_expr(compiler);
-    eat_tok(compiler, T_SEMICOLON, U"expected ';' after show stmt");
+
+    if (check_tok(compiler, T_SEMICOLON)) {
+        eat_tok(compiler, T_SEMICOLON, U"expected ';' after show stmt");
+    }
+
     emit_bt(compiler, OP_SHOW);
 }
 
@@ -759,7 +766,9 @@ static void let_declr(Compiler *compiler) {
         emit_bt(compiler, OP_NIL);
     }
 
-    eat_tok(compiler, T_SEMICOLON, U"expected ';' after variable declr");
+    if (check_tok(compiler, T_SEMICOLON)) {
+        eat_tok(compiler, T_SEMICOLON, U"expected ';' after variable declr");
+    }
     define_var(compiler, global);
 }
 
@@ -876,8 +885,10 @@ static void read_import_stmt(Compiler *compiler) {
     eat_tok(compiler, T_ID, U"expected import name");
     uint8_t index = make_id_const(compiler, &compiler->parser->prev);
     read_expr(compiler);
-    eat_tok(compiler, T_SEMICOLON,
-            U"Expected semicolon after import file name");
+    if (check_tok(compiler, T_SEMICOLON)) {
+        eat_tok(compiler, T_SEMICOLON,
+                U"Expected semicolon after import file name");
+    }
     emit_bt(compiler, OP_IMPORT_NONAME);
     emit_bt(compiler, index);
 }
@@ -892,7 +903,9 @@ static void read_block(Compiler *compiler) {
 
 static void read_err_stmt(Compiler *compiler) {
     read_expr(compiler);
-    eat_tok(compiler, T_SEMICOLON, U"Expected ';' after error statement");
+    if (check_tok(compiler, T_SEMICOLON)) {
+        eat_tok(compiler, T_SEMICOLON, U"Expected ';' after error statement");
+    }
     emit_bt(compiler, OP_ERR);
 }
 
