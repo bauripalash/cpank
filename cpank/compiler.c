@@ -117,32 +117,65 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
     }
     char32_t *line = get_line(&parser->lexer, lineindex);
     if (line != NULL) {
-        fwprintf(stderr, L"%d | %ls\n", lineindex, line);
+        if (parser->vm->need_buffer) {
+            write_pbuffer(&parser->vm->buffer, "%d | %ls\n", lineindex, line);
+        } else {
+            cp_err_println(L"%d | %ls\n", lineindex, line);
+        }
+        // fwprintf(stderr, L"%d | %ls\n", lineindex, line);
+
+        free(line);
     }
-    fwprintf(stderr, L"[l %d] Error ", tok->line);
+    if (parser->vm->need_buffer) {
+        write_pbuffer(&parser->vm->buffer, "[L %d] Error ", tok->line);
+    } else {
+        cp_err_println(L"[l %d] Error ", tok->line);
+    }
 
     if (tok->type == T_EOF) {
-        fwprintf(stderr, L"at end");
+        if (parser->vm->need_buffer) {
+            write_pbuffer(&parser->vm->buffer, "at end");
+        } else {
+            cp_err_println(L"at end");
+        }
         if (atcur) {
-            fwprintf(stderr, L"->%.*ls<-", parser->prev.length,
-                     parser->prev.start);
+            if (parser->vm->need_buffer) {
+                write_pbuffer(&parser->vm->buffer, "->%.*ls<-",
+                              parser->prev.length, parser->prev.start);
+            } else {
+                cp_err_println(L"->%.*ls<-", parser->prev.length,
+                               parser->prev.start);
+            }
         }
     } else if (tok->type == T_ERR) {
-        fwprintf(stderr, L"-> %.*ls <-", tok->length, tok->start);
+        if (parser->vm->need_buffer) {
+            write_pbuffer(&parser->vm->buffer, "-> %.*ls <-", tok->length,
+                          tok->start);
+        } else {
+            cp_err_println(L"-> %.*ls <-", tok->length, tok->start);
+        }
     } else {
         char *t_str = c_to_c(tok->start, tok->length);
+        if (parser->vm->need_buffer) {
+            write_pbuffer(&parser->vm->buffer, "at -> %s <- ", t_str);
+        } else {
 #if defined(PANK_OS_WINDOWS)
-        fwprintf(stderr, L" at %.*S", tok->length, t_str);
+            fwprintf(stderr, L" at %.*S", tok->length, t_str);
 #else
-        fwprintf(stderr, L" at -> %s <- ", t_str);
+            fwprintf(stderr, L" at -> %s <- ", t_str);
 #endif
+        }
         free(t_str);
     }
+    if (parser->vm->need_buffer) {
+        write_pbuffer(&parser->vm->buffer, " : %s\n\n", msg_str);
+    } else {
 #if defined(PANK_OS_WINDOWS)
-    fwprintf(stderr, L" : %S\n\n", msg_str);
+        fwprintf(stderr, L" : %S\n\n", msg_str);
 #else
-    fwprintf(stderr, L" : %s\n\n", msg_str);
+        fwprintf(stderr, L" : %s\n\n", msg_str);
 #endif
+    }
     free(msg_str);
     parser->had_err = true;
 }

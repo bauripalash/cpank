@@ -32,18 +32,26 @@ int run_file(const char *filepath) {
     int errcode = 0;
     char32_t *src = char_to_32(raw.source);
 
-    PankVm *vm = boot_vm(false);
+    PankVm *vm = boot_vm(true);
 
     IResult res = interpret(vm, src);
 
     switch (res) {
         case INTRP_RUNTIME_ERR:
-            cp_println(L"\nRuntime error occured!");
+            if (vm->need_buffer) {
+                write_pbuffer(&vm->buffer, "\nRuntime error occured\n");
+            } else {
+                cp_println(L"\nRuntime error occured!");
+            }
             errcode = ERC_RUNTIME;
             break;
             ;
         case INTRP_COMPILE_ERR:
-            cp_println(L"\nCompiler error occured!");
+            if (vm->need_buffer) {
+                write_pbuffer(&vm->buffer, "\nCompiler error occured\n");
+            } else {
+                cp_println(L"\nCompiler error occured!");
+            }
             errcode = ERC_COMPTIME;
             break;
             ;

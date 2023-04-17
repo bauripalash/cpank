@@ -123,7 +123,7 @@ int write_pbuffer_with_arglist(PrintBuffer *buffer, char *fmt, va_list ap,
 
 void print_pbuffer(PrintBuffer *buffer) {
     if (buffer->ptr != NULL && buffer->len > 0) {
-        cp_print(L"%.*ls", buffer->len, buffer->buff);
+        cp_print(L"BUFF->%.*ls", buffer->len, buffer->buff);
     }
 }
 
