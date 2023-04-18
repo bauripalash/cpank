@@ -9,6 +9,7 @@ test_cpank
 pankti
 panktiw
 cpank.gmon.txt
+*.callgraph.dot
 vgcore.*
 .cache/*
 massif.out.*

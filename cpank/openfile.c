@@ -41,6 +41,7 @@ Srcfile read_file(const char *path) {
         result.errcode = ERC_FAIL_TO_OPEN;
         result.source = NULL;
         result.size = 0;
+        fclose(file);
         return result;
     }
     fseek(file, 0L, SEEK_END);
@@ -51,6 +52,7 @@ Srcfile read_file(const char *path) {
     char *temp_buff = (char *)malloc(file_size + 1);
     if (temp_buff == NULL) {
         result.errcode = ERC_NO_MEM;
+        fclose(file);
         return result;
         // fwprintf(stderr, L"not enough memory %s\n", path);
         // exit(1);
@@ -59,6 +61,7 @@ Srcfile read_file(const char *path) {
     if (br < file_size) {
         result.errcode = ERC_NO_MEM;
         free(temp_buff);
+        fclose(file);
         return result;
         // fwprintf(stderr, L"failed to read file %s\n", path);
         // exit(1);
@@ -66,6 +69,12 @@ Srcfile read_file(const char *path) {
     temp_buff[br] = '\0';
     fclose(file);
     result.source = (char *)malloc(result.size);
+    if (result.source == NULL) {
+        free(temp_buff);
+        result.errcode = ERC_NO_MEM;
+        result.size = 0;
+        return result;
+    }
     memcpy(result.source, temp_buff, result.size);
     free(temp_buff);
 

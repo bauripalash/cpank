@@ -36,6 +36,10 @@ andapi:
 check:
 	cppcheck --force --inline-suppr -i$(EXTERNALDIR) -I $(INCLUDE_DIR) --enable=all $(MAIN) $(SRC)
 
+gcheck:
+	gcc $(CFLAGS) -g -fanalyzer -fdump-analyzer-callgraph -o $(OUTPUT) $(SRC) $(MAIN) $(LINKS)
+	
+
 ctidy:
 	clang-tidy $(SRC) $(STDLIB_MODULES) $(MAIN)  -- -Icpank/include
 
@@ -101,6 +105,7 @@ clean:
 	rm -rf *.o
 	rm -rf *.out
 	rm -rf dist/
+	rm -rf *.callgraph.dot
 
 fmt:
 	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/include/helper/*.h cpank/stdlib/*.c
