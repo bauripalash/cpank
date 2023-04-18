@@ -128,16 +128,17 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
         free(line);
     }
     if (parser->vm->need_buffer) {
-        write_pbuffer(&parser->vm->buffer, "[L %d] Error ", tok->line);
+        write_pbuffer(&parser->vm->buffer, "[L %d] %ls ", tok->line,
+                      geterrmsg(EMSG_KW));
     } else {
-        cp_err_print(L"[l %d] Error ", tok->line);
+        cp_err_print(L"[l %d] %ls ", tok->line, geterrmsg(EMSG_KW));
     }
 
     if (tok->type == T_EOF) {
         if (parser->vm->need_buffer) {
-            write_pbuffer(&parser->vm->buffer, "at end");
+            write_pbuffer(&parser->vm->buffer, "%ls", geterrmsg(EMSG_AT_END));
         } else {
-            cp_err_print(L"at end");
+            cp_err_print(L"%ls", geterrmsg(EMSG_AT_END));
         }
         if (atcur) {
             if (parser->vm->need_buffer) {
@@ -161,12 +162,13 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
     } else {
         char *t_str = c_to_c(tok->start, tok->length);
         if (parser->vm->need_buffer) {
-            write_pbuffer(&parser->vm->buffer, "at -> %s <- ", t_str);
+            write_pbuffer(&parser->vm->buffer, "%s -> %s <- ",
+                          geterrmsg(EMSG_HERE), t_str);
         } else {
 #if defined(PANK_OS_WINDOWS)
             fwprintf(stderr, L" at %.*S", tok->length, t_str);
 #else
-            cp_err_println(L" at -> %s <- ", t_str);
+            cp_err_println(L" %ls -> %s <- ", geterrmsg(EMSG_HERE), t_str);
 #endif
         }
         free(t_str);
@@ -348,7 +350,7 @@ uint8_t read_arg_list(Compiler *compiler) {
         do {
             read_expr(compiler);
             if (argc == 255) {
-                err(compiler->parser, U"Too many arguments; more than 255");
+                err(compiler->parser, geterrmsg(EMSG_ARGLIST_TOO_MUCH_ARG));
             }
             argc++;
         } while (match_tok(compiler, T_COMMA));
@@ -366,7 +368,7 @@ void read_call(Compiler *compiler, bool can_assign) {
 
 void read_group(Compiler *compiler, bool can_assign) {
     read_expr(compiler);
-    eat_tok(compiler, T_RPAREN, U"Expected ')' after group expression");
+    eat_tok(compiler, T_RPAREN, geterrmsg(EMSG_RBRAC_AFTER_GROUP));
 }
 
 void read_unary(Compiler *compiler, bool can_assign) {
@@ -453,7 +455,7 @@ void read_array(Compiler *compiler, bool can_assign) {
         do {
             read_expr(compiler);
             if (items == 255) {
-                err(compiler->parser, U"Too many arguments; more than 255");
+                err(compiler->parser, geterrmsg(EMSG_TOO_MANY_ARR_ITEM));
             }
             items++;
         } while (match_tok(compiler, T_COMMA));
@@ -465,13 +467,13 @@ void read_array(Compiler *compiler, bool can_assign) {
 
 void read_index_expr(Compiler *compiler, bool can_assign) {
     read_expr(compiler);
-    eat_tok(compiler, T_RSBRACKET, U"Expected ']' after index expression");
+    eat_tok(compiler, T_RSBRACKET, geterrmsg(EMSG_RBRAC_INDEX));
     emit_bt(compiler, OP_ARR_INDEX);
 }
 
 void add_local(Compiler *compiler, Token name) {
     if (compiler->local_count == UINT8_COUNT) {
-        err(compiler->parser, U"too many local vars");
+        err(compiler->parser, geterrmsg(EMSG_TOO_MANY_LOCALVARS));
         return;
     }
     Local *local = &compiler->locals[compiler->local_count++];

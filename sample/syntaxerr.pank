@@ -4,6 +4,8 @@ sesh
 
 #  
 
-nach("palash"
+nach("palash")
 
-dhori  = 1
+dhori x  = 1
+dhori y = [1,2,x]
+show y[x
