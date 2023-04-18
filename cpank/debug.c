@@ -186,6 +186,7 @@ int dissm_ins(Instruction *ins, int offset) {
     }
 }
 
+// cppcheck-suppress unusedFunction
 const char *print_opcode(Op op) {
     switch (op) {
         case OP_GTE:

@@ -37,6 +37,8 @@ Value _os_get_arch(PankVm* vm, int argc, Value* args) {
     return make_str(vm, U"32");
 #elif defined(PANK_ARCH_ARM)
     return make_str(vm, U"arm");
+#else
+    return make_str(vm, U"unknown");
 #endif
 }
 
@@ -47,6 +49,7 @@ Value _os_get_username(PankVm* vm, int argc, Value* args) {
     char* username = getenv("USER");
 #else
     char* username = NULL;
+    return make_str(vm, U"unknown");
 #endif
     if (username == NULL) {
         return make_str(vm, U"unknown");
@@ -66,6 +69,7 @@ Value _os_get_homedir(PankVm* vm, int argc, Value* args) {
     char* hdir = getenv("USERPROFILE");
 #else
     char* hdir = NULL;
+    return make_str(vm, U"unknown");
 #endif
     if (hdir == NULL) {
         return make_str(vm, U"unknown");

@@ -515,7 +515,7 @@ int add_upval(Compiler *compiler, uint8_t index, bool is_local) {
     }
 
     if (upc == UINT8_COUNT) {
-        err(compiler->parser, U"Too many closure vars");
+        err(compiler->parser, geterrmsg(EMSG_TOO_MANY_CLOSUREVARS));
         return 0;
     }
 
@@ -579,8 +579,7 @@ void read_var(Compiler *compiler, bool can_assign) {
 }
 
 void read_dot(Compiler *compiler, bool can_assign) {
-    eat_tok(compiler, T_ID,
-            U"expected function or field name after module name");
+    eat_tok(compiler, T_ID, geterrmsg(EMSG_FUNCFIELD_AFTERDOT));
     uint8_t name = make_id_const(compiler, &compiler->parser->prev);
 
     if (can_assign && match_tok(compiler, T_EQ)) {
@@ -598,7 +597,7 @@ void read_hmap(Compiler *compiler, bool can_assign) {
             break;
         }
         read_expr(compiler);
-        eat_tok(compiler, T_COLON, U"expected ':' after hashmap key");
+        eat_tok(compiler, T_COLON, geterrmsg(EMSG_COLON_AFTER_HASHKEY));
         read_expr(compiler);
         count++;
     } while (match_tok(compiler, T_COMMA));

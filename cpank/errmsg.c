@@ -89,6 +89,33 @@ char32_t ERR_MSG_TOO_MANY_LOCALVARS_BN[] =
     U"\u0995\u09cd\u09b7\u09ae\u09a4\u09be\u09b0 "
     U"\u09ac\u09be\u0987\u09b0\u09c7";
 
+char32_t ERR_MSG_TOO_MANY_CLOSUREVARS[] =
+    U"Too many closure variables have been created, more than I can handle";
+char32_t ERR_MSG_TOO_MANY_CLOSUREVARS_BN[] =
+    U"\u0995\u09cd\u09b2\u09cb\u099c\u09be\u09b0\u09c7 "
+    U"\u0985\u09a8\u09c7\u0995 \u09ac\u09c7\u09b6\u09bf "
+    U"\u099a\u09b2\u09b0\u09be\u09b6\u09bf \u09a4\u09c8\u09b0\u09bf "
+    U"\u09b9\u09df\u09c7\u099b\u09c7, \u09af\u09be \u0986\u09ae\u09be\u09b0 "
+    U"\u0995\u09cd\u09b7\u09ae\u09a4\u09be\u09b0 "
+    U"\u09ac\u09be\u0987\u09b0\u09c7";
+
+char32_t ERR_MSG_FUNCFIELD_AFTERDOT[] =
+    U"Expected function or field name after module name";
+char32_t ERR_MSG_FUNCFIELD_AFTERDOT_BN[] =
+    U"\u09ae\u09a1\u09bf\u0989\u09b2\u09c7\u09b0 "
+    U"\u09a8\u09be\u09ae\u09c7\u09b0 \u09aa\u09b0\u09c7 "
+    U"\u0995\u09be\u099c\u09c7\u09b0 \u09ac\u09be "
+    U"\u099a\u09b2\u09b0\u09be\u09b6\u09bf\u09b0 \u09a8\u09be\u09ae "
+    U"\u09aa\u09be\u0993\u09df\u09be \u0989\u099a\u09bf\u09a4 "
+    U"\u099b\u09bf\u09b2";
+
+char32_t ERR_MSG_COLON_AFTER_HASHKEY[] = U"Expected ':' after hashmap key";
+char32_t ERR_MSG_COLON_AFTER_HASHKEY_BN[] =
+    U"\u09b9\u09cd\u09af\u09be\u09b8\u09ae\u09cd\u09af\u09be\u09aa\u09c7\u09b0 "
+    U"\u09b8\u09c2\u099a\u0995\u09c7\u09b0 \u09aa\u09b0\u09c7 "
+    U"\u098f\u0995\u099f\u09bf ':' \u09aa\u09be\u0993\u09df\u09be "
+    U"\u0989\u099a\u09bf\u09a4 \u099b\u09bf\u09b2";
+
 static inline bool is_bn(void) {
 #if defined(MODE_BENGALI)
     const char* lc = getenv("ENMODE");
@@ -151,6 +178,12 @@ char32_t* geterrmsg(int code) {
             GIVE_ERRMSG(ERR_MSG_RBRAC_INDEX)
         case EMSG_TOO_MANY_LOCALVARS:
             GIVE_ERRMSG(ERR_MSG_TOO_MANY_LOCALVARS)
+        case EMSG_TOO_MANY_CLOSUREVARS:
+            GIVE_ERRMSG(ERR_MSG_TOO_MANY_CLOSUREVARS)
+        case EMSG_FUNCFIELD_AFTERDOT:
+            GIVE_ERRMSG(ERR_MSG_FUNCFIELD_AFTERDOT)
+        case EMSG_COLON_AFTER_HASHKEY:
+            GIVE_ERRMSG(ERR_MSG_COLON_AFTER_HASHKEY)
     }
 
     return U"Something weird error";

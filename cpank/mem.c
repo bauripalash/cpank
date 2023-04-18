@@ -119,6 +119,7 @@ void free_single_obj(PankVm *vm, Obj *obj) {
     }
 }
 
+// cppcheck-suppress unusedFunction
 void free_value(PankVm *vm, Value val) {
     if (is_obj(val)) {
         free_single_obj(vm, get_as_obj(val));

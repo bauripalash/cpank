@@ -135,8 +135,9 @@ Value _file_create_empty_file(PankVm* vm, int argc, Value* args) {
     fp = fopen(path, "w");
     if (fp == NULL) {
         result = false;
+    } else {
+        fclose(fp);
     }
-    fclose(fp);
     free(path);
     return make_bool(result);
 }

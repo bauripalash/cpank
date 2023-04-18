@@ -19,10 +19,9 @@ char* read_line(void) {
         return NULL;
     }
     int len = 0;
-    int c;
 
     for (;;) {
-        c = fgetc(stdin);
+        int c = fgetc(stdin);
         if (c == EOF || c == '\n') {
             break;
         }
@@ -32,6 +31,7 @@ char* read_line(void) {
             cap *= 2;
             line = (char*)realloc(line, cap);
             if (line == NULL) {
+                free(line);
                 return NULL;
             }
         }

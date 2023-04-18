@@ -15,10 +15,11 @@
 
 #define TABLE_MAX_LD 0.75
 
+// cppcheck-suppress unusedFunction
 void debug_entry(Entry *entry) {
-    wprintf(L"ENTRY[ K(%ls); V(", entry->key->chars);
+    cp_println(L"ENTRY[ K(%ls); V(", entry->key->chars);
     print_val(entry->val);
-    wprintf(L"); H(%u)\n", entry->key->hash);
+    cp_println(L"); H(%lu)", entry->key->hash);
 }
 
 void init_table(Htable *table) {
@@ -158,6 +159,7 @@ bool table_del(Htable *table, ObjString *key) {
     return true;
 }
 
+// cppcheck-suppress unusedFunction
 void copy_table(PankVm *vm, Htable *from, Htable *to) {
     for (int i = 0; i < from->cap; i++) {
         Entry *entry = &from->entries[i];
@@ -167,6 +169,7 @@ void copy_table(PankVm *vm, Htable *from, Htable *to) {
     }
 }
 
+// cppcheck-suppress unusedFunction
 void print_table(Htable *table, char *name) {
     wprintf(L"<- TABLE (%s)->\n", name);
     for (int i = 0; i < table->cap; i++) {

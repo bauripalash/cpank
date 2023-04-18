@@ -224,6 +224,7 @@ Value _bn_math_str_to_num(PankVm* vm, int argc, Value* args) {
     return make_num(result);
 }
 
+// cppcheck-suppress constParameter
 Value _bn_math_get_random(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("এলোমেলো_সংখ্যা(ক)", 1, argc);
     if (!is_num(args[0])) {

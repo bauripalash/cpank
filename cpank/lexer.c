@@ -164,6 +164,7 @@ const char *toktype_to_string(TokType t) {
     return "UNKNOWN_TOKEN";
 }
 
+// cppcheck-suppress unusedFunction
 char *token_to_string(const Token *t) {
     // wchar_t * wstr = (wchar_t*)malloc(sizeof(char16_t) * t->length);
     // mbstowcs(wstr , t->start , t->length);
@@ -246,33 +247,8 @@ Token mktok(Lexer *lexer, TokType type) {
     tok.start = lexer->start;
     tok.length = (int)(lexer->current - lexer->start);
     tok.line = lexer->line;
+    tok.colpos = lexer->col;
     return tok;
-}
-
-void btoe(char32_t *input, int len) {
-    for (int i = 0; i < len; i++) {
-        if (input[i] == BN_NUM_ONE) {
-            input[i] = '1';
-        } else if (input[i] == BN_NUM_TWO) {
-            input[i] = '2';
-        } else if (input[i] == BN_NUM_THREE) {
-            input[i] = '3';
-        } else if (input[i] == BN_NUM_FOUR) {
-            input[i] = '4';
-        } else if (input[i] == BN_NUM_FIVE) {
-            input[i] = '5';
-        } else if (input[i] == BN_NUM_SIX) {
-            input[i] = '6';
-        } else if (input[i] == BN_NUM_SEVEN) {
-            input[i] = '7';
-        } else if (input[i] == BN_NUM_EIGHT) {
-            input[i] = '8';
-        } else if (input[i] == BN_NUM_NINE) {
-            input[i] = '9';
-        } else if (input[i] == BN_NUM_ZERO) {
-            input[i] = '0';
-        }
-    }
 }
 
 Token mk_num_tok(Lexer *lexer) {

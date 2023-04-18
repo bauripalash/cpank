@@ -24,6 +24,9 @@
 #define EMSG_TOO_MANY_ARR_ITEM    108
 #define EMSG_RBRAC_INDEX          109
 #define EMSG_TOO_MANY_LOCALVARS   110
+#define EMSG_TOO_MANY_CLOSUREVARS 111
+#define EMSG_FUNCFIELD_AFTERDOT   112
+#define EMSG_COLON_AFTER_HASHKEY  113
 
 char32_t* geterrmsg(int code);
 

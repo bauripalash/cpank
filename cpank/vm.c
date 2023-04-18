@@ -71,14 +71,17 @@ int write_pbuffer(PrintBuffer *buffer, char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     int len = vsnprintf(NULL, 0, fmt, ap);
+    va_end(ap);
     va_start(ap, fmt);
     char *temp_buff = calloc(len + 1, sizeof(char));
     if (temp_buff == NULL) {
+        va_end(ap);
         return 0;
     }
     // int avil = buffer->cap - buffer->len;
     int w = vsnprintf(temp_buff, len + 1, fmt, ap);
     if (w <= 0) {
+        free(temp_buff);
         return 0;
     }
     char32_t *temp32buff = char_to_32(temp_buff);
@@ -104,6 +107,7 @@ int write_pbuffer_with_arglist(PrintBuffer *buffer, char *fmt, va_list ap,
 
     int w = vsnprintf(temp_buff, len + 1, fmt, ap);
     if (w <= 0) {
+        free(temp_buff);
         return 0;
     }
 
@@ -121,6 +125,7 @@ int write_pbuffer_with_arglist(PrintBuffer *buffer, char *fmt, va_list ap,
     return tbsz;
 }
 
+// cppcheck-suppress unusedFunction
 void print_pbuffer(PrintBuffer *buffer) {
     if (buffer->ptr != NULL && buffer->len > 0) {
         cp_print(L"BUFF->%.*ls", buffer->len, buffer->buff);
@@ -157,6 +162,8 @@ PankVm *boot_vm(bool need_buffer) {
 
     if (need_buffer) {
         init_pbuffer(&vm->buffer);
+    } else {
+        init_zero_pbuffer(&vm->buffer);
     }
 
     vm->bts_allocated = 0;
@@ -214,6 +221,7 @@ void init_module(Module *mod, const char32_t *name) {
     mod->source_code = NULL;
 }
 
+// cppcheck-suppress unusedFunction
 bool is_default(Module *mod) {
     return memcmp(mod->name, default_mod, strlen32(default_mod)) == 0 &&
            mod->is_default;
@@ -257,10 +265,11 @@ uint32_t get_proxy_hash(uint32_t name, Module *curmod) {
     return 0;
 }
 
+// cppcheck-suppress unusedFunction
 void print_mod_names(PankVm *vm) {
     for (int i = 0; i < vm->mod_count; i++) {
-        wprintf(L"M| %4d -> %ld -> %ls \n", i, vm->mod_names[i],
-                vm->modules[i].name);
+        cp_println(L"M| %4d -> %ld -> %ls", i, vm->mod_names[i],
+                   vm->modules[i].name);
     }
 }
 void free_module(PankVm *vm, Module *mod) {
@@ -282,6 +291,7 @@ void define_native(PankVm *vm, char32_t *name, NativeFn func) {
     pop(vm);
 }
 
+// cppcheck-suppress unusedFunction
 void print_modframes(PankVm *vm) {
     for (int i = 0; i < vm->mod_count; i++) {
         Module *mod = &vm->modules[i];
@@ -321,9 +331,11 @@ void free_vm(PankVm *vm) {
     free(vm);
 }
 
+// cppcheck-suppress unusedFunction
 Value get_last_pop(PankVm *vm) {
     return vm->last_pop;
 }  // for testing -> see testmain.c
+
 Module *get_cur_mod(PankVm *vm) { return vm->current_mod; }
 
 void runtime_err(PankVm *vm, char32_t *format, ...) {
@@ -335,8 +347,10 @@ void runtime_err(PankVm *vm, char32_t *format, ...) {
     // vfwprintf(stderr, format, args);
     if (vm->need_buffer) {
         int len = vsnprintf(NULL, 0, strformat, args);
+        va_end(args);
         va_start(args, format);
         write_pbuffer_with_arglist(&vm->buffer, strformat, args, len);
+        va_end(args);
         va_start(args, format);
         // write_pbuffer(PrintBuffer *buffer, char *fmt, ...)
     } else {
@@ -400,18 +414,20 @@ Value pop(PankVm *vm) {
 
 Value peek_vm(PankVm *vm, int dist) { return vm->stack_top[-1 - dist]; }
 
-CallFrame *get_cur_farme(PankVm *vm) {
+/*CallFrame *get_cur_farme(PankVm *vm) {
     return &get_cur_mod(vm)->frames[get_cur_mod(vm)->frame_count - 1];
-}
+}*/
 uint8_t read_bt(CallFrame *frame) {
     uint8_t result = *frame->ip++;
     return result;
 }
-uint8_t peek_bt(CallFrame *frame) {
+
+/*uint8_t peek_bt(CallFrame *frame) {
     uint8_t result = read_bt(frame);
     frame->ip--;
     return result;
-}
+}*/
+
 uint16_t read_u16(CallFrame *frame) {
     CallFrame *cf = frame;  // get_cur_farme();
     cf->ip += 2;
@@ -435,6 +451,7 @@ void add_string(PankVm *vm) {
         runtime_err(
             vm,
             U"Failed to allocate memory for joining strings\n Internal Error");
+        return;
     }
     memset(new_str, 0, new_size);
     strcat(new_str, l_str);
@@ -681,7 +698,7 @@ static int import_file(PankVm *vm, char32_t *custom_name,
     }
 }
 
-void print_stack(PankVm *vm) {
+void print_stack(PankVm *vm) {  // cppcheck-suppress unusedFunction
     wprintf(L"------ STACK ----\n");
     for (Value *slt = vm->stack; slt < vm->stack_top; slt++) {
         wprintf(L"[ ");
@@ -1200,6 +1217,7 @@ IResult run_vm(PankVm *vm) {
     return INTRP_RUNTIME_ERR;
 }
 
+// cppcheck-suppress constParameter
 void close_upval(Module *module, Value *last) {
     while (module->open_upvs != NULL && module->open_upvs->location >= last) {
         ObjUpVal *upval = module->open_upvs;

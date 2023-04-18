@@ -57,7 +57,7 @@ bool is_int(double val);
 // as well as each token inside return value;
 // should do NULL check for return value;
 // which suggests memory allocation failed;
-char32_t **split32(char32_t *str, char32_t *delimiter, int *len);
+char32_t **split32(char32_t *str, const char32_t *delimiter, int *len);
 // check if `filepath` exists
 bool does_file_exist(const char *filepath);
 

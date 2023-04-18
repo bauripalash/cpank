@@ -121,6 +121,7 @@ bool str32cmp_n(const char32_t *big, const char32_t *small, int len) {
     return true;
 }
 
+// cppcheck-suppress unusedFunction
 bool str32cmp_gen(const char32_t *big, const char32_t *small) {
     if (strlen32(small) != strlen32(big)) {
         return false;
@@ -181,7 +182,7 @@ char32_t *char_to_32(char *input) {
 // https://stackoverflow.com/a/75982886/7917825
 // The commented code is my origin solution which had some
 // memory errors;;
-char32_t **split32(char32_t *str, char32_t *delimiter, int *len) {
+char32_t **split32(char32_t *str, const char32_t *delimiter, int *len) {
     *len = 1;
     char32_t delim = delimiter[0];
     char32_t *s = str;
@@ -346,6 +347,7 @@ void cp_color_print(wchar_t colorcode, const wchar_t *format, ...) {
     va_end(args);
 }
 
+// cppcheck-suppress unusedFunction
 void cp_err_color_print(wchar_t colorcode, const wchar_t *format, ...) {
     va_list args;
     va_start(args, format);
@@ -366,6 +368,7 @@ void cp_color_println(wchar_t colorcode, const wchar_t *format, ...) {
     fputwc('\n', stdout);
 }
 
+// cppcheck-suppress unusedFunction
 void cp_err_color_println(wchar_t colorcode, const wchar_t *format, ...) {
     va_list args;
     va_start(args, format);

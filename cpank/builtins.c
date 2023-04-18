@@ -40,6 +40,7 @@ Value bn_type_ntv_fn(PankVm *vm, int argc, Value *args) {
     return make_str(vm, get_val_type_str(args[0], true));
 }
 
+// cppcheck-suppress constParameter
 Value len_ntv_fn(PankVm *vm, int argc, Value *args) {
     if (argc != 1) {
         return make_error(

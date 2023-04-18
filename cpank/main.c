@@ -38,13 +38,10 @@ int main(int argc, char** argv) {
 
 #if defined(IS_WIN) || defined(_WIN32)
     SetConsoleOutputCP(CP_UTF8);
-    int old = _setmode(_fileno(stdout), _O_U16TEXT);
+    _setmode(_fileno(stdout), _O_U16TEXT);
 #endif  // _WIN32
 
-    if (argc != 2) {
-        cp_println(help_msg);
-        return 0;
-    } else if (argc == 2) {
+    if (argc == 2) {
         char* ag = argv[1];
         if (strcmp(ag, "-h") == 0 || strcmp(ag, "--help") == 0) {
             cp_println(help_msg);
@@ -59,5 +56,8 @@ int main(int argc, char** argv) {
                 return 1;
             }
         }
+    } else {
+        cp_println(help_msg);
+        return 0;
     }
 }

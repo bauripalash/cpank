@@ -39,7 +39,8 @@ Srcfile read_file(const char *path) {
         // fwprintf(stderr, L"Failed to open file %s\n", path);
         // cp_color_println('r' , L"Failed to open file %s" , path);
         result.errcode = ERC_FAIL_TO_OPEN;
-
+        result.source = NULL;
+        result.size = 0;
         return result;
     }
     fseek(file, 0L, SEEK_END);
@@ -91,6 +92,7 @@ WSrcfile wread_file(char32_t *path) {
     Srcfile raw = read_file(cpath);
     if (raw.errcode != 0) {
         result.errcode = raw.errcode;
+        free(cpath);
 
         return result;
     }
@@ -111,4 +113,5 @@ WSrcfile wread_file(char32_t *path) {
     return result;
 }
 
+// cppcheck-suppress unusedFunction
 char32_t *get_name_from_path(const char *path) { return U""; }

@@ -46,6 +46,7 @@ Value _str_split_delim(PankVm* vm, int argc, Value* args) {
     return make_obj_val(arr);
 }
 
+// cppcheck-suppress constParameter
 Value _str_to_str(PankVm* vm, int argc, Value* args) {
     if (argc != 1) {
         return make_error(vm, U"string(a) function takes only single argument");

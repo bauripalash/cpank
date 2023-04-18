@@ -89,8 +89,14 @@ bool is_obj_type(Value val, ObjType ot) {
 }
 
 bool is_str_obj(Value val) { return is_obj_type(val, OBJ_STR); }
+
+// cppcheck-suppress unusedFunction
 bool is_func_obj(Value val) { return is_obj_type(val, OBJ_FUNC); }
+
+// cppcheck-suppress unusedFunction
 bool is_native_obj(Value val) { return is_obj_type(val, OBJ_NATIVE); }
+
+// cppcheck-suppress unusedFunction
 bool is_closure_obj(Value val) { return is_obj_type(val, OBJ_CLOUSRE); }
 
 bool is_map_obj(Value val) { return is_obj_type(val, OBJ_HMAP); }

@@ -17,6 +17,7 @@
 #define NIL_NAME    U"nil"
 #define BOOL_NAME   U"bool"
 
+// cppcheck-suppress unusedFunction
 void print_val_type(ValType vt) {
     switch (vt) {
         case V_NIL:
@@ -95,6 +96,7 @@ void write_valarr(PankVm *vm, Valarr *array, Value value) {
     array->len++;
 }
 
+// cppcheck-suppress unusedFunction
 void pop_valarr(PankVm *vm, Valarr *array) { array->len--; }
 
 void free_valarr(PankVm *vm, Valarr *array) {
