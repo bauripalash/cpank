@@ -1,0 +1,35 @@
+<html>
+	<head>
+		<title>Pankti Web</title>
+		<script src="pweb.js"></script>
+	</head>
+	<body>
+		
+
+		<input id="inp"></input><br>
+		<button id="btn">Loading</button><br>
+
+		<textarea id="ta">Ouput</textarea>
+	</body>
+
+	<script>
+			const output = document.getElementById("ta"); 
+			const button = document.getElementById("btn");
+			const input = document.getElementById("inp");
+			const js_wrap_com_run = Module.cwrap("comp_run" , "string" , ["string"]);
+	Module['onRuntimeInitialized'] = function() {
+	button.innerText = "Run";
+			btn.onclick = function(){
+
+			const source_code = input.value;
+
+	//console.log(source_code);
+			const result = js_wrap_com_run(source_code);
+
+				ta.innerHTML = result;
+			}
+};
+			
+
+	</script>
+</html>

@@ -11,6 +11,7 @@ MAIN=cpank/main.c
 SAMPLE_TO_RUN=sample/syntaxerr.pank
 TESTMAIN=testmain.c
 APIMAIN=cpank/api.c
+WEBMAIN=web/pankti.web.c
 OUTPUT=pankti
 TESTOUTPUT=test_cpank
 INCLUDE_DIR=cpank/include/
@@ -31,7 +32,8 @@ andapi:
 	CGO_ENABLED=1 ANDROID_NDK_HOME=$(HOME)/Android/Sdk/ndk/25.1.8937393/ gomobile bind -v -o dist/panktijapi-$(PANKTI_VERSION).aar -target=android -javapkg=in.palashbauri.panktijapi -androidapi 19 ./gopkg
 	cp gopkg/gopkg.pom dist/panktijapi-$(PANKTI_VERSION).pom
 
-
+wasm:
+	emcc $(SRC) $(WEBMAIN) -o web/pweb.js -s WASM=1 -s EXPORTED_FUNCTIONS='["_comp_run","_main"]' -s EXPORTED_RUNTIME_METHODS='["cwrap"]' $(LINKS)
 
 check:
 	cppcheck --force --inline-suppr -i$(EXTERNALDIR) -I $(INCLUDE_DIR) --enable=all $(MAIN) $(SRC)
@@ -106,6 +108,8 @@ clean:
 	rm -rf *.out
 	rm -rf dist/
 	rm -rf *.callgraph.dot
+	rm -rf web/pweb.js
+	rm -rf web/pweb.wasm
 
 fmt:
-	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/include/helper/*.h cpank/stdlib/*.c
+	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/include/helper/*.h cpank/stdlib/*.c web/*.c
