@@ -33,7 +33,7 @@ andapi:
 	cp gopkg/gopkg.pom dist/panktijapi-$(PANKTI_VERSION).pom
 
 wasm:
-	emcc $(SRC) $(WEBMAIN) -o web/pweb.js -O2 -s WASM=1 -s EXPORTED_FUNCTIONS='["_comp_run","_main"]' -s EXPORTED_RUNTIME_METHODS='["cwrap"]' $(LINKS)
+	emcc $(SRC) $(WEBMAIN) -o web/pweb.js -O2 -DMODE_BENGALI -s WASM=1 -s EXPORTED_FUNCTIONS='["_comp_run","_main"]' -s EXPORTED_RUNTIME_METHODS='["cwrap"]' $(LINKS)
 
 check:
 	cppcheck --force --inline-suppr -i$(EXTERNALDIR) -I $(INCLUDE_DIR) --enable=all $(MAIN) $(SRC)
