@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClCompile Include="..\cpank\bn.c" />
     <ClCompile Include="..\cpank\compiler.c" />
+    <ClCompile Include="..\cpank\builtins.c" />
     <ClCompile Include="..\cpank\debug.c" />
     <ClCompile Include="..\cpank\htable.c" />
     <ClCompile Include="..\cpank\instruction.c" />
@@ -145,12 +146,25 @@
     <ClCompile Include="..\cpank\stdlib\bnmath.c" />
     <ClCompile Include="..\cpank\stdlib\math.c" />
     <ClCompile Include="..\cpank\stdlib\stdlib.c" />
+    <ClCompile Include="..\cpank\stdlib\array.c" />
+    <ClCompile Include="..\cpank\stdlib\common.c" />
+    <ClCompile Include="..\cpank\stdlib\file.c" />
+    <ClCompile Include="..\cpank\stdlib\os.c" />
+    <ClCompile Include="..\cpank\stdlib\string.c" />
     <ClCompile Include="..\cpank\utils.c" />
     <ClCompile Include="..\cpank\value.c" />
     <ClCompile Include="..\cpank\vm.c" />
+    <ClCompile Include="..\cpank\api.c" />
+    <ClCompile Include="..\cpank\errmsg.c" />
+    <ClCompile Include="..\cpank\ext\xxhash\xxhash.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\cpank\include\api.h" />
+    <ClInclude Include="..\cpank\include\errmsg.h" />
+    <ClInclude Include="..\cpank\include\helper\arch.h" />
+    <ClInclude Include="..\cpank\include\helper\os.h" />
     <ClInclude Include="..\cpank\include\bn.h" />
+    <ClInclude Include="..\cpank\include\builtins.h" />
     <ClInclude Include="..\cpank\include\common.h" />
     <ClInclude Include="..\cpank\include\compiler.h" />
     <ClInclude Include="..\cpank\include\debug.h" />
@@ -167,6 +181,7 @@
     <ClInclude Include="..\cpank\include\utils.h" />
     <ClInclude Include="..\cpank\include\value.h" />
     <ClInclude Include="..\cpank\include\vm.h" />
+    <ClInclude Include="..\cpank\ext\xxhash\xxhash.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

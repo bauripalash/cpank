@@ -63,6 +63,12 @@
     <ClCompile Include="..\cpank\vm.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\cpank\builtins.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\errmsg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\cpank\stdlib\bnmath.c">
       <Filter>Source Files\stdlib</Filter>
     </ClCompile>
@@ -72,9 +78,24 @@
     <ClCompile Include="..\cpank\stdlib\stdlib.c">
       <Filter>Source Files\stdlib</Filter>
     </ClCompile>
+    <ClCompile Include="..\cpank\stdlib\os.c">
+      <Filter>Source Files\stdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\stdlib\file.c">
+      <Filter>Source Files\stdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\stdlib\string.c">
+      <Filter>Source Files\stdlib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cpank\include\vm.h">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cpank\include\errmsg.h">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cpank\include\builtins.h">
       <Filter>Header Files\include</Filter>
     </ClInclude>
     <ClInclude Include="..\cpank\include\bn.h">
