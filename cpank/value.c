@@ -9,6 +9,7 @@
 #include <wchar.h>
 
 #include "include/bn.h"
+#include "include/helper/comp.h"
 #include "include/mem.h"
 #include "include/obj.h"
 #include "include/utils.h"
@@ -108,7 +109,7 @@ void print_val(Value val) {
     //  print_val_type(val.type);
 #ifdef NAN_BOXING
     if (is_bool(val)) {
- #ifdef IS_WIN
+ #ifdef PANK_COMP_MSVC
         cp_print(L"%S", get_as_bool(val) ? "true" : "false");
  #else
         cp_print(L"%s", get_as_bool(val) ? "true" : "false");
@@ -131,7 +132,7 @@ void print_val(Value val) {
             cp_print(L"%g", get_as_number(val));
             break;
         case V_BOOL:
- #ifdef IS_WIN
+ #ifdef PANK_COMP_MSVC
             cp_print(L"%S", get_as_bool(val) ? "true" : "false");
  #else
             cp_print(L"%s", get_as_bool(val) ? "true" : "false");

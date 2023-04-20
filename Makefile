@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS+=-std=c11 -Wall -pedantic -DMODE_BENGALI
+CFLAGS+=-std=c11 -Wall -pedantic -fsanitize=address -DMODE_BENGALI
 LINKS=-lm
 SRC=cpank/lexer.c cpank/bn.c cpank/runfile.c cpank/instruction.c cpank/mem.c cpank/debug.c cpank/value.c cpank/vm.c cpank/compiler.c cpank/obj.c cpank/htable.c cpank/utils.c cpank/openfile.c cpank/builtins.c cpank/errmsg.c
 STDLIB_MODULES= cpank/stdlib/*.c
@@ -43,7 +43,7 @@ gcheck:
 	
 
 ctidy:
-	clang-tidy $(SRC) $(STDLIB_MODULES) $(MAIN)  -- -Icpank/include
+	clang-tidy $(SRC) $(STDLIB_MODULES) $(MAIN)  -- -Icpank/include -Icpank/include/helper/
 
 debug: build_debug
 	gdb --args $(OUTPUT) $(SAMPLE_TO_RUN)

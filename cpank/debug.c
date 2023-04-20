@@ -4,10 +4,12 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <uchar.h>
 #include <wchar.h>
 
 #include "include/common.h"
+#include "include/helper/comp.h"
 #include "include/instruction.h"
 #include "include/obj.h"
 #include "include/utils.h"
@@ -15,9 +17,16 @@
 
 // disassemble instructions set
 void dissm_ins_chunk(Instruction *ins, const char32_t *name) {
-    wprintf(L"----> %ls <----\n", name);
+#if defined(PANK_OS_WIN)
+    char *name_c = c_to_c(name, strlen32(name));
 
-    for (int off = 0; off < ins->len;) {
+    cp_println(L"----> %X <----", name_c);
+    free(name_c)
+#else
+    cp_println(L"----> %ls <----", name);
+#endif
+
+        for (int off = 0; off < ins->len;) {
         off = dissm_ins(ins, off);
     }
 }
@@ -25,7 +34,7 @@ void dissm_ins_chunk(Instruction *ins, const char32_t *name) {
 // debug constant instruction
 int const_ins(const char *name, Instruction *ins, int off) {
     uint8_t con = ins->code[off + 1];
-#ifdef IS_WIN
+#ifdef PANK_COMP_MSVC
     cp_print(L"%-16S %4d '", name, con);
 #else
     cp_print(L"%-16s %4d '", name, con);
@@ -38,7 +47,7 @@ int const_ins(const char *name, Instruction *ins, int off) {
 // debug instruction with no operands
 // such as OP_ADD , OP_SUB etc etc.
 int simple_ins(const char *name, int offset) {
-#ifdef IS_WIN
+#ifdef PANK_COMP_MSVC
     cp_println(L"%S", name);
 #else
     cp_println(L"%s", name);
@@ -50,7 +59,7 @@ int simple_ins(const char *name, int offset) {
 // OP_GET_LOCAL , OP_SET_LOCAL
 int bt_ins(const char *name, Instruction *ins, int offset) {
     uint8_t slot = ins->code[offset + 1];
-#ifdef IS_WIN
+#ifdef PANK_COMP_MSVC
     cp_println(L"%-16S %4d", name, slot);
 #else
     cp_println(L"%-16s %4d", name, slot);
@@ -64,7 +73,7 @@ int bt_ins(const char *name, Instruction *ins, int offset) {
 int jmp_ins(const char *name, int sign, Instruction *ins, int offset) {
     uint16_t jmp = (uint16_t)(ins->code[offset + 1] << 8);
     jmp |= ins->code[offset + 2];
-#ifdef IS_WIN
+#ifdef PANK_COMP_MSVC
     cp_println(L"%-16S %4d -> %d\n", name, offset, offset + 3 + sign * jmp);
 #else
     cp_println(L"%-16s %4d -> %d\n", name, offset, offset + 3 + sign * jmp);
@@ -155,7 +164,7 @@ int dissm_ins(Instruction *ins, int offset) {
         case OP_CLOSURE:
             offset++;
             uint8_t con = ins->code[offset++];
-#ifdef IS_WIN
+#ifdef PANK_COMP_MSVC
 
             cp_print(L"%-16S %4d", "OP_CLOSURE", con);
 #else
@@ -170,7 +179,7 @@ int dissm_ins(Instruction *ins, int offset) {
             for (int x = 0; x < func->up_count; x++) {
                 int is_local = ins->code[offset++];
                 int index = ins->code[offset++];
-#ifdef IS_WIN
+#ifdef PANK_COMP_MSVC
                 cp_println(L"%04d  |   -> %S %d", offset - 2,
                            is_local ? "local" : "upvalue", index);
 #else

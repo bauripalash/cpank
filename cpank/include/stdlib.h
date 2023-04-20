@@ -15,7 +15,7 @@
 
 // Stdlib names
 #define STDMATH    U"math"
-#define STDMATH_BN U"গণিত"
+#define STDMATH_BN U"\u0997\u09a3\u09bf\u09a4"
 #define STDOS      U"os"
 #define STDCOMMON  U"common"
 #define STDARRAY   U"array"

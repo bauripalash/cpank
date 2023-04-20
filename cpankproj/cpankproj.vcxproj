@@ -162,6 +162,7 @@
     <ClInclude Include="..\cpank\include\api.h" />
     <ClInclude Include="..\cpank\include\errmsg.h" />
     <ClInclude Include="..\cpank\include\helper\arch.h" />
+    <ClInclude Include="..\cpank\include\helper\comp.h" />
     <ClInclude Include="..\cpank\include\helper\os.h" />
     <ClInclude Include="..\cpank\include\bn.h" />
     <ClInclude Include="..\cpank\include\builtins.h" />
@@ -182,6 +183,37 @@
     <ClInclude Include="..\cpank\include\value.h" />
     <ClInclude Include="..\cpank\include\vm.h" />
     <ClInclude Include="..\cpank\ext\xxhash\xxhash.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\sample\0.pank" />
+    <None Include="..\sample\1.pank" />
+    <None Include="..\sample\2.pank" />
+    <None Include="..\sample\3.pank" />
+    <None Include="..\sample\4.pank" />
+    <None Include="..\sample\array_test.pank" />
+    <None Include="..\sample\bn_num.pank" />
+    <None Include="..\sample\checkeq.pank" />
+    <None Include="..\sample\closure.pank" />
+    <None Include="..\sample\fib_bn.pank" />
+    <None Include="..\sample\fib_en.pank" />
+    <None Include="..\sample\fib_w.pank" />
+    <None Include="..\sample\ftest.pank" />
+    <None Include="..\sample\import.pank" />
+    <None Include="..\sample\maptest.pank" />
+    <None Include="..\sample\math_sl_bn.pank" />
+    <None Include="..\sample\sample.pank" />
+    <None Include="..\sample\serr_bn.pank" />
+    <None Include="..\sample\sltest.pank" />
+    <None Include="..\sample\stdarr.pank" />
+    <None Include="..\sample\stdcommon.pank" />
+    <None Include="..\sample\stdfile.pank" />
+    <None Include="..\sample\stdos.pank" />
+    <None Include="..\sample\strings.pank" />
+    <None Include="..\sample\string_add.pank" />
+    <None Include="..\sample\syntaxerr.pank" />
+    <None Include="..\sample\x.pank" />
+    <None Include="..\sample\y.pank" />
+    <None Include="..\sample\z.pank" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

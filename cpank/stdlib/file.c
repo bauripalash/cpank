@@ -22,21 +22,20 @@
 bool check_is_file(char* path) {
 #ifdef PANK_OS_WINDOWS
     struct _stat pbuf;
- #define S_ISREG _S_IFREG
-
     _stat(path, &pbuf);
+    return ((pbuf.st_mode & _S_IFREG) != 0);
 #else
     struct stat pbuf;
     stat(path, &pbuf);
-#endif
     return S_ISREG(pbuf.st_mode);
+#endif
 }
 
 bool check_is_dir(char* path) {
 #ifdef PANK_OS_WINDOWS
     struct _stat pbuf;
- #define S_ISDIR _S_IFDIR
-
+    _stat(path, &pbuf);
+    return ((pbuf.st_mode & _S_IFDIR) != 0);
     _stat(path, &pbuf);
 #else
     struct stat pbuf;

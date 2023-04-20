@@ -19,6 +19,24 @@
     <Filter Include="Header Files\include">
       <UniqueIdentifier>{551adc7e-d189-44c1-b63f-be55569e90d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\ext">
+      <UniqueIdentifier>{4ab6defd-4058-435d-8d6b-e9b8c02808cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ext\xxhash">
+      <UniqueIdentifier>{c9f44fe9-cdb5-4418-bcec-365b7b502211}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ext">
+      <UniqueIdentifier>{5ea69961-b294-4ebf-80ae-88f0837a8beb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ext\xxhash">
+      <UniqueIdentifier>{54a7fac1-e2b0-4d3f-a3e2-22219dbf49c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\include\helper">
+      <UniqueIdentifier>{7aed5c2c-4832-4344-b16c-a20599383fba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Samples">
+      <UniqueIdentifier>{38bb9222-ef39-4f9c-80c6-1ddb54e0ce44}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\cpank\bn.c">
@@ -87,6 +105,18 @@
     <ClCompile Include="..\cpank\stdlib\string.c">
       <Filter>Source Files\stdlib</Filter>
     </ClCompile>
+    <ClCompile Include="..\cpank\stdlib\array.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\stdlib\common.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\api.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\ext\xxhash\xxhash.c">
+      <Filter>Source Files\ext\xxhash</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cpank\include\vm.h">
@@ -146,5 +176,109 @@
     <ClInclude Include="..\cpank\include\value.h">
       <Filter>Header Files\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\cpank\ext\xxhash\xxhash.h">
+      <Filter>Header Files\ext\xxhash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cpank\include\api.h">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cpank\include\helper\arch.h">
+      <Filter>Header Files\include\helper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cpank\include\helper\os.h">
+      <Filter>Header Files\include\helper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cpank\include\helper\comp.h">
+      <Filter>Header Files\include\helper</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\sample\0.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\1.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\2.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\3.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\4.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\array_test.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\bn_num.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\checkeq.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\closure.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\fib_bn.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\fib_en.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\fib_w.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\ftest.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\import.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\maptest.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\math_sl_bn.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\sample.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\serr_bn.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\sltest.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\stdarr.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\stdcommon.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\stdfile.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\stdos.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\string_add.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\strings.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\syntaxerr.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\x.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\y.pank">
+      <Filter>Samples</Filter>
+    </None>
+    <None Include="..\sample\z.pank">
+      <Filter>Samples</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -11,8 +11,8 @@
  #define PANK_OS_ANDROID
 #elif defined(__CYGWIN__) || defined(__WIN16) || defined(__WIN32) ||  \
     defined(__WIN64) || defined(__WIN32__) || defined(__TOS_WIN__) || \
-    defined(__WINDOWS__) || defined(__WIN32_CE__)
- #defined PANK_OS_WIN
+    defined(__WINDOWS__) || defined(__WIN32_CE__) || defined(__WIN32)
+ #define PANK_OS_WIN
 #elif defined(__linux__) || defined(__linux) || defined(linux)
  #define PANK_OS_LINUX
  #define PANK_OS_UNIX

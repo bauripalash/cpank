@@ -6,6 +6,7 @@
 
 #include "include/common.h"
 #include "include/errmsgs.h"
+#include "include/helper/comp.h"
 #include "include/instruction.h"
 #include "include/lexer.h"
 #include "include/mem.h"
@@ -177,7 +178,7 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
         if (parser->vm->need_buffer) {
             write_pbuffer(&parser->vm->buffer, " : %s\n\n", msg_str);
         } else {
-#if defined(PANK_OS_WINDOWS)
+#if defined(PANK_COMP_MSVC)
             cp_err_println(L" : %S\n", msg_str);
 #else
             cp_err_println(L" : %s\n", msg_str);
@@ -1017,7 +1018,7 @@ ObjFunc *compile(PankVm *vm, char32_t *source) {
 #ifdef DEBUG_LEXER
     Token tk = get_tok(&lexer);
     while (tk.type != T_EOF) {
- #ifdef IS_WIN
+ #ifdef PANK_COMP_MSVC
         char *tokstr = c_to_c(tk.start, 0);
         cp_println(L"TOK[%S][%.*S]\n", toktype_to_string(tk.type), tk.length,
                    tokstr);
