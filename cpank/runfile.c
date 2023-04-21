@@ -12,6 +12,7 @@
 #include <wchar.h>
 
 #include "include/common.h"
+#include "include/helper/os.h"
 #include "include/openfile.h"
 #include "include/pank.h"
 #include "include/utils.h"
@@ -22,8 +23,13 @@ int run_file(const char *filepath) {
     Srcfile raw = read_file(filepath);
 
     if (raw.errcode != 0) {
+#if defined(PANK_OS_WIN)
+        cp_println(L"Failed to read file '%S' -> error code %d", filepath,
+                   raw.errcode);
+#else
         cp_println(L"Failed to read file '%s' -> error code %d", filepath,
                    raw.errcode);
+#endif
         exit(1);
     }
     int errcode = 0;

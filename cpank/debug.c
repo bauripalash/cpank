@@ -20,7 +20,7 @@ void dissm_ins_chunk(Instruction *ins, const char32_t *name) {
 #if defined(PANK_OS_WIN)
     char *name_c = c_to_c(name, strlen32(name));
 
-    cp_println(L"----> %X <----", name_c);
+    cp_println(L"----> %S <----", name_c);
     free(name_c)
 #else
     cp_println(L"----> %ls <----", name);
@@ -34,7 +34,7 @@ void dissm_ins_chunk(Instruction *ins, const char32_t *name) {
 // debug constant instruction
 int const_ins(const char *name, Instruction *ins, int off) {
     uint8_t con = ins->code[off + 1];
-#ifdef PANK_COMP_MSVC
+#ifdef PANK_OS_WIN
     cp_print(L"%-16S %4d '", name, con);
 #else
     cp_print(L"%-16s %4d '", name, con);
@@ -47,7 +47,7 @@ int const_ins(const char *name, Instruction *ins, int off) {
 // debug instruction with no operands
 // such as OP_ADD , OP_SUB etc etc.
 int simple_ins(const char *name, int offset) {
-#ifdef PANK_COMP_MSVC
+#ifdef PANK_OS_WIN
     cp_println(L"%S", name);
 #else
     cp_println(L"%s", name);
@@ -59,7 +59,7 @@ int simple_ins(const char *name, int offset) {
 // OP_GET_LOCAL , OP_SET_LOCAL
 int bt_ins(const char *name, Instruction *ins, int offset) {
     uint8_t slot = ins->code[offset + 1];
-#ifdef PANK_COMP_MSVC
+#ifdef PANK_OS_WIN
     cp_println(L"%-16S %4d", name, slot);
 #else
     cp_println(L"%-16s %4d", name, slot);
@@ -73,7 +73,7 @@ int bt_ins(const char *name, Instruction *ins, int offset) {
 int jmp_ins(const char *name, int sign, Instruction *ins, int offset) {
     uint16_t jmp = (uint16_t)(ins->code[offset + 1] << 8);
     jmp |= ins->code[offset + 2];
-#ifdef PANK_COMP_MSVC
+#ifdef PANK_OS_WIN
     cp_println(L"%-16S %4d -> %d\n", name, offset, offset + 3 + sign * jmp);
 #else
     cp_println(L"%-16s %4d -> %d\n", name, offset, offset + 3 + sign * jmp);
@@ -164,14 +164,14 @@ int dissm_ins(Instruction *ins, int offset) {
         case OP_CLOSURE:
             offset++;
             uint8_t con = ins->code[offset++];
-#ifdef PANK_COMP_MSVC
+#ifdef PANK_OS_WIN
 
             cp_print(L"%-16S %4d", "OP_CLOSURE", con);
 #else
             cp_print(L"%-16s %4d", "OP_CLOSURE", con);
 #endif
             print_val(ins->consts.values[con]);
-            wprintf(L"\n");
+            cp_println(L"");
 
             ObjFunc *func = get_as_func(ins->consts.values[con]);
 
@@ -179,7 +179,7 @@ int dissm_ins(Instruction *ins, int offset) {
             for (int x = 0; x < func->up_count; x++) {
                 int is_local = ins->code[offset++];
                 int index = ins->code[offset++];
-#ifdef PANK_COMP_MSVC
+#ifdef PANK_OS_WIN
                 cp_println(L"%04d  |   -> %S %d", offset - 2,
                            is_local ? "local" : "upvalue", index);
 #else
@@ -190,7 +190,7 @@ int dissm_ins(Instruction *ins, int offset) {
 
             return offset;
         default:
-            printf("Unknown op %d\n", is);
+            cp_println(L"Unknown op %d", is);
             return offset + 1;
     }
 }

@@ -37,7 +37,7 @@ char *get_cur_dir(void) {
     return p;
 }
 
-#ifdef IS_WIN
+#if defined(PANK_OS_WIN)
  #include <io.h>
  #define F_OK   0
  #define access _access

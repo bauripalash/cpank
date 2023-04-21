@@ -122,7 +122,13 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
         if (parser->vm->need_buffer) {
             write_pbuffer(&parser->vm->buffer, "%d | %ls\n", lineindex, line);
         } else {
+#if defined(PANK_OS_WIN)
+            char *line_c = c_to_c(line, strlen32(line));
+            cp_err_println(L"%d | %S\n", lineindex, line_c);
+            free(line_c)
+#else
             cp_err_print(L"%d | %ls\n", lineindex, line);
+#endif
         }
         // fwprintf(stderr, L"%d | %ls\n", lineindex, line);
 
@@ -132,7 +138,14 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
         write_pbuffer(&parser->vm->buffer, "[L %d] %ls ", tok->line,
                       geterrmsg(EMSG_KW));
     } else {
+#if defined(PANK_OS_WIN)
+        char32_t *msg = geterrmsg(EMSG_KW);
+        char *emsg_c = c_to_c(msg, strlen32(msg));
+        cp_err_println(L"[l %d] %S ", tok->line, emsg_c);
+        free(emsg_c)
+#else
         cp_err_print(L"[l %d] %ls ", tok->line, geterrmsg(EMSG_KW));
+#endif
     }
 
     if (tok->type == T_EOF) {
@@ -166,7 +179,7 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
             write_pbuffer(&parser->vm->buffer, "%s -> %s <- ",
                           geterrmsg(EMSG_HERE), t_str);
         } else {
-#if defined(PANK_OS_WINDOWS)
+#if defined(PANK_OS_WIN)
             fwprintf(stderr, L" at %.*S", tok->length, t_str);
 #else
             cp_err_println(L" %ls -> %s <- ", geterrmsg(EMSG_HERE), t_str);
@@ -178,7 +191,7 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
         if (parser->vm->need_buffer) {
             write_pbuffer(&parser->vm->buffer, " : %s\n\n", msg_str);
         } else {
-#if defined(PANK_COMP_MSVC)
+#if defined(PANK_OS_WIN)
             cp_err_println(L" : %S\n", msg_str);
 #else
             cp_err_println(L" : %s\n", msg_str);
@@ -1018,7 +1031,7 @@ ObjFunc *compile(PankVm *vm, char32_t *source) {
 #ifdef DEBUG_LEXER
     Token tk = get_tok(&lexer);
     while (tk.type != T_EOF) {
- #ifdef PANK_COMP_MSVC
+ #ifdef PANK_OS_WIN
         char *tokstr = c_to_c(tk.start, 0);
         cp_println(L"TOK[%S][%.*S]\n", toktype_to_string(tk.type), tk.length,
                    tokstr);

@@ -20,7 +20,7 @@
  }
 
 bool check_is_file(char* path) {
-#ifdef PANK_OS_WINDOWS
+#ifdef PANK_OS_WIN
     struct _stat pbuf;
     _stat(path, &pbuf);
     return ((pbuf.st_mode & _S_IFREG) != 0);
@@ -32,16 +32,15 @@ bool check_is_file(char* path) {
 }
 
 bool check_is_dir(char* path) {
-#ifdef PANK_OS_WINDOWS
+#ifdef PANK_OS_WIN
     struct _stat pbuf;
     _stat(path, &pbuf);
     return ((pbuf.st_mode & _S_IFDIR) != 0);
-    _stat(path, &pbuf);
 #else
     struct stat pbuf;
     stat(path, &pbuf);
-#endif
     return S_ISDIR(pbuf.st_mode);
+#endif
 }
 
 Value _file_exists(PankVm* vm, int argc, Value* args) {

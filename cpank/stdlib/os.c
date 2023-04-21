@@ -43,7 +43,7 @@ Value _os_get_arch(PankVm* vm, int argc, Value* args) {
 }
 
 Value _os_get_username(PankVm* vm, int argc, Value* args) {
-#if defined(PANK_OS_WINDOWS)
+#if defined(PANK_OS_WIN)
     char* username = getenv("USERNAME");
 #elif defined(PANK_OS_LINUX) || defined(PANK_OS_UNIX) || defined(PANK_OS_MACOS)
     char* username = getenv("USER");
@@ -65,7 +65,7 @@ Value _os_get_homedir(PankVm* vm, int argc, Value* args) {
     // TODO: Make more fail proof
 #if defined(PANK_OS_UNIX) || defined(PANK_OS_LINUX)
     char* hdir = getenv("HOME");
-#elif defined(PANK_OS_WINDOWS)
+#elif defined(PANK_OS_WIN)
     char* hdir = getenv("USERPROFILE");
 #else
     char* hdir = NULL;

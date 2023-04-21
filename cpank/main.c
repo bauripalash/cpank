@@ -8,6 +8,7 @@
 #include <wchar.h>
 
 #include "include/common.h"
+#include "include/helper/os.h"
 #include "include/runfile.h"
 #include "include/utils.h"
 
@@ -52,7 +53,12 @@ int main(int argc, char** argv) {
                 int result = run_file(ag);
                 return result;
             } else {
+#ifdef PANK_OS_WIN
+
+                cp_println(L"Error! file '%S' does not exist!", ag);
+#else
                 cp_println(L"Error! file '%s' does not exist!", ag);
+#endif
                 return 1;
             }
         }

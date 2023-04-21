@@ -19,6 +19,7 @@
 #include "include/common.h"
 #include "include/compiler.h"
 #include "include/debug.h"
+#include "include/helper/os.h"
 #include "include/htable.h"
 #include "include/instruction.h"
 #include "include/mem.h"

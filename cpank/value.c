@@ -109,7 +109,7 @@ void print_val(Value val) {
     //  print_val_type(val.type);
 #ifdef NAN_BOXING
     if (is_bool(val)) {
- #ifdef PANK_COMP_MSVC
+ #ifdef PANK_OS_WIN
         cp_print(L"%S", get_as_bool(val) ? "true" : "false");
  #else
         cp_print(L"%s", get_as_bool(val) ? "true" : "false");
@@ -132,7 +132,7 @@ void print_val(Value val) {
             cp_print(L"%g", get_as_number(val));
             break;
         case V_BOOL:
- #ifdef PANK_COMP_MSVC
+ #ifdef PANK_OS_WIN
             cp_print(L"%S", get_as_bool(val) ? "true" : "false");
  #else
             cp_print(L"%s", get_as_bool(val) ? "true" : "false");

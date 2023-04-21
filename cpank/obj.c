@@ -18,6 +18,7 @@
 #include "include/bn.h"
 #include "include/common.h"
 #include "include/helper/comp.h"
+#include "include/helper/os.h"
 #include "include/instruction.h"
 #include "include/mem.h"
 #include "include/openfile.h"
@@ -214,7 +215,7 @@ ObjString *take_string(PankVm *vm, char32_t *chars, int len) {
 }
 
 void print_function(ObjFunc *func) {
-#ifdef PANK_COMP_MSVC
+#ifdef PANK_OS_WIN
     char *fname_str = c_to_c(func->name->chars, 0);
     cp_print(L"<fn %S >", fname_str);
     free(fname_str);
@@ -423,7 +424,7 @@ char32_t *obj_to_string(PankVm *vm, Value val) {
 void print_obj(Value val) {
     switch (get_obj_type(val)) {
         case OBJ_STR: {
-#ifdef PANK_COMP_MSVC
+#ifdef PANK_OS_WIN
             char *obj_str = c_to_c(get_as_native_string(val), 0);
             cp_print(L"%S", obj_str);
             free(obj_str);
@@ -446,7 +447,7 @@ void print_obj(Value val) {
         case OBJ_NATIVE: {
             ObjNative *native = (ObjNative *)get_as_obj(val);
             if (native->name != NULL) {
-#ifdef PANK_COMP_MSVC
+#ifdef PANK_OS_WIN
                 char *nn = c_to_c(native->name, 0);
                 cp_print(L"<native func '%S'>", nn);
                 free(nn);
@@ -473,7 +474,7 @@ void print_obj(Value val) {
             break;
         case OBJ_MOD: {
             ObjMod *mod = get_as_mod(val);
-#ifdef PANK_COMP_MSVC
+#ifdef PANK_OS_WIN
 
             char *mod_str = c_to_c(mod->name->chars, 0);
             cp_print(L"< mod %S >", mod_str);
@@ -486,10 +487,10 @@ void print_obj(Value val) {
         case OBJ_ERR: {
             ObjErr *err = get_as_err(val);
             cp_print(L"Error ");
-#ifdef PANK_COMP_MSVC
-            char *emsg = c_to_c(err->errmsg, 0);
+#ifdef PANK_OS_WIN
+            char *emsg = err->errmsg;  // c_to_c(err->errmsg, 0);
             cp_print(L"%S", emsg);
-            free(emsg);
+            // free(emsg);
 #else
             cp_print(L"%ls", err->errmsg);
 #endif
