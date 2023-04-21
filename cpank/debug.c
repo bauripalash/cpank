@@ -21,7 +21,7 @@ void dissm_ins_chunk(Instruction *ins, const char32_t *name) {
     char *name_c = c_to_c(name, strlen32(name));
 
     cp_println(L"----> %S <----", name_c);
-    free(name_c)
+    free(name_c);
 #else
     cp_println(L"----> %ls <----", name);
 #endif

@@ -125,7 +125,7 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
 #if defined(PANK_OS_WIN)
             char *line_c = c_to_c(line, strlen32(line));
             cp_err_println(L"%d | %S\n", lineindex, line_c);
-            free(line_c)
+            free(line_c);
 #else
             cp_err_print(L"%d | %ls\n", lineindex, line);
 #endif
@@ -142,7 +142,7 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
         char32_t *msg = geterrmsg(EMSG_KW);
         char *emsg_c = c_to_c(msg, strlen32(msg));
         cp_err_println(L"[l %d] %S ", tok->line, emsg_c);
-        free(emsg_c)
+        free(emsg_c);
 #else
         cp_err_print(L"[l %d] %ls ", tok->line, geterrmsg(EMSG_KW));
 #endif

@@ -191,6 +191,9 @@
     <ClInclude Include="..\cpank\include\helper\comp.h">
       <Filter>Header Files\include\helper</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\sample\0.pank">
@@ -280,5 +283,15 @@
     <None Include="..\sample\z.pank">
       <Filter>Samples</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="cpankproj.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
