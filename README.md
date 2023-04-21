@@ -1,3 +1,4 @@
+![Pankti Programming Language](./images/pankti_header.png)
 # The Pankti Programming Language
 #### Interpreter & Bytecode Compiler written in C  
 
