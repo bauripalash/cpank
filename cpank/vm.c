@@ -1148,6 +1148,67 @@ IResult run_vm(PankVm *vm) {
 
                 break;
             }
+            case OP_SUBSCRIPT_ASSIGN: {
+                Value newval = peek_vm(vm, 0);     // the value
+                Value raw_index = peek_vm(vm, 1);  // the index
+                Value raw_main_obj =
+                    peek_vm(vm, 2);  // the object -> Array / Hashmap
+                /*cp_println(L"objval");
+                print_val(newval);
+                cp_println(L"\nindex");
+                print_val(raw_index);
+                cp_println(L"\nsubval");
+                print_val(raw_main_obj);*/
+
+                if (!is_map_obj(raw_main_obj) && !is_array_obj(raw_main_obj)) {
+                    runtime_err(vm,
+                                U"subscript assignment only works on arrays "
+                                U"and hashmaps");
+                    return INTRP_RUNTIME_ERR;
+                }
+
+                if (is_map_obj(raw_main_obj)) {
+                    ObjHashMap *hmap = get_as_hmap(raw_main_obj);
+                    if (!is_valid_hashmap_key(raw_index)) {
+                        runtime_err(vm, U"Hashmap key is invalid type");
+                        return INTRP_RUNTIME_ERR;
+                    }
+                    hmap_set(vm, hmap, raw_index, newval);
+                    pop(vm);
+                    pop(vm);
+                    pop(vm);
+                    push(vm, make_nil);
+                } else if (is_array_obj(raw_main_obj)) {
+                    if (!is_num(raw_index)) {
+                        runtime_err(vm, U"array index must be number");
+                        return INTRP_RUNTIME_ERR;
+                    }
+
+                    double raw_index_num = get_as_number(raw_index);
+                    if (raw_index_num < 0 || !is_int(raw_index_num)) {
+                        runtime_err(
+                            vm, U"array index must be a non negetive integer");
+                        return INTRP_RUNTIME_ERR;
+                    }
+
+                    int index = (int)raw_index_num;
+
+                    ObjArray *arr = get_as_array(raw_main_obj);
+
+                    if (index >= arr->items.len) {
+                        runtime_err(vm, U"index out of range of array");
+                        return INTRP_RUNTIME_ERR;
+                    }
+
+                    arr->items.values[index] = newval;
+                    pop(vm);
+                    pop(vm);
+                    pop(vm);
+                    push(vm, make_nil);
+                }
+
+                break;
+            }
 
             case OP_GET_MOD_PROP: {
                 // print_val(peek_vm(vm, 0));

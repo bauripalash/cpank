@@ -50,5 +50,5 @@ void push_stdlib_common(PankVm* vm);
 void push_stdlib_array(PankVm* vm);
 void push_stdlib_string(PankVm* vm);
 void push_stdlib_file(PankVm* vm);
-void push_stdlib_map(PankVm * vm);
+void push_stdlib_map(PankVm* vm);
 #endif

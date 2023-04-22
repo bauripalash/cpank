@@ -15,7 +15,7 @@
 #include "include/value.h"
 #include "include/vm.h"
 
-// #define DEBUG_PRINT_CODE
+#define DEBUG_PRINT_CODE
 // #define DEBUG_LEXER
 #ifdef DEBUG_PRINT_CODE
  #include "include/debug.h"
@@ -482,7 +482,15 @@ void read_array(Compiler *compiler, bool can_assign) {
 void read_index_expr(Compiler *compiler, bool can_assign) {
     read_expr(compiler);
     eat_tok(compiler, T_RSBRACKET, geterrmsg(EMSG_RBRAC_INDEX));
-    emit_bt(compiler, OP_ARR_INDEX);
+    if (can_assign && match_tok(compiler, T_EQ)) {
+        read_expr(compiler);
+        emit_bt(compiler, OP_SUBSCRIPT_ASSIGN);
+    } else {
+        emit_bt(compiler, OP_ARR_INDEX);
+    }
+
+    // cp_println(L"can assign subscript -> %s", can_assign ? "true" : "false"
+    // );
 }
 
 void add_local(Compiler *compiler, Token name) {

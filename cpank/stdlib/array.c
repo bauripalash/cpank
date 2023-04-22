@@ -42,6 +42,7 @@ Value _arr_pop_index(PankVm* vm, int argc, Value* args) {
     }
 
     ObjArray* newarr = new_array(vm);
+    push(vm, make_obj_val(newarr));
 
     for (int i = 0; i < array->items.len; i++) {
         if (i != index) {
@@ -49,7 +50,7 @@ Value _arr_pop_index(PankVm* vm, int argc, Value* args) {
         }
     }
 
-    return make_obj_val(newarr);
+    return pop(vm);
 }
 
 Value _arr_pop(PankVm* vm, int argc, Value* args) {

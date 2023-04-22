@@ -49,6 +49,7 @@ typedef enum {
     OP_ARRAY,
     OP_HMAP,
     OP_ARR_INDEX,
+    OP_SUBSCRIPT_ASSIGN,
 
 } Op;
 

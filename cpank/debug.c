@@ -189,6 +189,8 @@ int dissm_ins(Instruction *ins, int offset) {
             }
 
             return offset;
+        case OP_SUBSCRIPT_ASSIGN:
+            return simple_ins("OP_SUBSCRIPT_ASSIGN", offset);
         default:
             cp_println(L"Unknown op %d", is);
             return offset + 1;
@@ -276,6 +278,8 @@ const char *print_opcode(Op op) {
             return "OP_ARR_INDEX";
         case OP_HMAP:
             return "OP_HMAP";
+        case OP_SUBSCRIPT_ASSIGN:
+            return "OP_SUBSCRIPT_ASSIGN";
     }
     return "Unknown Opcode";
 }
