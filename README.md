@@ -13,3 +13,5 @@ programs.
 > Pre-alpha. Under heavy development
 
 LICENSE : GPL v3
+Buno the Hedgehog, and all artworks are copyrighted to Me, Palash Bauri, all 
+rights are reserved for the Buno the Hedgehog images.
