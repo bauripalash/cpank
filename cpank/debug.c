@@ -26,7 +26,7 @@ void dissm_ins_chunk(Instruction *ins, const char32_t *name) {
     cp_println(L"----> %ls <----", name);
 #endif
 
-        for (int off = 0; off < ins->len;) {
+    for (int off = 0; off < ins->len;) {
         off = dissm_ins(ins, off);
     }
 }

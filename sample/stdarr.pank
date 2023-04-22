@@ -15,3 +15,21 @@ let y = ["how" , "are" , "you"];
 show y;
 let z = a.join(x,y);
 show z;
+
+let hh = ["my" , "name" , "is" , "palash" , "bauri"]
+hh = a.popat(hh , 4)
+show hh
+
+fun listsum(list)
+	let index = 0
+	let sum = 0
+	while (index < len(list))
+		sum = sum + list[index]
+		index = index + 1
+	end
+	return sum 
+end 
+
+let slist = [1,2,3,4,5]
+show slist 
+show listsum(slist)

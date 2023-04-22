@@ -26,17 +26,15 @@
 #include "include/value.h"
 #include "include/vm.h"
 
-#define MOD_NAME                      U"module"
-#define STR_NAME                      U"string"
-#define ERR_NAME                      U"error"
-#define FUNC_NAME                     U"function"
-#define HMAP_NAME                     U"hashmap"
-#define CLOSURE_NAME                  U"closure"
-#define ARRAY_NAME                    U"array"
-#define NATIVE_NAME                   U"native"
-#define UPVAL_NAME                    U"upvalue"
-
-#define ALLOCATE_OBJ(vm, type, otype) (type *)alloc_obj(vm, sizeof(type), otype)
+#define MOD_NAME     U"module"
+#define STR_NAME     U"string"
+#define ERR_NAME     U"error"
+#define FUNC_NAME    U"function"
+#define HMAP_NAME    U"hashmap"
+#define CLOSURE_NAME U"closure"
+#define ARRAY_NAME   U"array"
+#define NATIVE_NAME  U"native"
+#define UPVAL_NAME   U"upvalue"
 
 char32_t *get_obj_type_str(Value val, bool isbn) {
     ObjType tp = get_obj_type(val);

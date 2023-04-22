@@ -152,6 +152,8 @@ Value make_bn_argc_want_mismatch_error(PankVm *vm, char *funname, int want,
                                        int got);
 // There 'must' be some bugs or edge cases, testing is required
 char32_t *obj_to_string(PankVm *vm, Value val);
+
+#define ALLOCATE_OBJ(vm, type, otype) (type *)alloc_obj(vm, sizeof(type), otype)
 /*
 #define get_as_native(value) \
   (((ObjNative *)get_as_obj(value))->func)

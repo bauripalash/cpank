@@ -12,6 +12,46 @@
 #include "../include/value.h"
 #include "../include/vm.h"
 
+Value _arr_pop_index(PankVm* vm, int argc, Value* args) {
+    check_argc_count("popat(array, index)", 2, argc);
+
+    Value raw_array = args[0];
+
+    if (!is_array_obj(raw_array)) {
+        return make_error(
+            vm, U"popat(array, index) first argument must be an array");
+    }
+
+    Value raw_index = args[1];
+
+    if (!is_num(raw_index)) {
+        return make_error(
+            vm, U"popat(array, index) second argument must be a number");
+    }
+
+    ObjArray* array = get_as_array(raw_array);
+    double raw_num_index = get_as_number(raw_index);
+
+    if (raw_num_index < 0 || !is_int(raw_num_index)) {
+        return make_error(vm, U"index must be non-negetive integer");
+    }
+
+    int index = (int)raw_num_index;
+    if (index >= array->items.len) {
+        return make_error(vm, U"index is out of range for array");
+    }
+
+    ObjArray* newarr = new_array(vm);
+
+    for (int i = 0; i < array->items.len; i++) {
+        if (i != index) {
+            write_valarr(vm, &newarr->items, array->items.values[i]);
+        }
+    }
+
+    return make_obj_val(newarr);
+}
+
 Value _arr_pop(PankVm* vm, int argc, Value* args) {
     if (argc != 1) {
         return make_error(vm, U"array pop(a) only takes 1 argument!");
@@ -74,7 +114,7 @@ Value _arr_join_two_arr(PankVm* vm, int argc, Value* args) {
 
 void push_stdlib_array(PankVm* vm) {
     SL sls[] = {msl(U"pop", _arr_pop), msl(U"push", _arr_push),
-                msl(U"join", _arr_join_two_arr)};
+                msl(U"join", _arr_join_two_arr), msl(U"popat", _arr_pop_index)};
 
-    _push_stdlib(vm, U"array", sls, 3);
+    _push_stdlib(vm, U"array", sls, 4);
 }

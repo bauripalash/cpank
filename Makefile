@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS+=-std=c11 -Wall -pedantic -fsanitize=address -DMODE_BENGALI
+CFLAGS+=-std=c11 -Wall -pedantic -DMODE_BENGALI
 LINKS=-lm
 SRC=cpank/lexer.c cpank/bn.c cpank/runfile.c cpank/instruction.c cpank/mem.c cpank/debug.c cpank/value.c cpank/vm.c cpank/compiler.c cpank/obj.c cpank/htable.c cpank/utils.c cpank/openfile.c cpank/builtins.c cpank/errmsg.c
 STDLIB_MODULES= cpank/stdlib/*.c
@@ -8,7 +8,7 @@ EXTERNALDIR=cpank/ext/
 SRC+=$(STDLIB_MODULES)
 SRC+=$(EXTERNAL)
 MAIN=cpank/main.c
-SAMPLE_TO_RUN=sample/syntaxerr.pank
+SAMPLE_TO_RUN=sample/stdarr.pank
 TESTMAIN=testmain.c
 APIMAIN=cpank/api.c
 WEBMAIN=web/pankti.web.c
