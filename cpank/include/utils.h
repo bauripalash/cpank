@@ -27,7 +27,6 @@
 #define OS_MACOS_CODE     2
 #define OS_ANDROID_CODE   3
 #define OS_UNKNOWN_CODE   4
-uint16_t BINMAGIC = 0xBA51;
 
 // Save the instructions into a binary file
 bool dump_instruction(Instruction *ins, char *filename);

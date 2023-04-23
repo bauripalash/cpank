@@ -1,6 +1,8 @@
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <uchar.h>
@@ -182,6 +184,95 @@ Value _file_delete(PankVm* vm, int argc, Value* args) {
     return make_bool(result);
 }
 
+// 0 -> All Okay
+// 1 -> Failed to open file
+// 2 -> Failed to write file
+int write_to_file(Value vpath, Value vdata, bool append) {
+    ObjString* raw_path = get_as_string(vpath);
+    ObjString* raw_data = get_as_string(vdata);
+
+    char* path = c_to_c(raw_path->chars, raw_path->len);
+    char* data = c_to_c(raw_data->chars, raw_data->len);
+
+    FILE* fp;
+    if (append) {
+        fp = fopen(path, "ab");
+    } else {
+        fp = fopen(path, "wb");
+    }
+    if (fp == NULL) {
+        free(path);
+        free(data);
+        return 1;
+    }
+
+    size_t data_len = strlen(data);
+    size_t br = fwrite(data, sizeof(char), data_len, fp);
+    if (br < data_len) {
+        free(path);
+        free(data);
+        fclose(fp);
+        return 2;
+    }
+
+    free(path);
+    free(data);
+    fclose(fp);
+    return 0;
+}
+
+Value _file_write_string(PankVm* vm, int argc, Value* args) {
+    no_android("write(path, data)");
+    check_argc_count("write(path , data)", 2, argc);
+
+    if (!is_str_obj(args[0])) {
+        return make_error(vm,
+                          U"first argument (file path) to write(path, data) "
+                          U"must be a string");
+    }
+
+    if (!is_str_obj(args[1])) {
+        return make_error(vm,
+                          U"second argument (data to write) to write(path, "
+                          U"data) must be a string");
+    }
+
+    int res = write_to_file(args[0], args[1], false);
+    if (res == 1) {
+        return make_error(vm, U"failed to open/create file");
+    } else if (res == 2) {
+        return make_error(vm, U"failed to write data to file");
+    } else {
+        return make_bool(true);
+    }
+}
+
+Value _file_append_string(PankVm* vm, int argc, Value* args) {
+    no_android("append(path, data)");
+    check_argc_count("append(path , data)", 2, argc);
+
+    if (!is_str_obj(args[0])) {
+        return make_error(vm,
+                          U"first argument (file path) to write(path, data) "
+                          U"must be a string");
+    }
+
+    if (!is_str_obj(args[1])) {
+        return make_error(vm,
+                          U"second argument (data to write) to write(path, "
+                          U"data) must be a string");
+    }
+
+    int res = write_to_file(args[0], args[1], true);
+    if (res == 1) {
+        return make_error(vm, U"failed to open file");
+    } else if (res == 2) {
+        return make_error(vm, U"failed to write data to file");
+    } else {
+        return make_bool(true);
+    }
+}
+
 void push_stdlib_file(PankVm* vm) {
     SL sls[] = {
         msl(U"exists", _file_exists),
@@ -191,7 +282,9 @@ void push_stdlib_file(PankVm* vm) {
         msl(U"create_empty", _file_create_empty_file),
         msl(U"rename", _file_rename),
         msl(U"delete", _file_delete),
+        msl(U"write", _file_write_string),
+        msl(U"append", _file_append_string),
     };
 
-    _push_stdlib(vm, U"file", sls, 7);
+    _push_stdlib(vm, U"file", sls, 9);
 }

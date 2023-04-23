@@ -1371,10 +1371,9 @@ IResult interpret(PankVm *vm, char32_t *source) {
         return INTRP_COMPILE_ERR;
     }
 
-    
-    if (!dump_instruction(&fn->ins, "script.cpnk")){
-        cp_println(L"failed dump compiled instruction");
-    }
+    // if (!dump_instruction(&fn->ins, "script.cpnk")) {
+    //     cp_println(L"failed dump compiled instruction");
+    // }
 
     if (!push(vm, make_obj_val(fn))) return INTRP_RUNTIME_ERR;
     ObjClosure *cls = new_closure(vm, fn, 0);
