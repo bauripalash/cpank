@@ -3,6 +3,7 @@
 #ifndef cpank_common_h
 #define cpank_common_h
 
+// #define DEBUG
 // #define DEBUG_TRACE
 // #define DEBUG_STACK
 // #define DEBUG_LEXER

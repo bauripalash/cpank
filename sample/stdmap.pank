@@ -13,6 +13,7 @@ show y
 show type(y[0])
 show len(y)
 
-import f "file"
-show f.write("hello.txt" , "palash\n")
-show f.append("hello.txt" , "bauri")
+#import f "file"
+#show f.write("hello.txt" , "palash\n")
+#show f.append("hello.txt" , "bauri")
+show "hello\n"
