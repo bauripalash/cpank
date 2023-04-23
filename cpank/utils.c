@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,6 +23,22 @@
 #else
  #include <direct.h>
 #endif
+
+bool dump_instruction(Instruction *ins, char *filename) {
+    FILE *outfile = fopen(filename, "wb");
+    if (outfile == NULL) {
+        return false;
+    }
+    size_t len = (size_t)ins->len;
+    size_t br = fwrite(ins, sizeof(uint8_t), len, outfile);
+    if (br != len) {
+        fclose(outfile);
+        return false;
+    }
+
+    fclose(outfile);
+    return true;
+}
 
 char *get_cur_dir(void) {
     char *p;

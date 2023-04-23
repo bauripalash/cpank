@@ -9,6 +9,7 @@
 #include <wchar.h>
 
 #include "helper/os.h"
+#include "instruction.h"
 
 #define ANSI_COLOR_BLACK  L"\x1b[30m"
 #define ANSI_COLOR_RED    L"\x1b[31m"
@@ -26,6 +27,10 @@
 #define OS_MACOS_CODE     2
 #define OS_ANDROID_CODE   3
 #define OS_UNKNOWN_CODE   4
+uint16_t BINMAGIC = 0xBA51;
+
+// Save the instructions into a binary file
+bool dump_instruction(Instruction *ins, char *filename);
 
 // Linux / Unix = 0
 // Win = 1

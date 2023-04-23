@@ -207,7 +207,7 @@ bool is_stdlib(char32_t *name) {
     return str32cmp(name, STDOS) || str32cmp(name, STDMATH) ||
            str32cmp(name, STDMATH_BN) || str32cmp(name, STDCOMMON) ||
            str32cmp(name, STDARRAY) || str32cmp(name, STDSTR) ||
-           str32cmp(name, STDFILE);
+           str32cmp(name, STDFILE) || str32cmp(name, STDHMAP);
 }
 
 void init_module(Module *mod, const char32_t *name) {
@@ -627,6 +627,8 @@ void add_stdlib(PankVm *vm, char32_t *import_name) {
         push_stdlib_string(vm);
     } else if (str32cmp(import_name, STDFILE)) {
         push_stdlib_file(vm);
+    } else if (str32cmp(import_name, STDHMAP)) {
+        push_stdlib_map(vm);
     }
 }
 
@@ -1056,7 +1058,7 @@ IResult run_vm(PankVm *vm) {
                         return INTRP_RUNTIME_ERR;
                     }
                     ObjArray *array = get_as_array(raw_obj);
-                    if (index >= array->len) {
+                    if (index >= array->items.len) {
                         runtime_err(vm, U"Index out of range error");
                         return INTRP_RUNTIME_ERR;
                     }
@@ -1367,6 +1369,11 @@ IResult interpret(PankVm *vm, char32_t *source) {
     ObjFunc *fn = compile(vm, source);
     if (fn == NULL) {
         return INTRP_COMPILE_ERR;
+    }
+
+    
+    if (!dump_instruction(&fn->ins, "script.cpnk")){
+        cp_println(L"failed dump compiled instruction");
     }
 
     if (!push(vm, make_obj_val(fn))) return INTRP_RUNTIME_ERR;

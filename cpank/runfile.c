@@ -34,6 +34,7 @@ int run_file(const char *filepath) {
     }
     int errcode = 0;
     char32_t *src = char_to_32(raw.source);
+    
 
     PankVm *vm = boot_vm(false);
 
