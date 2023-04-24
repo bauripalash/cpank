@@ -1,5 +1,5 @@
 package ext
 
-import _ "cpank/cpank/ext/xxhash"
+import _ "go.cs.palashbauri.in/pankti/cpank/ext/xxhash"
 import "C"
 

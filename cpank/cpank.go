@@ -1,5 +1,5 @@
 package cpank
 
 import "C"
-import _ "cpank/cpank/stdlib"
-import _ "cpank/cpank/ext"
+import _ "go.cs.palashbauri.in/pankti/cpank/stdlib"
+import _ "go.cs.palashbauri.in/pankti/cpank/ext"

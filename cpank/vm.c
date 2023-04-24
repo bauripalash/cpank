@@ -869,7 +869,7 @@ IResult run_vm(PankVm *vm) {
                     write_pbuffer(&vm->buffer, "p~~ %ls\n", vl);
                     free(vl);
                 } else {
-#if defined (DEBUG)
+#if defined(DEBUG)
 
                     cp_print(L"p~~ ");
 #endif

@@ -1,8 +1,8 @@
 package gopkg
 
 import (
-	_ "cpank/cpank"
-	_ "cpank/cpank/stdlib"
+	_ "go.cs.palashbauri.in/pankti/cpank"
+	_ "go.cs.palashbauri.in/pankti/cpank/stdlib"
 	"unsafe"
 )
 

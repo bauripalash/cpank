@@ -18,7 +18,8 @@
 #include "include/helper/os.h"
 #include "include/value.h"
 
-#if defined(PANK_OS_UNIX) || defined(PANK_OS_LINUX)
+#if defined(PANK_OS_UNIX) || defined(PANK_OS_LINUX) || \
+    defined(PANK_OS_ANDROID) || defined(PANK_OS_MACOS)
  #include <unistd.h>
 #else
  #include <direct.h>
@@ -43,7 +44,7 @@ bool dump_instruction(Instruction *ins, char *filename) {
 char *get_cur_dir(void) {
     char *p;
 
-#if defined(PANK_OS_UNIX) || defined(PANK_OS_LINUX)
+#if !defined (PANK_OS_WIN)
     p = getcwd(NULL, 0);
 #else
     p = _getcwd(NULL, 0);

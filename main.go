@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cpank/gopkg"
+	"go.cs.palashbauri.in/pankti/gopkg"
 	"fmt"
 )
 
