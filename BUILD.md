@@ -23,6 +23,6 @@ line 16 to `OUTPUT=pankti.exe`, and run `make build`
 you can simply use MSBuild to build the project, you must set required flags
 according to your need.
 
-With Visual Stdio, just open the solution in `cpankproj` directory and Build 
+With Visual Studio, just open the solution in `cpankproj` directory and Build 
 from the toolbar
 
