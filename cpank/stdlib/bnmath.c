@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <wchar.h>
 
 #include "../include/stdlib.h"
 #include "../include/utils.h"
@@ -17,7 +16,14 @@ Value _bn_math_pow(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("ঘাত(ক, খ)", 2, argc);
 
     if (!is_num(args[0]) && !is_num(args[1])) {
-        return make_error(vm, U"গণিতের ঘাত(ক , খ) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 \u0998\u09be\u09a4(\u0995 , "
+            U"\u0996) \u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+
+        // MSG -> গণিতের ঘাত(ক , খ) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
 
     double a = get_as_number(args[0]);
@@ -31,7 +37,13 @@ Value _bn_math_add(PankVm* vm, int argc, Value* args) {
 
     //    if (args[0].type != args[1].type && args[0].type != V_NUM) {
     if (!is_num(args[0]) && !is_num(args[1])) {
-        return make_error(vm, U"গণিতের ঘাত(ক , খ) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 \u09af\u09cb\u0997(\u0995 , "
+            U"\u0996) \u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+        // MSG -> গণিতের যোগ(ক , খ) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
 
     double a = get_as_number(args[0]);
@@ -60,8 +72,13 @@ Value _bn_math_gcd(PankVm* vm, int argc, Value* args) {
 
     //    if (args[0].type != args[1].type && args[0].type != V_NUM) {
     if (!is_num(args[0]) && !is_num(args[1])) {
-        return make_error(vm,
-                          U"গণিতের গসাগু(ক , খ) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 "
+            U"\u0997\u09b8\u09be\u0997\u09c1(\u0995 , \u0996) "
+            U"\u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8");
+        // MSG -> গণিতের গসাগু(ক , খ) কাজটি শুধু সংখ্যা মান
     }
 
     double a = get_as_number(args[0]);
@@ -75,8 +92,14 @@ Value _bn_math_lcm(PankVm* vm, int argc, Value* args) {
 
     if (!is_num(args[0]) && !is_num(args[1])) {
         //    if (args[0].type != args[1].type && args[0].type != V_NUM) {
-        return make_error(vm,
-                          U"গণিতের লসাগু(ক , খ) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 "
+            U"\u09b2\u09b8\u09be\u0997\u09c1(\u0995 , \u0996) "
+            U"\u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+        // MSG -> গণিতের লসাগু(ক , খ) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
     double a = get_as_number(args[0]);
     double b = get_as_number(args[1]);
@@ -88,7 +111,14 @@ Value _bn_math_sqrt(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("বর্গমূল(ক)", 1, argc);
 
     if (!is_num(args[0])) {
-        return make_error(vm, U"গণিতের বর্গমূল(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 "
+            U"\u09ac\u09b0\u09cd\u0997\u09ae\u09c2\u09b2(\u0995) "
+            U"\u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+        // MSG -> গণিতের বর্গমূল(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
 
     double a = get_as_number(args[0]);
@@ -101,7 +131,14 @@ Value _bn_math_log10(PankVm* vm, int argc, Value* args) {
     // if (args[0].type != V_NUM) {
 
     if (!is_num(args[0])) {
-        return make_error(vm, U"গণিতের লগদশ(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 "
+            U"\u09b2\u0997\u09a6\u09b6(\u0995) \u0995\u09be\u099c\u099f\u09bf "
+            U"\u09b6\u09c1\u09a7\u09c1 \u09b8\u0982\u0996\u09cd\u09af\u09be "
+            U"\u09ae\u09be\u09a8 \u0997\u09cd\u09b0\u09b9\u09a3 "
+            U"\u0995\u09b0\u09c7");
+        // MSG -> গণিতের লগদশ(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
     double a = get_as_number(args[0]);
 
@@ -111,10 +148,14 @@ Value _bn_math_log10(PankVm* vm, int argc, Value* args) {
 Value _bn_math_log_e(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("লগ(ক)", 1, argc);
 
-    // if (args[0].type != V_NUM) {
-    //
     if (!is_num(args[0])) {
-        return make_error(vm, U"গণিতের লগ(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 \u09b2\u0997(\u0995) "
+            U"\u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+        // MSG -> গণিতের লগ(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
     double a = get_as_number(args[0]);
 
@@ -126,8 +167,14 @@ Value _bn_math_logx(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("লগবেস(ক, খ)", 2, argc);
 
     if (!is_num(args[0]) && !is_num(args[1])) {
-        return make_error(vm,
-                          U"গণিতের লগবেস(ক , খ) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 "
+            U"\u09b2\u0997\u09ac\u09c7\u09b8(\u0995 , \u0996) "
+            U"\u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+        // MSG -> গণিতের লগবেস(ক , খ) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
 
     double base = get_as_number(args[0]);
@@ -140,7 +187,14 @@ Value _bn_math_sine(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("সাইন(ক)", 1, argc);
 
     if (!is_num(args[0])) {
-        return make_error(vm, U"গণিতের সাইন(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 "
+            U"\u09b8\u09be\u0987\u09a8(\u0995) \u0995\u09be\u099c\u099f\u09bf "
+            U"\u09b6\u09c1\u09a7\u09c1 \u09b8\u0982\u0996\u09cd\u09af\u09be "
+            U"\u09ae\u09be\u09a8 \u0997\u09cd\u09b0\u09b9\u09a3 "
+            U"\u0995\u09b0\u09c7");
+        // MSG -> গণিতের সাইন(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
 
     double n = get_as_number(args[0]);
@@ -152,7 +206,13 @@ Value _bn_math_cosine(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("কস(ক)", 1, argc);
 
     if (!is_num(args[0])) {
-        return make_error(vm, U"গণিতের কস(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 \u0995\u09b8(\u0995) "
+            U"\u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+        // MSG -> গণিতের কস(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
 
     double n = get_as_number(args[0]);
@@ -164,7 +224,14 @@ Value _bn_math_tangent(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("ট্যান(ক)", 1, argc);
 
     if (!is_num(args[0])) {
-        return make_error(vm, U"গণিতের ট্যান(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 "
+            U"\u099f\u09cd\u09af\u09be\u09a8(\u0995) "
+            U"\u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+        // MSG -> গণিতের ট্যান(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
 
     double n = get_as_number(args[0]);
@@ -176,7 +243,14 @@ Value _bn_math_to_degree(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("ডিগ্রি(ক)", 1, argc);
 
     if (!is_num(args[0])) {
-        return make_error(vm, U"গণিতের ডিগ্রি(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 "
+            U"\u09a1\u09bf\u0997\u09cd\u09b0\u09bf(\u0995) "
+            U"\u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+        // MSG -> গণিতের ডিগ্রি(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
 
     double n = get_as_number(args[0]);
@@ -188,7 +262,14 @@ Value _bn_math_to_radians(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("রেডিয়ান(ক)", 1, argc);
 
     if (!is_num(args[0])) {
-        return make_error(vm, U"গণিতের রেডিয়ান(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 "
+            U"\u09b0\u09c7\u09a1\u09bf\u09df\u09be\u09a8(\u0995) "
+            U"\u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+        // MSG -> গণিতের রেডিয়ান(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
 
     double n = get_as_number(args[0]);
@@ -213,7 +294,15 @@ Value _bn_math_str_to_num(PankVm* vm, int argc, Value* args) {
 
     if (!is_str_obj(args[0])) {
         return make_error(
-            vm, U"গণিতের সংখ্যা(ক) কাজটি শুধুমাত্র স্ট্রিং/নাম মান গ্রহণ করে");
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be(\u0995) "
+            U"\u0995\u09be\u099c\u099f\u09bf "
+            U"\u09b6\u09c1\u09a7\u09c1\u09ae\u09be\u09a4\u09cd\u09b0 "
+            U"\u09b8\u09cd\u099f\u09cd\u09b0\u09bf\u0982/\u09a8\u09be\u09ae "
+            U"\u09ae\u09be\u09a8 \u0997\u09cd\u09b0\u09b9\u09a3 "
+            U"\u0995\u09b0\u09c7");
+        // MSG -> গণিতের সংখ্যা(ক) কাজটি শুধুমাত্র স্ট্রিং/নাম মান গ্রহণ করে
     }
 
     ObjString* ostr = get_as_string(args[0]);
@@ -229,7 +318,14 @@ Value _bn_math_get_random(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("এলোমেলো_সংখ্যা(ক)", 1, argc);
     if (!is_num(args[0])) {
         return make_error(
-            vm, U"গণিতের এলোমেলো_সংখ্যা(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 "
+            U"\u098f\u09b2\u09cb\u09ae\u09c7\u09b2\u09cb_"
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be(\u0995) "
+            U"\u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+        // MSG-> গণিতের এলোমেলো_সংখ্যা(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
     srand((unsigned int)time(0));
     double result = ((double)rand() / (double)(RAND_MAX));
@@ -241,7 +337,15 @@ Value _bn_math_get_random_from_range(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("এলোমেলো(নিম্ন, উচ্চ)", 2, argc);
     if (!is_num(args[0]) && !is_num(args[1])) {
         return make_error(
-            vm, U"গণিতের এলোমেলো(নিম্ন, উচ্চ) কাজটি শুধুমাত্র সংখ্যা মান গ্রহণ করে");
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 "
+            U"\u098f\u09b2\u09cb\u09ae\u09c7\u09b2\u09cb("
+            U"\u09a8\u09bf\u09ae\u09cd\u09a8, \u0989\u099a\u09cd\u099a) "
+            U"\u0995\u09be\u099c\u099f\u09bf "
+            U"\u09b6\u09c1\u09a7\u09c1\u09ae\u09be\u09a4\u09cd\u09b0 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+        // MSG -> গণিতের এলোমেলো(নিম্ন, উচ্চ) কাজটি শুধুমাত্র সংখ্যা মান গ্রহণ করে
     }
     srand((unsigned int)time(0));
     double min = get_as_number(args[0]);
@@ -257,7 +361,13 @@ Value _bn_math_abs_num(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("পরম(ক)", 1, argc);
 
     if (!is_num(args[0])) {
-        return make_error(vm, U"গণিতের পরম(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 \u09aa\u09b0\u09ae(\u0995) "
+            U"\u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+        // MSG -> গণিতের পরম(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
 
     double v = get_as_number(args[0]);
@@ -269,7 +379,14 @@ Value _bn_math_round(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("রাউন্ড(ক)", 1, argc);
 
     if (!is_num(args[0])) {
-        return make_error(vm, U"গণিতের রাউন্ড(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 "
+            U"\u09b0\u09be\u0989\u09a8\u09cd\u09a1(\u0995) "
+            U"\u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+        // MSG -> গণিতের রাউন্ড(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
 
     double v = get_as_number(args[0]);
@@ -287,7 +404,13 @@ Value _bn_math_ceil(PankVm* vm, int argc, Value* args) {
     bn_check_argc_count("সিল(ক)", 1, argc);
 
     if (!is_num(args[0])) {
-        return make_error(vm, U"গণিতের সিল(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে");
+        return make_error(
+            vm,
+            U"\u0997\u09a3\u09bf\u09a4\u09c7\u09b0 \u09b8\u09bf\u09b2(\u0995) "
+            U"\u0995\u09be\u099c\u099f\u09bf \u09b6\u09c1\u09a7\u09c1 "
+            U"\u09b8\u0982\u0996\u09cd\u09af\u09be \u09ae\u09be\u09a8 "
+            U"\u0997\u09cd\u09b0\u09b9\u09a3 \u0995\u09b0\u09c7");
+        // MSG -> গণিতের সিল(ক) কাজটি শুধু সংখ্যা মান গ্রহণ করে
     }
 
     double v = get_as_number(args[0]);

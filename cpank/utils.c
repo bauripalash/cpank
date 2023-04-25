@@ -44,7 +44,7 @@ bool dump_instruction(Instruction *ins, char *filename) {
 char *get_cur_dir(void) {
     char *p;
 
-#if !defined (PANK_OS_WIN)
+#if !defined(PANK_OS_WIN)
     p = getcwd(NULL, 0);
 #else
     p = _getcwd(NULL, 0);
@@ -98,6 +98,26 @@ char *c_to_c(const char32_t *input, int len) {
     char *output = (char *)malloc(MB_CUR_MAX * in_size);
     if (output == NULL) return "";
     memset(output, 0, in_size);
+    char *p = output;
+    for (size_t n = 0; n < in_size; n++) {
+        size_t rc = c32rtomb(p, input[n], &state);
+        if (rc == (size_t)-1) break;
+        p += rc;
+    }
+
+    // output = (char *)realloc(output, strlen(output));
+    // size_t os = p - output;
+    // cp_println(L"sz ->%S\n", output);
+    return output;
+}
+
+char *c32_to_char(const char32_t *input, int len) {
+    mbstate_t state = {0};
+    setlocale(LC_ALL, "bn_IN.utf8");
+    size_t in_size = len + 1;
+    char *output = (char *)calloc(MB_CUR_MAX, in_size);
+    if (output == NULL) return "";
+    //    memset(output, 0, in_size);
     char *p = output;
     for (size_t n = 0; n < in_size; n++) {
         size_t rc = c32rtomb(p, input[n], &state);

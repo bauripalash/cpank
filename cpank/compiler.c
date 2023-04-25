@@ -15,7 +15,7 @@
 #include "include/value.h"
 #include "include/vm.h"
 
-#define DEBUG_PRINT_CODE
+// #define DEBUG_PRINT_CODE
 // #define DEBUG_LEXER
 #ifdef DEBUG_PRINT_CODE
  #include "include/debug.h"
@@ -266,10 +266,14 @@ static void emit_const(Compiler *compiler, Value value) {
 // parse numbers
 // double
 static void read_number(Compiler *compiler, bool can_assign) {
-    char *str =
-        c_to_c(compiler->parser->prev.start, compiler->parser->prev.length);
+    char *str = c32_to_char(compiler->parser->prev.start,
+                            compiler->parser->prev.length);
     // double val = 100 ;//wcstod(compiler->parser->prev.start, NULL);
     double val = strtod(str, NULL);
+
+    //    cp_println(L"STR -> %s" , str);
+    //    cp_println(L"NUM -> %.8f" , val);
+
     free(str);
     emit_const(compiler, make_num(val));
 }

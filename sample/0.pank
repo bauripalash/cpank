@@ -1,11 +1,2 @@
-let a = {"hello" : "world"}
-
-a["hello"] = 1
-a["name"] = "palash"
-show a
-
-let b = ["hello" , "world" , "palash" , "bauri"]
-show b 
-b[1] = "friend"
-show b
+show 354224848179261997056.123456
 

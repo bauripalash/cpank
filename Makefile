@@ -1,4 +1,4 @@
-CC=clang
+CC=gcc
 RELEASEFLAGS=-std=c11 -O3 -Wall -DMODE_BENGALI
 CFLAGS+=-std=c11 -Wall -pedantic -DMODE_BENGALI
 LINKS=-lm
@@ -9,7 +9,7 @@ EXTERNALDIR=cpank/ext/
 SRC+=$(STDLIB_MODULES)
 SRC+=$(EXTERNAL)
 MAIN=cpank/main.c
-SAMPLE_TO_RUN=sample/stdmap.pank
+SAMPLE_TO_RUN=sample/fib_loop.pank
 TESTMAIN=testmain.c
 APIMAIN=cpank/api.c
 WEBMAIN=web/pankti.web.c
@@ -23,7 +23,7 @@ fetchext:
 	wget https://github.com/Cyan4973/xxHash/raw/dev/xxhash.h -O cpank/ext/xxhash/xxhash.h
 
 run:
-	$(CC) $(CFLAGS) -g -o $(OUTPUT) $(MAIN) $(SRC) $(LINKS)
+	$(CC) $(CFLAGS) -DDEBUG -g -o $(OUTPUT) $(MAIN) $(SRC) $(LINKS)
 	./$(OUTPUT) $(SAMPLE_TO_RUN)
 
 andapi:
@@ -59,17 +59,17 @@ test: build_test
 	./$(TESTOUTPUT)
 
 build_debug:
-	@echo "Building Debug+Unoptimized $(OUTPUT)"
+	@echo "Building Debug+Unoptimized $(OUTPUT) $(PANKTI_VERSION)"
 	$(CC) $(CFLAGS) -g -o $(OUTPUT) $(MAIN) $(SRC) $(LINKS)
 	@echo "Finished building Debug+Unoptimized $(OUTPUT)"
 
 build_uo:
-	@echo "Building Unoptimized $(OUTPUT)"
+	@echo "Building Unoptimized $(OUTPUT) $(PANKTI_VERSION)"
 	$(CC) $(CFLAGS) -g -gdwarf-4 -o $(OUTPUT) $(MAIN) $(SRC) $(LINKS)
 	@echo "Finished building unoptimized $(OUTPUT)"
 
 build:
-	@echo "Building optimized $(OUTPUT)"
+	@echo "Building optimized $(OUTPUT) $(PANKTI_VERSION)"
 	$(CC) $(RELEASEFLAGS) -o $(OUTPUT) $(MAIN) $(SRC) $(LINKS) -flto
 	@echo "Finished building optimized $(OUTPUT)"
 

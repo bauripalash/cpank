@@ -46,6 +46,7 @@ int copy_c32(char32_t *str, const char32_t *input, int len);
 int strlen32(const char32_t *strarg);
 
 char *c_to_c(const char32_t *input, int len);
+char *c32_to_char(const char32_t *input, int len);
 
 bool str32cmp(const char32_t *str1, const char32_t *str2);
 

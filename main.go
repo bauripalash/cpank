@@ -1,12 +1,12 @@
 package main
 
 import (
-	"go.cs.palashbauri.in/pankti/gopkg"
 	"fmt"
+	"go.cs.palashbauri.in/pankti/gopkg"
 )
 
 import "C"
 
-func main(){
+func main() {
 	fmt.Println(gopkg.DoParse("show 1+2;"))
 }

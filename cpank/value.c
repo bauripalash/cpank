@@ -2,6 +2,8 @@
 
 #include "include/value.h"
 
+#include <errno.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -119,7 +121,7 @@ void print_val(Value val) {
     } else if (is_num(val)) {
         double num = get_as_number(val);
         if (is_int(num)) {
-            cp_print(L"%d", (int)num);
+            cp_print(L"%.0f", num);
         } else {
             cp_print(L"%g", num);
         }
