@@ -17,6 +17,7 @@
 #define STDMATH    U"math"
 #define STDMATH_BN U"\u0997\u09a3\u09bf\u09a4"
 #define STDOS      U"os"
+#define STDOS_BN   U"\u0993\u098f\u09b8"
 #define STDCOMMON  U"common"
 #define STDARRAY   U"array"
 #define STDSTR     U"str"
@@ -46,6 +47,7 @@ int _push_single_stdfunc(char32_t* stdname, ObjString* key, NativeFn fn);
 void push_stdlib_math(PankVm* vm);
 void push_stdlib_math_bn(PankVm* vm);
 void push_stdlib_os(PankVm* vm);
+void push_stdlib_os_bn(PankVm* vm);
 void push_stdlib_common(PankVm* vm);
 void push_stdlib_array(PankVm* vm);
 void push_stdlib_string(PankVm* vm);
