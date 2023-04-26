@@ -3,6 +3,7 @@
 #ifndef cpank_obj_h
 #define cpank_obj_h
 
+#include <gmp.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <uchar.h>
@@ -24,6 +25,7 @@ typedef enum {
     OBJ_ARRAY,
     OBJ_ERR,
     OBJ_HMAP,
+    OBJ_BIGNUM,
 } ObjType;
 
 struct Obj {
@@ -100,6 +102,22 @@ typedef struct {
     int cap;
     HmapItem *items;
 } ObjHashMap;
+
+typedef struct {
+    Obj obj;
+    bool marker;
+    bool isfloat;
+    union {
+        mpz_t ival;
+        mpf_t fval;
+    } as;
+} ObjBigNum;
+
+ObjBigNum *new_bignum(PankVm *vm);
+ObjBigNum *new_bignum_with_double(PankVm *vm, double value);
+ObjBigNum *new_bignum_with_str(PankVm *vm, char32_t *value);
+ObjBigNum *get_as_bignum(Value value);
+bool is_bignum_obj(Value value);
 
 ObjHashMap *new_hmap(PankVm *vm);
 ObjFunc *new_func(PankVm *vm);

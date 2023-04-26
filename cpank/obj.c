@@ -2,6 +2,7 @@
 
 #include "include/obj.h"
 
+#include <gmp.h>
 #include <locale.h>
 #include <math.h>
 #include <stdarg.h>
@@ -35,6 +36,7 @@
 #define ARRAY_NAME   U"array"
 #define NATIVE_NAME  U"native"
 #define UPVAL_NAME   U"upvalue"
+#define BIGNUM_NAME  U"bignum"
 
 char32_t *get_obj_type_str(Value val, bool isbn) {
     ObjType tp = get_obj_type(val);
@@ -57,6 +59,8 @@ char32_t *get_obj_type_str(Value val, bool isbn) {
             return isbn ? ARRAY_NAME_BN : ARRAY_NAME;
         case OBJ_UPVAL:
             return isbn ? UPVAL_NAME_BN : UPVAL_NAME;
+        case OBJ_BIGNUM:
+            return BIGNUM_NAME;  // TODO : Bengali name
     }
 
     return U"OBJ_UNKNOWN";
@@ -89,6 +93,7 @@ bool is_obj_type(Value val, ObjType ot) {
 }
 
 bool is_str_obj(Value val) { return is_obj_type(val, OBJ_STR); }
+bool is_bignum_obj(Value value) { return is_obj_type(value, OBJ_BIGNUM); }
 
 // cppcheck-suppress unusedFunction
 bool is_func_obj(Value val) { return is_obj_type(val, OBJ_FUNC); }
@@ -127,6 +132,9 @@ ObjMod *get_as_mod(Value val) { return (ObjMod *)get_as_obj(val); }
 
 ObjHashMap *get_as_hmap(Value val) { return (ObjHashMap *)get_as_obj(val); }
 ObjErr *get_as_err(Value val) { return (ObjErr *)get_as_obj(val); }
+
+ObjBigNum *get_as_bignum(Value val) { return (ObjBigNum *)get_as_obj(val); }
+
 ObjString *allocate_str(PankVm *vm, char32_t *chars, int len, uint64_t hash) {
     ObjString *string = ALLOCATE_OBJ(vm, ObjString, OBJ_STR);
     string->len = len;
@@ -162,6 +170,8 @@ wchar_t *get_obj_type_as_string(ObjType o) {
             return L"OBJ_ARRAY";
         case OBJ_HMAP:
             return L"OBJ_HMAP";
+        case OBJ_BIGNUM:
+            return L"OBJ_BIGNUM";
     }
 
     return L"OBJ_UNKNOWN";
@@ -236,8 +246,10 @@ bool is_obj_equal(Obj *a, Obj *b) {
 
 char32_t *obj_to_string(PankVm *vm, Value val) {
     switch (get_obj_type(val)) {
+        // TODO: BigNum
         case OBJ_STR:
             return duplicate_string((ObjString *)get_as_obj(val));
+
         case OBJ_ERR: {
             ObjErr *er = get_as_err(val);
             return char_to_32(er->errmsg);
@@ -530,6 +542,38 @@ void print_obj(Value val) {
             cp_print(L" }");
             break;
         }
+        case OBJ_BIGNUM: {
+            ObjBigNum *bn = get_as_bignum(val);
+
+            if (!bn->isfloat) {
+                char *str = mpz_get_str(NULL, 10, bn->as.ival);
+                cp_print(L"%s", str);
+                free(str);
+            } else {
+                mp_exp_t ex;
+                char *str = mpf_get_str(NULL, &ex, 10, 0, bn->as.fval);
+                int prec = 10;
+                int n_digits = strlen(str);
+                if (ex >= n_digits) {
+                    int n_zeros = ex - n_digits + prec + 1;
+                    str = realloc(str, n_digits + n_zeros + 1);
+                    memset(str + n_digits, '0', n_zeros);
+                    str[n_digits + n_zeros] = '\0';
+                    n_digits += n_zeros;
+                } else {
+                    str = realloc(str, n_digits + 2);
+                    // memmove(str + ex + 1 , str + ex , n_digits - ex);
+                    str[ex] = '.';
+                    n_digits++;
+                }
+                cp_println(L"%s -> %d", str, ex);
+                free(str);
+            }
+
+            // cp_print(L"%s -> %d", str, num_zeros);
+            // free(str);
+            break;
+        }
         default: {
             cp_print(L"OBJ_UNKNOWN");
             break;
@@ -588,6 +632,57 @@ ObjMod *new_mod(PankVm *vm, char32_t *name) {
     pop(vm);
     // print_stack(vm);
     return mod;
+}
+
+ObjBigNum *new_bignum(PankVm *vm) {
+    ObjBigNum *bn = ALLOCATE_OBJ(vm, ObjBigNum, OBJ_BIGNUM);
+    push(vm, make_obj_val(bn));
+    bn->marker = false;
+    bn->isfloat = false;
+
+    mpz_init(bn->as.ival);
+    pop(vm);
+    return bn;
+}
+
+ObjBigNum *new_bignum_with_double(PankVm *vm, double value) {
+    ObjBigNum *bn = new_bignum(vm);
+    push(vm, make_obj_val(bn));
+    if (is_int(value)) {
+        mpz_set_d(bn->as.ival, value);
+    } else {
+        bn->isfloat = true;
+        mpz_clear(bn->as.ival);
+        mpf_init(bn->as.fval);
+        mpf_set_d(bn->as.fval, value);
+    }
+    pop(vm);
+    return bn;
+}
+
+ObjBigNum *new_bignum_with_str(PankVm *vm, char32_t *value) {
+    ObjBigNum *bn = new_bignum(vm);
+    push(vm, make_obj_val(bn));
+    char *str = c32_to_char(value, strlen32(value));
+    bool isf = false;
+    for (int i = 0; i < strlen(str); i++) {
+        if (str[i] == '.') {
+            isf = true;
+        }
+    }
+
+    if (isf) {
+        mpz_clear(bn->as.ival);
+        mpf_init(bn->as.fval);
+        mpf_set_str(bn->as.fval, str, 10);
+        bn->isfloat = true;
+    } else {
+        mpz_set_str(bn->as.ival, str, 10);
+    }
+    // mpf_set_str(bn->value , str , 10);
+    free(str);
+    pop(vm);
+    return bn;
 }
 
 ObjErr *new_err_obj(PankVm *vm, char32_t *errmsg) {

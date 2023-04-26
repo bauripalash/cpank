@@ -2,12 +2,19 @@
 
 #include <stdbool.h>
 #include <time.h>
+#include <uchar.h>
 
 #include "include/obj.h"
 #include "include/value.h"
 #include "include/vm.h"
+
 Value clock_ntv_fn(PankVm *vm, int argc, Value *args) {
     return make_num((double)clock() / CLOCKS_PER_SEC);
+}
+
+Value bignew_ntv_fn(PankVm *vm, int argc, Value *args) {
+    char32_t *s = get_as_native_string(args[0]);
+    return make_obj_val(new_bignum_with_str(vm, s));
 }
 
 Value asserteq_ntv_fn(PankVm *vm, int argc, Value *args) {

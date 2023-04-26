@@ -190,6 +190,7 @@ PankVm *boot_vm(bool need_buffer) {
     define_native(vm, type_ntv_name, type_ntv_fn);
     define_native(vm, bn_native_fn_name, bn_type_ntv_fn);
     define_native(vm, len_ntv_name, len_ntv_fn);
+    define_native(vm, bignew_ntv_name, bignew_ntv_fn);
     // write_pbuffer(&vm->buffer, "hello world %ls" , L"how are you\n");
     return vm;
 }

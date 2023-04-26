@@ -2,6 +2,7 @@
 
 #include "include/mem.h"
 
+#include <gmp.h>
 #include <locale.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -23,7 +24,7 @@ GcConfig gcon;
 
 // #define NOGC
 
-#define DEBUG_STRES_GC
+// #define DEBUG_STRES_GC
 #ifdef DEBUG_LOG_GC
  #include "include/debug.h"
 #endif
@@ -115,6 +116,15 @@ void free_single_obj(PankVm *vm, Obj *obj) {
             FREE_ARR(vm, HmapItem, hmap->items, hmap->cap);
             FREE(vm, ObjHashMap, hmap);
             break;
+        }
+        case OBJ_BIGNUM: {
+            ObjBigNum *bn = (ObjBigNum *)obj;
+            if (bn->isfloat) {
+                mpf_clear(bn->as.fval);
+            } else {
+                mpz_clear(bn->as.ival);
+            }
+            FREE(vm, ObjBigNum, bn);
         }
     }
 }
