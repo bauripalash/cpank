@@ -1,9 +1,12 @@
 import b "big"
 let x = bignew("1051002003203.0")
-let y = bignew("2004");
-show x
-show y
-show b.add(x,y);
-show b.sub(x,y);
-show b.mul(x,y);
-show b.div(x,y);
+let y = bignew("2004.0");
+#show x
+#show y
+#show b.add(x,y);
+#show b.sub(x,y);
+#show b.mul(x,y);
+show b.div(y,x);
+let z = bignew("1.90675e-09");
+show z;
+#show 2004/ 1051002003203 

@@ -573,7 +573,7 @@ void print_obj(Value val) {
                     cp_print(L"");
                     break;
                 } else {
-                    cp_print(L"%s", str);
+                    cp_print(L"'%s'", str);
                     free(str);
                 }
             } else {
@@ -717,7 +717,8 @@ ObjBigNum *new_bignum_with_str(PankVm *vm, char32_t *value) {
 
     if (isf) {
         mpz_clear(bn->as.ival);
-        mpf_init(bn->as.fval);
+        mpf_init2(bn->as.fval , 200);
+        //mpf_init(bn->as.fval);
         mpf_set_str(bn->as.fval, str, 10);
         bn->isfloat = true;
     } else {

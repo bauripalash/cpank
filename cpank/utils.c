@@ -39,12 +39,15 @@ char *gmp_int_to_str(mpz_t ival) {
 }
 
 char *gmp_float_to_str(mpf_t fval) {
-    int len = gmp_snprintf(NULL, 0, "%Ff", fval);
-    char *str = (char *)calloc(len + 1, sizeof(char));
+    
+    //FIX : very small floats doesn't result anything;
+    int len = gmp_snprintf(NULL, 0, "%Fg", fval);
+    cp_println(L"len -> %d | prec -> %d" , len , mpf_get_prec(fval));
+    char *str = (char *)calloc(len + 2, sizeof(char));
     if (str == NULL) {
         return NULL;
     }
-    gmp_snprintf(str, len, "%Ff", fval);
+    gmp_snprintf(str, len, "%Fg", fval);
     return str;
 }
 

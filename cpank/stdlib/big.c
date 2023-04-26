@@ -23,6 +23,7 @@ void do_float_calc(mpf_t result, mpf_t left, mpf_t right, uint8_t op) {
             break;
         case DO_DIV:
             mpf_div(result, left, right);
+            //mpf_set_prec(result , 100);
             break;
     }
 }
@@ -40,6 +41,7 @@ void do_int_calc(mpz_t result, mpz_t left, mpz_t right, uint8_t op) {
             break;
         case DO_DIV:
             mpz_div(result, left, right);
+            
             break;
     }
 }
@@ -64,9 +66,13 @@ Value do_big_calc(PankVm *vm, ObjBigNum *left, ObjBigNum *right, uint8_t op) {
             mpf_set_z(f_right, right->as.ival);
         }
         mpf_t result;
-        mpf_init(result);
+        mpf_init2(result , 200);
+        //mpf_set_prec(result , 200);
+        //mpf_init2(result , 20);
         do_float_calc(result, f_left, f_right, op);
         Value v = make_obj_val(new_bignum_with_mpf(vm, result));
+        mpf_clear(f_left);
+        mpf_clear(f_right);
         mpf_clear(result);
         return v;
     } else {
