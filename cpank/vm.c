@@ -209,7 +209,7 @@ bool is_stdlib(char32_t *name) {
            str32cmp(name, STDMATH_BN) || str32cmp(name, STDCOMMON) ||
            str32cmp(name, STDARRAY) || str32cmp(name, STDSTR) ||
            str32cmp(name, STDFILE) || str32cmp(name, STDHMAP) ||
-           str32cmp(name, STDOS_BN);
+           str32cmp(name, STDOS_BN) || str32cmp(name, STDBIG);
 }
 
 void init_module(Module *mod, const char32_t *name) {
@@ -633,6 +633,8 @@ void add_stdlib(PankVm *vm, char32_t *import_name) {
         push_stdlib_map(vm);
     } else if (str32cmp(import_name, STDOS_BN)) {
         push_stdlib_os_bn(vm);
+    } else if (str32cmp(import_name, STDBIG)) {
+        push_stdlib_big(vm);
     }
 }
 

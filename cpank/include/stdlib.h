@@ -23,6 +23,7 @@
 #define STDSTR     U"str"
 #define STDFILE    U"file"
 #define STDHMAP    U"map"
+#define STDBIG     U"big"
 
 #define check_argc_count(funcname, want, got)                    \
  if (argc != want) {                                             \
@@ -53,4 +54,5 @@ void push_stdlib_array(PankVm* vm);
 void push_stdlib_string(PankVm* vm);
 void push_stdlib_file(PankVm* vm);
 void push_stdlib_map(PankVm* vm);
+void push_stdlib_big(PankVm* vm);
 #endif

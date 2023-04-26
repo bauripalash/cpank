@@ -114,6 +114,9 @@ typedef struct {
 } ObjBigNum;
 
 ObjBigNum *new_bignum(PankVm *vm);
+ObjBigNum *new_bignum_float(PankVm *vm);
+ObjBigNum *new_bignum_with_mpf(PankVm *vm, mpf_t value);
+ObjBigNum *new_bignum_with_mpz(PankVm *vm, mpz_t value);
 ObjBigNum *new_bignum_with_double(PankVm *vm, double value);
 ObjBigNum *new_bignum_with_str(PankVm *vm, char32_t *value);
 ObjBigNum *get_as_bignum(Value value);

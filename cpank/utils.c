@@ -27,54 +27,25 @@
 #endif
 
 char *gmp_int_to_str(mpz_t ival) {
-    char *str = mpz_get_str(NULL, 10, ival);
+    int len = gmp_snprintf(NULL, 0, "%Zd", ival);
+    char *str = (char *)calloc(len + 2, sizeof(char));
     if (str == NULL) {
         return NULL;
     }
+
+    gmp_snprintf(str, len + 2, "%Zd", ival);
 
     return str;
 }
 
 char *gmp_float_to_str(mpf_t fval) {
-    char *num_part;
-    char *frac_part;
-    char *result;
-    mpf_t n_part;
-    mpf_t f_part;
-    mpf_init(n_part);
-    mpf_init(f_part);
-    mpf_floor(n_part, fval);
-    mpf_sub(f_part, fval, n_part);
-    mp_exp_t a;
-
-    num_part = mpf_get_str(NULL, &a, 10, 0, n_part);
-    if (num_part == NULL) {
-        mpf_clear(n_part);
-        mpf_clear(f_part);
+    int len = gmp_snprintf(NULL, 0, "%Ff", fval);
+    char *str = (char *)calloc(len + 1, sizeof(char));
+    if (str == NULL) {
         return NULL;
     }
-    frac_part = mpf_get_str(NULL, &a, 10, 0, f_part);
-    if (frac_part == NULL) {
-        mpf_clear(n_part);
-        mpf_clear(f_part);
-        free(num_part);
-        return NULL;
-    }
-    int result_len = strlen(num_part) + strlen(frac_part) + 2;
-    result = (char *)calloc(result_len, sizeof(char));
-    if (result == NULL) {
-        mpf_clear(n_part);
-        mpf_clear(f_part);
-        free(num_part);
-        free(frac_part);
-        return NULL;
-    }
-    snprintf(result, result_len, "%s.%s", num_part, frac_part);
-    mpf_clear(n_part);
-    mpf_clear(f_part);
-    free(num_part);
-    free(frac_part);
-    return result;
+    gmp_snprintf(str, len, "%Ff", fval);
+    return str;
 }
 
 bool dump_instruction(Instruction *ins, char *filename) {

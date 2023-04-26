@@ -24,7 +24,7 @@ GcConfig gcon;
 
 // #define NOGC
 
-// #define DEBUG_STRES_GC
+#define DEBUG_STRES_GC
 #ifdef DEBUG_LOG_GC
  #include "include/debug.h"
 #endif
@@ -170,6 +170,11 @@ void blacken_obj(PankVm *vm, Obj *obj) {
             break;
         case OBJ_STR:
             break;
+        case OBJ_BIGNUM: {
+            ObjBigNum *bn = (ObjBigNum *)obj;
+            bn->marker = true;
+            break;
+        }
 
         case OBJ_UPVAL:
             mark_val(vm, ((ObjUpVal *)obj)->closed);

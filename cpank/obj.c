@@ -582,7 +582,7 @@ void print_obj(Value val) {
                     cp_print(L"");
                     break;
                 } else {
-                    cp_println(L"%s", str);
+                    cp_print(L"%s", str);
                     free(str);
                 }
             }
@@ -662,6 +662,17 @@ ObjBigNum *new_bignum(PankVm *vm) {
     return bn;
 }
 
+ObjBigNum *new_bignum_float(PankVm *vm) {
+    ObjBigNum *bn = ALLOCATE_OBJ(vm, ObjBigNum, OBJ_BIGNUM);
+    push(vm, make_obj_val(bn));
+    bn->marker = false;
+    bn->isfloat = true;
+
+    mpf_init(bn->as.fval);
+    pop(vm);
+    return bn;
+}
+
 ObjBigNum *new_bignum_with_double(PankVm *vm, double value) {
     ObjBigNum *bn = new_bignum(vm);
     push(vm, make_obj_val(bn));
@@ -673,6 +684,22 @@ ObjBigNum *new_bignum_with_double(PankVm *vm, double value) {
         mpf_init(bn->as.fval);
         mpf_set_d(bn->as.fval, value);
     }
+    pop(vm);
+    return bn;
+}
+
+ObjBigNum *new_bignum_with_mpf(PankVm *vm, mpf_t value) {
+    ObjBigNum *bn = new_bignum_float(vm);
+    push(vm, make_obj_val(bn));
+    mpf_set(bn->as.fval, value);
+    pop(vm);
+    return bn;
+}
+
+ObjBigNum *new_bignum_with_mpz(PankVm *vm, mpz_t value) {
+    ObjBigNum *bn = new_bignum(vm);
+    push(vm, make_obj_val(bn));
+    mpz_set(bn->as.ival, value);
     pop(vm);
     return bn;
 }
