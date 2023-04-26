@@ -1,0 +1,31 @@
+import b "big"
+kaj fib(n)
+	let a = bignew("0")
+
+	let bb = bignew("1")
+
+	jodi n < 0 then
+		return 0 
+	end 
+
+	jodi n == 0 then
+		return 0 
+	end 
+
+	jodi n == 1 then 
+		return bb
+	end 
+
+	let x = 1
+
+	while (x < n)
+		let c = b.add(a , bb)
+		a = bb
+		bb = c 
+		x = x+1 
+	end 
+	return bb
+end
+let start = clock()
+show fib(500)
+show clock() - start
