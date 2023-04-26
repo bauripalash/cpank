@@ -80,7 +80,7 @@ Value do_big_calc(PankVm *vm, ObjBigNum *left, ObjBigNum *right, uint8_t op) {
 }
 
 Value _big_add(PankVm *vm, int argc, Value *args) {
-    check_argc_count("add", 2, argc);
+    check_argc_count("add(a,b )", 2, argc);
     Value raw_a = args[0];
     Value raw_b = args[1];
     if (!is_bignum_obj(raw_a) || !is_bignum_obj(raw_b)) {
@@ -93,10 +93,55 @@ Value _big_add(PankVm *vm, int argc, Value *args) {
     return do_big_calc(vm, left, right, DO_ADD);
 }
 
+Value _big_sub(PankVm *vm, int argc, Value *args) {
+    check_argc_count("sub(a, b)", 2, argc);
+    Value raw_a = args[0];
+    Value raw_b = args[1];
+    if (!is_bignum_obj(raw_a) || !is_bignum_obj(raw_b)) {
+        return make_error(
+            vm, U"both arguments to big.sub(a,b) must be big numbers");
+    }
+
+    ObjBigNum *left = get_as_bignum(raw_a);
+    ObjBigNum *right = get_as_bignum(raw_b);
+    return do_big_calc(vm, left, right, DO_SUB);
+}
+
+Value _big_mul(PankVm *vm, int argc, Value *args) {
+    check_argc_count("mul(a, b)", 2, argc);
+    Value raw_a = args[0];
+    Value raw_b = args[1];
+    if (!is_bignum_obj(raw_a) || !is_bignum_obj(raw_b)) {
+        return make_error(
+            vm, U"both arguments to big.mul(a,b) must be big numbers");
+    }
+
+    ObjBigNum *left = get_as_bignum(raw_a);
+    ObjBigNum *right = get_as_bignum(raw_b);
+    return do_big_calc(vm, left, right, DO_MUL);
+}
+
+Value _big_div(PankVm *vm, int argc, Value *args) {
+    check_argc_count("div(a, b)", 2, argc);
+    Value raw_a = args[0];
+    Value raw_b = args[1];
+    if (!is_bignum_obj(raw_a) || !is_bignum_obj(raw_b)) {
+        return make_error(
+            vm, U"both arguments to big.div(a,b) must be big numbers");
+    }
+
+    ObjBigNum *left = get_as_bignum(raw_a);
+    ObjBigNum *right = get_as_bignum(raw_b);
+    return do_big_calc(vm, left, right, DO_DIV);
+}
+
 void push_stdlib_big(PankVm *vm) {
     SL sls[] = {
         msl(U"add", _big_add),
+        msl(U"sub", _big_sub),
+        msl(U"mul", _big_mul),
+        msl(U"div", _big_div),
     };
 
-    _push_stdlib(vm, U"big", sls, 1);
+    _push_stdlib(vm, U"big", sls, 4);
 }
