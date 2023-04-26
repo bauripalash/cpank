@@ -3,6 +3,7 @@
 #ifndef cpank_utils_h
 #define cpank_utils_h
 
+#include <gmp.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <uchar.h>
@@ -27,6 +28,16 @@
 #define OS_MACOS_CODE     2
 #define OS_ANDROID_CODE   3
 #define OS_UNKNOWN_CODE   4
+
+// Convert GMP integer `ival` to string;
+// You must check for `NULL`;
+// You must free the result;
+char *gmp_int_to_str(mpz_t ival);
+
+// Convert GMP float `fval` to string;
+// You must check for `NULL`;
+// You must free the result;
+char *gmp_float_to_str(mpf_t fval);
 
 // Save the instructions into a binary file
 bool dump_instruction(Instruction *ins, char *filename);

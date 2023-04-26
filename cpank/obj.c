@@ -21,6 +21,7 @@
 #include "include/helper/comp.h"
 #include "include/helper/os.h"
 #include "include/instruction.h"
+#include "include/lexer.h"
 #include "include/mem.h"
 #include "include/openfile.h"
 #include "include/utils.h"
@@ -387,6 +388,27 @@ char32_t *obj_to_string(PankVm *vm, Value val) {
             char32_t *rr = res;
             return rr;
         }
+        case OBJ_BIGNUM: {
+            ObjBigNum *bn = get_as_bignum(val);
+            char *str;
+            if (bn->isfloat) {
+                str = gmp_float_to_str(bn->as.fval);
+
+            } else {
+                str = gmp_int_to_str(bn->as.ival);
+            }
+            if (str == NULL) {
+                return U"";
+            }
+
+            char32_t *str32 = char_to_32(str);
+            if (str32 == NULL) {
+                free(str);
+                return U"";
+            }
+            free(str);
+            return str32;
+        }
         case OBJ_ARRAY: {
             ObjArray *arr = get_as_array(val);
             char32_t *comma = U", ";
@@ -545,29 +567,24 @@ void print_obj(Value val) {
         case OBJ_BIGNUM: {
             ObjBigNum *bn = get_as_bignum(val);
 
-            if (!bn->isfloat) {
-                char *str = mpz_get_str(NULL, 10, bn->as.ival);
-                cp_print(L"%s", str);
-                free(str);
-            } else {
-                mp_exp_t ex;
-                char *str = mpf_get_str(NULL, &ex, 10, 0, bn->as.fval);
-                int prec = 10;
-                int n_digits = strlen(str);
-                if (ex >= n_digits) {
-                    int n_zeros = ex - n_digits + prec + 1;
-                    str = realloc(str, n_digits + n_zeros + 1);
-                    memset(str + n_digits, '0', n_zeros);
-                    str[n_digits + n_zeros] = '\0';
-                    n_digits += n_zeros;
+            if (bn->isfloat) {
+                char *str = gmp_float_to_str(bn->as.fval);
+                if (str == NULL) {
+                    cp_print(L"");
+                    break;
                 } else {
-                    str = realloc(str, n_digits + 2);
-                    // memmove(str + ex + 1 , str + ex , n_digits - ex);
-                    str[ex] = '.';
-                    n_digits++;
+                    cp_print(L"%s", str);
+                    free(str);
                 }
-                cp_println(L"%s -> %d", str, ex);
-                free(str);
+            } else {
+                char *str = gmp_int_to_str(bn->as.ival);
+                if (str == NULL) {
+                    cp_print(L"");
+                    break;
+                } else {
+                    cp_println(L"%s", str);
+                    free(str);
+                }
             }
 
             // cp_print(L"%s -> %d", str, num_zeros);
