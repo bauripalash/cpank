@@ -1,4 +1,5 @@
 #include <gmp.h>
+#include <mpfr.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -10,19 +11,19 @@
 #define DO_MUL 22
 #define DO_DIV 23
 
-void do_float_calc(mpf_t result, mpf_t left, mpf_t right, uint8_t op) {
+void do_float_calc(mpfr_t result, mpfr_t left, mpfr_t right, uint8_t op) {
     switch (op) {
         case DO_ADD:
-            mpf_add(result, left, right);
+            mpfr_add(result, left, right, BIGFLOAT_ROUND);
             break;
         case DO_SUB:
-            mpf_sub(result, left, right);
+            mpfr_sub(result, left, right, BIGFLOAT_ROUND);
             break;
         case DO_MUL:
-            mpf_mul(result, left, right);
+            mpfr_mul(result, left, right, BIGFLOAT_ROUND);
             break;
         case DO_DIV:
-            mpf_div(result, left, right);
+            mpfr_div(result, left, right, BIGFLOAT_ROUND);
             // mpf_set_prec(result , 100);
             break;
     }
@@ -48,32 +49,32 @@ void do_int_calc(mpz_t result, mpz_t left, mpz_t right, uint8_t op) {
 
 Value do_big_calc(PankVm *vm, ObjBigNum *left, ObjBigNum *right, uint8_t op) {
     if (left->isfloat || right->isfloat) {
-        mpf_t f_left;
-        mpf_t f_right;
+        mpfr_t f_left;
+        mpfr_t f_right;
 
-        mpf_init(f_left);
-        mpf_init(f_right);
+        mpfr_init2(f_left, BIGFLOAT_MINPREC);
+        mpfr_init2(f_right, BIGFLOAT_MINPREC);
 
         if (left->isfloat) {
-            mpf_set(f_left, left->as.fval);
+            mpfr_set(f_left, left->as.fval, BIGFLOAT_ROUND);
         } else {
-            mpf_set_z(f_right, left->as.ival);
+            mpfr_set_z(f_right, left->as.ival, BIGFLOAT_MINPREC);
         }
 
         if (right->isfloat) {
-            mpf_set(f_right, right->as.fval);
+            mpfr_set(f_right, right->as.fval, BIGFLOAT_ROUND);
         } else {
-            mpf_set_z(f_right, right->as.ival);
+            mpfr_set_z(f_right, right->as.ival, BIGFLOAT_ROUND);
         }
-        mpf_t result;
-        mpf_init2(result, 200);
+        mpfr_t result;
+        mpfr_init2(result, 200);
         // mpf_set_prec(result , 200);
         // mpf_init2(result , 20);
         do_float_calc(result, f_left, f_right, op);
         Value v = make_obj_val(new_bignum_with_mpf(vm, result));
-        mpf_clear(f_left);
-        mpf_clear(f_right);
-        mpf_clear(result);
+        mpfr_clear(f_left);
+        mpfr_clear(f_right);
+        mpfr_clear(result);
         return v;
     } else {
         mpz_t result;

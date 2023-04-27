@@ -4,6 +4,7 @@
 #define cpank_utils_h
 
 #include <gmp.h>
+#include <mpfr.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <uchar.h>
@@ -37,7 +38,7 @@ char *gmp_int_to_str(mpz_t ival);
 // Convert GMP float `fval` to string;
 // You must check for `NULL`;
 // You must free the result;
-char *gmp_float_to_str(mpf_t fval);
+char *gmp_float_to_str(mpfr_t fval);
 
 // Save the instructions into a binary file
 bool dump_instruction(Instruction *ins, char *filename);

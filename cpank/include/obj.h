@@ -4,6 +4,7 @@
 #define cpank_obj_h
 
 #include <gmp.h>
+#include <mpfr.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <uchar.h>
@@ -14,6 +15,9 @@
 #include "instruction.h"
 #include "value.h"
 // #include "pank.h"
+
+#define BIGFLOAT_MINPREC 200
+#define BIGFLOAT_ROUND   MPFR_RNDU
 
 typedef enum {
     OBJ_STR = 0,
@@ -109,13 +113,13 @@ typedef struct {
     bool isfloat;
     union {
         mpz_t ival;
-        mpf_t fval;
+        mpfr_t fval;
     } as;
 } ObjBigNum;
 
 ObjBigNum *new_bignum(PankVm *vm);
 ObjBigNum *new_bignum_float(PankVm *vm);
-ObjBigNum *new_bignum_with_mpf(PankVm *vm, mpf_t value);
+ObjBigNum *new_bignum_with_mpf(PankVm *vm, mpfr_t value);
 ObjBigNum *new_bignum_with_mpz(PankVm *vm, mpz_t value);
 ObjBigNum *new_bignum_with_double(PankVm *vm, double value);
 ObjBigNum *new_bignum_with_str(PankVm *vm, char32_t *value);

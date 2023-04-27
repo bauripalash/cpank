@@ -5,6 +5,7 @@
 #include <gmp.h>
 #include <locale.h>
 #include <math.h>
+#include <mpfr.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -17,6 +18,7 @@
 
 #include "include/common.h"
 #include "include/helper/os.h"
+#include "include/obj.h"
 #include "include/value.h"
 
 #if defined(PANK_OS_UNIX) || defined(PANK_OS_LINUX) || \
@@ -38,15 +40,24 @@ char *gmp_int_to_str(mpz_t ival) {
     return str;
 }
 
-char *gmp_float_to_str(mpf_t fval) {
-    int len = gmp_snprintf(NULL, 0, "%Fg", fval);
-    // cp_println(L"len -> %d | prec -> %d" , len , mpf_get_prec(fval));
+char *gmp_float_to_str(mpfr_t fval) {
+    mpfr_t temp;
+    mpfr_init2(temp, BIGFLOAT_MINPREC);
+    mpfr_set(temp, fval, BIGFLOAT_ROUND);
+    int len = mpfr_snprintf(NULL, 0, "%Rg", temp);
+    if (len < 0) {
+        return NULL;
+    }
+    // cp_println(L"len -> %d | prec -> %d" , len , mpfr_get_prec(fval));
     char *str = (char *)calloc(len + 1, sizeof(char));
     if (str == NULL) {
         return NULL;
     }
-    gmp_snprintf(str, len + 1, "%Fg", fval);
-    // cp_println(L"newlen -> %d" , strlen(str));
+
+    mpfr_snprintf(str, len + 1, "%Rg", temp);
+    // free(str);
+    //  cp_println(L"newlen -> %d" , strlen(str));
+    mpfr_clear(temp);
     return str;
 }
 

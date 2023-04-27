@@ -573,7 +573,9 @@ void print_obj(Value val) {
                     cp_print(L"");
                     break;
                 } else {
-                    cp_print(L"'%s'", str);
+                    cp_print(L"%s", str);
+
+                    // mpfr_free_str(str);
                     free(str);
                 }
             } else {
@@ -668,7 +670,8 @@ ObjBigNum *new_bignum_float(PankVm *vm) {
     bn->marker = false;
     bn->isfloat = true;
 
-    mpf_init(bn->as.fval);
+    // mpf_init(bn->as.fval);
+    mpfr_init2(bn->as.fval, BIGFLOAT_MINPREC);
     pop(vm);
     return bn;
 }
@@ -681,17 +684,17 @@ ObjBigNum *new_bignum_with_double(PankVm *vm, double value) {
     } else {
         bn->isfloat = true;
         mpz_clear(bn->as.ival);
-        mpf_init(bn->as.fval);
-        mpf_set_d(bn->as.fval, value);
+        mpfr_init2(bn->as.fval, BIGFLOAT_MINPREC);
+        mpfr_set_d(bn->as.fval, value, BIGFLOAT_ROUND);
     }
     pop(vm);
     return bn;
 }
 
-ObjBigNum *new_bignum_with_mpf(PankVm *vm, mpf_t value) {
+ObjBigNum *new_bignum_with_mpf(PankVm *vm, mpfr_t value) {
     ObjBigNum *bn = new_bignum_float(vm);
     push(vm, make_obj_val(bn));
-    mpf_set(bn->as.fval, value);
+    mpfr_set(bn->as.fval, value, BIGFLOAT_ROUND);
     pop(vm);
     return bn;
 }
@@ -717,9 +720,9 @@ ObjBigNum *new_bignum_with_str(PankVm *vm, char32_t *value) {
 
     if (isf) {
         mpz_clear(bn->as.ival);
-        mpf_init2(bn->as.fval, 200);
+        mpfr_init2(bn->as.fval, BIGFLOAT_MINPREC);
         // mpf_init(bn->as.fval);
-        mpf_set_str(bn->as.fval, str, 10);
+        mpfr_set_str(bn->as.fval, str, 10, BIGFLOAT_ROUND);
         bn->isfloat = true;
     } else {
         mpz_set_str(bn->as.ival, str, 10);

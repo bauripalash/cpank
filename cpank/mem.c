@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 // #include <stdio.h>
+#include <mpfr.h>
 #include <stdlib.h>
 #include <wchar.h>
 
@@ -120,7 +121,7 @@ void free_single_obj(PankVm *vm, Obj *obj) {
         case OBJ_BIGNUM: {
             ObjBigNum *bn = (ObjBigNum *)obj;
             if (bn->isfloat) {
-                mpf_clear(bn->as.fval);
+                mpfr_clear(bn->as.fval);
             } else {
                 mpz_clear(bn->as.ival);
             }

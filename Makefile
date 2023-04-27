@@ -1,7 +1,7 @@
 CC=gcc
 RELEASEFLAGS=-std=c11 -O3 -Wall -DMODE_BENGALI
 CFLAGS+=-std=c11 -Wall -pedantic -DMODE_BENGALI
-LINKS=-lm -lgmp
+LINKS=-lm -lmpfr -lgmp
 SRC=cpank/lexer.c cpank/bn.c cpank/runfile.c cpank/instruction.c cpank/mem.c cpank/debug.c cpank/value.c cpank/vm.c cpank/compiler.c cpank/obj.c cpank/htable.c cpank/utils.c cpank/openfile.c cpank/builtins.c cpank/errmsg.c
 STDLIB_MODULES= cpank/stdlib/*.c
 EXTERNAL=cpank/ext/xxhash/xxhash.c
