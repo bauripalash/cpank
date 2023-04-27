@@ -13,8 +13,23 @@ Value clock_ntv_fn(PankVm *vm, int argc, Value *args) {
 }
 
 Value bignew_ntv_fn(PankVm *vm, int argc, Value *args) {
-    char32_t *s = get_as_native_string(args[0]);
-    return make_obj_val(new_bignum_with_str(vm, s));
+    if (argc != 1) {
+        return make_error(vm,
+                          U"bignew(value) function takes only one argument");
+    }
+    Value raw_val = args[0];
+    if (is_str_obj(raw_val)) {
+        char32_t *s = get_as_native_string(args[0]);
+        return make_obj_val(new_bignum_with_str(vm, s));
+    } else if (is_num(raw_val)) {
+        double d = get_as_number(raw_val);
+        return make_obj_val(new_bignum_with_double(vm, d));
+
+    } else {
+        return make_error(vm,
+                          U"bignew(value) function only takes strings and "
+                          U"numbers as argument");
+    }
 }
 
 Value asserteq_ntv_fn(PankVm *vm, int argc, Value *args) {

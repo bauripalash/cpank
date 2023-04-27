@@ -174,7 +174,8 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
                            geterrmsg(EMSG_UNKNOWN_CHAR));
         }
     } else {
-        char *t_str = c_to_c(tok->start, tok->length);
+        char *t_str = c32_to_char(
+            tok->start, tok->length);  // c_to_c(tok->start, tok->length);
         if (parser->vm->need_buffer) {
             write_pbuffer(&parser->vm->buffer, "%s -> %s <- ",
                           geterrmsg(EMSG_HERE), t_str);

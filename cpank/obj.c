@@ -675,7 +675,31 @@ ObjBigNum *new_bignum_float(PankVm *vm) {
     pop(vm);
     return bn;
 }
+ObjBigNum *new_bignum_with_str(PankVm *vm, char32_t *value) {
+    ObjBigNum *bn = new_bignum(vm);
+    push(vm, make_obj_val(bn));
+    char *str = c32_to_char(value, strlen32(value));
+    bool isf = false;
+    for (int i = 0; i < strlen(str); i++) {
+        if (str[i] == '.') {
+            isf = true;
+        }
+    }
 
+    if (isf) {
+        mpz_clear(bn->as.ival);
+        mpfr_init2(bn->as.fval, BIGFLOAT_MINPREC);
+        // mpf_init(bn->as.fval);
+        mpfr_set_str(bn->as.fval, str, 10, BIGFLOAT_ROUND);
+        bn->isfloat = true;
+    } else {
+        mpz_set_str(bn->as.ival, str, 10);
+    }
+    // mpf_set_str(bn->value , str , 10);
+    free(str);
+    pop(vm);
+    return bn;
+}
 ObjBigNum *new_bignum_with_double(PankVm *vm, double value) {
     ObjBigNum *bn = new_bignum(vm);
     push(vm, make_obj_val(bn));
@@ -703,32 +727,6 @@ ObjBigNum *new_bignum_with_mpz(PankVm *vm, mpz_t value) {
     ObjBigNum *bn = new_bignum(vm);
     push(vm, make_obj_val(bn));
     mpz_set(bn->as.ival, value);
-    pop(vm);
-    return bn;
-}
-
-ObjBigNum *new_bignum_with_str(PankVm *vm, char32_t *value) {
-    ObjBigNum *bn = new_bignum(vm);
-    push(vm, make_obj_val(bn));
-    char *str = c32_to_char(value, strlen32(value));
-    bool isf = false;
-    for (int i = 0; i < strlen(str); i++) {
-        if (str[i] == '.') {
-            isf = true;
-        }
-    }
-
-    if (isf) {
-        mpz_clear(bn->as.ival);
-        mpfr_init2(bn->as.fval, BIGFLOAT_MINPREC);
-        // mpf_init(bn->as.fval);
-        mpfr_set_str(bn->as.fval, str, 10, BIGFLOAT_ROUND);
-        bn->isfloat = true;
-    } else {
-        mpz_set_str(bn->as.ival, str, 10);
-    }
-    // mpf_set_str(bn->value , str , 10);
-    free(str);
     pop(vm);
     return bn;
 }
