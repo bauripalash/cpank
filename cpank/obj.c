@@ -15,7 +15,10 @@
 #include <uchar.h>
 #include <wchar.h>
 
+#define XXH_STATIC_LINKING_ONLY   /* access advanced declarations */
+#define XXH_IMPLEMENTATION 
 #include "ext/xxhash/xxhash.h"
+
 #include "include/bn.h"
 #include "include/common.h"
 #include "include/helper/comp.h"

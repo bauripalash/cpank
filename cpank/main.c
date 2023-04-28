@@ -11,6 +11,7 @@
 #include "include/helper/os.h"
 #include "include/runfile.h"
 #include "include/utils.h"
+#include "ext/tommath/tommath.h"
 
 #if defined(IS_WIN) || defined(_WIN32)
  #include <fcntl.h>
@@ -36,6 +37,11 @@ const wchar_t version[] = L"v0.1.0";
 
 int main(int argc, char** argv) {
     setlocale(LC_CTYPE, "");
+    mp_int qq;
+    mp_init(&qq);
+    mp_set_double(&qq, 100);
+
+    mp_clear(&qq);
 
 #if defined(IS_WIN) || defined(_WIN32)
     SetConsoleOutputCP(CP_UTF8);

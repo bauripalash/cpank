@@ -15,6 +15,7 @@ vgcore.*
 massif.out.*
 # Prerequisites
 *.d
+build/
 
 # Object files
 *.o

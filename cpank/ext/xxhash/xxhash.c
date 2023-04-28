@@ -41,3 +41,4 @@
 #define XXH_IMPLEMENTATION   /* access definitions */
 
 #include "xxhash.h"
+

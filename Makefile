@@ -2,9 +2,46 @@ CC=gcc
 RELEASEFLAGS=-std=c11 -O3 -Wall -DMODE_BENGALI -static
 CFLAGS+=-std=c11 -Wall -pedantic -DMODE_BENGALI
 LINKS=-lm -lmpfr -lgmp
-SRC=cpank/lexer.c cpank/bn.c cpank/runfile.c cpank/instruction.c cpank/mem.c cpank/debug.c cpank/value.c cpank/vm.c cpank/compiler.c cpank/obj.c cpank/htable.c cpank/utils.c cpank/openfile.c cpank/builtins.c cpank/errmsg.c
+BUILD_DIR := build
+CP_DIR := cpank/
+#SRCS = $(shell find $(CP_DIR) -name '*.c')
+CP_STDLIB := cpank/stdlib
+#SRCS += $(shell find $(CP_STDLIB) -name '*.c')
+#SRCS += $(shell find $(EXT_TOMMATH) -name '*.c')
+EXT_XXHASH_DIR = cpank/ext/xxhash
+EXT_XXHASH_SRC = $(shell find $(EXT_XXHASH_DIR) -maxdepth 1 -name "*.c")
+EXT_XXHASH_OBJ = $(BUILD_DIR)/$(EXT_XXHASH_DIR)/xxhash.o
+
+TARGET := pankti
+TOMMATH_TARGET=tommath.a
+
+EXT_TOMMATH_DIR=cpank/ext/tommath
+EXT_TOMMATH_BUILDDIR=$(BUILD_DIR)/$(EXT_TOMMATH_DIR)
+EXT_TOMMATH_SRCS=$(shell find $(EXT_TOMMATH_DIR) -maxdepth 1 -name "*.c")
+EXT_TOMMATH_OBJS=$(EXT_TOMMATH_SRCS:%=$(EXT_TOMMATH_BUILDDIR)/%.o)
+EXT_TOMMATH_TARGET=tommath.a 
+
+
+CPANK_STDLIB_DIR=cpank/stdlib/
+CPANK_STDLIB_BUILDDIR=$(BUILD_DIR)/$(CPANK_STDLIB_DIR)
+CPANK_STDLIB_SRCS=$(shell find $(CPANK_STDLIB_DIR) -maxdepth 1 -name "*.c")
+CPANK_STDLIB_OBJS=$(CPANK_STDLIB_SRCS:%=$(CPANK_STDLIB_BUILDDIR)/%.o)
+
+CPANK_CORE_DIR=cpank/
+CPANK_CORE_BUILDDIR=$(BUILD_DIR)/cpank/
+CPANK_CORE_SRCS=$(shell find $(CPANK_CORE_DIR) -maxdepth 1 -name "*.c")
+CPANK_CORE_OBJS=$(CPANK_CORE_SRCS:%=$(CPANK_CORE_BUILDDIR)/%.o)
+
+EXT_XXHASH_DIR = cpank/ext/xxhash
+EXT_XXHASH_BUILDDIR=$(BUILD_DIR)/$(EXT_XXHASH_DIR)
+EXT_XXHASH_SRCS_C = $(EXT_XXHASH_DIR)/xxhash.c 
+EXT_XXHASH_OBJS_C = $(EXT_XXHASH_BUILDDIR)/xxhash.c.o
+EXT_XXHASH_OBJS = $(EXT_XXHASH_OBJS_C)
+
+
 STDLIB_MODULES= cpank/stdlib/*.c
 EXTERNAL=cpank/ext/xxhash/xxhash.c
+EXTERNAL+=cpank/ext/tommath/*.c
 EXTERNALDIR=cpank/ext/ 
 SRC+=$(STDLIB_MODULES)
 SRC+=$(EXTERNAL)
@@ -18,12 +55,58 @@ TESTOUTPUT=test_cpank
 INCLUDE_DIR=cpank/include/
 PANKTI_VERSION=$(shell cat ./VERSION)
 
+OBJS:=$(EXT_TOMMATH_OBJS)
+OBJS+=$(CPANK_STDLIB_OBJS)
+OBJS+=$(CPANK_CORE_OBJS)
+
+SRCS+=$(CPANK_CORE_SRCS)
+SRCS+=$(CPANK_STDLIB_SRCS)
+SRCS+=$(EXT_XXHASH_SRCS)
+SRCS+=$(EXT_TOMMATH_SRCS)
+
+all: $(OBJS)
+	$(CC) $(OBJS) -o $(OUTPUT) -I$(EXT_XXHASH_DIR) $(LINKS)
+
+$(OUTPUT): $(CPANK_CORE_OBJS) $(CPANK_STDLIB_OBJS) $(EXT_XXHASH_OBJS) $(EXT_TOMMATH_OBJS)
+	$(CC) $(OBJS) -o $@ $(LINKS)
+
+xxhash: $(EXT_XXHASH_OBJ)
+	@echo "BUILT XXHASH"
+
+tomhash: $(EXT_TOMMATH_OBJS)
+	@echo "BUILT TOMMATH"
+
+stdlib: $(CPANK_STDLIB_OBJS)
+	@echo "BUILT CPANK STDLIB"
+
+core: $(CPANK_CORE_OBJS)
+	@echo "BUILT CPANK CORE"
+
+$(CPANK_STDLIB_BUILDDIR)/%.c.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(CPANK_CORE_BUILDDIR)/%.c.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(EXT_XXHASH_BUILDDIR)/%.c.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(EXT_TOMMATH_BUILDDIR)/$(EXT_TOMMATH_TARGET): $(EXT_TOMMATH_OBJS)
+	$(AR) $(ARFLAGS) $@ $(EXT_TOMMATH_OBJS)
+
+$(EXT_TOMMATH_BUILDDIR)/%.c.o: %.c 
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
 fetchext:
-	wget https://github.com/Cyan4973/xxHash/raw/dev/xxhash.c -O $(EXTERNAL)
+	wget https://github.com/Cyan4973/xxHash/raw/dev/xxhash.c -O cpank/ext/xxhash/xxhash.c
 	wget https://github.com/Cyan4973/xxHash/raw/dev/xxhash.h -O cpank/ext/xxhash/xxhash.h
 
-run:
-	$(CC) $(CFLAGS) -DDEBUG -g -o $(OUTPUT) $(MAIN) $(SRC) $(LINKS)
+run: $(OUTPUT)
+	#$(CC) $(CFLAGS) -DDEBUG -g -o $(OUTPUT) $(MAIN) $(SRC) $(LINKS)
 	./$(OUTPUT) $(SAMPLE_TO_RUN)
 
 andapi:
@@ -110,7 +193,11 @@ clean:
 	rm -rf dist/
 	rm -rf *.callgraph.dot
 	rm -rf web/pweb.js
-	rm -rf web/pweb.wasm
+	rm -rf web/pweb.was
+	rm -rf ./build
 
 fmt:
 	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/include/helper/*.h cpank/stdlib/*.c web/*.c
+
+
+#include tommath.mk
