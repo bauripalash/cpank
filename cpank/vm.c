@@ -331,7 +331,6 @@ void free_vm(PankVm *vm) {
         // print_pbuffer(&vm->buffer);
         free_pbuffer(&vm->buffer);
     }
-    mpfr_free_cache();
     free(vm);
 }
 

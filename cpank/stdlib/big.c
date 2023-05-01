@@ -1,9 +1,9 @@
-#include <gmp.h>
-#include <mpfr.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 
 #include "../include/stdlib.h"
+#include "../include/utils.h"
 #include "../include/vm.h"
 
 #define DO_ADD  20
@@ -14,9 +14,6 @@
 
 #define DO_SQRT 30
 #define DO_LOG  31
-#define DO_SIN  32
-#define DO_COS  33
-#define DO_TAN  34
 
 #define DO_GT   40
 #define DO_LT   41
@@ -27,124 +24,112 @@
 #define LT      131
 #define EQ      132
 
-void int_pow(mpz_t result, mpz_t left, mpz_t right) {
-    mpfr_t l_float, r_float, result_float;
-    mpfr_init2(result_float, BIGFLOAT_MINPREC);
-    mpfr_init2(l_float, BIGFLOAT_MINPREC);
-    mpfr_set_z(l_float, left, BIGFLOAT_ROUND);
 
-    mpfr_init2(r_float, BIGFLOAT_MINPREC);
-    mpfr_set_z(r_float, right, BIGFLOAT_ROUND);
-
-    mpfr_pow(result_float, l_float, r_float, BIGFLOAT_ROUND);
-    mpfr_clear(l_float);
-    mpfr_clear(r_float);
-    mpfr_get_z(result, result_float, BIGFLOAT_ROUND);
-    mpfr_clear(result_float);
-}
-
-void do_float_bin_calc(mpfr_t result, mpfr_t left, mpfr_t right, uint8_t op) {
+uint8_t do_bigint_bin_calc(mp_int *result, mp_int *left, mp_int *right,
+                        uint8_t op) {
     switch (op) {
         case DO_ADD:
-            mpfr_add(result, left, right, BIGFLOAT_ROUND);
+            if (mp_add(left, right, result) != MP_OKAY){
+                return op;
+            }
             break;
+            //            cp_println(L"<|>%s|%s<|>" , big_int_to_str(result) ,
+            //            mp_error_to_string(r));
+
         case DO_SUB:
-            mpfr_sub(result, left, right, BIGFLOAT_ROUND);
+            if (mp_sub(left, right, result) != MP_OKAY) {
+                return op;
+            }
             break;
         case DO_MUL:
-            mpfr_mul(result, left, right, BIGFLOAT_ROUND);
+            if (mp_mul(left, right, result) != MP_OKAY) {
+                return op;
+            }
             break;
         case DO_DIV:
-            mpfr_div(result, left, right, BIGFLOAT_ROUND);
+            if (mp_div(left, right, result, NULL) != MP_OKAY) {
+                return op;
+            }
             // mpf_set_prec(result , 100);
             break;
-        case DO_POW:
-            mpfr_pow(result, left, right, BIGFLOAT_ROUND);
-            break;
     }
+    return 0;
+    
 }
 
-void do_int_bin_calc(mpz_t result, mpz_t left, mpz_t right, uint8_t op) {
+long double do_bigfloat_bin_calc(long double left, long double right,
+                                 uint8_t op) {
     switch (op) {
         case DO_ADD:
-            mpz_add(result, left, right);
-            break;
+            return left + right;
         case DO_SUB:
-            mpz_sub(result, left, right);
-            break;
-        case DO_MUL:
-            mpz_mul(result, left, right);
-            break;
+            return left - right;
         case DO_DIV:
-            mpz_div(result, left, right);
-            break;
-        case DO_POW:
-            int_pow(result, left, right);
-            break;
+            return left / right;
+        case DO_MUL:
+            return left * right;
+        default:
+            return 0;
     }
 }
 
-uint8_t do_int_comp(mpz_t left, mpz_t right) {
-    int result = mpz_cmp(left, right);
-    if (result > 0) {
+uint8_t do_int_comp(mp_int *left, mp_int *right) {
+    int result = mp_cmp(left, right);
+    if (result == MP_GT) {
         return GT;
-    } else if (result == 0) {
+    } else if (result == MP_EQ) {
         return EQ;
-    } else if (result < 0) {
+    } else if (result == MP_LT) {
         return LT;
     }
     return 0;
 }
 
-uint8_t do_float_comp(mpfr_t left, mpfr_t right) {
-    int result = mpfr_cmp(left, right);
-    if (result > 0) {
+uint8_t do_float_comp(long double left, long double right) {
+    if (left > right) {
         return GT;
-    } else if (result == 0) {
+    } else if (left == right) {
         return EQ;
-    } else if (result < 0) {
+    } else if (left < right) {
         return LT;
     }
     return 0;
 }
 
-void do_float_single_calc(mpfr_t result, mpfr_t x, uint8_t op) {
+uint8_t do_bigint_single_calc(mp_int *result, mp_int *x, uint8_t op) {
     switch (op) {
         case DO_SQRT:
-            mpfr_sqrt(result, x, BIGFLOAT_ROUND);
-            break;
-        case DO_LOG:
-            mpfr_log(result, x, BIGFLOAT_ROUND);
-            break;
-        case DO_SIN:
-            mpfr_sin(result, x, BIGFLOAT_ROUND);
-            break;
-        case DO_COS:
-            mpfr_cos(result, x, BIGFLOAT_ROUND);
-        case DO_TAN:
-            mpfr_tan(result, x, BIGFLOAT_ROUND);
+            if (mp_sqrt(x, result) != MP_OKAY) {
+                return op;
+            }
             break;
     }
+    return 0;
+}
+
+uint8_t do_bigfloat_single_calc(long double *result, long double x, uint8_t op) {
+    switch (op) {
+        case DO_SQRT:
+            *result = sqrtl(x);
+    }
+    return 0;
 }
 
 Value do_single_big_calc(PankVm *vm, ObjBigNum *x, uint8_t op) {
-    mpfr_t result;
-    mpfr_init2(result, BIGFLOAT_MINPREC);
-    if (x->isfloat) {
-        do_float_single_calc(result, x->as.fval, op);
-        Value v = make_obj_val(new_bignum_with_mpf(vm, result));
+    if (!x->isfloat) {
+        mp_int result;
+        if (mp_init(&result)) {
+        }
+        do_bigint_single_calc(&result, &x->as.ival, op);
+        Value v = make_obj_val(new_bignum_with_mpint(vm, &result));
         push(vm, v);
-        mpfr_clear(result);
+        mp_clear(&result);
         return pop(vm);
     } else {
-        mpfr_t input;
-        mpfr_init2(input, BIGFLOAT_MINPREC);
-        mpfr_set_z(input, x->as.ival, BIGFLOAT_ROUND);
-        do_float_single_calc(result, input, op);
-        Value v = make_obj_val(new_bignum_with_mpf(vm, result));
+        double long result;
+        do_bigfloat_single_calc(&result, x->as.fval, op);
+        Value v = make_obj_val(new_bignum_with_ld(vm, result));
         push(vm, v);
-        mpfr_clear(result);
-        mpfr_clear(input);
         return pop(vm);
     }
 
@@ -153,36 +138,25 @@ Value do_single_big_calc(PankVm *vm, ObjBigNum *x, uint8_t op) {
 
 Value do_big_calc(PankVm *vm, ObjBigNum *left, ObjBigNum *right, uint8_t op) {
     if (left->isfloat || right->isfloat) {
-        mpfr_t f_left;
-        mpfr_t f_right;
-
-        mpfr_init2(f_left, BIGFLOAT_MINPREC);
-        mpfr_init2(f_right, BIGFLOAT_MINPREC);
+        long double l_d;
+        long double r_d;
 
         if (left->isfloat) {
-            mpfr_set(f_left, left->as.fval, BIGFLOAT_ROUND);
+            l_d = left->as.fval;
+            r_d = (long double)mp_get_double(&right->as.ival);
         } else {
-            mpfr_set_z(f_right, left->as.ival, BIGFLOAT_MINPREC);
+            r_d = right->as.fval;
+            l_d = (long double)mp_get_double(&left->as.ival);
         }
 
-        if (right->isfloat) {
-            mpfr_set(f_right, right->as.fval, BIGFLOAT_ROUND);
-        } else {
-            mpfr_set_z(f_right, right->as.ival, BIGFLOAT_ROUND);
-        }
+        //cp_println(L"->ld %Lg | -> %Lg", l_d, r_d);
+
         if (op >= DO_ADD && op <= DO_POW) {
-            mpfr_t result;
-            mpfr_init2(result, BIGFLOAT_MINPREC);
-            // mpf_set_prec(result , 200);
-            // mpf_init2(result , 20);
-            do_float_bin_calc(result, f_left, f_right, op);
-            Value v = make_obj_val(new_bignum_with_mpf(vm, result));
-            mpfr_clear(f_left);
-            mpfr_clear(f_right);
-            mpfr_clear(result);
+            Value v = make_obj_val(
+                new_bignum_with_ld(vm, do_bigfloat_bin_calc(l_d, r_d, op)));
             return v;
         } else if (op >= DO_GT && op <= DO_NEQ) {
-            uint8_t res = do_float_comp(f_left, f_right);
+            uint8_t res = do_float_comp(l_d, r_d);
             if (res == GT && op == DO_GT) {
                 return make_bool(true);
             } else if (res == LT && op == DO_LT) {
@@ -197,15 +171,30 @@ Value do_big_calc(PankVm *vm, ObjBigNum *left, ObjBigNum *right, uint8_t op) {
         }
 
     } else {
+        //cp_print(L"->");
+        //print_val(make_obj_val(right));
+        //cp_println(L"<-");
+        //cp_print(L"->");
+        //print_val(make_obj_val(left));
+        //cp_println(L"<-");
         if (op >= DO_ADD && op <= DO_POW) {
-            mpz_t result;
-            mpz_init(result);
-            do_int_bin_calc(result, left->as.ival, right->as.ival, op);
-            Value v = make_obj_val(new_bignum_with_mpz(vm, result));
-            mpz_clear(result);
+            mp_int result;
+            if (mp_init(&result) != MP_OKAY){
+                return make_nil;
+            }
+            do_bigint_bin_calc(&result, &left->as.ival, &right->as.ival, op);
+            //mp_add(&left->as.ival, &right->as.ival, &result);
+
+            //cp_println(L"OPOP->%s", big_int_to_str(&result));
+            Value v = make_obj_val(new_bignum_with_mpint(vm, &result));
+
+            // cp_print(L"RES->");
+            // cp_println(L"%s" , big_int_to_str(&result));
+            // cp_println(L"<-");
+            mp_clear(&result);
             return v;
         } else if (op >= DO_GT && op <= DO_NEQ) {
-            uint8_t res = do_int_comp(left->as.ival, right->as.ival);
+            uint8_t res = do_int_comp(&left->as.ival, &right->as.ival);
             if (res == GT && op == DO_GT) {
                 return make_bool(true);
             } else if (res == LT && op == DO_LT) {
@@ -373,53 +362,13 @@ Value _big_log(PankVm *vm, int argc, Value *args) {
     return do_single_big_calc(vm, left, DO_LOG);
 }
 
-Value _big_sin(PankVm *vm, int argc, Value *args) {
-    check_argc_count("sin(a)", 1, argc);
-    Value raw_a = args[0];
-    if (!is_bignum_obj(raw_a)) {
-        return make_error(vm,
-                          U"both arguments to big.sin(a) must be big numbers");
-    }
-
-    ObjBigNum *left = get_as_bignum(raw_a);
-    return do_single_big_calc(vm, left, DO_SIN);
-}
-
-Value _big_cos(PankVm *vm, int argc, Value *args) {
-    check_argc_count("cos(a)", 1, argc);
-    Value raw_a = args[0];
-    if (!is_bignum_obj(raw_a)) {
-        return make_error(vm,
-                          U"both arguments to big.cos(a) must be big numbers");
-    }
-
-    ObjBigNum *left = get_as_bignum(raw_a);
-    return do_single_big_calc(vm, left, DO_COS);
-}
-
-Value _big_tan(PankVm *vm, int argc, Value *args) {
-    check_argc_count("tan(a)", 1, argc);
-    Value raw_a = args[0];
-    if (!is_bignum_obj(raw_a)) {
-        return make_error(vm,
-                          U"both arguments to big.tan(a) must be big numbers");
-    }
-
-    ObjBigNum *left = get_as_bignum(raw_a);
-    return do_single_big_calc(vm, left, DO_TAN);
-}
-
 Value _big_const_pi(PankVm *vm, int argc, Value *args) {
     if (argc != 0) {
         return make_error(vm, U"pi() doesn't take any arguments");
     }
 
-    mpfr_t r;
-    mpfr_init2(r, BIGFLOAT_MINPREC);
-    mpfr_const_pi(r, BIGFLOAT_ROUND);
-    Value v = make_obj_val(new_bignum_with_mpf(vm, r));
+    Value v = make_obj_val(new_bignum_with_ld(vm, (long double)CONST_PI));
     push(vm, v);
-    mpfr_clear(r);
     return pop(vm);
 }
 
@@ -428,12 +377,8 @@ Value _big_const_e(PankVm *vm, int argc, Value *args) {
         return make_error(vm, U"e() doesn't take any arguments");
     }
 
-    mpfr_t r;
-    mpfr_init2(r, BIGFLOAT_MINPREC);
-    mpfr_const_euler(r, BIGFLOAT_ROUND);
-    Value v = make_obj_val(new_bignum_with_mpf(vm, r));
+    Value v = make_obj_val(new_bignum_with_ld(vm, (long double)CONST_E));
     push(vm, v);
-    mpfr_clear(r);
     return pop(vm);
 }
 
@@ -443,11 +388,10 @@ void push_stdlib_big(PankVm *vm) {
         msl(U"mul", _big_mul),          msl(U"div", _big_div),
         msl(U"gt", _big_comp_gt),       msl(U"lt", _big_comp_lt),
         msl(U"noteq", _big_comp_noteq), msl(U"eq", _big_comp_eq),
-        msl(U"sqrt", _big_sqrt),        msl(U"sin", _big_sin),
-        msl(U"cos", _big_cos),          msl(U"tan", _big_tan),
-        msl(U"log", _big_log),          msl(U"pi", _big_const_pi),
-        msl(U"e", _big_const_e),        msl(U"pow", _big_pow),
+        msl(U"sqrt", _big_sqrt),        msl(U"log", _big_log),
+        msl(U"pi", _big_const_pi),      msl(U"e", _big_const_e),
+        msl(U"pow", _big_pow),
     };
 
-    _push_stdlib(vm, U"big", sls, 16);
+    _push_stdlib(vm, U"big", sls, 13);
 }

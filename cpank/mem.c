@@ -2,15 +2,14 @@
 
 #include "include/mem.h"
 
-#include <gmp.h>
 #include <locale.h>
 #include <stdbool.h>
 #include <stddef.h>
 // #include <stdio.h>
-#include <mpfr.h>
 #include <stdlib.h>
 #include <wchar.h>
 
+#include "ext/tommath/tommath.h"
 #include "include/common.h"
 #include "include/compiler.h"
 #include "include/instruction.h"
@@ -120,10 +119,8 @@ void free_single_obj(PankVm *vm, Obj *obj) {
         }
         case OBJ_BIGNUM: {
             ObjBigNum *bn = (ObjBigNum *)obj;
-            if (bn->isfloat) {
-                mpfr_clear(bn->as.fval);
-            } else {
-                mpz_clear(bn->as.ival);
+            if (!bn->isfloat) {
+                mp_clear(&bn->as.ival);
             }
             FREE(vm, ObjBigNum, bn);
         }

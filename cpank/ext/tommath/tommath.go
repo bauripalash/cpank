@@ -1,0 +1,3 @@
+package tommath
+
+import "C"

@@ -2,10 +2,8 @@
 
 #include "include/utils.h"
 
-#include <gmp.h>
 #include <locale.h>
 #include <math.h>
-#include <mpfr.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -16,6 +14,7 @@
 #include <uchar.h>
 #include <wchar.h>
 
+#include "ext/tommath/tommath.h"
 #include "include/common.h"
 #include "include/helper/os.h"
 #include "include/obj.h"
@@ -28,37 +27,44 @@
  #include <direct.h>
 #endif
 
-char *gmp_int_to_str(mpz_t ival) {
-    int len = gmp_snprintf(NULL, 0, "%Zd", ival);
+char *big_int_to_str(mp_int *ival) {
+    size_t len;
+    mp_err err = mp_radix_size(ival, 10, &len);
+    // cp_println(L"len ->%zu" , len);
+    if (err != MP_OKAY) {
+        return NULL;
+    }
     char *str = (char *)calloc(len + 2, sizeof(char));
     if (str == NULL) {
         return NULL;
     }
 
-    gmp_snprintf(str, len + 2, "%Zd", ival);
+    err = mp_to_radix(ival, str, len, NULL, 10);
+
+    //cp_println(L"STR- |>%s<|", str);
+    if (err != MP_OKAY) {
+        free(str);
+        return NULL;
+    }
 
     return str;
 }
 
-char *gmp_float_to_str(mpfr_t fval) {
-    mpfr_t temp;
-    mpfr_init2(temp, BIGFLOAT_MINPREC);
-    mpfr_set(temp, fval, BIGFLOAT_ROUND);
-    int len = mpfr_snprintf(NULL, 0, "%Rg", temp);
-    if (len < 0) {
-        return NULL;
-    }
-    // cp_println(L"len -> %d | prec -> %d" , len , mpfr_get_prec(fval));
+char *big_float_to_str(long double f) {
+    int len = snprintf(NULL, 0, "%Lg", f);
     char *str = (char *)calloc(len + 1, sizeof(char));
+
     if (str == NULL) {
         return NULL;
     }
 
-    mpfr_snprintf(str, len + 1, "%Rg", temp);
-    // free(str);
-    //  cp_println(L"newlen -> %d" , strlen(str));
-    mpfr_clear(temp);
+    int x = snprintf(str, (size_t)len, "%Lg", f);
+    if (x < len) {
+        free(str);
+        return NULL;
+    }
     return str;
+    ;
 }
 
 bool dump_instruction(Instruction *ins, char *filename) {

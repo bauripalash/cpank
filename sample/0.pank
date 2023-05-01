@@ -13,20 +13,19 @@ import b "big"
 #show 2004/ 1051002003203 
 #show bignew("0.01")
 #show x+y;
-let x = bignew(10)
+let x = bignew(10000000000)
 show x;
 show type(x);
 let y = bignew(10)
 show y;
-show b.gt(x,y)
-show b.lt(x,y)
-show b.eq(x,y)
-show b.noteq(x,y)
-show b.sqrt(x);
-show b.log(x);
-show b.sin(x);
-show b.cos(x);
-show b.tan(x);
-show b.pi();
-show b.e();
-show b.pow(x,y)
+show b.add(x,y);
+#show y;
+#show b.gt(x,y)
+#show b.lt(x,y)
+#show b.eq(x,y)
+#show b.noteq(x,y)
+#show b.sqrt(x);
+#show b.log(x);
+#show b.pi();
+#show b.e();
+#show b.pow(x,y)

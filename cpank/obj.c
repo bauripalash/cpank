@@ -2,7 +2,6 @@
 
 #include "include/obj.h"
 
-#include <gmp.h>
 #include <locale.h>
 #include <math.h>
 #include <stdarg.h>
@@ -15,10 +14,11 @@
 #include <uchar.h>
 #include <wchar.h>
 
-#define XXH_STATIC_LINKING_ONLY   /* access advanced declarations */
-#define XXH_IMPLEMENTATION 
-#include "ext/xxhash/xxhash.h"
+#include "ext/tommath/tommath.h"
 
+#define XXH_STATIC_LINKING_ONLY /* access advanced declarations */
+#define XXH_IMPLEMENTATION
+#include "ext/xxhash/xxhash.h"
 #include "include/bn.h"
 #include "include/common.h"
 #include "include/helper/comp.h"
@@ -395,10 +395,10 @@ char32_t *obj_to_string(PankVm *vm, Value val) {
             ObjBigNum *bn = get_as_bignum(val);
             char *str;
             if (bn->isfloat) {
-                str = gmp_float_to_str(bn->as.fval);
+                str = big_float_to_str(bn->as.fval);
 
             } else {
-                str = gmp_int_to_str(bn->as.ival);
+                str = big_int_to_str(&bn->as.ival);
             }
             if (str == NULL) {
                 return U"";
@@ -571,7 +571,7 @@ void print_obj(Value val) {
             ObjBigNum *bn = get_as_bignum(val);
 
             if (bn->isfloat) {
-                char *str = gmp_float_to_str(bn->as.fval);
+                char *str = big_float_to_str(bn->as.fval);
                 if (str == NULL) {
                     cp_print(L"");
                     break;
@@ -582,7 +582,7 @@ void print_obj(Value val) {
                     free(str);
                 }
             } else {
-                char *str = gmp_int_to_str(bn->as.ival);
+                char *str = big_int_to_str(&bn->as.ival);
                 if (str == NULL) {
                     cp_print(L"");
                     break;
@@ -661,8 +661,10 @@ ObjBigNum *new_bignum(PankVm *vm) {
     push(vm, make_obj_val(bn));
     bn->marker = false;
     bn->isfloat = false;
-
-    mpz_init(bn->as.ival);
+    mp_err err = mp_init(&bn->as.ival);
+    if (err != MP_OKAY) {
+        return NULL;
+    }
     pop(vm);
     return bn;
 }
@@ -672,9 +674,8 @@ ObjBigNum *new_bignum_float(PankVm *vm) {
     push(vm, make_obj_val(bn));
     bn->marker = false;
     bn->isfloat = true;
+    bn->as.fval = 0;
 
-    // mpf_init(bn->as.fval);
-    mpfr_init2(bn->as.fval, BIGFLOAT_MINPREC);
     pop(vm);
     return bn;
 }
@@ -689,15 +690,17 @@ ObjBigNum *new_bignum_with_str(PankVm *vm, char32_t *value) {
         }
     }
 
-    if (isf) {
-        mpz_clear(bn->as.ival);
-        mpfr_init2(bn->as.fval, BIGFLOAT_MINPREC);
-        // mpf_init(bn->as.fval);
-        mpfr_set_str(bn->as.fval, str, 10, BIGFLOAT_ROUND);
-        bn->isfloat = true;
+    if (!isf) {
+        mp_err err = mp_read_radix(&bn->as.ival, str, 10);
+        if (err != MP_OKAY) {
+            cp_println(L"error setting bignum value");
+        }
     } else {
-        mpz_set_str(bn->as.ival, str, 10);
+        mp_clear(&bn->as.ival);
+        bn->as.fval = strtold(str, NULL);
+        bn->isfloat = true;
     }
+
     // mpf_set_str(bn->value , str , 10);
     free(str);
     pop(vm);
@@ -707,29 +710,33 @@ ObjBigNum *new_bignum_with_double(PankVm *vm, double value) {
     ObjBigNum *bn = new_bignum(vm);
     push(vm, make_obj_val(bn));
     if (is_int(value)) {
-        mpz_set_d(bn->as.ival, value);
+        mp_err err = mp_set_double(&bn->as.ival, value);
+        if (err != MP_OKAY) {
+        }
+        bn->isfloat = false;
     } else {
         bn->isfloat = true;
-        mpz_clear(bn->as.ival);
-        mpfr_init2(bn->as.fval, BIGFLOAT_MINPREC);
-        mpfr_set_d(bn->as.fval, value, BIGFLOAT_ROUND);
+        mp_clear(&bn->as.ival);
+        bn->as.fval = (long double)value;
     }
     pop(vm);
     return bn;
 }
 
-ObjBigNum *new_bignum_with_mpf(PankVm *vm, mpfr_t value) {
-    ObjBigNum *bn = new_bignum_float(vm);
+ObjBigNum *new_bignum_with_mpint(PankVm *vm, mp_int *ival) {
+    ObjBigNum *bn = new_bignum(vm);
     push(vm, make_obj_val(bn));
-    mpfr_set(bn->as.fval, value, BIGFLOAT_ROUND);
+    mp_err err = mp_copy(ival, &bn->as.ival);
+    if (err != MP_OKAY) {
+    }
     pop(vm);
     return bn;
 }
 
-ObjBigNum *new_bignum_with_mpz(PankVm *vm, mpz_t value) {
-    ObjBigNum *bn = new_bignum(vm);
+ObjBigNum *new_bignum_with_ld(PankVm *vm, long double fval) {
+    ObjBigNum *bn = new_bignum_float(vm);
     push(vm, make_obj_val(bn));
-    mpz_set(bn->as.ival, value);
+    bn->as.fval = fval;
     pop(vm);
     return bn;
 }

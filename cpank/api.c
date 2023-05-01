@@ -27,4 +27,6 @@ char* run_code(char* source) {
             return result;
         }
     }
+
+    return NULL;
 }

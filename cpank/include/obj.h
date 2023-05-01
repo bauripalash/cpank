@@ -3,13 +3,12 @@
 #ifndef cpank_obj_h
 #define cpank_obj_h
 
-#include <gmp.h>
-#include <mpfr.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <uchar.h>
 #include <wchar.h>
 
+#include "../ext/tommath/tommath.h"
 #include "common.h"
 #include "htable.h"
 #include "instruction.h"
@@ -112,16 +111,20 @@ typedef struct {
     bool marker;
     bool isfloat;
     union {
-        mpz_t ival;
-        mpfr_t fval;
+        mp_int ival;
+        long double fval;
     } as;
 } ObjBigNum;
 
 ObjBigNum *new_bignum(PankVm *vm);
 ObjBigNum *new_bignum_float(PankVm *vm);
-ObjBigNum *new_bignum_with_mpf(PankVm *vm, mpfr_t value);
-ObjBigNum *new_bignum_with_mpz(PankVm *vm, mpz_t value);
+// ObjBigNum *new_bignum_with_mpf(PankVm *vm, mpfr_t value);
+// ObjBigNum *new_bignum_with_mpz(PankVm *vm, mpz_t value);
+//
+
+ObjBigNum *new_bignum_with_mpint(PankVm *vm, mp_int *ival);
 ObjBigNum *new_bignum_with_double(PankVm *vm, double value);
+ObjBigNum *new_bignum_with_ld(PankVm *vm, long double value);
 ObjBigNum *new_bignum_with_str(PankVm *vm, char32_t *value);
 ObjBigNum *get_as_bignum(Value value);
 bool is_bignum_obj(Value value);

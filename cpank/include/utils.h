@@ -3,13 +3,12 @@
 #ifndef cpank_utils_h
 #define cpank_utils_h
 
-#include <gmp.h>
-#include <mpfr.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <uchar.h>
 #include <wchar.h>
 
+#include "../ext/tommath/tommath.h"
 #include "helper/os.h"
 #include "instruction.h"
 
@@ -33,12 +32,12 @@
 // Convert GMP integer `ival` to string;
 // You must check for `NULL`;
 // You must free the result;
-char *gmp_int_to_str(mpz_t ival);
+char *big_int_to_str(mp_int *i);
 
 // Convert GMP float `fval` to string;
 // You must check for `NULL`;
 // You must free the result;
-char *gmp_float_to_str(mpfr_t fval);
+char *big_float_to_str(long double f);
 
 // Save the instructions into a binary file
 bool dump_instruction(Instruction *ins, char *filename);
