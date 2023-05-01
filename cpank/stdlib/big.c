@@ -24,12 +24,11 @@
 #define LT      131
 #define EQ      132
 
-
 uint8_t do_bigint_bin_calc(mp_int *result, mp_int *left, mp_int *right,
-                        uint8_t op) {
+                           uint8_t op) {
     switch (op) {
         case DO_ADD:
-            if (mp_add(left, right, result) != MP_OKAY){
+            if (mp_add(left, right, result) != MP_OKAY) {
                 return op;
             }
             break;
@@ -54,7 +53,6 @@ uint8_t do_bigint_bin_calc(mp_int *result, mp_int *left, mp_int *right,
             break;
     }
     return 0;
-    
 }
 
 long double do_bigfloat_bin_calc(long double left, long double right,
@@ -107,7 +105,8 @@ uint8_t do_bigint_single_calc(mp_int *result, mp_int *x, uint8_t op) {
     return 0;
 }
 
-uint8_t do_bigfloat_single_calc(long double *result, long double x, uint8_t op) {
+uint8_t do_bigfloat_single_calc(long double *result, long double x,
+                                uint8_t op) {
     switch (op) {
         case DO_SQRT:
             *result = sqrtl(x);
@@ -149,7 +148,7 @@ Value do_big_calc(PankVm *vm, ObjBigNum *left, ObjBigNum *right, uint8_t op) {
             l_d = (long double)mp_get_double(&left->as.ival);
         }
 
-        //cp_println(L"->ld %Lg | -> %Lg", l_d, r_d);
+        // cp_println(L"->ld %Lg | -> %Lg", l_d, r_d);
 
         if (op >= DO_ADD && op <= DO_POW) {
             Value v = make_obj_val(
@@ -171,21 +170,21 @@ Value do_big_calc(PankVm *vm, ObjBigNum *left, ObjBigNum *right, uint8_t op) {
         }
 
     } else {
-        //cp_print(L"->");
-        //print_val(make_obj_val(right));
-        //cp_println(L"<-");
-        //cp_print(L"->");
-        //print_val(make_obj_val(left));
-        //cp_println(L"<-");
+        // cp_print(L"->");
+        // print_val(make_obj_val(right));
+        // cp_println(L"<-");
+        // cp_print(L"->");
+        // print_val(make_obj_val(left));
+        // cp_println(L"<-");
         if (op >= DO_ADD && op <= DO_POW) {
             mp_int result;
-            if (mp_init(&result) != MP_OKAY){
+            if (mp_init(&result) != MP_OKAY) {
                 return make_nil;
             }
             do_bigint_bin_calc(&result, &left->as.ival, &right->as.ival, op);
-            //mp_add(&left->as.ival, &right->as.ival, &result);
+            // mp_add(&left->as.ival, &right->as.ival, &result);
 
-            //cp_println(L"OPOP->%s", big_int_to_str(&result));
+            // cp_println(L"OPOP->%s", big_int_to_str(&result));
             Value v = make_obj_val(new_bignum_with_mpint(vm, &result));
 
             // cp_print(L"RES->");

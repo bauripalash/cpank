@@ -41,7 +41,7 @@ char *big_int_to_str(mp_int *ival) {
 
     err = mp_to_radix(ival, str, len, NULL, 10);
 
-    //cp_println(L"STR- |>%s<|", str);
+    // cp_println(L"STR- |>%s<|", str);
     if (err != MP_OKAY) {
         free(str);
         return NULL;

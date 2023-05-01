@@ -38,7 +38,6 @@ const wchar_t version[] = L"v0.1.0";
 int main(int argc, char** argv) {
     setlocale(LC_CTYPE, "");
 
-
 #if defined(IS_WIN) || defined(_WIN32)
     SetConsoleOutputCP(CP_UTF8);
     _setmode(_fileno(stdout), _O_U16TEXT);

@@ -54,5 +54,7 @@ void push_stdlib_array(PankVm* vm);
 void push_stdlib_string(PankVm* vm);
 void push_stdlib_file(PankVm* vm);
 void push_stdlib_map(PankVm* vm);
+#ifndef NO_BIGNUM
 void push_stdlib_big(PankVm* vm);
+#endif
 #endif

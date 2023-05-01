@@ -11,8 +11,10 @@
 // #define DEBUG_STRES_GC
 // #define DEBUG_LOG_GC
 #define UINT8_COUNT (UINT8_MAX + 1)
-// #define MODE_ENGLISH
-// #define MODE_BENGALI
+// #define NO_BIGNUM
+// #define NO_DOUBLE_BIGNUM
+//  #define MODE_ENGLISH
+//  #define MODE_BENGALI
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
