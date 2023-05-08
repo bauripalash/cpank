@@ -8,7 +8,7 @@
 #include <uchar.h>
 #include <wchar.h>
 
-#include "../ext/tommath/tommath.h"
+#include "../ext/baurinum/baurinum.h"
 #include "common.h"
 #include "htable.h"
 #include "instruction.h"
@@ -111,7 +111,7 @@ typedef struct {
     bool marker;
     bool isfloat;
     union {
-        mp_int ival;
+        bnum ival;
         long double fval;
     } as;
 } ObjBigNum;
@@ -122,7 +122,7 @@ ObjBigNum *new_bignum_float(PankVm *vm);
 // ObjBigNum *new_bignum_with_mpz(PankVm *vm, mpz_t value);
 //
 
-ObjBigNum *new_bignum_with_mpint(PankVm *vm, mp_int *ival);
+ObjBigNum *new_bignum_with_mpint(PankVm *vm, bnum *ival);
 ObjBigNum *new_bignum_with_double(PankVm *vm, double value);
 ObjBigNum *new_bignum_with_ld(PankVm *vm, long double value);
 ObjBigNum *new_bignum_with_str(PankVm *vm, char32_t *value);

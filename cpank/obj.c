@@ -14,7 +14,7 @@
 #include <uchar.h>
 #include <wchar.h>
 
-#include "ext/tommath/tommath.h"
+#include "ext/baurinum/baurinum.h"
 
 #define XXH_STATIC_LINKING_ONLY /* access advanced declarations */
 #define XXH_IMPLEMENTATION
@@ -583,6 +583,7 @@ void print_obj(Value val) {
                 }
             } else {
                 char *str = big_int_to_str(&bn->as.ival);
+                //cp_println(L"->str->'%s'" , str);
                 if (str == NULL) {
                     cp_print(L"");
                     break;
@@ -661,8 +662,8 @@ ObjBigNum *new_bignum(PankVm *vm) {
     push(vm, make_obj_val(bn));
     bn->marker = false;
     bn->isfloat = false;
-    mp_err err = mp_init(&bn->as.ival);
-    if (err != MP_OKAY) {
+    bnerr err = bn_boot(&bn->as.ival);
+    if (err != BN_OK) {
         return NULL;
     }
     pop(vm);
@@ -691,12 +692,12 @@ ObjBigNum *new_bignum_with_str(PankVm *vm, char32_t *value) {
     }
 
     if (!isf) {
-        mp_err err = mp_read_radix(&bn->as.ival, str, 10);
-        if (err != MP_OKAY) {
+        bnerr err = bn_set_str(&bn->as.ival, str);
+        if (err != BN_OK) {
             cp_println(L"error setting bignum value");
         }
     } else {
-        mp_clear(&bn->as.ival);
+        bn_clear(&bn->as.ival);
         bn->as.fval = strtold(str, NULL);
         bn->isfloat = true;
     }
@@ -710,24 +711,24 @@ ObjBigNum *new_bignum_with_double(PankVm *vm, double value) {
     ObjBigNum *bn = new_bignum(vm);
     push(vm, make_obj_val(bn));
     if (is_int(value)) {
-        mp_err err = mp_set_double(&bn->as.ival, value);
-        if (err != MP_OKAY) {
+        bnerr err = bn_set_double(&bn->as.ival, value);
+        if (err != BN_OK) {
         }
         bn->isfloat = false;
     } else {
         bn->isfloat = true;
-        mp_clear(&bn->as.ival);
+        bn_clear(&bn->as.ival);
         bn->as.fval = (long double)value;
     }
     pop(vm);
     return bn;
 }
 
-ObjBigNum *new_bignum_with_mpint(PankVm *vm, mp_int *ival) {
+ObjBigNum *new_bignum_with_mpint(PankVm *vm, bnum *ival) {
     ObjBigNum *bn = new_bignum(vm);
     push(vm, make_obj_val(bn));
-    mp_err err = mp_copy(ival, &bn->as.ival);
-    if (err != MP_OKAY) {
+    bnerr err = bn_clone(&bn->as.ival, ival);
+    if (err != BN_OK) {
     }
     pop(vm);
     return bn;

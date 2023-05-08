@@ -14,7 +14,7 @@
 #include <uchar.h>
 #include <wchar.h>
 
-#include "ext/tommath/tommath.h"
+#include "ext/baurinum/baurinum.h"
 #include "include/common.h"
 #include "include/helper/os.h"
 #include "include/obj.h"
@@ -27,27 +27,8 @@
  #include <direct.h>
 #endif
 
-char *big_int_to_str(mp_int *ival) {
-    size_t len;
-    mp_err err = mp_radix_size(ival, 10, &len);
-    // cp_println(L"len ->%zu" , len);
-    if (err != MP_OKAY) {
-        return NULL;
-    }
-    char *str = (char *)calloc(len + 2, sizeof(char));
-    if (str == NULL) {
-        return NULL;
-    }
-
-    err = mp_to_radix(ival, str, len, NULL, 10);
-
-    // cp_println(L"STR- |>%s<|", str);
-    if (err != MP_OKAY) {
-        free(str);
-        return NULL;
-    }
-
-    return str;
+char *big_int_to_str(bnum *ival) {
+    return bn_as_str(ival, false);
 }
 
 char *big_float_to_str(long double f) {

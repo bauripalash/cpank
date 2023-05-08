@@ -8,7 +8,7 @@
 #include <uchar.h>
 #include <wchar.h>
 
-#include "../ext/tommath/tommath.h"
+#include "../ext/baurinum/baurinum.h"
 #include "helper/os.h"
 #include "instruction.h"
 
@@ -32,7 +32,7 @@
 // Convert GMP integer `ival` to string;
 // You must check for `NULL`;
 // You must free the result;
-char *big_int_to_str(mp_int *i);
+char *big_int_to_str(bnum *i);
 
 // Convert GMP float `fval` to string;
 // You must check for `NULL`;

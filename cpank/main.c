@@ -7,7 +7,6 @@
 #include <string.h>
 #include <wchar.h>
 
-#include "ext/tommath/tommath.h"
 #include "include/common.h"
 #include "include/helper/os.h"
 #include "include/runfile.h"

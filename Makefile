@@ -1,11 +1,11 @@
 RLS?=0
 ifeq ($(RLS),1)
 	BUILD_TYPE:=release
-	CFLAGS+=-Wall -Wextra -O3
+	CFLAGS+=-Wall -O3
 	LDFLAGS+=-static -lm
 else
 	BUILD_TYPE:=debug
-	CFLAGS+=-Wall -Wextra -g3
+	CFLAGS+=-Wall -g3
 	LDFLAGS+=-lm
 endif
 
@@ -19,10 +19,10 @@ PANKTI_VERSION:=$(shell cat ./VERSION)
 # Sample to Run
 STORUN=sample/0.pank 
 
-EXT_TOM_SDIR:=cpank/ext/tommath
-EXT_TOM_BDIR:=$(BUILD_DIR)/$(BUILD_TYPE)
-EXT_TOM_SRC:=$(shell find $(EXT_TOM_SDIR) -maxdepth 1 -name "*.c")
-EXT_TOM_OBJS:=$(EXT_TOM_SRC:%=$(EXT_TOM_BDIR)/%.o)
+EXT_BAURINUM_SDIR:=cpank/ext/baurinum
+EXT_BAURINUM_BDIR:=$(BUILD_DIR)/$(BUILD_TYPE)
+EXT_BAURINUM_SRC:=$(shell find $(EXT_BAURINUM_SDIR) -maxdepth 1 -name "*.c")
+EXT_BAURINUM_OBJS:=$(EXT_BAURINUM_SRC:%=$(EXT_BAURINUM_BDIR)/%.o)
 
 STDLIB_SDIR=cpank/stdlib 
 STDLIB_BDIR=$(BUILD_DIR)/$(BUILD_TYPE)
@@ -41,7 +41,7 @@ TEST_OBJS:=$(TEST_SRC:%=$(CORE_BDIR)/%.o)
 
 WEBMAIN_SRC:=web/pankti.web.c
 
-OBJS:=$(EXT_TOM_OBJS)
+OBJS:=$(EXT_BAURINUM_OBJS)
 OBJS+=$(STDLIB_OBJS) 
 OBJS+=$(CORE_OBJS)
 
@@ -60,11 +60,11 @@ run: $(TARGET)
 	./$(TARGET) $(STORUN)
 	
 
-$(TARGET): $(EXT_TOM_OBJS) $(STDLIB_OBJS) $(CORE_OBJS)
+$(TARGET): $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(CORE_OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
-$(TEST_TARGET): $(EXT_TOM_OBJS) $(STDLIB_OBJS) $(TEST_OBJS)
-	$(CC) $(EXT_TOM_OBJS) $(STDLIB_OBJS) $(TEST_OBJS) -o $@ $(LDFLAGS)
+$(TEST_TARGET): $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(TEST_OBJS)
+	$(CC) $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(TEST_OBJS) -o $@ $(LDFLAGS)
 
 build_uo: CFLAGS=-std=c11 -g3 -Wall -pedantic -DMODE_BENGALI
 build_uo: LDFLAGS=-lm
@@ -100,13 +100,13 @@ fmt:
 	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/include/helper/*.h cpank/stdlib/*.c web/*.c
 
 wasm:
-	emcc $(EXT_TOM_SRC) $(STDLIB_SRC) $(CORE_SRC_NOMAIN) $(WEBMAIN_SRC) -o web/pweb.js -O2 -DMODE_BENGALI -DNO_DOUBLE_BIGNUM -s WASM=1 -s EXPORTED_FUNCTIONS='["_comp_run","_main"]' -s EXPORTED_RUNTIME_METHODS='["cwrap"]' $(LDFLAGS)
+	emcc $(EXT_BAURINUM_SRC) $(STDLIB_SRC) $(CORE_SRC_NOMAIN) $(WEBMAIN_SRC) -o web/pweb.js -O2 -DMODE_BENGALI -DNO_DOUBLE_BIGNUM -s WASM=1 -s EXPORTED_FUNCTIONS='["_comp_run","_main"]' -s EXPORTED_RUNTIME_METHODS='["cwrap"]' $(LDFLAGS)
 
 core: $(CORE_OBJS)
 
 stdlib: $(STDLIB_OBJS)
 
-tommath: $(EXT_TOM_OBJS)
+tommath: $(EXT_BAURINUM_OBJS)
 
 $(CORE_BDIR)/%.c.o: %.c 
 	@mkdir -p $(dir $@)
@@ -118,7 +118,7 @@ $(STDLIB_BDIR)/%.c.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
-$(EXT_TOM_BDIR)/%.c.o: %.c 
+$(EXT_BAURINUM_BDIR)/%.c.o: %.c 
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 

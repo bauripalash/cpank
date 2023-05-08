@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <wchar.h>
 
-#include "ext/tommath/tommath.h"
+#include "ext/baurinum/baurinum.h"
 #include "include/common.h"
 #include "include/compiler.h"
 #include "include/instruction.h"
@@ -120,7 +120,7 @@ void free_single_obj(PankVm *vm, Obj *obj) {
         case OBJ_BIGNUM: {
             ObjBigNum *bn = (ObjBigNum *)obj;
             if (!bn->isfloat) {
-                mp_clear(&bn->as.ival);
+                bn_clear(&bn->as.ival);
             }
             FREE(vm, ObjBigNum, bn);
         }
