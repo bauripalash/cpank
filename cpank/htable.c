@@ -171,21 +171,21 @@ void copy_table(PankVm *vm, Htable *from, Htable *to) {
 
 // cppcheck-suppress unusedFunction
 void print_table(Htable *table, char *name) {
-    wprintf(L"<- TABLE (%s)->\n", name);
+    cp_println(L"<- TABLE (%s)->", name);
     for (int i = 0; i < table->cap; i++) {
         Entry *entry = &table->entries[i];
         if (entry != NULL && entry->key != NULL) {
-            wprintf(L"[ key -> '%ls' | val -> ", entry->key->chars);
+            cp_print(L"[ key -> '%ls' | val -> ", entry->key->chars);
             print_val(entry->val);
-            wprintf(L" ]\n");
+            cp_print(L" ]\n");
         }
     }
 
-    wprintf(L"<- END TABLE ->\n");
+    cp_print(L"<- END TABLE ->\n");
 }
 
 ObjString *table_find_str(Htable *table, char32_t *chars, int len,
-                          uint32_t hash) {
+                          uint64_t hash) {
     if (table->len == 0) {
         return NULL;
     }

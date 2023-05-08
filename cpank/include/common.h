@@ -13,8 +13,9 @@
 #define UINT8_COUNT (UINT8_MAX + 1)
 // #define NO_BIGNUM
 // #define NO_DOUBLE_BIGNUM
-//  #define MODE_ENGLISH
-//  #define MODE_BENGALI
+// #define MODE_ENGLISH
+// #define MODE_BENGALI
+// #define NO_XXHASH
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

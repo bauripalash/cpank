@@ -182,15 +182,17 @@ wchar_t *get_obj_type_as_string(ObjType o) {
 }
 
 uint64_t get_hash(const char32_t *key, int len) {
-    /*uint32_t hash = 2166136261u;
+#if defined (NO_XXHASH)
+    uint32_t hash = 2166136261u;
     for (int i = 0; i < len; i++) {
         hash ^= (uint8_t)key[i];
         hash *= 16777619;
     }
-    return hash;*/
-
+    return (uint64_t)hash;
+#else 
     XXH64_hash_t hash = XXH3_64bits(key, sizeof(char32_t) * len);
     return (uint64_t)hash;
+#endif
 }
 
 ObjString *copy_string(PankVm *vm, char32_t *chars, int len) {
@@ -214,7 +216,7 @@ ObjString *copy_string(PankVm *vm, char32_t *chars, int len) {
 }
 
 ObjString *take_string(PankVm *vm, char32_t *chars, int len) {
-    uint32_t hash = get_hash(chars, len);
+    uint64_t hash = get_hash(chars, len);
 
     ObjString *interned = table_find_str(&vm->strings, chars, len, hash);
 
