@@ -1,36 +1,23 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 	<head>
-		<title>Pankti Web</title>
-		<script src="pweb.js"></script>
+		<title>Pankti Web Play</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="style.css">
 	</head>
 	<body>
-		
-
-		<input id="inp"></input><br>
-		<button id="btn">Loading</button><br>
-
-		<textarea id="ta">Ouput</textarea>
+     <nav>
+		<img class="logo" src="buno.svg"/>
+        <p href="/">Pankti Web Playground</p>
+    </nav>
+		<div class="main">
+			<textarea id="codeinput"></textarea><br>
+			<button disabled id="runbtn">Loading</button><br>
+			<textarea id="output">Ouput</textarea>
+		</div>
 	</body>
 
-	<script>
-			const output = document.getElementById("ta"); 
-			const button = document.getElementById("btn");
-			const input = document.getElementById("inp");
-
-			const js_wrap_com_run = Module.cwrap("comp_run" , "string" , ["string"]);
-
-			Module['onRuntimeInitialized'] = function() {
-				button.innerText = "Run";
-				btn.onclick = function(){
-				
-				const source_code = input.value;
-
-				//console.log(source_code);
-				const result = js_wrap_com_run(source_code);
-				ta.innerHTML = result;
-				}
-			};
-			
-
-	</script>
+	<script src="pweb.js"></script>
+	<script src="script.js"></script>
 </html>
