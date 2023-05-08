@@ -141,7 +141,7 @@ Value do_big_calc(PankVm *vm, ObjBigNum *left, ObjBigNum *right, uint8_t op) {
 
             //cp_println(L"OPOP->%s", big_int_to_str(&result));
             Value v = make_obj_val(new_bignum_with_mpint(vm, &result));
-            print_val(v);
+            //print_val(v);
 
             // cp_print(L"RES->");
             // cp_println(L"%s" , big_int_to_str(&result));
