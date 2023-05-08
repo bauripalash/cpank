@@ -1,5 +1,5 @@
 import b "big"
-let x = bignew(100);
+let x = bignew("100");
 show x;
 let y = bignew(200);
 show y;
