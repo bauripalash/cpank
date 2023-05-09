@@ -5,7 +5,7 @@ ifeq ($(RLS),1)
 	LDFLAGS+=-static -lm
 else
 	BUILD_TYPE:=debug
-	CFLAGS+=-Wall -g3
+	CFLAGS+=-Wall -g3 -DDEBUG
 	LDFLAGS+=-lm
 endif
 
@@ -61,10 +61,10 @@ run: $(TARGET)
 	
 
 $(TARGET): $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(CORE_OBJS)
-	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+	@$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 $(TEST_TARGET): $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(TEST_OBJS)
-	$(CC) $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(TEST_OBJS) -o $@ $(LDFLAGS)
+	@$(CC) $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(TEST_OBJS) -o $@ $(LDFLAGS)
 
 build_uo: CFLAGS=-std=c11 -g3 -Wall -pedantic -DMODE_BENGALI
 build_uo: LDFLAGS=-lm
