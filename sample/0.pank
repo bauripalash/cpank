@@ -1,2 +1,5 @@
-let a = "hello\n\n\n\n\n"
+let a = "hello
+world
+how are you
+"
 show a;

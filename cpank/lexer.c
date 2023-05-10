@@ -391,6 +391,8 @@ Token get_str_tok(Lexer *lexer) {
     while (peek(lexer) != '"' && !is_eof(lexer)) {
         if (peek(lexer) == '\n') {
             lexer->line++;
+        } else if (peek(lexer) == '\\' && !is_eof(lexer)) {
+            next(lexer);
         }
 
         next(lexer);
