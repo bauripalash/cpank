@@ -9,6 +9,7 @@ test_cpank
 testpankti
 pankti
 panktiw
+pankti.sha512
 cpank.gmon.txt
 *.callgraph.dot
 vgcore.*
