@@ -17,8 +17,8 @@
 #include "ext/baurinum/baurinum.h"
 
 #if !defined(NO_XXHASH)
-#define XXH_STATIC_LINKING_ONLY /* access advanced declarations */
-#define XXH_IMPLEMENTATION
+ #define XXH_STATIC_LINKING_ONLY /* access advanced declarations */
+ #define XXH_IMPLEMENTATION
 #endif
 #include "ext/xxhash/xxhash.h"
 #include "include/bn.h"
@@ -184,14 +184,14 @@ wchar_t *get_obj_type_as_string(ObjType o) {
 }
 
 uint64_t get_hash(const char32_t *key, int len) {
-#if defined (NO_XXHASH)
+#if defined(NO_XXHASH)
     uint32_t hash = 2166136261u;
     for (int i = 0; i < len; i++) {
         hash ^= (uint8_t)key[i];
         hash *= 16777619;
     }
     return (uint64_t)hash;
-#else 
+#else
     XXH64_hash_t hash = XXH3_64bits(key, sizeof(char32_t) * len);
     return (uint64_t)hash;
 #endif
@@ -587,7 +587,7 @@ void print_obj(Value val) {
                 }
             } else {
                 char *str = big_int_to_str(&bn->as.ival);
-                //cp_println(L"->str->'%s'" , str);
+                // cp_println(L"->str->'%s'" , str);
                 if (str == NULL) {
                     cp_print(L"");
                     break;

@@ -18,6 +18,10 @@
 #define FREE_ARR(vm, type, ptr, oc) rallc(vm, ptr, sizeof(type) * (oc), 0)
 #define FREE(vm, type, ptr)         rallc(vm, ptr, sizeof(type), 0)
 
+// It's just GROW_ARR with un-confusing name
+#define SHRINK(vm, prev, type, oldc, newc) \
+ (type *)rallc(vm, prev, sizeof(type) * (oldc), sizeof(type) * (newc))
+
 typedef struct GcConfig {
     bool is_paused;
 } GcConfig;

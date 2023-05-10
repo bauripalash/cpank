@@ -3,10 +3,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "../ext/baurinum/baurinum.h"
 #include "../include/stdlib.h"
 #include "../include/utils.h"
 #include "../include/vm.h"
-#include "../ext/baurinum/baurinum.h"
 
 #define DO_ADD  20
 #define DO_SUB  21
@@ -23,11 +23,10 @@
 #define LT      131
 #define EQ      132
 
-uint8_t do_bigint_bin_calc(bnum *result, bnum *left, bnum *right,
-                           uint8_t op) {
+uint8_t do_bigint_bin_calc(bnum *result, bnum *left, bnum *right, uint8_t op) {
     switch (op) {
         case DO_ADD:
-            if (bn_add(result , left, right) != BN_OK) {
+            if (bn_add(result, left, right) != BN_OK) {
                 return op;
             }
             break;
@@ -35,11 +34,10 @@ uint8_t do_bigint_bin_calc(bnum *result, bnum *left, bnum *right,
             //            mp_error_to_string(r));
 
         case DO_SUB:
-            if (bn_sub(result , left, right) != BN_OK) {
+            if (bn_sub(result, left, right) != BN_OK) {
                 return op;
             }
             break;
-
     }
     return 0;
 }
@@ -79,11 +77,6 @@ uint8_t do_float_comp(long double left, long double right) {
     return 0;
 }
 
-
-
-
-
-
 Value do_big_calc(PankVm *vm, ObjBigNum *left, ObjBigNum *right, uint8_t op) {
     if (left->isfloat || right->isfloat) {
         long double l_d;
@@ -91,18 +84,17 @@ Value do_big_calc(PankVm *vm, ObjBigNum *left, ObjBigNum *right, uint8_t op) {
 
         if (left->isfloat) {
             l_d = left->as.fval;
-            char * rval_str = bn_as_str(&right->as.ival, false);
+            char *rval_str = bn_as_str(&right->as.ival, false);
             r_d = strtold(rval_str, NULL);
             free(rval_str);
-        
+
         } else {
             r_d = right->as.fval;
 
-            char * lval_str = bn_as_str(&left->as.ival, false);
+            char *lval_str = bn_as_str(&left->as.ival, false);
             l_d = strtold(lval_str, NULL);
             free(lval_str);
         }
-
 
         if (op == DO_ADD || op == DO_SUB) {
             Value v = make_obj_val(
@@ -124,12 +116,12 @@ Value do_big_calc(PankVm *vm, ObjBigNum *left, ObjBigNum *right, uint8_t op) {
         }
 
     } else {
-       /* cp_print(L"->");
-         print_val(make_obj_val(right));
-         cp_println(L"<-");
-         cp_print(L"->");
-         print_val(make_obj_val(left));
-         cp_println(L"<-");*/
+        /* cp_print(L"->");
+          print_val(make_obj_val(right));
+          cp_println(L"<-");
+          cp_print(L"->");
+          print_val(make_obj_val(left));
+          cp_println(L"<-");*/
 
         if (op == DO_ADD || op == DO_SUB) {
             bnum result;
@@ -139,9 +131,9 @@ Value do_big_calc(PankVm *vm, ObjBigNum *left, ObjBigNum *right, uint8_t op) {
             do_bigint_bin_calc(&result, &left->as.ival, &right->as.ival, op);
             // mp_add(&left->as.ival, &right->as.ival, &result);
 
-            //cp_println(L"OPOP->%s", big_int_to_str(&result));
+            // cp_println(L"OPOP->%s", big_int_to_str(&result));
             Value v = make_obj_val(new_bignum_with_mpint(vm, &result));
-            //print_val(v);
+            // print_val(v);
 
             // cp_print(L"RES->");
             // cp_println(L"%s" , big_int_to_str(&result));
@@ -194,11 +186,6 @@ Value _big_sub(PankVm *vm, int argc, Value *args) {
     ObjBigNum *right = get_as_bignum(raw_b);
     return do_big_calc(vm, left, right, DO_SUB);
 }
-
-
-
-
-
 
 Value _big_comp_gt(PankVm *vm, int argc, Value *args) {
     check_argc_count("gt(a, b)", 2, argc);
@@ -255,7 +242,6 @@ Value _big_comp_noteq(PankVm *vm, int argc, Value *args) {
     ObjBigNum *right = get_as_bignum(raw_b);
     return do_big_calc(vm, left, right, DO_NEQ);
 }
-
 
 Value _big_const_pi(PankVm *vm, int argc, Value *args) {
     if (argc != 0) {

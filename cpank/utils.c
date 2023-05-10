@@ -27,9 +27,7 @@
  #include <direct.h>
 #endif
 
-char *big_int_to_str(bnum *ival) {
-    return bn_as_str(ival, false);
-}
+char *big_int_to_str(bnum *ival) { return bn_as_str(ival, false); }
 
 char *big_float_to_str(long double f) {
     int len = snprintf(NULL, 0, "%Lg", f);

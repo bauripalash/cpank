@@ -872,7 +872,7 @@ IResult run_vm(PankVm *vm) {
                 vm->last_pop = to_show;
                 if (vm->need_buffer) {
                     char32_t *vl = value_to_string(vm, to_show);
-                    write_pbuffer(&vm->buffer, "p~~ %ls\n", vl);
+                    write_pbuffer(&vm->buffer, "p~~ %ls", vl);
                     free(vl);
                 } else {
 #if defined(DEBUG)
@@ -880,7 +880,7 @@ IResult run_vm(PankVm *vm) {
                     cp_print(L"p~~ ");
 #endif
                     print_val(to_show);
-                    cp_print(L"\n");
+                    // cp_print(L"\n");
                 }
                 break;
             }

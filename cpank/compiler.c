@@ -2,6 +2,7 @@
 
 #include "include/compiler.h"
 
+#include <string.h>
 #include <uchar.h>
 
 #include "include/common.h"
@@ -279,12 +280,66 @@ static void read_number(Compiler *compiler, bool can_assign) {
     emit_const(compiler, make_num(val));
 }
 
+int unescape_string(char32_t *raw_str, int len) {
+    char32_t *string = raw_str;
+    for (int i = 0; i < len - 1; i++) {
+        if (string[i] == '\\') {
+            switch (string[i + 1]) {
+                case 'n':
+                    string[i + 1] = '\n';
+                    break;
+                case '?':
+                    string[i + 1] = '\?';
+                    break;
+                case 'a':
+                    string[i + 1] = '\a';
+                    break;
+                case 'b':
+                    string[i + 1] = '\b';
+                    break;
+                case 'f':
+                    string[i + 1] = '\b';
+                    break;
+                case 'r':
+                    string[i + 1] = '\r';
+                    break;
+                case 't':
+                    string[i + 1] = '\t';
+                    break;
+                case 'v':
+                    string[i + 1] = '\v';
+                    break;
+                case '\\':
+                    string[i + 1] = '\\';
+                    break;
+                case '\'':
+                case '"':
+                    break;
+                default:
+                    continue;
+            }
+
+            memmove(&string[i], &string[i + 1], sizeof(char32_t) * (len - i));
+            len -= 1;
+        }
+    }
+    return len;
+}
+
 // read strings
 // "...."
 static void read_string(Compiler *compiler, bool can_assign) {
-    Value v = make_obj_val(copy_string(compiler->parser->vm,
-                                       compiler->parser->prev.start + 1,
-                                       compiler->parser->prev.length - 2));
+    int raw_len = compiler->parser->prev.length - 2;
+    char32_t *rawstr = ALLOC(compiler->parser->vm, char32_t, raw_len + 1);
+    memcpy(rawstr, compiler->parser->prev.start + 1,
+           raw_len * sizeof(char32_t));
+    int newlen = unescape_string(rawstr, raw_len);
+    if (newlen != raw_len) {
+        rawstr = SHRINK(compiler->parser->vm, rawstr, char32_t, raw_len + 1,
+                        newlen + 1);
+    }
+    rawstr[newlen] = U'\0';
+    Value v = make_obj_val(take_string(compiler->parser->vm, rawstr, newlen));
     emit_const(compiler, v);
 }
 

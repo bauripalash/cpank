@@ -1,7 +1,2 @@
-import b "big"
-let x = bignew("100");
-show x;
-let y = bignew(200);
-show y;
-let z = b.add(x , y);
-show z;
+let a = "hello\n\n\n\n\n"
+show a;
