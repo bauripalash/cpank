@@ -1,17 +1,59 @@
 # Pankti Internal Memo #2 
 
-```
+```yaml
 Title: Pankti Standard Library and Builtins
 Author: Palash Bauri <me [at] palashbauri [dot] in>
 		<palashbauri1 [at] gmail [dot] com>
 Status: Draft
 Created: April 23, 2023 16:25:04 IST
-Last Modified: May 12, 2023 11:48:00 IST
+Last Modified: May 12, 2023 17:09:01 IST
 ```
 
 ## Abstract
 This memo describes and mentions all the standard library and builtin functions
 which must be present in all Implementation of Pankti Programming Language
+
+## Built-in Functions
+
+##### type(v : Value) -> String
+Returns the type of `v`
+* Number -> `number`
+* Nil -> `nil`
+* Bool -> `bool`
+* String -> `string`
+* Module -> `module`
+* Error Object -> `error`
+* Function -> `function`
+* Closure - > `closure`
+* Array -> `array`
+* Native Function -> `native`
+* Upvalue (Closure Free Variable) -> `upvalue`
+* Big Number -> `bignum`
+* HashMap -> `map`
+
+##### len(v : Value) -> Number
+
+Returns length (differs from type to type)
+
+Only works with `string`, `array`, and `maps` 
+
+For `string`s returns the count of UTF-32 encoded characters. 
+
+For `array`s returns the count of items present.
+
+For `map`s returns the count of key-value pairs.
+
+
+
+##### asserteq(a : Value , b : Value) -> Bool
+
+Returns `true` if a == b, otherwise returns `false`
+
+##### clock() -> Number
+
+Returns program time so far in seconds
+
+
 
 ## Standard Library
 ### 1. OS 
@@ -198,84 +240,79 @@ Some common Mathematics functions
 #### <sub>math</sub>.**pow(a : Number , b : Number)** -> Number
 $a^b$ . Returns `a`<sup>b</sup>. 
 
-#### <sub>math</sub>.**gcd(a : Number , b : Number)** -> Number
+##### <sub>math</sub>.**gcd(a : Number , b : Number)** -> Number
 $gcd(a , b)$ .Returns greatest common divisor (GCD) of `a` and `b`
 
-#### <sub>math</sub>.**lcm(a : Number , b : Number)** -> Number
-l$cm(a, b)$ .Returns least common multiplier  (LCM) of `a` and `b`
+##### <sub>math</sub>.**lcm(a : Number , b : Number)** -> Number
+$lcm(a, b)$ .Returns least common multiplier  (LCM) of `a` and `b`
 
-#### <sub>math</sub>.**sqrt(a : Number)** -> Number
+##### <sub>math</sub>.**sqrt(a : Number)** -> Number
 $\sqrt{a}$. Returns square root of a. 
 
-<sub>math</sub>.log10(a : Number) -> Number
+##### <sub>math</sub>.**log10(a : Number)** -> Number
 
 $\log_{10}(a)$ . Log a (base 10)
 
-<sub>math</sub>.loge(a : Number) -> Number
+##### <sub>math</sub>.**loge(a : Number)** -> Number
 
-$\ln(a)$ . Natural log of a
+$ln(a)$ . Natural log of a
 
-<sub>math</sub>.logx( b : Number , a : Number) -> Number
+##### <sub>math</sub>.**logx( b : Number , a : Number) **-> Number
 
 $\log_{b}(a)$. Log of `a` (base `b`)
 
-<sub>math</sub>.sin(a : Number) -> Number
+##### <sub>math</sub>.**sin(a : Number)** -> Number
 
 Sine of `a` radians
 
-<sub>math</sub>.tan(a : Number) -> Number
+##### <sub>math</sub>.**tan(a : Number)** -> Number
 
 Tangent of `a` radians
 
-<sub>math</sub>.cos(a : Number) -> Number
+##### <sub>math</sub>.**cos(a : Number)** -> Number
 
 Cosine of `a` radians
 
-<sub>math</sub>.degree(a : Number) -> Number
+##### <sub>math</sub>.**degree(a : Number)** -> Number
 
 Value of `a` radians in degrees
 
-<sub>math</sub>.rad(a : Number) -> Number
+##### <sub>math</sub>.**rad(a : Number)** -> Number
 
 Value of `a` degrees in radians
 
-<sub>math</sub>.pi() -> Number
+##### <sub>math</sub>.**pi()** -> Number
 
 Returns a fixed value of Pi ($\pi$)
 
-<sub>math</sub>.e() -> Number
+##### <sub>math</sub>.**e()** -> Number
 
 Returns a fixed value of `e` (Euler's constant )
 
-<sub>math</sub>.strtonum(a : String) -> Number
+##### <sub>math</sub>.**strtonum(a : String)** -> Number
 
 Try convert `a` (a must contain english digits) to a number.
 
-<sub>math</sub>.randnum() -> Number
+##### <sub>math</sub>.**randnum()** -> Number
 
 Generates a pseudo-random decimal number within 0 to 1
 
-<sub>math</sub>.random(min : Number , max : Number) -> Number
+##### <sub>math</sub>.**random(min : Number , max : Number)** -> Number
 
 Generates a pseudo-random decimal number within `min` to `max`
 
-<sub>math</sub>.abs(a : Number) -> Number
+##### <sub>math</sub>.**abs(a : Number)** -> Number
 
 $|a|$. Returns absolute value of `a `
 
-<sub>math</sub>.round(a : Number) -> Number
+##### <sub>math</sub>.**round(a : Number)** -> Number
 
 Returns rounded value of `a `
 
-<sub>math</sub>.infiniy() -> Number
+##### <sub>math</sub>.**infiniy()** -> Number
 
-Returns raw `C` infinity
+Returns raw `C` infinity $\infty$
 
-<sub>math</sub>.ceil(a : Number) -> Number
+##### <sub>math</sub>.**ceil(a : Number)** -> Number
 
 Returns rounded up smallest integer greater than or equal to the value of `a`
-
-
-
-
-
