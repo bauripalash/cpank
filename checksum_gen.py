@@ -6,7 +6,7 @@ import sys
 def main():
 
     EXE_FILE = "pankti"
-    if sys.platform == "win32" or sys.platform == "cygwin":
+    if sys.platform.startswith("win32") or sys.platform.startswith("cygwin"):
         EXE_FILE+='.exe'
 
     CSUM_FILE = EXE_FILE + ".sha512"

@@ -8,7 +8,7 @@
  * Utility Functions
  */
 
-char* strrev(const char* str) {
+char* str_rev(const char* str) {
     int len = strlen(str);
     char* tstr = (char*)calloc(len + 1, sizeof(char));
     if (tstr == NULL) {

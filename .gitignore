@@ -18,7 +18,7 @@ massif.out.*
 # Prerequisites
 *.d
 build/
-
+*.backup
 # Object files
 *.o
 *.ko

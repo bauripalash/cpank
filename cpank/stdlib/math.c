@@ -334,6 +334,7 @@ Value _math_ceil(PankVm* vm, int argc, Value* args) {
         return make_error(vm, U"math ceil(...) function only works on numbers");
     }
 
+    
     double v = get_as_number(args[0]);
     return make_num(ceil(v));
 }

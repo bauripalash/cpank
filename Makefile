@@ -5,7 +5,7 @@ ifeq ($(RLS),1)
 	LDFLAGS+=-static -lm
 else
 	BUILD_TYPE:=debug
-	CFLAGS+=-Wall -g3 -DDEBUG
+	CFLAGS+=-Wall -g3 -DDEBUG -DDEBUG_STRESS_GC
 	LDFLAGS+=-lm
 endif
 

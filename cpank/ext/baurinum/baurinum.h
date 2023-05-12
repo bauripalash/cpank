@@ -104,7 +104,7 @@ void bn_rev(bnum* b);
 
 // return a new string of `str` reversed
 // must free result
-char* strrev(const char* str);
+char* str_rev(const char* str);
 
 // set a string (base 10) to `b`
 bnerr bn_set_str(bnum* b, char* str);
