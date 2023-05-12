@@ -1,12 +1,12 @@
 # Pankti Internal Memo #2 
 
 ```
-Title: Pankti Import and Module System
+Title: Pankti Standard Library and Builtins
 Author: Palash Bauri <me [at] palashbauri [dot] in>
 		<palashbauri1 [at] gmail [dot] com>
 Status: Draft
 Created: April 23, 2023 16:25:04 IST
-Last Modified: April 10, 2023 10:35:30 IST
+Last Modified: May 12, 2023 11:48:00 IST
 ```
 
 ## Abstract
@@ -196,10 +196,86 @@ Some common Mathematics functions
 #### Module Name: math / 
 #### Functions
 #### <sub>math</sub>.**pow(a : Number , b : Number)** -> Number
-Returns `a`<sup>b</sup>. $a^b$
+$a^b$ . Returns `a`<sup>b</sup>. 
 
 #### <sub>math</sub>.**gcd(a : Number , b : Number)** -> Number
-Returns greatest common divisor (GCD) of `a` and `b`
+$gcd(a , b)$ .Returns greatest common divisor (GCD) of `a` and `b`
 
 #### <sub>math</sub>.**lcm(a : Number , b : Number)** -> Number
-Returns least common multiplier  (LCM) of `a` and `b`$lcm(a, b)$
+l$cm(a, b)$ .Returns least common multiplier  (LCM) of `a` and `b`
+
+#### <sub>math</sub>.**sqrt(a : Number)** -> Number
+$\sqrt{a}$. Returns square root of a. 
+
+<sub>math</sub>.log10(a : Number) -> Number
+
+$\log_{10}(a)$ . Log a (base 10)
+
+<sub>math</sub>.loge(a : Number) -> Number
+
+$\ln(a)$ . Natural log of a
+
+<sub>math</sub>.logx( b : Number , a : Number) -> Number
+
+$\log_{b}(a)$. Log of `a` (base `b`)
+
+<sub>math</sub>.sin(a : Number) -> Number
+
+Sine of `a` radians
+
+<sub>math</sub>.tan(a : Number) -> Number
+
+Tangent of `a` radians
+
+<sub>math</sub>.cos(a : Number) -> Number
+
+Cosine of `a` radians
+
+<sub>math</sub>.degree(a : Number) -> Number
+
+Value of `a` radians in degrees
+
+<sub>math</sub>.rad(a : Number) -> Number
+
+Value of `a` degrees in radians
+
+<sub>math</sub>.pi() -> Number
+
+Returns a fixed value of Pi ($\pi$)
+
+<sub>math</sub>.e() -> Number
+
+Returns a fixed value of `e` (Euler's constant )
+
+<sub>math</sub>.strtonum(a : String) -> Number
+
+Try convert `a` (a must contain english digits) to a number.
+
+<sub>math</sub>.randnum() -> Number
+
+Generates a pseudo-random decimal number within 0 to 1
+
+<sub>math</sub>.random(min : Number , max : Number) -> Number
+
+Generates a pseudo-random decimal number within `min` to `max`
+
+<sub>math</sub>.abs(a : Number) -> Number
+
+$|a|$. Returns absolute value of `a `
+
+<sub>math</sub>.round(a : Number) -> Number
+
+Returns rounded value of `a `
+
+<sub>math</sub>.infiniy() -> Number
+
+Returns raw `C` infinity
+
+<sub>math</sub>.ceil(a : Number) -> Number
+
+Returns rounded up smallest integer greater than or equal to the value of `a`
+
+
+
+
+

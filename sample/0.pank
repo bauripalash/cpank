@@ -1,5 +1,5 @@
-let a = "hello
-world
-how are you
-"
-show a;
+import m "math"
+
+show m.randnum()
+show "\n"
+show m.random(10,20)
