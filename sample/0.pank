@@ -1,5 +1,2 @@
-import m "math"
-
-show m.randnum()
-show "\n"
-show m.random(10,20)
+import s "str"
+show s.uc("hello\u0980\u26149hello") + "\n";

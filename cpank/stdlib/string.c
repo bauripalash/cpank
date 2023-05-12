@@ -62,8 +62,62 @@ Value _str_to_str(PankVm* vm, int argc, Value* args) {
     return pop(vm);
 }
 
-void push_stdlib_string(PankVm* vm) {
-    SL sls[] = {msl(U"split", _str_split_delim), msl(U"string", _str_to_str)};
+static char32_t* convert_char(char* str) {
+    char* read_ptr = str;
+    char32_t x[strlen(str) + 1];
+    int index = 0;
+    while (*read_ptr != '\0') {
+        if (*read_ptr == '\\' && *(read_ptr + 1) == 'u') {
+            char unic[5];
 
-    _push_stdlib(vm, U"str", sls, 2);
+            for (int i = 0; i < 4; i++) {
+                unic[i] = *(read_ptr + i + 2);
+            }
+
+            unic[4] = '\0';
+
+            int cp = 0;
+
+            for (int i = 0; i < 4; i++) {
+                cp = (cp << 4) | (unic[i] - '0');
+            }
+
+            x[index] = cp;
+            read_ptr += 6;
+            index++;
+        } else {
+            x[index] = *read_ptr;
+            //*wptr = *read_ptr;
+            read_ptr++;
+            index++;
+            // wptr++;
+        }
+    }
+    //*wptr = '\0';
+    x[index] = '\0';
+    char32_t* s = (char32_t*)malloc((index + 1) * sizeof(char32_t));
+    copy_c32(s, x, index + 1);
+    return s;
+    // cp_println(L"->'%ls'" , x);
+    // return c_to_c(U"", 0);
+}
+
+Value _str_from_uc(PankVm* vm, int argc, Value* args) {
+    ObjString* s = get_as_string(args[0]);
+    char* x = c_to_c(s->chars, s->len);
+
+    char32_t* y = convert_char(x);
+    ObjString* news = take_string(vm, y, strlen32(y));
+    free(x);
+    return make_obj_val(news);
+}
+
+void push_stdlib_string(PankVm* vm) {
+    SL sls[] = {
+        msl(U"split", _str_split_delim),
+        msl(U"string", _str_to_str),
+        msl(U"uc", _str_from_uc),
+    };
+
+    _push_stdlib(vm, U"str", sls, 3);
 }

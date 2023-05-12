@@ -24,7 +24,7 @@ GcConfig gcon;
 
 // #define NOGC
 
-//#define DEBUG_STRES_GC -> Use via compile time flag
+// #define DEBUG_STRES_GC -> Use via compile time flag
 #ifdef DEBUG_LOG_GC
  #include "include/debug.h"
 #endif
