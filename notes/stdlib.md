@@ -196,10 +196,10 @@ Some common Mathematics functions
 #### Module Name: math / 
 #### Functions
 #### <sub>math</sub>.**pow(a : Number , b : Number)** -> Number
-Returns `a`<sup>b</sup>. $\a^b$\
+Returns `a`<sup>b</sup>. $a^b$
 
 #### <sub>math</sub>.**gcd(a : Number , b : Number)** -> Number
 Returns greatest common divisor (GCD) of `a` and `b`
 
 #### <sub>math</sub>.**lcm(a : Number , b : Number)** -> Number
-Returns least common multiplier  (LCM) of `a` and `b`$\lcm(a, b)$\
+Returns least common multiplier  (LCM) of `a` and `b`$lcm(a, b)$
