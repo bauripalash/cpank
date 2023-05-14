@@ -341,7 +341,11 @@ static void read_string(Compiler *compiler, bool can_assign) {
                         newlen + 1);
     }
     rawstr[newlen] = U'\0';
-    Value v = make_obj_val(take_string(compiler->parser->vm, rawstr, newlen));
+    ObjString *raws = take_string(compiler->parser->vm, rawstr, newlen);
+    raws->obj.tok_len = raw_len;
+    raws->obj.is_virt = true;
+    raws->obj.tok_colpos = compiler->parser->prev.colpos;
+    Value v = make_obj_val(raws);
     emit_const(compiler, v);
 }
 
@@ -628,9 +632,11 @@ int resolve_upval(Compiler *compiler, Token *name) {
 }
 
 uint8_t make_id_const(Compiler *compiler, Token *name) {
-    return make_const(
-        compiler, make_obj_val(copy_string(compiler->parser->vm, name->start,
-                                           name->length)));
+    ObjString *s = copy_string(compiler->parser->vm, name->start, name->length);
+    s->obj.tok_len = name->length;
+    s->obj.tok_colpos = name->colpos;
+    s->obj.is_virt = false;
+    return make_const(compiler, make_obj_val(s));
 }
 
 void named_var(Compiler *compiler, Token name, bool can_assign) {

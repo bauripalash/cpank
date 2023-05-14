@@ -77,6 +77,9 @@ Obj *alloc_obj(PankVm *vm, size_t size, ObjType type) {
     obj->type = type;
     obj->next = vm->objs;
     obj->is_marked = false;
+    obj->is_virt = true;
+    obj->tok_colpos = 0;
+    obj->tok_len = 0;
     vm->objs = obj;
 #ifdef DEBUG_LOG_GC
     wprintf(L"%p allocate %zu for %d\n", (void *)obj, size, type);

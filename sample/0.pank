@@ -1,3 +1,2 @@
 let a = "hello"
-show [hello , ];
-show [[
+show b

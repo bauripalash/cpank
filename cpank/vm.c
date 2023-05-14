@@ -901,6 +901,10 @@ IResult run_vm(PankVm *vm) {
             }
             case OP_GET_GLOB: {
                 ObjString *name = read_str_const(frame);
+                // if (!name->obj.is_virt) {
+                // cp_println(L"->%d<-%d" , name->obj.tok_len ,
+                // name->obj.tok_colpos);
+                // }
                 Value val;
                 if (!table_get(frame->globals, name, &val)) {
                     if (!table_get(&vm->builtins, name, &val)) {
@@ -915,12 +919,12 @@ IResult run_vm(PankVm *vm) {
 
             case OP_SET_GLOB: {
                 ObjString *name = read_str_const(frame);
+
                 // wprintf(L"setting global -> %ls -> %ld\n", name->chars,
                 //         frame->global_owner);
                 if (table_set(vm, frame->globals, name, peek_vm(vm, 0))) {
                     table_del(frame->globals, name);
-                    runtime_err(vm, U"Set Global -> Undefined var '%ls'",
-                                name->chars);
+                    runtime_err(vm, U"Undefined var '%ls'", name->chars);
                     return INTRP_RUNTIME_ERR;
                 }
                 break;

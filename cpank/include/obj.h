@@ -35,6 +35,9 @@ struct Obj {
     ObjType type;
     bool is_marked;
     bool is_gen;
+    bool is_virt;
+    int tok_colpos;
+    int tok_len;
     struct Obj *next;
 };
 
