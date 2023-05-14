@@ -160,6 +160,8 @@ PankVm *boot_vm(bool need_buffer) {
     vm->objs = NULL;
     vm->last_pop = make_nil;
     vm->need_buffer = need_buffer;
+    // vm->compiler = malloc(sizeof(Compiler));
+    // init_compiler(NULL, vm->compiler, NULL, FTYPE_SCRIPT);
 
     if (need_buffer) {
         init_pbuffer(&vm->buffer);
@@ -342,6 +344,40 @@ Value get_last_pop(PankVm *vm) {
 Module *get_cur_mod(PankVm *vm) { return vm->current_mod; }
 
 void runtime_err(PankVm *vm, char32_t *format, ...) {
+    for (int i = get_cur_mod(vm)->frame_count - 1; i >= 0; i--) {
+        CallFrame *frm = &get_cur_mod(vm)->frames[i];
+        //&vm.frames[i];
+        ObjFunc *fn = frm->closure->func;
+        size_t inst = frm->ip - fn->ins.code - 1;  // vm.ip - vm.ins->code - 1;
+        int line = fn->ins.lines[inst];            // vm.ins->lines[inst];
+        char32_t *result_line = getline_from_c32(vm->code, line);
+        if (result_line != NULL) {
+            cp_print(L"%d| %ls", line, result_line);
+            free(result_line);
+        }
+
+        if (vm->need_buffer) {
+            write_pbuffer(&vm->buffer, "\nError at [line %d] in ", line);
+        } else {
+            // fwprintf(, L"Error [line %d] in \n", line);
+            cp_print(L"\nError at [line %d] in ", line);
+        }
+        if (fn->name == NULL) {
+            if (vm->need_buffer) {
+                write_pbuffer(&vm->buffer, "'script'\n");
+            } else {
+                // fwprintf(stderr, L"script\n");
+                cp_println(L"'script'");
+            }
+        } else {
+            if (vm->need_buffer) {
+                write_pbuffer(&vm->buffer, "%.*ls", fn->name->len,
+                              fn->name->chars);
+            } else {
+                cp_println(L"%.*ls()", fn->name->len, fn->name->chars);
+            }
+        }
+    }
     char *strformat = c_to_c(format, 0);
     // setlocale(LC_CTYPE, "");
     va_list args;
@@ -363,34 +399,7 @@ void runtime_err(PankVm *vm, char32_t *format, ...) {
 
     va_end(args);
 
-    fputwc('\n', stderr);
-
-    for (int i = get_cur_mod(vm)->frame_count - 1; i >= 0; i--) {
-        CallFrame *frm = &get_cur_mod(vm)->frames[i];
-        //&vm.frames[i];
-        ObjFunc *fn = frm->closure->func;
-        size_t inst = frm->ip - fn->ins.code - 1;  // vm.ip - vm.ins->code - 1;
-        int line = fn->ins.lines[inst];            // vm.ins->lines[inst];
-        if (vm->need_buffer) {
-            write_pbuffer(&vm->buffer, "Error [line %d] in \n", line);
-        } else {
-            fwprintf(stderr, L"Error [line %d] in \n", line);
-        }
-        if (fn->name == NULL) {
-            if (vm->need_buffer) {
-                write_pbuffer(&vm->buffer, "script\n");
-            } else {
-                fwprintf(stderr, L"script\n");
-            }
-        } else {
-            if (vm->need_buffer) {
-                write_pbuffer(&vm->buffer, "%.*ls", fn->name->len,
-                              fn->name->chars);
-            } else {
-                fwprintf(stderr, L"%.*ls()", fn->name->len, fn->name->chars);
-            }
-        }
-    }
+    fputwc('\n', stdout);
 
     free(strformat);
 
@@ -895,8 +904,7 @@ IResult run_vm(PankVm *vm) {
                 Value val;
                 if (!table_get(frame->globals, name, &val)) {
                     if (!table_get(&vm->builtins, name, &val)) {
-                        runtime_err(vm,
-                                    U"Get Global -> Undefined variable '%ls'.",
+                        runtime_err(vm, U"Undefined variable '%ls'.",
                                     name->chars);
                         return INTRP_RUNTIME_ERR;
                     }
@@ -1379,6 +1387,9 @@ IResult interpret(PankVm *vm, char32_t *source) {
     if (fn == NULL) {
         return INTRP_COMPILE_ERR;
     }
+    const int codelen = strlen32(source);
+    vm->code = (char32_t *)malloc((codelen + 1) * sizeof(char32_t));
+    copy_c32(vm->code, source, strlen32(source));
 
     // if (!dump_instruction(&fn->ins, "script.cpnk")) {
     //     cp_println(L"failed dump compiled instruction");

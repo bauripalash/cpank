@@ -29,6 +29,9 @@
 #define OS_ANDROID_CODE   3
 #define OS_UNKNOWN_CODE   4
 
+// Must free result. Result can be NULL
+char32_t *getline_from_c32(char32_t *source, int line);
+
 // Convert GMP integer `ival` to string;
 // You must check for `NULL`;
 // You must free the result;

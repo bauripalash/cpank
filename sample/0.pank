@@ -1,2 +1,3 @@
-import s "str"
-show s.uc("hello\u0980\u26149hello") + "\n";
+let a = "hello"
+show [hello , ];
+show [[

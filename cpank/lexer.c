@@ -179,37 +179,10 @@ char *token_to_string(const Token *t) {
 }
 
 char32_t *get_line(Lexer *lexer, int line) {
-    char32_t *resultline = NULL;
     if (lexer->line < line) {
         return NULL;
     }
-    int lineindex = line - 1;
-    int linecount = 0;
-    char32_t **lines = split32(lexer->src, U"\n", &linecount);
-    if (lines == NULL) {
-        return NULL;
-    }
-    for (int i = 0; i < linecount; i++) {
-        if (i == lineindex) {
-            char32_t *rawline = lines[i];
-            int len = strlen32(rawline);
-            resultline = (char32_t *)calloc(len + 1, sizeof(char32_t));
-            if (resultline == NULL) {
-                free(lines[i]);
-                continue;
-            }
-            copy_c32(resultline, rawline, len);
-            resultline[len] = U'\0';
-            free(lines[i]);
-            // return resultline;
-        } else {
-            free(lines[i]);
-        }
-    }
-
-    free(lines);
-
-    return resultline;
+    return getline_from_c32(lexer->src, line);
 }
 
 // Lexer lexer;

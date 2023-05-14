@@ -13,6 +13,7 @@
 #include "compiler.h"
 #include "htable.h"
 #include "instruction.h"
+#include "lexer.h"
 #include "obj.h"
 #include "value.h"
 
@@ -129,6 +130,7 @@ struct _Vm {
     size_t bts_allocated;
     size_t next_gc;
     Value last_pop;
+    char32_t *code;
 };
 
 typedef enum {

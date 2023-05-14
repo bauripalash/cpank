@@ -83,15 +83,17 @@ void init_compiler(Parser *parser, Compiler *compiler, Compiler *prevcomp,
     compiler->type = type;
     compiler->local_count = 0;
     compiler->scope_depth = 0;
-    compiler->func = new_func(parser->vm);
-    // compiler->func = new_func(vm);
-    parser->vm->compiler = compiler;
+    if (parser != NULL) {
+        compiler->func = new_func(parser->vm);
 
-    if (type != FTYPE_SCRIPT) {
-        compiler->func->name =
-            copy_string(parser->vm, compiler->parser->prev.start,
-                        compiler->parser->prev.length);
+        parser->vm->compiler = compiler;
+        if (type != FTYPE_SCRIPT) {
+            compiler->func->name =
+                copy_string(parser->vm, compiler->parser->prev.start,
+                            compiler->parser->prev.length);
+        }
     }
+    // compiler->func = new_func(vm);
 
     Local *local = &compiler->locals[compiler->local_count++];
     local->depth = compiler->scope_depth;
