@@ -66,6 +66,15 @@ $(TARGET): $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(CORE_OBJS)
 $(TEST_TARGET): $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(TEST_OBJS)
 	@$(CC) $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(TEST_OBJS) -o $@ $(LDFLAGS)
 
+$(TARGET).sig: $(TARGET)
+	gpg --output $(TARGET).sig --detach-sig $(TARGET)
+
+sign: $(TARGET).sig 
+
+verifysign:
+	gpg --verify $(TARGET).sig $(TARGET)
+
+
 build_uo: CFLAGS=-std=c11 -g3 -Wall -pedantic -DMODE_BENGALI
 build_uo: LDFLAGS=-lm
 build_uo: tommath stdlib core
@@ -126,6 +135,8 @@ $(EXT_BAURINUM_BDIR)/%.c.o: %.c
 clean:
 	rm -f ./$(TARGET)
 	rm -f ./$(TEST_TARGET)
+	rm -f ./$(TARGET).sig 
+	rm -rf ./$(TARGET).asc
 	rm -rf ./panktiw
 	rm -f ./massif.out.*
 	rm -rf ./perf.data

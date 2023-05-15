@@ -10,6 +10,8 @@ testpankti
 pankti
 panktiw
 pankti.sha512
+pankti.asc
+pankti.sig
 cpank.gmon.txt
 *.callgraph.dot
 vgcore.*
