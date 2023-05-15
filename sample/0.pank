@@ -3,5 +3,7 @@ fun hello(a , b)
 end
 hello(1,2)
 show "\n"
-hello(1)
+hello(1,2)
+show "\n"
+show pa
 	

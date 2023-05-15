@@ -333,6 +333,7 @@ void free_vm(PankVm *vm) {
         // print_pbuffer(&vm->buffer);
         free_pbuffer(&vm->buffer);
     }
+    free(vm->code);
     free(vm);
 }
 
@@ -353,21 +354,24 @@ static void runtime_err(PankVm *vm, bool is_virt, int colpos, char32_t *format,
         int line = fn->ins.lines[inst];            // vm.ins->lines[inst];
                                                    //
 
-        char32_t *result_line = getline_from_c32(vm->code, line);
-        // int extlen = strlen32(result_line);
-        int extlen = snprintf(NULL, 0, "%d| ", line);
-        if (result_line != NULL) {
-            cp_println(L"%d| %ls", line, result_line);
-            free(result_line);
-        }
+        if (vm->code != NULL) {
+            char32_t *result_line = getline_from_c32(vm->code, line);
+            // int extlen = strlen32(result_line);
+            int extlen = snprintf(NULL, 0, "%d| ", line);
 
-        if (!is_virt) {
             int line_len = strlen32(result_line) + extlen;
-            for (int i = 1; i <= line_len; i++) {
-                if (i == colpos + extlen) {
-                    cp_print(L"^");
-                } else {
-                    cp_print(L"~");
+            if (result_line != NULL) {
+                cp_println(L"%d| %ls", line, result_line);
+                free(result_line);
+            }
+
+            if (!is_virt) {
+                for (int i = 1; i <= line_len; i++) {
+                    if (i == colpos + extlen) {
+                        cp_print(L"^");
+                    } else {
+                        cp_print(L"~");
+                    }
                 }
             }
         }
@@ -1424,7 +1428,8 @@ IResult interpret(PankVm *vm, char32_t *source) {
         return INTRP_COMPILE_ERR;
     }
     const int codelen = strlen32(source);
-    vm->code = (char32_t *)malloc((codelen + 1) * sizeof(char32_t));
+    vm->code = (char32_t *)calloc(codelen + 1, sizeof(char32_t));
+
     copy_c32(vm->code, source, strlen32(source));
 
     // if (!dump_instruction(&fn->ins, "script.cpnk")) {

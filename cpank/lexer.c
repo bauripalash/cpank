@@ -219,8 +219,13 @@ Token mktok(Lexer *lexer, TokType type) {
     tok.type = type;
     tok.start = lexer->start;
     tok.length = (int)(lexer->current - lexer->start);
+
     tok.line = lexer->line;
-    tok.colpos = lexer->col - tok.length;
+    if (tok.length != 1) {
+        tok.colpos = lexer->col - tok.length;
+    } else {
+        tok.colpos = lexer->col;
+    }
     return tok;
 }
 
