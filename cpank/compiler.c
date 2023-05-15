@@ -130,7 +130,7 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
             cp_err_println(L"%d | %S\n", lineindex, line_c);
             free(line_c);
 #else
-            cp_err_print(L"%d | %ls\n", lineindex, line);
+            cp_print(L"%d | %ls\n", lineindex, line);
 #endif
         }
         // fwprintf(stderr, L"%d | %ls\n", lineindex, line);
@@ -147,7 +147,7 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
         cp_err_println(L"[l %d] %S ", tok->line, emsg_c);
         free(emsg_c);
 #else
-        cp_err_print(L"[l %d] %ls ", tok->line, geterrmsg(EMSG_KW));
+        cp_print(L"[l %d] %ls ", tok->line, geterrmsg(EMSG_KW));
 #endif
     }
 
@@ -155,15 +155,14 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
         if (parser->vm->need_buffer) {
             write_pbuffer(&parser->vm->buffer, "%ls", geterrmsg(EMSG_AT_END));
         } else {
-            cp_err_print(L"%ls", geterrmsg(EMSG_AT_END));
+            cp_print(L"%ls", geterrmsg(EMSG_AT_END));
         }
         if (atcur) {
             if (parser->vm->need_buffer) {
                 write_pbuffer(&parser->vm->buffer, "->%.*ls<-",
                               parser->prev.length, parser->prev.start);
             } else {
-                cp_err_print(L"->%.*ls<-", parser->prev.length,
-                             parser->prev.start);
+                cp_print(L"->%.*ls<-", parser->prev.length, parser->prev.start);
             }
         }
     } else if (tok->type == T_ERR) {
@@ -173,8 +172,8 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
                           tok->length, tok->start,
                           geterrmsg(EMSG_UNKNOWN_CHAR));
         } else {
-            cp_err_println(L"-> %.*ls <- : %ls", tok->length, tok->start,
-                           geterrmsg(EMSG_UNKNOWN_CHAR));
+            cp_println(L"-> %.*ls <- : %ls", tok->length, tok->start,
+                       geterrmsg(EMSG_UNKNOWN_CHAR));
         }
     } else {
         char *t_str = c32_to_char(
@@ -184,9 +183,9 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
                           geterrmsg(EMSG_HERE), t_str);
         } else {
 #if defined(PANK_OS_WIN)
-            fwprintf(stderr, L" at %.*S", tok->length, t_str);
+            fwprintf(stdout, L" at %.*S", tok->length, t_str);
 #else
-            cp_err_println(L" %ls -> %s <- ", geterrmsg(EMSG_HERE), t_str);
+            cp_println(L" %ls -> %s <- ", geterrmsg(EMSG_HERE), t_str);
 #endif
         }
         free(t_str);
@@ -196,9 +195,9 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
             write_pbuffer(&parser->vm->buffer, " : %s\n\n", msg_str);
         } else {
 #if defined(PANK_OS_WIN)
-            cp_err_println(L" : %S\n", msg_str);
+            cp_println(L" : %S\n", msg_str);
 #else
-            cp_err_println(L" : %s\n", msg_str);
+            cp_println(L" : %s\n", msg_str);
 #endif
         }
     }

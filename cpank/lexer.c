@@ -220,7 +220,7 @@ Token mktok(Lexer *lexer, TokType type) {
     tok.start = lexer->start;
     tok.length = (int)(lexer->current - lexer->start);
     tok.line = lexer->line;
-    tok.colpos = lexer->col;
+    tok.colpos = lexer->col - tok.length;
     return tok;
 }
 
@@ -230,7 +230,7 @@ Token mk_num_tok(Lexer *lexer) {
     tok.start = lexer->start;
     tok.length = (int)(lexer->current - lexer->start);
     tok.line = lexer->line;
-    tok.colpos = lexer->col;
+    tok.colpos = lexer->col - tok.length - 1;
     conv_bn_to_en_num(tok.start, tok.length);
     return tok;
 }
@@ -306,7 +306,7 @@ Token mk_id_tok(Lexer *lexer) {
     tok.length = (int)(lexer->current - lexer->start);
     tok.line = lexer->line;
     tok.type = get_ident_tok_type(tok.start, tok.length);
-    tok.colpos = lexer->col;
+    tok.colpos = lexer->col - tok.length - 1;
     return tok;
 }
 
@@ -325,7 +325,7 @@ Token unknown_tok(Lexer *lexer) {
     tk.type = T_UNKNOWN;
     tk.start = lexer->start;
     tk.length = (int)(lexer->current - lexer->start);
-    tk.colpos = lexer->col;
+    tk.colpos = lexer->col - tk.length;
     tk.line = lexer->line;
     return tk;
 }
@@ -364,6 +364,7 @@ Token get_str_tok(Lexer *lexer) {
     while (peek(lexer) != '"' && !is_eof(lexer)) {
         if (peek(lexer) == '\n') {
             lexer->line++;
+            lexer->col = 1;
         } else if (peek(lexer) == '\\' && !is_eof(lexer)) {
             next(lexer);
         }

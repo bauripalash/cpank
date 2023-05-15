@@ -71,6 +71,7 @@ build_uo: LDFLAGS=-lm
 build_uo: tommath stdlib core
 build_uo: $(TARGET)
 
+build: cleanall
 build: CFLAGS=-std=c11 -O3 -Wall -DMODE_BENGALI 
 build: LDFLAGS=-static -lm
 build: tommath stdlib core

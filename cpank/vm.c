@@ -343,17 +343,33 @@ Value get_last_pop(PankVm *vm) {
 
 Module *get_cur_mod(PankVm *vm) { return vm->current_mod; }
 
-void runtime_err(PankVm *vm, char32_t *format, ...) {
+static void runtime_err(PankVm *vm, bool is_virt, int colpos, char32_t *format,
+                        ...) {
     for (int i = get_cur_mod(vm)->frame_count - 1; i >= 0; i--) {
         CallFrame *frm = &get_cur_mod(vm)->frames[i];
         //&vm.frames[i];
         ObjFunc *fn = frm->closure->func;
         size_t inst = frm->ip - fn->ins.code - 1;  // vm.ip - vm.ins->code - 1;
         int line = fn->ins.lines[inst];            // vm.ins->lines[inst];
+                                                   //
+
         char32_t *result_line = getline_from_c32(vm->code, line);
+        // int extlen = strlen32(result_line);
+        int extlen = snprintf(NULL, 0, "%d| ", line);
         if (result_line != NULL) {
-            cp_print(L"%d| %ls", line, result_line);
+            cp_println(L"%d| %ls", line, result_line);
             free(result_line);
+        }
+
+        if (!is_virt) {
+            int line_len = strlen32(result_line) + extlen;
+            for (int i = 1; i <= line_len; i++) {
+                if (i == colpos + extlen) {
+                    cp_print(L"^");
+                } else {
+                    cp_print(L"~");
+                }
+            }
         }
 
         if (vm->need_buffer) {
@@ -461,7 +477,7 @@ void add_string(PankVm *vm) {
     char *new_str = (char *)malloc(new_size);
     if (new_str == NULL) {
         runtime_err(
-            vm,
+            vm, true, 0,
             U"Failed to allocate memory for joining strings\n Internal Error");
         return;
     }
@@ -493,7 +509,8 @@ bool bin_add(PankVm *vm) {
         return true;
 
     } else {
-        runtime_err(vm,
+        runtime_err(vm, true, 0,
+
                     U"Operands must be numbers or string for binary addition "
                     U"operation");
         return false;
@@ -502,7 +519,8 @@ bool bin_add(PankVm *vm) {
 
 bool bin_sub(PankVm *vm) {
     if (!is_num(peek_vm(vm, 0)) || !is_num(peek_vm(vm, 1))) {
-        runtime_err(vm, U"Operands must be numbers for binary operation");
+        runtime_err(vm, true, 0,
+                    U"Operands must be numbers for binary operation");
         return false;
     }
     double r = get_as_number(pop(vm));
@@ -513,7 +531,8 @@ bool bin_sub(PankVm *vm) {
 
 bool bin_mul(PankVm *vm) {
     if (!is_num(peek_vm(vm, 0)) || !is_num(peek_vm(vm, 1))) {
-        runtime_err(vm, U"Operands must be numbers for binary operation");
+        runtime_err(vm, true, 0,
+                    U"Operands must be numbers for binary operation");
         return false;
     }
     double r = get_as_number(pop(vm));
@@ -524,7 +543,8 @@ bool bin_mul(PankVm *vm) {
 
 bool bin_div(PankVm *vm) {
     if (!is_num(peek_vm(vm, 0)) || !is_num(peek_vm(vm, 1))) {
-        runtime_err(vm, U"Operands must be numbers for binary operation");
+        runtime_err(vm, true, 0,
+                    U"Operands must be numbers for binary operation");
         return false;
     }
     double r = get_as_number(pop(vm));
@@ -535,7 +555,8 @@ bool bin_div(PankVm *vm) {
 
 bool bin_gt(PankVm *vm) {
     if (!is_num(peek_vm(vm, 0)) || !is_num(peek_vm(vm, 1))) {
-        runtime_err(vm, U"Operands must be numbers for binary operation");
+        runtime_err(vm, true, 0,
+                    U"Operands must be numbers for binary operation");
         return false;
     }
     double r = get_as_number(pop(vm));
@@ -547,7 +568,8 @@ bool bin_gt(PankVm *vm) {
 bool bin_gte(PankVm *vm) {
     if (!is_num(peek_vm(vm, 0)) || !is_num(peek_vm(vm, 1))) {
         runtime_err(
-            vm, U"Operands must be numbers for greater than equal operation");
+            vm, true, 0,
+            U"Operands must be numbers for greater than equal operation");
         return false;
     }
 
@@ -559,7 +581,8 @@ bool bin_gte(PankVm *vm) {
 
 bool bin_lt(PankVm *vm) {
     if (!is_num(peek_vm(vm, 0)) || !is_num(peek_vm(vm, 1))) {
-        runtime_err(vm, U"Operands must be numbers for binary operation");
+        runtime_err(vm, true, 0,
+                    U"Operands must be numbers for binary operation");
         return false;
     }
     double r = get_as_number(pop(vm));
@@ -570,7 +593,7 @@ bool bin_lt(PankVm *vm) {
 
 bool bin_lte(PankVm *vm) {
     if (!is_num(peek_vm(vm, 0)) || !is_num(peek_vm(vm, 1))) {
-        runtime_err(vm,
+        runtime_err(vm, true, 0,
                     U"Operands must be numbers for less than equal operation");
         return false;
     }
@@ -901,15 +924,15 @@ IResult run_vm(PankVm *vm) {
             }
             case OP_GET_GLOB: {
                 ObjString *name = read_str_const(frame);
-                // if (!name->obj.is_virt) {
-                // cp_println(L"->%d<-%d" , name->obj.tok_len ,
-                // name->obj.tok_colpos);
-                // }
+                /*if (!name->obj.is_virt) {
+                    cp_println(L"->%d<-%d", name->obj.tok_len,
+                               name->obj.tok_colpos);
+                }*/
                 Value val;
                 if (!table_get(frame->globals, name, &val)) {
                     if (!table_get(&vm->builtins, name, &val)) {
-                        runtime_err(vm, U"Undefined variable '%ls'.",
-                                    name->chars);
+                        runtime_err(vm, false, name->obj.tok_colpos,
+                                    U"Undefined variable '%ls'.", name->chars);
                         return INTRP_RUNTIME_ERR;
                     }
                 }
@@ -924,7 +947,8 @@ IResult run_vm(PankVm *vm) {
                 //         frame->global_owner);
                 if (table_set(vm, frame->globals, name, peek_vm(vm, 0))) {
                     table_del(frame->globals, name);
-                    runtime_err(vm, U"Undefined var '%ls'", name->chars);
+                    runtime_err(vm, true, 0, U"Undefined var '%ls'",
+                                name->chars);
                     return INTRP_RUNTIME_ERR;
                 }
                 break;
@@ -1026,7 +1050,7 @@ IResult run_vm(PankVm *vm) {
                     // print_val(key);
                     if (!is_valid_hashmap_key(key)) {
                         runtime_err(
-                            vm,
+                            vm, true, 0,
                             U"this value can not be used as key for hashmaps");
                         return INTRP_RUNTIME_ERR;
                     }
@@ -1043,12 +1067,13 @@ IResult run_vm(PankVm *vm) {
                 if (is_str_obj(raw_obj)) {
                     if (!is_num(raw_index)) {
                         runtime_err(
-                            vm, U"Strings can only be indexed with numbers");
+                            vm, true, 0,
+                            U"Strings can only be indexed with numbers");
                         return INTRP_RUNTIME_ERR;
                     }
                     double index = get_as_number(raw_index);
                     if (index < 0 && ceil(index) != index) {
-                        runtime_err(vm,
+                        runtime_err(vm, true, 0,
                                     U"strings can be only indexed with "
                                     U"non-negetive integers");
                         return INTRP_RUNTIME_ERR;
@@ -1056,7 +1081,8 @@ IResult run_vm(PankVm *vm) {
                     ObjString *s = get_as_string(raw_obj);
                     if (index >= s->len) {
                         runtime_err(
-                            vm, U"index out of range; max index = %d ; got %d",
+                            vm, true, 0,
+                            U"index out of range; max index = %d ; got %d",
                             s->len - 1, (int)index);
                         return INTRP_RUNTIME_ERR;
                     }
@@ -1067,20 +1093,20 @@ IResult run_vm(PankVm *vm) {
                     push(vm, make_obj_val(newobjstring));
                 } else if (is_array_obj(raw_obj)) {
                     if (!is_num(raw_index)) {
-                        runtime_err(vm,
+                        runtime_err(vm, true, 0,
                                     U"arrays can be only indexed with numbers");
                         return INTRP_RUNTIME_ERR;
                     }
                     double index = get_as_number(raw_index);
                     if (index < 0 || ceil(index) != index) {
                         runtime_err(
-                            vm,
+                            vm, true, 0,
                             U"array index can only be non negetive integers");
                         return INTRP_RUNTIME_ERR;
                     }
                     ObjArray *array = get_as_array(raw_obj);
                     if (index >= array->items.len) {
-                        runtime_err(vm, U"Index out of range error");
+                        runtime_err(vm, true, 0, U"Index out of range error");
                         return INTRP_RUNTIME_ERR;
                     }
 
@@ -1093,14 +1119,15 @@ IResult run_vm(PankVm *vm) {
                     Value val;
                     bool found = hmap_get(hmap, raw_index, &val);
                     if (!found) {
-                        runtime_err(vm, U"key not found in hashmap");
+                        runtime_err(vm, true, 0, U"key not found in hashmap");
                         return INTRP_RUNTIME_ERR;
                     }
                     pop(vm);
                     pop(vm);
                     push(vm, val);
                 } else {
-                    runtime_err(vm, U"Only arrays and hashmaps can be indexed");
+                    runtime_err(vm, true, 0,
+                                U"Only arrays and hashmaps can be indexed");
                     return INTRP_RUNTIME_ERR;
                 }
 
@@ -1111,14 +1138,15 @@ IResult run_vm(PankVm *vm) {
                 cp_print(L"Error : ");
                 print_val(msg);
                 cp_println(L"");
-                runtime_err(vm, U"");
+                runtime_err(vm, true, 0, U"");
                 return INTRP_RUNTIME_ERR;
             }
             case OP_IMPORT_NONAME: {
                 // cp_color_println('b', L"IMPORT");
                 Value raw_custom_name = read_const(frame);
                 if (!is_str_obj(raw_custom_name)) {
-                    runtime_err(vm, U"import custom name must be a identifier");
+                    runtime_err(vm, true, 0,
+                                U"import custom name must be a identifier");
                     return INTRP_RUNTIME_ERR;
                 }
                 ObjString *custom_name = get_as_string(raw_custom_name);
@@ -1128,7 +1156,8 @@ IResult run_vm(PankVm *vm) {
 
                 // cp_println(L"\n^^^");
                 if (!is_str_obj(raw_file_name)) {
-                    runtime_err(vm, U"import file name must be string");
+                    runtime_err(vm, true, 0,
+                                U"import file name must be string");
                     return INTRP_RUNTIME_ERR;
                 }
                 ObjString *filename = get_as_string(raw_file_name);
@@ -1148,14 +1177,14 @@ IResult run_vm(PankVm *vm) {
                             break;
                         case ERC_NO_MEM:
                             runtime_err(
-                                vm,
+                                vm, true, 0,
                                 U"Failed to open imported file '%ls'; ran out "
                                 U"of memory while trying to read it!",
                                 filename->chars);
                             break;
                         default:
                             runtime_err(
-                                vm,
+                                vm, true, 0,
                                 U"Faild to open imported file '%ls'; some "
                                 U"unknown error occured! (code %d)",
                                 filename->chars, ir);
@@ -1184,7 +1213,7 @@ IResult run_vm(PankVm *vm) {
                 print_val(raw_main_obj);*/
 
                 if (!is_map_obj(raw_main_obj) && !is_array_obj(raw_main_obj)) {
-                    runtime_err(vm,
+                    runtime_err(vm, true, 0,
                                 U"subscript assignment only works on arrays "
                                 U"and hashmaps");
                     return INTRP_RUNTIME_ERR;
@@ -1193,7 +1222,8 @@ IResult run_vm(PankVm *vm) {
                 if (is_map_obj(raw_main_obj)) {
                     ObjHashMap *hmap = get_as_hmap(raw_main_obj);
                     if (!is_valid_hashmap_key(raw_index)) {
-                        runtime_err(vm, U"Hashmap key is invalid type");
+                        runtime_err(vm, true, 0,
+                                    U"Hashmap key is invalid type");
                         return INTRP_RUNTIME_ERR;
                     }
                     hmap_set(vm, hmap, raw_index, newval);
@@ -1203,14 +1233,15 @@ IResult run_vm(PankVm *vm) {
                     push(vm, make_nil);
                 } else if (is_array_obj(raw_main_obj)) {
                     if (!is_num(raw_index)) {
-                        runtime_err(vm, U"array index must be number");
+                        runtime_err(vm, true, 0, U"array index must be number");
                         return INTRP_RUNTIME_ERR;
                     }
 
                     double raw_index_num = get_as_number(raw_index);
                     if (raw_index_num < 0 || !is_int(raw_index_num)) {
                         runtime_err(
-                            vm, U"array index must be a non negetive integer");
+                            vm, true, 0,
+                            U"array index must be a non negetive integer");
                         return INTRP_RUNTIME_ERR;
                     }
 
@@ -1219,7 +1250,8 @@ IResult run_vm(PankVm *vm) {
                     ObjArray *arr = get_as_array(raw_main_obj);
 
                     if (index >= arr->items.len) {
-                        runtime_err(vm, U"index out of range of array");
+                        runtime_err(vm, true, 0,
+                                    U"index out of range of array");
                         return INTRP_RUNTIME_ERR;
                     }
 
@@ -1236,7 +1268,7 @@ IResult run_vm(PankVm *vm) {
             case OP_GET_MOD_PROP: {
                 // print_val(peek_vm(vm, 0));
                 if (!is_mod_obj(peek_vm(vm, 0))) {
-                    runtime_err(vm, U"Module object is not a module");
+                    runtime_err(vm, true, 0, U"Module object is not a module");
                     return INTRP_RUNTIME_ERR;
                 }
                 ObjMod *modname = get_as_mod(peek_vm(vm, 0));
@@ -1269,7 +1301,7 @@ IResult run_vm(PankVm *vm) {
                                 break;
                             } else {
                                 runtime_err(
-                                    vm,
+                                    vm, true, 0,
                                     U"cannot find method or variable '%ls' for "
                                     U"std "
                                     U"lib module '%ls'",
@@ -1278,7 +1310,7 @@ IResult run_vm(PankVm *vm) {
                             }
                         }
                     }
-                    runtime_err(vm, U"module not found\n");
+                    runtime_err(vm, true, 0, U"module not found\n");
                     print_obj(make_obj_val(modname->name));
                     return INTRP_RUNTIME_ERR;
                 }
@@ -1290,7 +1322,7 @@ IResult run_vm(PankVm *vm) {
                     break;
                 } else {
                     runtime_err(
-                        vm,
+                        vm, true, 0,
                         U"Error method or variable '%ls' not found for module "
                         U"%ls",
                         prop->chars, modname->name);
@@ -1347,7 +1379,7 @@ bool call_val(PankVm *vm, Value calle, int argc) {
                 if (is_err_obj(result)) {
                     ObjErr *er = get_as_err(result);
                     char32_t *msg32 = char_to_32(er->errmsg);
-                    runtime_err(vm, msg32);
+                    runtime_err(vm, true, 0, msg32);
                     free(msg32);
                     return false;
                 }
@@ -1359,19 +1391,19 @@ bool call_val(PankVm *vm, Value calle, int argc) {
                 break;
         }
     }
-    runtime_err(vm, U"can only call functions");
+    runtime_err(vm, true, 0, U"can only call functions");
     return false;
 }
 
 bool call(PankVm *vm, ObjClosure *closure, int origin, int argc) {
     if (closure->func->arity != argc) {
-        runtime_err(vm, U"Expected %d args but got %d", closure->func->arity,
-                    argc);
+        runtime_err(vm, false, closure->obj.tok_colpos,
+                    U"Expected %d args but got %d", closure->func->arity, argc);
         return false;
     }
 
     if (get_cur_mod(vm)->frame_count == FRAME_SIZE) {
-        runtime_err(vm, U"Too many frames! Stack overflow");
+        runtime_err(vm, true, 0, U"Too many frames! Stack overflow");
         return false;
     }
 

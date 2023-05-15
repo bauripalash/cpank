@@ -14,7 +14,6 @@ typedef struct Obj Obj;
 typedef struct ObjString ObjString;
 
 typedef enum { V_BOOL, V_NIL, V_NUM, V_OBJ } ValType;
-
 #ifdef NAN_BOXING
 typedef uint64_t Value;
  #define QNAN      ((uint64_t)0x7ffc000000000000)
