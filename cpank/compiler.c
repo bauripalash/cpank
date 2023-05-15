@@ -378,41 +378,25 @@ char32_t *unescape_unicode(char32_t *str, int len) {
                 case '"':
                     break;
                 case 'u': {
-                    char32_t unic[5];
-                    int cp = 0;
+                    char unic[5];
                     for (int x = 0; x < 4; x++) {
                         unic[x] = str[i + x + 2];  // read_ptr + i + 2);
                     }
                     unic[4] = '\0';
-
-                    for (int z = 0; z < 4; z++) {
-                        cp = (cp << 4) | (unic[z] - '0');
-                        // cp *= 16;
-                        // cp += unic[z] - '0';
-                    }
-                    result[j++] = (char32_t)cp;
+                    result[j++] = (char32_t)strtol(unic , NULL , 16);
                     i += 5;
                     break;
                 }
                 case 'U': {
-                    /*int code = 0;
-                    for (int l = 2; l <= 8; l++) {
-                        code *= 16;
-                        code += str[l] - '0';
-                    }
-
-                    result[j++] = (char32_t)code;
-                    i += 8;*/
-                    char32_t unic[9];
-                    int cp = 0;
+                    char unic[9];
                     for (int x = 0; x < 8; x++) {
                         unic[x] = str[i + x + 2];
                     }
                     unic[8] = '\0';
-                    for (int x = 0; x < 8; x++) {
+                    /*for (int x = 0; x < 8; x++) {
                         cp = (cp << 4) | (unic[x] - '0');
-                    }
-                    result[j++] = (char32_t)cp;
+                    }*/
+                    result[j++] = (char32_t)strtol(unic , NULL , 16);
                     i += 9;
                     break;
                 }
