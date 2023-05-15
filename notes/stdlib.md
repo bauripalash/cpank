@@ -61,7 +61,7 @@ Returns program time so far in seconds
 Utility functions for fetching information related to the current operating 
 system.
 
-#### Module Name: os / ওএস
+#### Module Name: os
 
 #### Functions
 ##### <sub>os</sub>.**name()** -> String

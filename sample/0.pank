@@ -1,9 +1,1 @@
-fun hello(a , b)
-	show a + b
-end
-hello(1,2)
-show "\n"
-hello(1,2)
-show "\n"
-show pa
-	
+show "hello\u26A3"

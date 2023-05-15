@@ -324,23 +324,125 @@ int unescape_string(char32_t *raw_str, int len) {
             len -= 1;
         }
     }
+
     return len;
+}
+
+char32_t *unescape_unicode(char32_t *str, int len) {
+    // char32_t *result = (char32_t *)calloc(len + 1, sizeof(char32_t));
+    char32_t result[len + 1];
+    int j = 0;
+
+    for (int i = 0; i < len; i++) {
+        // cp_println(L"i->%d|" , i);
+        if (str[i] == '\\') {
+            switch (str[i + 1]) {
+                case 'n':
+                    result[j++] = '\n';
+                    i++;
+                    break;
+                case '?':
+                    result[j++] = '\?';
+                    i++;
+                    break;
+                case 'a':
+                    result[j++] = '\a';
+                    i++;
+
+                    break;
+                case 'b':
+                    result[j++] = '\b';
+                    i++;
+                    break;
+                case 'f':
+                    result[j++] = '\b';
+                    i++;
+                    break;
+                case 'r':
+                    result[j++] = '\r';
+                    i++;
+                    break;
+                case 't':
+                    result[j++] = '\t';
+                    i++;
+                    break;
+                case 'v':
+                    result[j++] = '\v';
+                    i++;
+                    break;
+                case '\\':
+                    result[j++] = '\\';
+                    i++;
+                    break;
+                case '\'':
+                case '"':
+                    break;
+                case 'u': {
+                    char32_t unic[5];
+                    int cp = 0;
+                    for (int x = 0; x < 4; x++) {
+                        unic[x] = str[i + x + 2];  // read_ptr + i + 2);
+                    }
+                    unic[4] = '\0';
+
+                    for (int z = 0; z < 4; z++) {
+                        cp = (cp << 4) | (unic[z] - '0');
+                        // cp *= 16;
+                        // cp += unic[z] - '0';
+                    }
+                    result[j++] = (char32_t)cp;
+                    i += 5;
+                    break;
+                }
+                case 'U': {
+                    /*int code = 0;
+                    for (int l = 2; l <= 8; l++) {
+                        code *= 16;
+                        code += str[l] - '0';
+                    }
+
+                    result[j++] = (char32_t)code;
+                    i += 8;*/
+                    char32_t unic[9];
+                    int cp = 0;
+                    for (int x = 0; x < 8; x++) {
+                        unic[x] = str[i + x + 2];
+                    }
+                    unic[8] = '\0';
+                    for (int x = 0; x < 8; x++) {
+                        cp = (cp << 4) | (unic[x] - '0');
+                    }
+                    result[j++] = (char32_t)cp;
+                    i += 9;
+                    break;
+                }
+            }
+        } else {
+            result[j++] = str[i];
+            // i++;
+        }
+    }
+
+    result[j] = '\0';
+    char32_t *s = (char32_t *)malloc((j + 1) * sizeof(char32_t));
+    copy_c32(s, result, j + 1);
+    return s;
 }
 
 // read strings
 // "...."
 static void read_string(Compiler *compiler, bool can_assign) {
     int raw_len = compiler->parser->prev.length - 2;
-    char32_t *rawstr = ALLOC(compiler->parser->vm, char32_t, raw_len + 1);
-    memcpy(rawstr, compiler->parser->prev.start + 1,
-           raw_len * sizeof(char32_t));
-    int newlen = unescape_string(rawstr, raw_len);
-    if (newlen != raw_len) {
-        rawstr = SHRINK(compiler->parser->vm, rawstr, char32_t, raw_len + 1,
-                        newlen + 1);
+
+    char32_t *newstr =
+        unescape_unicode((compiler->parser->prev.start + 1), raw_len);
+    if (newstr == NULL) {
+        err(compiler->parser,
+            U"Failed to allocate memory for unescaping string");
+        return;
     }
-    rawstr[newlen] = U'\0';
-    ObjString *raws = take_string(compiler->parser->vm, rawstr, newlen);
+    ObjString *raws =
+        take_string(compiler->parser->vm, newstr, strlen32(newstr));
     raws->obj.tok_len = raw_len;
     raws->obj.is_virt = true;
     raws->obj.tok_colpos = compiler->parser->prev.colpos;
