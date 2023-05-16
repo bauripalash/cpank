@@ -281,55 +281,22 @@ static void read_number(Compiler *compiler, bool can_assign) {
     emit_const(compiler, make_num(val));
 }
 
-int unescape_string(char32_t *raw_str, int len) {
-    char32_t *string = raw_str;
-    for (int i = 0; i < len - 1; i++) {
-        if (string[i] == '\\') {
-            switch (string[i + 1]) {
-                case 'n':
-                    string[i + 1] = '\n';
-                    break;
-                case '?':
-                    string[i + 1] = '\?';
-                    break;
-                case 'a':
-                    string[i + 1] = '\a';
-                    break;
-                case 'b':
-                    string[i + 1] = '\b';
-                    break;
-                case 'f':
-                    string[i + 1] = '\b';
-                    break;
-                case 'r':
-                    string[i + 1] = '\r';
-                    break;
-                case 't':
-                    string[i + 1] = '\t';
-                    break;
-                case 'v':
-                    string[i + 1] = '\v';
-                    break;
-                case '\\':
-                    string[i + 1] = '\\';
-                    break;
-                case '\'':
-                case '"':
-                    break;
-                default:
-                    continue;
-            }
-
-            memmove(&string[i], &string[i + 1], sizeof(char32_t) * (len - i));
-            len -= 1;
+static inline int ch32_parse_hex(char32_t *str, int len, int curindex) {
+    int cp = 0;
+    for (int x = 0; x < len; x++) {
+        char32_t ux = str[curindex + x + 2];
+        if (ux >= '0' && ux <= '9') {
+            cp = (cp << 4) | (ux - '0');
+        } else if (ux >= 'a' && ux <= 'f') {
+            cp = (cp << 4) | (ux - 'a' + 10);
+        } else if (ux >= 'A' && ux <= 'F') {
+            cp = (cp << 4) | (ux - 'A' + 10);
         }
     }
-
-    return len;
+    return cp;
 }
 
 char32_t *unescape_unicode(char32_t *str, int len) {
-    // char32_t *result = (char32_t *)calloc(len + 1, sizeof(char32_t));
     char32_t result[len + 1];
     int j = 0;
 
@@ -378,25 +345,13 @@ char32_t *unescape_unicode(char32_t *str, int len) {
                 case '"':
                     break;
                 case 'u': {
-                    char unic[5];
-                    for (int x = 0; x < 4; x++) {
-                        unic[x] = str[i + x + 2];  // read_ptr + i + 2);
-                    }
-                    unic[4] = '\0';
-                    result[j++] = (char32_t)strtol(unic , NULL , 16);
+                    result[j++] = (char32_t)ch32_parse_hex(str, 4, i);
+                    // strtol(unic , NULL , 16);
                     i += 5;
                     break;
                 }
                 case 'U': {
-                    char unic[9];
-                    for (int x = 0; x < 8; x++) {
-                        unic[x] = str[i + x + 2];
-                    }
-                    unic[8] = '\0';
-                    /*for (int x = 0; x < 8; x++) {
-                        cp = (cp << 4) | (unic[x] - '0');
-                    }*/
-                    result[j++] = (char32_t)strtol(unic , NULL , 16);
+                    result[j++] = (char32_t)ch32_parse_hex(str, 8, i);
                     i += 9;
                     break;
                 }
