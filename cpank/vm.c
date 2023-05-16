@@ -366,8 +366,8 @@ static void runtime_err(PankVm *vm, bool is_virt, int colpos, char32_t *format,
             }
 
             if (!is_virt) {
-                for (int i = 1; i <= line_len; i++) {
-                    if (i == colpos + extlen) {
+                for (int j = 1; j <= line_len; j++) {
+                    if (j == colpos + extlen) {
                         cp_print(L"^");
                     } else {
                         cp_print(L"~");

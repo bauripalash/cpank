@@ -98,7 +98,7 @@ andapi:
 
 
 check:
-	cppcheck --force --inline-suppr -I $(PANKTI_INCLUDE_DIR) --enable=all $(CORE_MAIN) $(PANKTI_SRC)
+	cppcheck --force --inline-suppr -I $(PANKTI_INCLUDE_DIR) --enable=all $(CORE_MAIN) $(PANKTI_SRC) -i cpank/ext
 
 debug: build_uo
 	gdb --args $(TARGET) $(STORUN)

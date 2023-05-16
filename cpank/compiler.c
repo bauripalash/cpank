@@ -142,8 +142,8 @@ static void err_at(Parser *parser, Token *tok, char32_t *msg, bool atcur) {
                       geterrmsg(EMSG_KW));
     } else {
 #if defined(PANK_OS_WIN)
-        char32_t *msg = geterrmsg(EMSG_KW);
-        char *emsg_c = c_to_c(msg, strlen32(msg));
+        char32_t *xmsg = geterrmsg(EMSG_KW);
+        char *emsg_c = c_to_c(xmsg, strlen32(xmsg));
         cp_err_println(L"[l %d] %S ", tok->line, emsg_c);
         free(emsg_c);
 #else
@@ -281,7 +281,7 @@ static void read_number(Compiler *compiler, bool can_assign) {
     emit_const(compiler, make_num(val));
 }
 
-static inline int ch32_parse_hex(char32_t *str, int len, int curindex) {
+static inline int ch32_parse_hex(const char32_t *str, int len, int curindex) {
     int cp = 0;
     for (int x = 0; x < len; x++) {
         char32_t ux = str[curindex + x + 2];

@@ -21,10 +21,10 @@ char* run_code(char* source) {
             return NULL;
         case INTRP_OK: {
             char32_t* rawres = get_trimmed(&vm->buffer);
-            char* result = c_to_c(rawres, strlen32(rawres));
+            char* buffer_result = c_to_c(rawres, strlen32(rawres));
             free(rawres);
             free(vm);
-            return result;
+            return buffer_result;
         }
     }
 
