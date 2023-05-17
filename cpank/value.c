@@ -107,8 +107,6 @@ void free_valarr(PankVm *vm, Valarr *array) {
     init_valarr(array);
 }
 
-
-
 void print_val(Value val) {
     //  print_val_type(val.type);
 #ifdef NAN_BOXING

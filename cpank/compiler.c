@@ -46,9 +46,10 @@ typedef enum Prec {
 
 static void start_scope(Compiler *compiler);
 static void end_scope(Compiler *compiler);
-static void emit_bt(Compiler *compiler, uint8_t bt);
-static void emit_two(Compiler *compiler, uint8_t bt_1, uint8_t bt_2);
-static void emit_return(Compiler *compiler);
+static void emit_bt(Compiler *compiler, uint8_t bt, bool manual);
+static void emit_two(Compiler *compiler, uint8_t bt_1, uint8_t bt_2,
+                     bool manual);
+static void emit_return(Compiler *compiler, bool manual);
 static void parse_prec(Compiler *compiler, Prec prec);
 static void read_stmt(Compiler *compiler);
 static void read_declr(Compiler *compiler);
@@ -228,23 +229,31 @@ static void advance(Parser *parser) {
 }
 
 // emit bytecode
-static void emit_bt(Compiler *compiler, uint8_t bt) {
+static void emit_bt(Compiler *compiler, uint8_t bt, bool manual) {
     write_ins(compiler->parser->vm, cur_ins(compiler), bt,
               compiler->parser->prev.line);
+    if (!manual) {
+        add_iparr(compiler->parser->vm, &cur_ins(compiler)->posarr,
+                  (InstPos){.is_virt = false,
+                            .length = compiler->parser->prev.length,
+                            .colpos = compiler->parser->prev.colpos,
+                            .line = compiler->parser->prev.line});
+    }
 }
 
 // emit two bytecode or anything which is
 // uint8_t
-static void emit_two(Compiler *compiler, uint8_t bt_1, uint8_t bt_2) {
-    emit_bt(compiler, bt_1);
-    emit_bt(compiler, bt_2);
+static void emit_two(Compiler *compiler, uint8_t bt_1, uint8_t bt_2,
+                     bool manual) {
+    emit_bt(compiler, bt_1, manual);
+    emit_bt(compiler, bt_2, manual);
 }
 
 // emit 'nil' opcode and
 // then 'return' opcode
-static void emit_return(Compiler *compiler) {
-    emit_bt(compiler, OP_NIL);
-    emit_bt(compiler, OP_RETURN);
+static void emit_return(Compiler *compiler, bool manual) {
+    emit_bt(compiler, OP_NIL, manual);
+    emit_bt(compiler, OP_RETURN, manual);
 }
 
 // add a constant to current instruction
@@ -262,8 +271,8 @@ static uint8_t make_const(Compiler *compiler, Value val) {
 
 // make a constant (uint8_t make_const(Value))
 // and emit const opcode
-static void emit_const(Compiler *compiler, Value value) {
-    emit_two(compiler, OP_CONST, make_const(compiler, value));
+static void emit_const(Compiler *compiler, Value value, bool manual) {
+    emit_two(compiler, OP_CONST, make_const(compiler, value), manual);
 }
 
 // parse numbers
@@ -278,7 +287,7 @@ static void read_number(Compiler *compiler, bool can_assign) {
     //    cp_println(L"NUM -> %.8f" , val);
 
     free(str);
-    emit_const(compiler, make_num(val));
+    emit_const(compiler, make_num(val), false);
 }
 
 static inline int ch32_parse_hex(const char32_t *str, int len, int curindex) {
@@ -386,22 +395,22 @@ static void read_string(Compiler *compiler, bool can_assign) {
     raws->obj.is_virt = true;
     raws->obj.tok_colpos = compiler->parser->prev.colpos;
     Value v = make_obj_val(raws);
-    emit_const(compiler, v);
+    emit_const(compiler, v, false);
 }
 
 void emit_loop(Compiler *compiler, int ls) {
-    emit_bt(compiler, OP_LOOP);
+    emit_bt(compiler, OP_LOOP, false);
     int offset = cur_ins(compiler)->len - ls + 2;
     if (offset > UINT16_MAX) {
         err(compiler->parser, U"loop body too big");
     }
-    emit_bt(compiler, (offset >> 8) & 0xFF);
-    emit_bt(compiler, offset & 0xFF);
+    emit_bt(compiler, (offset >> 8) & 0xFF, false);
+    emit_bt(compiler, offset & 0xFF, false);
 }
 
 int emit_jump(Compiler *compiler, uint8_t ins) {
-    emit_bt(compiler, ins);
-    emit_two(compiler, 0xFF, 0xFF);
+    emit_bt(compiler, ins, false);
+    emit_two(compiler, 0xFF, 0xFF, false);
     return cur_ins(compiler)->len - 2;
 }
 
@@ -417,7 +426,7 @@ void patch_jump(Compiler *compiler, int offset) {
 
 void read_and(Compiler *compiler, bool can_assign) {
     int ej = emit_jump(compiler, OP_JMP_IF_FALSE);
-    emit_bt(compiler, OP_POP);
+    emit_bt(compiler, OP_POP, false);
     parse_prec(compiler, PREC_AND);
     patch_jump(compiler, ej);
 }
@@ -427,7 +436,7 @@ void read_or(Compiler *compiler, bool can_assign) {
     int endjmp = emit_jump(compiler, OP_JMP);
 
     patch_jump(compiler, else_jmp);
-    emit_bt(compiler, OP_POP);
+    emit_bt(compiler, OP_POP, false);
     parse_prec(compiler, PREC_OR);
     patch_jump(compiler, endjmp);
 }
@@ -483,7 +492,7 @@ uint8_t read_arg_list(Compiler *compiler) {
 
 void read_call(Compiler *compiler, bool can_assign) {
     uint8_t arg_count = read_arg_list(compiler);
-    emit_two(compiler, OP_CALL, arg_count);
+    emit_two(compiler, OP_CALL, arg_count, false);
 }
 
 void read_group(Compiler *compiler, bool can_assign) {
@@ -498,10 +507,10 @@ void read_unary(Compiler *compiler, bool can_assign) {
     parse_prec(compiler, PREC_UNARY);
     switch (op) {
         case T_MINUS:
-            emit_bt(compiler, OP_NEG);
+            emit_bt(compiler, OP_NEG, false);
             break;
         case T_BANG:
-            emit_bt(compiler, OP_NOT);
+            emit_bt(compiler, OP_NOT, false);
             break;
         default:
             return;
@@ -517,34 +526,34 @@ void read_binary(Compiler *compiler, bool can_assign) {
     parse_prec(compiler, (Prec)(prule->prec + 1));
     switch (op) {
         case T_PLUS:
-            emit_bt(compiler, OP_ADD);
+            emit_bt(compiler, OP_ADD, false);
             break;
         case T_MINUS:
-            emit_bt(compiler, OP_SUB);
+            emit_bt(compiler, OP_SUB, false);
             break;
         case T_ASTR:
-            emit_bt(compiler, OP_MUL);
+            emit_bt(compiler, OP_MUL, false);
             break;
         case T_DIV:
-            emit_bt(compiler, OP_DIV);
+            emit_bt(compiler, OP_DIV, false);
             break;
         case T_NOTEQ:
-            emit_two(compiler, OP_EQ, OP_NOT);
+            emit_two(compiler, OP_EQ, OP_NOT, false);
             break;
         case T_EQEQ:
-            emit_bt(compiler, OP_EQ);
+            emit_bt(compiler, OP_EQ, false);
             break;
         case T_GT:
-            emit_bt(compiler, OP_GT);
+            emit_bt(compiler, OP_GT, false);
             break;
         case T_GTE:
-            emit_bt(compiler, OP_GTE);
+            emit_bt(compiler, OP_GTE, false);
             break;
         case T_LT:
-            emit_bt(compiler, OP_LT);
+            emit_bt(compiler, OP_LT, false);
             break;
         case T_LTE:
-            emit_bt(compiler, OP_LTE);
+            emit_bt(compiler, OP_LTE, false);
             break;
         default:
             return;
@@ -556,13 +565,13 @@ void read_binary(Compiler *compiler, bool can_assign) {
 void literal(Compiler *compiler, bool can_assign) {
     switch (compiler->parser->prev.type) {
         case T_FALSE:
-            emit_bt(compiler, OP_FALSE);
+            emit_bt(compiler, OP_FALSE, false);
             break;
         case T_NIL:
-            emit_bt(compiler, OP_NIL);
+            emit_bt(compiler, OP_NIL, false);
             break;
         case T_TRUE:
-            emit_bt(compiler, OP_TRUE);
+            emit_bt(compiler, OP_TRUE, false);
             break;
         default:
             return;
@@ -582,7 +591,8 @@ void read_array(Compiler *compiler, bool can_assign) {
     }
 
     eat_tok(compiler, T_RSBRACKET, geterrmsg(EMSG_RBRAC_AFTER_ARR));
-    emit_two(compiler, OP_ARRAY, (uint8_t)items);
+    // TODO
+    emit_two(compiler, OP_ARRAY, (uint8_t)items, false);
 }
 
 void read_index_expr(Compiler *compiler, bool can_assign) {
@@ -590,9 +600,11 @@ void read_index_expr(Compiler *compiler, bool can_assign) {
     eat_tok(compiler, T_RSBRACKET, geterrmsg(EMSG_RBRAC_INDEX));
     if (can_assign && match_tok(compiler, T_EQ)) {
         read_expr(compiler);
-        emit_bt(compiler, OP_SUBSCRIPT_ASSIGN);
+        // TODO
+        emit_bt(compiler, OP_SUBSCRIPT_ASSIGN, false);
     } else {
-        emit_bt(compiler, OP_ARR_INDEX);
+        // TODO
+        emit_bt(compiler, OP_ARR_INDEX, false);
     }
 
     // cp_println(L"can assign subscript -> %s", can_assign ? "true" : "false"
@@ -698,9 +710,9 @@ void named_var(Compiler *compiler, Token name, bool can_assign) {
     // wprintf(L"NAMED_VAR -> %s\n" , can_assign ? "true" : false);
     if (can_assign && match_tok(compiler, T_EQ)) {
         read_expr(compiler);
-        emit_two(compiler, set_op, (uint8_t)arg);
+        emit_two(compiler, set_op, (uint8_t)arg, false);
     } else {
-        emit_two(compiler, get_op, (uint8_t)arg);
+        emit_two(compiler, get_op, (uint8_t)arg, false);
     }
 }
 
@@ -714,9 +726,11 @@ void read_dot(Compiler *compiler, bool can_assign) {
 
     if (can_assign && match_tok(compiler, T_EQ)) {
         read_expr(compiler);
-        emit_two(compiler, OP_SET_MOD_PROP, name);
+        // TODO
+        emit_two(compiler, OP_SET_MOD_PROP, name, false);
     } else {
-        emit_two(compiler, OP_GET_MOD_PROP, name);
+        // TODO
+        emit_two(compiler, OP_GET_MOD_PROP, name, false);
     }
 }
 
@@ -733,7 +747,8 @@ void read_hmap(Compiler *compiler, bool can_assign) {
     } while (match_tok(compiler, T_COMMA));
 
     eat_tok(compiler, T_RBRACE, U"expected '}' after hashmap");
-    emit_two(compiler, OP_HMAP, (uint8_t)count);
+    // TODO
+    emit_two(compiler, OP_HMAP, (uint8_t)count, false);
 }
 
 ParseRule parse_rules[] = {
@@ -789,9 +804,9 @@ static void end_scope(Compiler *compiler) {
            compiler->locals[compiler->local_count - 1].depth >
                compiler->scope_depth) {
         if (compiler->locals[compiler->local_count - 1].is_captd) {
-            emit_bt(compiler, OP_CLS_UP);
+            emit_bt(compiler, OP_CLS_UP, false);
         } else {
-            emit_bt(compiler, OP_POP);
+            emit_bt(compiler, OP_POP, false);
         }
         compiler->local_count--;
     }
@@ -852,7 +867,7 @@ static void return_stmt(Compiler *compiler) {
     // if there is a semicolon just after
     // 'return'; emit nil and return
     if (match_tok(compiler, T_SEMICOLON)) {
-        emit_return(compiler);
+        emit_return(compiler, false);
     } else {
         // if expression after return is present
         // parse the expression and emit return
@@ -860,7 +875,7 @@ static void return_stmt(Compiler *compiler) {
         if (check_tok(compiler, T_SEMICOLON)) {
             eat_tok(compiler, T_SEMICOLON, U"expected ';' after return value");
         }
-        emit_bt(compiler, OP_RETURN);
+        emit_bt(compiler, OP_RETURN, false);
     }
 }
 
@@ -875,7 +890,8 @@ static void read_expr_stmt(Compiler *compiler) {
         eat_tok(compiler, T_SEMICOLON,
                 U"Expected ';' after expression statement");
     }
-    emit_bt(compiler, OP_POP);
+    // TODO
+    emit_bt(compiler, OP_POP, false);
 }
 
 static void read_print_stmt(Compiler *compiler) {
@@ -884,8 +900,8 @@ static void read_print_stmt(Compiler *compiler) {
     if (check_tok(compiler, T_SEMICOLON)) {
         eat_tok(compiler, T_SEMICOLON, U"expected ';' after show stmt");
     }
-
-    emit_bt(compiler, OP_SHOW);
+    // TODO
+    emit_bt(compiler, OP_SHOW, false);
 }
 
 static void declare_var(Compiler *compiler) {
@@ -929,7 +945,7 @@ static void define_var(Compiler *compiler, uint8_t global) {
         mark_init(compiler);
         return;
     }
-    emit_two(compiler, OP_DEF_GLOB, global);
+    emit_two(compiler, OP_DEF_GLOB, global, false);
 }
 
 static void let_declr(Compiler *compiler) {
@@ -937,7 +953,7 @@ static void let_declr(Compiler *compiler) {
     if (match_tok(compiler, T_EQ)) {
         read_expr(compiler);
     } else {
-        emit_bt(compiler, OP_NIL);
+        emit_bt(compiler, OP_NIL, false);
     }
 
     if (check_tok(compiler, T_SEMICOLON)) {
@@ -974,12 +990,14 @@ static void build_func(Compiler *compiler, Compiler *funcCompiler,
     eat_tok(funcCompiler, T_RPAREN, U"expected ')' after func params");
     read_to_end(funcCompiler);
     ObjFunc *fn = end_compiler(funcCompiler);
-    emit_two(compiler, OP_CLOSURE, make_const(compiler, make_obj_val(fn)));
+    // TODO
+    emit_two(compiler, OP_CLOSURE, make_const(compiler, make_obj_val(fn)),
+             false);
 
     for (int i = 0; i < fn->up_count; i++) {
-        emit_bt(funcCompiler->enclosing,
-                funcCompiler->upvs[i].is_local ? 1 : 0);
-        emit_bt(funcCompiler->enclosing, funcCompiler->upvs[i].index);
+        emit_bt(funcCompiler->enclosing, funcCompiler->upvs[i].is_local ? 1 : 0,
+                false);
+        emit_bt(funcCompiler->enclosing, funcCompiler->upvs[i].index, false);
     }
 }
 
@@ -1021,13 +1039,13 @@ static void read_if_stmt(Compiler *compiler) {
     eat_tok(compiler, T_THEN, U"expected 'then'  after if expression");
 
     int then_jump = emit_jump(compiler, OP_JMP_IF_FALSE);
-    emit_bt(compiler, OP_POP);
+    emit_bt(compiler, OP_POP, false);
 
     read_if_block(compiler);
 
     int else_jmp = emit_jump(compiler, OP_JMP);
     patch_jump(compiler, then_jump);
-    emit_bt(compiler, OP_POP);
+    emit_bt(compiler, OP_POP, false);
     if (match_tok(compiler, T_ELSE)) {
         start_scope(compiler);
         read_to_end(compiler);
@@ -1045,14 +1063,14 @@ static void read_while_stmt(Compiler *compiler) {
     read_expr(compiler);
     eat_tok(compiler, T_RPAREN, U"expected ')' after expression");
     int exitjmp = emit_jump(compiler, OP_JMP_IF_FALSE);
-    emit_bt(compiler, OP_POP);
+    emit_bt(compiler, OP_POP, false);
     start_scope(compiler);
     read_to_end(compiler);
     end_scope(compiler);
     // read_stmt();
     emit_loop(compiler, ls);
     patch_jump(compiler, exitjmp);
-    emit_bt(compiler, OP_POP);
+    emit_bt(compiler, OP_POP, false);
 }
 
 static void read_import_stmt(Compiler *compiler) {
@@ -1063,8 +1081,9 @@ static void read_import_stmt(Compiler *compiler) {
         eat_tok(compiler, T_SEMICOLON,
                 U"Expected semicolon after import file name");
     }
-    emit_bt(compiler, OP_IMPORT_NONAME);
-    emit_bt(compiler, index);
+    // TODO
+    emit_bt(compiler, OP_IMPORT_NONAME, false);
+    emit_bt(compiler, index, false);
 }
 
 static void read_block(Compiler *compiler) {
@@ -1080,7 +1099,8 @@ static void read_err_stmt(Compiler *compiler) {
     if (check_tok(compiler, T_SEMICOLON)) {
         eat_tok(compiler, T_SEMICOLON, U"Expected ';' after error statement");
     }
-    emit_bt(compiler, OP_ERR);
+    // TODO
+    emit_bt(compiler, OP_ERR, false);
 }
 
 // read statement
@@ -1115,7 +1135,7 @@ static void read_stmt(Compiler *compiler) {
 }
 
 ObjFunc *end_compiler(Compiler *compiler) {
-    emit_return(compiler);
+    emit_return(compiler, false);
     ObjFunc *function = compiler->func;
 #ifdef DEBUG_PRINT_CODE
     if (!compiler->parser->had_err) {

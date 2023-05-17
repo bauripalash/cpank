@@ -25,7 +25,6 @@ void free_ins(PankVm *vm, Instruction *ins) {
     free_valarr(vm, &ins->consts);
     free_iparr(vm, &ins->posarr);
     init_instruction(ins);
-
 }
 
 void write_ins(PankVm *vm, Instruction *ins, uint8_t bt, int lines) {
@@ -48,30 +47,29 @@ int add_const(PankVm *vm, Instruction *ins, Value val) {
     return ins->consts.len - 1;
 }
 
-
-void init_iparr(InstPosArray * arr){
+void init_iparr(InstPosArray *arr) {
     arr->p = NULL;
     arr->len = 0;
     arr->cap = 0;
 }
-void free_iparr(PankVm * vm , InstPosArray * arr){
+void free_iparr(PankVm *vm, InstPosArray *arr) {
     FREE_ARR(vm, InstPos, arr->p, arr->cap);
     init_iparr(arr);
 }
-void add_iparr(PankVm * vm , InstPosArray * arr , InstPos pos){
+void add_iparr(PankVm *vm, InstPosArray *arr, InstPos pos) {
     if (arr->cap < arr->len + 1) {
-    int ocap = arr->cap;
-    arr->cap = GROW_CAP(ocap);
-    arr->p = GROW_ARR(vm, InstPos, arr->p, ocap, arr->cap);
+        int ocap = arr->cap;
+        arr->cap = GROW_CAP(ocap);
+        arr->p = GROW_ARR(vm, InstPos, arr->p, ocap, arr->cap);
     }
 
-   arr->p[arr->len] = pos;
-   arr->len++;
+    arr->p[arr->len] = pos;
+    arr->len++;
 }
-InstPos fetch_iparr(InstPosArray * arr , int index){
+InstPos fetch_iparr(InstPosArray *arr, int index) {
     if (arr->len >= index || index < 0 || arr->len == 0 || arr->p == NULL) {
-        return (InstPos){.line = 0 , .colpos = 0 , .length = 0 , .is_virt = true};
-    }else{
+        return (InstPos){.line = 0, .colpos = 0, .length = 0, .is_virt = true};
+    } else {
         return arr->p[index];
     }
 }

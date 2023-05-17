@@ -610,7 +610,9 @@ bool bin_lte(PankVm *vm) {
 static int import_custom(PankVm *vm, char32_t *custom_name,
                          char32_t *import_name) {
     // WSrcfile ws = wread_file(import_name);  // Warning import cycle
-    Srcfile ws = read_file(c_to_c(import_name, strlen32(import_name)));
+    char *fname = c_to_c(import_name, strlen32(import_name));
+    Srcfile ws = read_file(fname);
+    free(fname);
     if (ws.errcode != 0) {
         return ws.errcode;
     }
@@ -632,7 +634,8 @@ static int import_custom(PankVm *vm, char32_t *custom_name,
     table_set(vm, &get_cur_mod(vm)->globals, get_as_string(peek_vm(vm, 0)),
               peek_vm(vm, 1));
     vm->current_mod = mod;  // vm.mod_count - 1;
-    ObjFunc *newfn = compile_module(vm, char_to_32(ws.source));
+    char32_t *src = char_to_32(ws.source);
+    ObjFunc *newfn = compile_module(vm, src);
 
     if (newfn == NULL) {
         return ERC_COMPTIME;
@@ -647,6 +650,7 @@ static int import_custom(PankVm *vm, char32_t *custom_name,
     pop(vm);
     call(vm, cls, origin_caller, 0);
     free(ws.source);
+    free(src);
     return 0;
 }
 

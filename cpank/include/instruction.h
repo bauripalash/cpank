@@ -58,19 +58,18 @@ typedef struct {
     uint64_t colpos;
     uint64_t line;
     uint64_t length;
-}InstPos;
+} InstPos;
 
 typedef struct {
     int len;
     int cap;
-    InstPos * p;
-}InstPosArray;
+    InstPos *p;
+} InstPosArray;
 
-
-void init_iparr(InstPosArray * arr);
-void free_iparr(PankVm * vm , InstPosArray * arr);
-void add_iparr(PankVm * vm , InstPosArray * arr , InstPos pos);
-InstPos fetch_iparr(InstPosArray * arr , int index);
+void init_iparr(InstPosArray *arr);
+void free_iparr(PankVm *vm, InstPosArray *arr);
+void add_iparr(PankVm *vm, InstPosArray *arr, InstPos pos);
+InstPos fetch_iparr(InstPosArray *arr, int index);
 
 typedef struct {
     int len;
