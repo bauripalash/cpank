@@ -354,9 +354,14 @@ static void runtime_err(PankVm *vm, bool is_virt, int colpos, char32_t *format,
         int line = fn->ins.lines[inst];            // vm.ins->lines[inst];
                                                    //
 
+        InstPos pos =
+            fn->ins.posarr.p[inst];  // fetch_iparr(&fn->ins.posarr, (int)inst);
+        // if (!pos.is_virt) {
+        //     cp_println(L"|%d|%d|", pos.colpos, pos.length);
+        //  }
+        int ps = colpos;
         if (vm->code != NULL) {
             char32_t *result_line = getline_from_c32(vm->code, line);
-            // int extlen = strlen32(result_line);
             int extlen = snprintf(NULL, 0, "%d| ", line);
 
             int line_len = strlen32(result_line) + extlen;
@@ -364,10 +369,12 @@ static void runtime_err(PankVm *vm, bool is_virt, int colpos, char32_t *format,
                 cp_println(L"%d| %ls", line, result_line);
                 free(result_line);
             }
-
-            if (!is_virt) {
+            if (is_virt) {
+                ps = pos.colpos;
+            }
+            if (!pos.is_virt || !is_virt) {
                 for (int j = 1; j <= line_len; j++) {
-                    if (j == colpos + extlen) {
+                    if (j == ps + extlen) {
                         cp_print(L"^");
                     } else {
                         cp_print(L"~");
@@ -379,14 +386,12 @@ static void runtime_err(PankVm *vm, bool is_virt, int colpos, char32_t *format,
         if (vm->need_buffer) {
             write_pbuffer(&vm->buffer, "\nError at [line %d] in ", line);
         } else {
-            // fwprintf(, L"Error [line %d] in \n", line);
             cp_print(L"\nError at [line %d] in ", line);
         }
         if (fn->name == NULL) {
             if (vm->need_buffer) {
                 write_pbuffer(&vm->buffer, "'script'\n");
             } else {
-                // fwprintf(stderr, L"script\n");
                 cp_println(L"'script'");
             }
         } else {

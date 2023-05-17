@@ -221,11 +221,12 @@ Token mktok(Lexer *lexer, TokType type) {
     tok.length = (int)(lexer->current - lexer->start);
 
     tok.line = lexer->line;
-    if (tok.length != 1) {
-        tok.colpos = lexer->col - tok.length;
-    } else {
-        tok.colpos = lexer->col;
-    }
+    // if (tok.length != 1) {
+    //    tok.colpos = lexer->col - tok.length;
+    //} else {
+    //    tok.colpos = lexer->col;
+    //}
+    tok.colpos = lexer->col - tok.length;
     return tok;
 }
 
@@ -235,7 +236,14 @@ Token mk_num_tok(Lexer *lexer) {
     tok.start = lexer->start;
     tok.length = (int)(lexer->current - lexer->start);
     tok.line = lexer->line;
-    tok.colpos = lexer->col - tok.length - 1;
+
+    // if (tok.length != 1) {
+    tok.colpos = lexer->col - tok.length;
+    //} else {
+    //    tok.colpos = lexer->col;
+    //}
+
+    // tok.colpos = lexer->col - tok.length;
     conv_bn_to_en_num(tok.start, tok.length);
     return tok;
 }

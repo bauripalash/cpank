@@ -1,2 +1,1 @@
-import a "sample/1.pank"
-#show "hello\u26A1\U0001F357" + 1
+show "1"["1"]

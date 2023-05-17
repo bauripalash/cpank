@@ -596,6 +596,9 @@ void read_array(Compiler *compiler, bool can_assign) {
 }
 
 void read_index_expr(Compiler *compiler, bool can_assign) {
+    int line = compiler->parser->prev.line;
+    int colpos = compiler->parser->prev.colpos;
+    int length = compiler->parser->prev.length;
     read_expr(compiler);
     eat_tok(compiler, T_RSBRACKET, geterrmsg(EMSG_RBRAC_INDEX));
     if (can_assign && match_tok(compiler, T_EQ)) {
@@ -603,8 +606,12 @@ void read_index_expr(Compiler *compiler, bool can_assign) {
         // TODO
         emit_bt(compiler, OP_SUBSCRIPT_ASSIGN, false);
     } else {
-        // TODO
-        emit_bt(compiler, OP_ARR_INDEX, false);
+        add_iparr(compiler->parser->vm, &cur_ins(compiler)->posarr,
+                  (InstPos){.is_virt = false,
+                            .length = length,
+                            .colpos = colpos,
+                            .line = line});
+        emit_bt(compiler, OP_ARR_INDEX, true);
     }
 
     // cp_println(L"can assign subscript -> %s", can_assign ? "true" : "false"
