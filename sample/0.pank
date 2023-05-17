@@ -1,3 +1,4 @@
-import s "str"
-
-show "hello\u26A1\U0001F357"
+let x = 1;
+import a "sample/1.pank"
+#show "hello\u26A1\U0001F357" + 1
+show z

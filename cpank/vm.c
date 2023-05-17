@@ -1427,10 +1427,6 @@ IResult interpret(PankVm *vm, char32_t *source) {
     if (fn == NULL) {
         return INTRP_COMPILE_ERR;
     }
-    const int codelen = strlen32(source);
-    vm->code = (char32_t *)calloc(codelen + 1, sizeof(char32_t));
-
-    copy_c32(vm->code, source, strlen32(source));
 
     // if (!dump_instruction(&fn->ins, "script.cpnk")) {
     //     cp_println(L"failed dump compiled instruction");

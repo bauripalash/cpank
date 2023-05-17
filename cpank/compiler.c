@@ -1140,6 +1140,12 @@ ObjFunc *compile(PankVm *vm, char32_t *source) {
     parser.lexer = lexer;
     Compiler compiler;
     init_compiler(&parser, &compiler, NULL, FTYPE_SCRIPT);
+
+    const int codelen = strlen32(source);
+    vm->code = (char32_t *)calloc(codelen + 1, sizeof(char32_t));
+
+    copy_c32(vm->code, source, strlen32(source));
+
     // init_comiler(compiler.vm  , &compiler, FTYPE_SCRIPT);
     //  compins = ins;
     // compiler.parser->had_err = false;
