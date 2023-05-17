@@ -54,12 +54,31 @@ typedef enum {
 } Op;
 
 typedef struct {
+    bool is_virt;
+    uint64_t colpos;
+    uint64_t line;
+    uint64_t length;
+}InstPos;
+
+typedef struct {
+    int len;
+    int cap;
+    InstPos * p;
+}InstPosArray;
+
+
+void init_iparr(InstPosArray * arr);
+void free_iparr(PankVm * vm , InstPosArray * arr);
+void add_iparr(PankVm * vm , InstPosArray * arr , InstPos pos);
+InstPos fetch_iparr(InstPosArray * arr , int index);
+
+typedef struct {
     int len;
     int cap;
     uint8_t *code;
     int *lines;
     Valarr consts;
-
+    InstPosArray posarr;
 } Instruction;
 
 void init_instruction(Instruction *ins);
