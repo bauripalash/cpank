@@ -1,16 +1,16 @@
 RLS?=0
 ifeq ($(RLS),1)
 	BUILD_TYPE:=release
-	CFLAGS+=-Wall -O3
-	LDFLAGS+=-static -lm
+	CFLAGS+=-std=c11 -Wall -O3
+	LDFLAGS+=-lm -flto
 else
 	BUILD_TYPE:=debug
-	CFLAGS+=-Wall -g3 -DDEBUG -DDEBUG_STRESS_GC
-	LDFLAGS+=-lm
+	CFLAGS+=-std=c11 -Wall -g3 -DDEBUG -DDEBUG_STRESS_GC
+	LDFLAGS+=-lm -flto
 endif
 
 
-CC:=gcc
+CC:=clang
 BUILD_DIR:=build
 ANDROID_API_BUILD_DIR:=$(BUILD_DIR)/android
 TARGET:=pankti
@@ -61,7 +61,7 @@ run: $(TARGET)
 	
 
 $(TARGET): $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(CORE_OBJS)
-	@$(CC) $(OBJS) -o $@ $(LDFLAGS)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 $(TEST_TARGET): $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(TEST_OBJS)
 	@$(CC) $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(TEST_OBJS) -o $@ $(LDFLAGS)
@@ -77,13 +77,13 @@ verifysign:
 
 build_uo: CFLAGS=-std=c11 -g3 -Wall -pedantic -DMODE_BENGALI
 build_uo: LDFLAGS=-lm
-build_uo: tommath stdlib core
+build_uo: baurinum stdlib core
 build_uo: $(TARGET)
 
 build: cleanall
 build: CFLAGS=-std=c11 -O3 -Wall -DMODE_BENGALI 
-build: LDFLAGS=-static -lm
-build: tommath stdlib core
+build: LDFLAGS=-lm -flto
+build: baurinum stdlib core
 build: $(TARGET)
 
 test: $(TEST_TARGET)
@@ -116,7 +116,7 @@ core: $(CORE_OBJS)
 
 stdlib: $(STDLIB_OBJS)
 
-tommath: $(EXT_BAURINUM_OBJS)
+baurinum: $(EXT_BAURINUM_OBJS)
 
 $(CORE_BDIR)/%.c.o: %.c 
 	@mkdir -p $(dir $@)
