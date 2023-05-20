@@ -2,7 +2,9 @@
 
 #ifndef cpank_utils_h
 #define cpank_utils_h
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 #include <uchar.h>
@@ -143,5 +145,7 @@ void cp_err_color_print(wchar_t colorcode, const wchar_t *format, ...);
 //  			   B -> Black
 //  			   none -> default colors
 void cp_err_color_println(wchar_t colorcode, const wchar_t *format, ...);
-
+#ifdef __cplusplus
+}
+#endif
 #endif

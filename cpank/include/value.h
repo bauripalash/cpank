@@ -2,6 +2,11 @@
 
 #ifndef cpank_value_h
 #define cpank_value_h
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -103,5 +108,7 @@ void write_valarr(PankVm *vm, Valarr *array, Value value);
 void free_valarr(PankVm *vm, Valarr *array);
 void pop_valarr(PankVm *vm, Valarr *array);
 void print_val(Value val);
-
+#ifdef __cplusplus
+}
+#endif
 #endif

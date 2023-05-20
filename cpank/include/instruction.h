@@ -2,7 +2,9 @@
 
 #ifndef cpank_instruction_h
 #define cpank_instruction_h
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -85,4 +87,8 @@ void write_ins(PankVm *vm, Instruction *ins, uint8_t bt, int line);
 void free_ins(PankVm *vm, Instruction *ins);
 int add_const(PankVm *vm, Instruction *ins, Value val);
 bool make_changes_for_mod(Instruction *ins);
+
+#ifdef __cplusplus
+}
+#endif
 #endif

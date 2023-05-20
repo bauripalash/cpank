@@ -2,6 +2,9 @@
 
 #ifndef cpank_htable_h
 #define cpank_htable_h
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 #include <uchar.h>
@@ -32,5 +35,7 @@ ObjString *table_find_str(Htable *table, char32_t *chars, int len,
 void print_table(Htable *table, char *name);
 void mark_table(PankVm *vm, Htable *table);
 void table_remove_white(Htable *table);
-
+#ifdef __cplusplus
+}
+#endif
 #endif

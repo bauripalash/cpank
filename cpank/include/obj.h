@@ -2,7 +2,9 @@
 
 #ifndef cpank_obj_h
 #define cpank_obj_h
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 #include <uchar.h>
@@ -189,4 +191,8 @@ char32_t *obj_to_string(PankVm *vm, Value val);
 #define get_as_native(value) \
   (((ObjNative *)get_as_obj(value))->func)
 */
+
+#ifdef __cplusplus
+}
+#endif
 #endif

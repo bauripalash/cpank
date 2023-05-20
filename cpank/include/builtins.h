@@ -2,6 +2,9 @@
 
 #ifndef cpank_builtins_h
 #define cpank_builtins_h
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <uchar.h>
 
 #include "value.h"
@@ -19,4 +22,7 @@ Value type_ntv_fn(PankVm *vm, int argc, Value *args);
 Value bn_type_ntv_fn(PankVm *vm, int argc, Value *args);
 Value len_ntv_fn(PankVm *vm, int argc, Value *args);
 Value bignew_ntv_fn(PankVm *vm, int argc, Value *args);
+#ifdef __cplusplus
+}
+#endif
 #endif

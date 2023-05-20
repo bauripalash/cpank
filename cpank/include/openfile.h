@@ -2,7 +2,9 @@
 
 #ifndef cpank_openfile_h
 #define cpank_openfile_h
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stddef.h>
 #include <uchar.h>
 
@@ -37,5 +39,7 @@ WSrcfile wread_file(char32_t *path);
 // Given `/foodir/bar/hello.txt` returns `hello`
 // ** Unimplemented **
 char32_t *get_name_from_path(const char *path);
-
+#ifdef __cplusplus
+}
+#endif
 #endif

@@ -2,6 +2,10 @@
 
 #ifndef cpank_lexer_h
 #define cpank_lexer_h
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <uchar.h>
 typedef enum {
@@ -137,4 +141,9 @@ bool is_eof(Lexer *lexer);
 
 // Get the next token
 Token get_tok(Lexer *lexer);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

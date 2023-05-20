@@ -52,7 +52,7 @@ bnerr bn_grow_by(bnum* b, int size) {
 
     free(b->digits);
 
-    b->digits = malloc((oldsize + size) * sizeof(bdigit));
+    b->digits = (bdigit*)malloc((oldsize + size) * sizeof(bdigit));
 
     if (b->digits == NULL) {
         return BN_ERR_NOMEM;

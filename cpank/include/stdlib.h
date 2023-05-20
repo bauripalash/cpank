@@ -2,7 +2,9 @@
 
 #ifndef cpank_stdlib_h
 #define cpank_stdlib_h
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <uchar.h>
 #include <wchar.h>
 
@@ -57,4 +59,9 @@ void push_stdlib_map(PankVm* vm);
 #ifndef NO_BIGNUM
 void push_stdlib_big(PankVm* vm);
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

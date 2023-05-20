@@ -2,7 +2,9 @@
 
 #ifndef cpank_mem_h
 #define cpank_mem_h
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include "common.h"
 #include "obj.h"
 #include "value.h"
@@ -35,5 +37,7 @@ void mark_val(PankVm *vm, Value val);
 void mark_obj(PankVm *vm, Obj *obj);
 void free_single_obj(PankVm *vm, Obj *obj);
 void free_value(PankVm *vm, Value val);
-
+#ifdef __cplusplus
+}
+#endif
 #endif

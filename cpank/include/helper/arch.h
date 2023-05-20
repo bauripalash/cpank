@@ -1,6 +1,8 @@
 #ifndef cpank_helper_arch_h
 #define cpank_helper_arch_h
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 // PANK_ARCH_64 --> x86_64 / 64bit
 // PANK_ARCH_32 --> x86 / 32bit
 // PANK_ARCH_ARM --> ARM (32bit / 64bit)
@@ -20,5 +22,7 @@
     defined(__aarch64__)
  #define PANK_ARCH_ARM
 #endif
-
+#ifdef __cplusplus
+}
+#endif
 #endif

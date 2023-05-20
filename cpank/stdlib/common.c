@@ -14,7 +14,7 @@
 
 char* read_line(void) {
     size_t cap = 128;
-    char* line = malloc(cap);
+    char* line = (char*)malloc(cap);
     if (line == NULL) {
         return NULL;
     }

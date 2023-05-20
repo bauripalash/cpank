@@ -2,6 +2,11 @@
 
 #ifndef cpank_bn_h
 #define cpank_bn_h
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <uchar.h>
 #include <wchar.h>
@@ -46,4 +51,8 @@ bool is_bn_num(char32_t c);
 bool is_bn_char(char32_t c);
 
 bool conv_bn_to_en_num(char32_t* str, int len);
+
+#ifdef __cplusplus
+}
+#endif
 #endif

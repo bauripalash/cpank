@@ -3,6 +3,10 @@
 #ifndef cpank_vm_h
 #define cpank_vm_h
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -154,5 +158,7 @@ Value get_last_pop(PankVm *vm);
 void print_stack(PankVm *vm);
 
 void define_native(PankVm *vm, char32_t *name, NativeFn func);
-
+#ifdef __cplusplus
+}
+#endif
 #endif

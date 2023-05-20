@@ -2,7 +2,11 @@
 
 #ifndef cpank_runfile_h
 #define cpank_runfile_h
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 int run_file(const char *filepath);
-
+#ifdef __cplusplus
+}
+#endif
 #endif

@@ -1,6 +1,8 @@
 #ifndef cpank_helper_os_h
 #define cpank_helper_os_h
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 // PANK_OS_ANDROID --> Android
 // PANK_OS_WIN  --> Windows
 // PANK_OS_LINUX --> Linux (& unix like)
@@ -22,5 +24,7 @@
     defined(__MACH__)
  #define PANK_OS_MACOS
 #endif
-
+#ifdef __cplusplus
+}
+#endif
 #endif

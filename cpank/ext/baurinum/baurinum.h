@@ -1,6 +1,8 @@
 #ifndef baurinum_h
 #define baurinum_h
-
+#ifdef  __cplusplus
+extern "C" {
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -168,4 +170,8 @@ bnerr bn_u_add(bnum* c, const bnum* a, const bnum* b);
 bnerr bn_add(bnum* c, const bnum* a, const bnum* b);
 bnerr bn_u_sub(bnum* res, const bnum* a, const bnum* b);
 bnerr bn_sub(bnum* res, const bnum* a, const bnum* b);
+
+#ifdef  __cplusplus
+}
+#endif
 #endif

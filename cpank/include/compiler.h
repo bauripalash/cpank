@@ -2,7 +2,9 @@
 
 #ifndef cpank_compiler_h
 #define cpank_compiler_h
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 #include <uchar.h>
@@ -56,4 +58,8 @@ ObjFunc *compile(PankVm *vm, char32_t *source);
 ObjFunc *end_compiler(Compiler *compiler);
 void mark_compiler_roots(PankVm *vm, Compiler *compiler);
 ObjFunc *compile_module(PankVm *vm, char32_t *source);
+
+#ifdef __cplusplus
+}
+#endif
 #endif

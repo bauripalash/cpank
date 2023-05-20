@@ -1,6 +1,8 @@
 #ifndef cpank_errmsg_h
 #define cpank_errmsg_h
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <uchar.h>
 
 #include "common.h"
@@ -29,5 +31,7 @@
 #define EMSG_COLON_AFTER_HASHKEY  113
 
 char32_t* geterrmsg(int code);
-
+#ifdef __cplusplus
+}
+#endif
 #endif

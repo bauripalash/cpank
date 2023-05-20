@@ -60,7 +60,7 @@ bool free_pbuffer(PrintBuffer *buffer) {
 
 int grow_pbuffer(PrintBuffer *buffer, int atleast) {
     int newcap = (buffer->cap + atleast + 1) * PBUFFER_GROW_BY;
-    buffer->buff = realloc(buffer->buff, newcap * sizeof(char32_t));
+    buffer->buff = (char32_t *)realloc(buffer->buff, newcap * sizeof(char32_t));
     buffer->cap = newcap;
     return newcap;
 }
@@ -74,7 +74,7 @@ int write_pbuffer(PrintBuffer *buffer, char *fmt, ...) {
     int len = vsnprintf(NULL, 0, fmt, ap);
     va_end(ap);
     va_start(ap, fmt);
-    char *temp_buff = calloc(len + 1, sizeof(char));
+    char *temp_buff = (char *)calloc(len + 1, sizeof(char));
     if (temp_buff == NULL) {
         va_end(ap);
         return 0;
@@ -101,7 +101,7 @@ int write_pbuffer(PrintBuffer *buffer, char *fmt, ...) {
 
 int write_pbuffer_with_arglist(PrintBuffer *buffer, char *fmt, va_list ap,
                                int len) {
-    char *temp_buff = calloc(len + 1, sizeof(char));
+    char *temp_buff = (char *)calloc(len + 1, sizeof(char));
     if (temp_buff == NULL) {
         return 0;
     }
@@ -153,7 +153,7 @@ bool call_val(PankVm *vm, Value calle, int argc);
 bool call(PankVm *vm, ObjClosure *closure, int origin, int argc);
 
 PankVm *boot_vm(bool need_buffer) {
-    PankVm *vm = malloc(sizeof(PankVm));
+    PankVm *vm = (PankVm *)malloc(sizeof(PankVm));
     memset(vm, 0, sizeof(PankVm));
     reset_stack(vm);
     gcon.is_paused = false;
@@ -220,7 +220,7 @@ void init_module(Module *mod, const char32_t *name) {
     mod->frame_count = 0;
     mod->stdlib_count = 0;
     mod->hash = get_hash(name, strlen32(name));
-    mod->name = malloc(sizeof(wchar_t) * (strlen32(name) + 1));
+    mod->name = (char32_t *)malloc(sizeof(wchar_t) * (strlen32(name) + 1));
     memcpy(mod->name, name, strlen32(name) + 1);
     mod->open_upvs = NULL;
     mod->source_code = NULL;
@@ -917,7 +917,12 @@ IResult run_vm(PankVm *vm) {
                 vm->last_pop = to_show;
                 if (vm->need_buffer) {
                     char32_t *vl = value_to_string(vm, to_show);
+#if defined (DEBUG)
                     write_pbuffer(&vm->buffer, "p~~ %ls", vl);
+#else 
+
+                    write_pbuffer(&vm->buffer, "%ls", vl);
+#endif
                     free(vl);
                 } else {
 #if defined(DEBUG)

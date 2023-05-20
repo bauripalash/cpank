@@ -2,6 +2,11 @@
  */
 #ifndef cpank_token_h
 #define cpank_token_h
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
 static wchar_t BN_KW_LET[] = [] = "ধরি";
 static wchar_t BN_KW_SHOW[] = [] = "দেখাও";
@@ -69,4 +74,9 @@ const char PHON_KW_FUNC[] = "kaj";
 const char PHON_KW_NIL[] = "nil";
 const char PHON_KW_IMPORT[] = "anoyon";
 const char PHON_KW_PANIC[] = "golmal";
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

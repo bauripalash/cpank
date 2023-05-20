@@ -2,7 +2,9 @@
 
 #ifndef cpank_common_h
 #define cpank_common_h
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 // #define PANK_RELEASE
 // #define DEBUG
 // #define DEBUG_TRACE
@@ -62,6 +64,10 @@
  #ifndef UNICODE
   #define UNICODE
  #endif  // !UNICODE
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

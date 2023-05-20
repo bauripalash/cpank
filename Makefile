@@ -5,16 +5,18 @@ ifeq ($(RLS),1)
 	LDFLAGS+=-lm -flto
 else
 	BUILD_TYPE:=debug
-	CFLAGS+=-std=c11 -Wall -g3 -DDEBUG -DDEBUG_STRESS_GC
+	CFLAGS+= -Wall -g3 -DDEBUG -DDEBUG_STRESS_GC
 	LDFLAGS+=-lm -flto
 endif
 
 
 CC:=clang
+CXX:=clang++
 BUILD_DIR:=build
 ANDROID_API_BUILD_DIR:=$(BUILD_DIR)/android
 TARGET:=pankti
 PANKTI_VERSION:=$(shell cat ./VERSION)
+VALGRIND_FLAGS:=-s --leak-check=full --show-leak-kinds=all --track-origins=yes 
 
 # Sample to Run
 STORUN=sample/0.pank 
@@ -33,11 +35,13 @@ CORE_SDIR=cpank/
 CORE_BDIR=$(BUILD_DIR)/$(BUILD_TYPE)
 CORE_SRC:=$(shell find $(CORE_SDIR) -maxdepth 1 -name "*.c")
 CORE_SRC_NOMAIN:=$(shell find $(CORE_SDIR) -maxdepth 1 -name "*.c" ! -iname "main.c")
+CORE_OBJS_NOMAIN:=$(CORE_SRC_NOMAIN:%=$(CORE_BDIR)/%.o)
 CORE_OBJS:=$(CORE_SRC:%=$(CORE_BDIR)/%.o)
 
 TEST_SRC:=$(CORE_SRC_NOMAIN)
 TEST_SRC+=testmain.c
 TEST_OBJS:=$(TEST_SRC:%=$(CORE_BDIR)/%.o)
+
 
 WEBMAIN_SRC:=web/pankti.web.c
 
@@ -53,6 +57,7 @@ PANKTI_INCLUDE_DIR:=$(CORE_SDIR)/include
 CORE_MAIN:=$(CORE_SDIR)/main.c 
 TEST_MAIN:=testmain.c
 TEST_TARGET:=testpankti
+CPANK_STATIC_LIB=$(BUILD_DIR)/$(BUILD_TYPE)/libpankti.a
 
 all: run
 
@@ -65,6 +70,15 @@ $(TARGET): $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(CORE_OBJS)
 
 $(TEST_TARGET): $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(TEST_OBJS)
 	@$(CC) $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(TEST_OBJS) -o $@ $(LDFLAGS)
+
+
+$(CPANK_STATIC_LIB): $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(CORE_OBJS)
+	ar rc $(CPANK_STATIC_LIB) $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(CORE_OBJS_NOMAIN)
+
+gui: $(CPANK_STATIC_LIB)
+	$(CXX) -std=c++11 -g3 gui/gui.cpp $(CPANK_STATIC_LIB)  -o panktiw -lfltk
+
+lib: $(CPANK_STATIC_LIB)
 
 $(TARGET).sig: $(TARGET)
 	gpg --output $(TARGET).sig --detach-sig $(TARGET)
@@ -86,6 +100,7 @@ build: LDFLAGS=-lm -flto
 build: baurinum stdlib core
 build: $(TARGET)
 
+
 test: $(TEST_TARGET)
 	./$(TEST_TARGET)
 
@@ -104,10 +119,10 @@ debug: build_uo
 	gdb --args $(TARGET) $(STORUN)
 
 memcheck: build_uo
-	valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(TARGET) $(STORUN)
+	valgrind $(VALGRIND_FLAGS) ./$(TARGET) $(STORUN)
 
 fmt:
-	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/include/helper/*.h cpank/stdlib/*.c web/*.c
+	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/include/helper/*.h cpank/stdlib/*.c web/*.c gui/*.c
 
 wasm:
 	emcc $(EXT_BAURINUM_SRC) $(STDLIB_SRC) $(CORE_SRC_NOMAIN) $(WEBMAIN_SRC) -o web/pweb.js -O2 -DMODE_BENGALI -DNO_DOUBLE_BIGNUM -s WASM=1 -s EXPORTED_FUNCTIONS='["_comp_run","_main"]' -s EXPORTED_RUNTIME_METHODS='["cwrap"]' $(LDFLAGS)
