@@ -75,8 +75,10 @@ $(TEST_TARGET): $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(TEST_OBJS)
 $(CPANK_STATIC_LIB): $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(CORE_OBJS)
 	ar rc $(CPANK_STATIC_LIB) $(EXT_BAURINUM_OBJS) $(STDLIB_OBJS) $(CORE_OBJS_NOMAIN)
 
-gui: $(CPANK_STATIC_LIB)
-	$(CXX) -std=c++11 -g3 gui/gui.cpp $(CPANK_STATIC_LIB)  -o panktiw -lfltk
+panktiw: $(CPANK_STATIC_LIB)
+	$(CC) -std=c11 -g3 gui/gui.c  $(CPANK_STATIC_LIB) -o panktiw -lui -lm $(shell pkg-config -libs gtk+-3.0)
+
+gui: panktiw
 
 lib: $(CPANK_STATIC_LIB)
 
