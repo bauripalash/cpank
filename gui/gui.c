@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ui.h>
+#include "../cpank/ext/libuing/ui.h"
 #include "../cpank/include/api.h"
 
 typedef struct Io_Struct {

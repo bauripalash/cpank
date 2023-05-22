@@ -168,6 +168,8 @@ clean:
 	rm -rf *.callgraph.dot
 	rm -rf web/pweb.js
 	rm -rf web/pweb.wasm
+	rm -rf zig-out/
 
 cleanall: clean
 	rm -rf ./build
+	rm -rf zig-cache/
