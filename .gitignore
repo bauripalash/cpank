@@ -17,6 +17,7 @@ cpank.gmon.txt
 vgcore.*
 .cache/*
 massif.out.*
+zig-cache/
 # Prerequisites
 *.d
 build/

@@ -1,6 +1,7 @@
 /* vim: set fileencoding=utf-8 tabstop=4 shiftwidth=4 expandtab */
 // go:build tmain
 //  +build tmain
+#if !defined (APILIB)
 #include <locale.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -9,6 +10,7 @@
 
 #include "include/common.h"
 #include "include/helper/os.h"
+#include "include/helper/comp.h"
 #include "include/runfile.h"
 #include "include/utils.h"
 
@@ -37,7 +39,7 @@ const wchar_t version[] = L"v0.1.0";
 int main(int argc, char** argv) {
     setlocale(LC_CTYPE, "");
 
-#if defined(IS_WIN) || defined(_WIN32)
+#if defined (PANK_OS_WIN) && defined (PANK_COMP_MSVC)
     SetConsoleOutputCP(CP_UTF8);
     _setmode(_fileno(stdout), _O_U16TEXT);
 #endif  // _WIN32
@@ -67,3 +69,4 @@ int main(int argc, char** argv) {
         return 0;
     }
 }
+#endif
