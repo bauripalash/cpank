@@ -32,7 +32,7 @@ const wchar_t help_msg[] =
     "Options and Arguments\n"
     "-v, --version : show version info and exit\n"
     "-h, --help : show help and exit\n\n"
-    "cpank v0.1.0\n";
+    "cpank v0.3.0-beta\n";
 
 const wchar_t version[] = L"v0.1.0";
 
@@ -53,6 +53,9 @@ int main(int argc, char** argv) {
         } else {
             if (does_file_exist(ag)) {
                 int result = run_file(ag);
+#ifdef DEBUG
+                cp_println(L"");
+#endif
                 return result;
             } else {
 #ifdef PANK_OS_WIN
@@ -66,6 +69,7 @@ int main(int argc, char** argv) {
         }
     } else {
         cp_println(help_msg);
+        
         return 0;
     }
 }

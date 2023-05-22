@@ -1,6 +1,15 @@
 const std = @import("std");
+const libui = @import("cpank/ext/libuing/build.zig");
 
 pub fn build(b: *std.Build) void {
+
+    const cflags = [_][]const u8{
+        "-Wall",
+        "-std=c11"
+    };
+
+    const sourceToRun = "sample/0.pank";
+
     //Core of Cpank
     var srcCore = [_][]const u8{
         "cpank/api.c",
@@ -73,37 +82,54 @@ pub fn build(b: *std.Build) void {
     guiexe.defineCMacro("APILIB", "lib");
 
     //CORE
-    exe.addCSourceFiles(&srcCore, &.{});
-    lib.addCSourceFiles(&srcCore, &.{});
+    exe.addCSourceFiles(&srcCore, &cflags);
+    lib.addCSourceFiles(&srcCore, &cflags);
 
     //STDLIB
-    exe.addCSourceFiles(&srcStdlib, &.{});
-    lib.addCSourceFiles(&srcStdlib, &.{});
+    exe.addCSourceFiles(&srcStdlib, &cflags);
+    lib.addCSourceFiles(&srcStdlib, &cflags);
 
     //lib.addCSourceFiles(files: []const []const u8, flags: []const []const u8)
 
     //External
-    exe.addCSourceFiles(&srcExt, &.{});
-    lib.addCSourceFiles(&srcExt, &.{});
+    exe.addCSourceFiles(&srcExt, &cflags);
+    lib.addCSourceFiles(&srcExt, &cflags);
 
     exe.linkSystemLibrary("m");
     guiexe.linkLibrary(lib);
-    guiexe.linkSystemLibrary("ui");
-    guiexe.linkSystemLibrary("gtk+-3.0");
-    //b.installArtifact(exe);
-    //b.installArtifact(lib);
-    //
+    const ui = libui.get_build_inst(b, target, optimize);
+    guiexe.linkLibrary(ui);
+
+
+    //Build Executable Command
     const exe_build = b.step("x", "Build Executable 'pankti'");
     const install_exe = b.addInstallArtifact(exe);
+
+    //Build GUI Executable
     const gui_exe_build = b.step("g", "Build Gui 'panktiw'");
     const install_gui_exe = b.addInstallArtifact(guiexe);
-    //exe_build.dependOn(&exe.step);
     exe_build.dependOn(&install_exe.step);
     gui_exe_build.dependOn(&install_gui_exe.step);
-
+    
+    //Build Static Library
     const lib_build = b.step("lib", "Build Static Library 'libpankti.a'");
 
     const install_lib = b.addInstallArtifact(lib);
-    //lib_build.dependOn(&lib.step);
     lib_build.dependOn(&install_lib.step);
+    
+
+    const run_cmd_run = b.addSystemCommand(&[_][]const u8{
+        "zig-out/bin/pankti",
+        sourceToRun,
+    });
+
+    const run_cmd = b.step("run", "Build and Run Sample");
+    run_cmd.dependOn(&exe.step);
+    run_cmd.dependOn(&run_cmd_run.step);
+
+    b.installArtifact(exe);
+    
+
+    
+
 }
