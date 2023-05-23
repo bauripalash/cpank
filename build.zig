@@ -1,5 +1,5 @@
 const std = @import("std");
-const libui = @import("cpank/ext/libuing/build.zig");
+const libiup = @import("cpank/ext/iup/build.zig");
 
 pub fn build(b: *std.Build) void {
 
@@ -97,7 +97,7 @@ pub fn build(b: *std.Build) void {
 
     exe.linkSystemLibrary("m");
     guiexe.linkLibrary(lib);
-    const ui = libui.get_build_inst(b, target, optimize);
+    const ui = libiup.addIup(b, target, std.builtin.Mode.ReleaseFast);
     guiexe.linkLibrary(ui);
 
 
