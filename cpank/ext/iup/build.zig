@@ -1,12 +1,13 @@
+
 const std = @import("std");
 
 const srcRoot = struct {
-    fn getSrcDir() []const u8{
+    fn getSrcDir() []const u8 {
         return std.fs.path.dirname(@src().file).?;
     }
 }.getSrcDir();
 
-pub fn addIup(b: *std.Build , target : std.zig.CrossTarget , optimize : std.builtin.Mode) *std.Build.Step.Compile {
+pub fn addIup(b: *std.Build, target: std.zig.CrossTarget, optimize: std.builtin.Mode) *std.Build.Step.Compile {
     const srcdir = srcRoot ++ "/src/";
     var srcCore = [_][]const u8{
         srcdir ++ "/iup_animatedlabel.c",
@@ -153,12 +154,83 @@ pub fn addIup(b: *std.Build , target : std.zig.CrossTarget , optimize : std.buil
         srcRoot ++ "/srcgl/iup_glcanvas_x.c",
     };
 
-    var gtkSysLibs = [_][]const u8{"gtk+-3.0" , "gdk-3.0" , "m" , "X11"};
-    var gtkSysIncludes = [_][]const u8{"gtk+3.0" , "gdk-3.0"};
-    var gtkIncludePath = [_][]const u8{srcdir , srcRoot ++ "/include" , srcRoot ++ "/srcgl" , srcdir ++ "/gtk" , srcdir ++ "/mot"};
+    var srcWin = [_][]const u8{
+        srcdir ++ "/win/iupwindows_help.c",
+        srcdir ++ "/win/iupwindows_info.c",
+        srcdir ++ "/win/iupwindows_main.c",
+        srcdir ++ "/win/iupwin_brush.c",
+        srcdir ++ "/win/iupwin_button.c",
+        srcdir ++ "/win/iupwin_calendar.c",
+        srcdir ++ "/win/iupwin_canvas.c",
+        srcdir ++ "/win/iupwin_clipboard.c",
+        srcdir ++ "/win/iupwin_common.c",
+        srcdir ++ "/win/iupwin_datepick.c",
+        srcdir ++ "/win/iupwin_dialog.c",
+        srcdir ++ "/win/iupwin_dragdrop.c",
+        srcdir ++ "/win/iupwin_draw.c",
+        srcdir ++ "/win/iupwin_draw_gdi.c",
+        srcdir ++ "/win/iupwin_draw_wdl.c",
+        srcdir ++ "/win/iupwin_filedlg.c",
+        srcdir ++ "/win/iupwin_focus.c",
+        srcdir ++ "/win/iupwin_font.c",
+        srcdir ++ "/win/iupwin_fontdlg.c",
+        srcdir ++ "/win/iupwin_frame.c",
+        srcdir ++ "/win/iupwin_globalattrib.c",
+        srcdir ++ "/win/iupwin_handle.c",
+        srcdir ++ "/win/iupwin_image.c",
+        srcdir ++ "/win/iupwin_image_wdl.c",
+        srcdir ++ "/win/iupwin_info.c",
+        srcdir ++ "/win/iupwin_key.c",
+        srcdir ++ "/win/iupwin_label.c",
+        srcdir ++ "/win/iupwin_list.c",
+        srcdir ++ "/win/iupwin_loop.c",
+        srcdir ++ "/win/iupwin_menu.c",
+        srcdir ++ "/win/iupwin_messagedlg.c",
+        srcdir ++ "/win/iupwin_open.c",
+        srcdir ++ "/win/iupwin_progressbar.c",
+        srcdir ++ "/win/iupwin_str.c",
+        srcdir ++ "/win/iupwin_tabs.c",
+        srcdir ++ "/win/iupwin_text.c",
+        srcdir ++ "/win/iupwin_timer.c",
+        srcdir ++ "/win/iupwin_tips.c",
+        srcdir ++ "/win/iupwin_toggle.c",
+        srcdir ++ "/win/iupwin_touch.c",
+        srcdir ++ "/win/iupwin_tree.c",
+        srcdir ++ "/win/iupwin_val.c",
+        srcdir ++ "/win/wdl/backend-d2d.c",
+        srcdir ++ "/win/wdl/backend-dwrite.c",
+        srcdir ++ "/win/wdl/backend-gdix.c",
+        srcdir ++ "/win/wdl/backend-wic.c",
+        srcdir ++ "/win/wdl/bitblt.c",
+        srcdir ++ "/win/wdl/brush.c",
+        srcdir ++ "/win/wdl/cachedimage.c",
+        srcdir ++ "/win/wdl/canvas.c",
+        srcdir ++ "/win/wdl/draw.c",
+        srcdir ++ "/win/wdl/fill.c",
+        srcdir ++ "/win/wdl/font.c",
+        srcdir ++ "/win/wdl/image.c",
+        srcdir ++ "/win/wdl/init.c",
+        srcdir ++ "/win/wdl/memstream.c",
+        srcdir ++ "/win/wdl/misc.c",
+        srcdir ++ "/win/wdl/path.c",
+        srcdir ++ "/win/wdl/string.c",
+        srcdir ++ "/win/wdl/strokestyle.c",
+    };
 
-    const lib = b.addStaticLibrary(.{.name = "iup" , .target = target , .optimize = optimize});
-    
+    var gtkSysLibs = [_][]const u8{ "gtk+-3.0", "gdk-3.0", "m", "X11" };
+    var gtkSysIncludes = [_][]const u8{ "gtk+3.0", "gdk-3.0" };
+    var gtkIncludePath = [_][]const u8{ srcdir, srcRoot ++ "/include", srcRoot ++ "/srcgl", srcdir ++ "/gtk", srcdir ++ "/mot" };
+    var winIncludePath = [_][]const u8{ srcdir, srcRoot ++ "/include", srcRoot ++ "/srcgl", srcdir ++ "/win", srcdir ++ "/win/wdl" };
+    var winSysLibs = [_][]const u8{
+        "gdi32",
+        "comdlg32",
+        "comctl32",
+        "uuid",
+        "oleaut32",
+        "ole32",
+    };
+
+    const lib = b.addStaticLibrary(.{ .name = "iup", .target = target, .optimize = optimize });
 
     lib.addCSourceFiles(&srcCore, &.{});
 
@@ -167,17 +239,34 @@ pub fn addIup(b: *std.Build , target : std.zig.CrossTarget , optimize : std.buil
         for (gtkSysLibs) |value| {
             lib.linkSystemLibrary(value);
         }
-            
+
         for (gtkSysIncludes) |value| {
             lib.addSystemIncludePath(value);
         }
-        
+
         for (gtkIncludePath) |value| {
             lib.addIncludePath(value);
         }
+    } else if (target.isWindows()) {
+        lib.addCSourceFiles(&srcWin, &.{});
+        for (winSysLibs) |value| {
+            lib.linkSystemLibrary(value);
+        }
 
+        for (winIncludePath) |value| {
+            lib.addIncludePath(value);
+        }
+
+        lib.defineCMacro("USE_NEW_DRAW", "");
+        lib.defineCMacro("_WIN32_WINNT", "0x0601");
+        lib.defineCMacro("WINVER", "0x0601");
+        lib.defineCMacro("COBJMACROS", "");
+        lib.defineCMacro("NOTREEVIEW", "");
+        lib.defineCMacro("UNICODE", "");
+        lib.defineCMacro("_UNICODE", "");
     }
+    lib.linkLibC();
 
     return lib;
-    
 }
+
