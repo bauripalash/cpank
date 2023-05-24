@@ -4,6 +4,7 @@
 #include <string.h>
 #include "../cpank/ext/iup/include/iup.h"
 #include "../cpank/include/api.h"
+#include "./icon.h"
 
 
 
@@ -21,10 +22,12 @@ int run_btn_clicked(Ihandle * self){
 int main(int argc , char ** argv){
   
   Ihandle * dlg , *runbutton , *editor , *output , *vbox;
+  Ihandle * bunoicon;
 
   IupOpen(&argc , &argv);
   IupSetGlobal("UTF8MODE", "Yes");
-  
+  bunoicon = IupImageRGBA(ICON_WIDTH, ICON_HEIGHT, icon);
+  IupSetHandle("bunoicon", bunoicon);
   runbutton = IupButton("Run", NULL);
   IupSetCallback(runbutton, "ACTION", (Icallback)run_btn_clicked);
   editor = IupText(NULL);
@@ -39,7 +42,9 @@ int main(int argc , char ** argv){
   IupSetAttribute(dlg, "SIZE" , "QUARTERxQUARTER");
   IupSetAttribute(dlg, "TITLE" , "Pankti Editor");
   IupSetAttribute(dlg, "USERSIZE" , NULL);
-
+  
+  IupSetAttribute(dlg, "ICON", "bunoicon");
+  
   IupShowXY(dlg, IUP_CENTER , IUP_CENTER);
   
   IupMainLoop();

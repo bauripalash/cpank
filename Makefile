@@ -17,6 +17,7 @@ ANDROID_API_BUILD_DIR:=$(BUILD_DIR)/android
 TARGET:=pankti
 PANKTI_VERSION:=$(shell cat ./VERSION)
 VALGRIND_FLAGS:=-s --leak-check=full --show-leak-kinds=all --track-origins=yes 
+ZOUT:=zig-out/bin/$(TARGET) 
 
 # Sample to Run
 STORUN=sample/0.pank 
@@ -122,6 +123,17 @@ debug: build_uo
 
 memcheck: build_uo
 	valgrind $(VALGRIND_FLAGS) ./$(TARGET) $(STORUN)
+
+$(ZOUT):
+	zig build x
+
+# memcheck for zig built output
+zmemcheck: $(ZOUT)
+	valgrind $(VALGRIND_FLAGS) $(ZOUT) $(STORUN)
+
+zdebug: $(ZOUT)
+	gdb --args $(ZOUT) $(STORUN)
+
 
 fmt:
 	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/include/helper/*.h cpank/stdlib/*.c web/*.c gui/*.c
