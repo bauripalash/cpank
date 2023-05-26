@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <wchar.h>
 
+// Precedences
 typedef enum Prec {
     PREC_NONE,
     PREC_ASSIGN,
@@ -44,9 +45,19 @@ typedef enum Prec {
     PREC_DEFAULT,
 } Prec;
 
+// initialize/create a new scope
 static void start_scope(Compiler *compiler);
+
+// De-initialize / end the current scope
 static void end_scope(Compiler *compiler);
+
+// Emit a bytecode. If manual = `true` it does not create a Instruction
+// Position
 static void emit_bt(Compiler *compiler, uint8_t bt, bool manual);
+
+// Emits two bytecode. Wrapper on top of `emit_bt(...)`.
+// The `manual` is same as `emit_bt(...)`, it is recommended to `not`
+// do it manual for this function
 static void emit_two(Compiler *compiler, uint8_t bt_1, uint8_t bt_2,
                      bool manual);
 static void emit_return(Compiler *compiler, bool manual);

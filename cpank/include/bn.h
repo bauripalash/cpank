@@ -42,14 +42,18 @@ extern "C" {
 #define NIL_NAME_BN     U"নিল"
 #define BOOL_NAME_BN    U"বুল"
 
-// check if `c` is a bengali numbers
-// 0 to 9
+// Check if `c` is in range of Bengali Numbers.
+// Unicode Bengali `0` is stored in `BN_NUM_ZERO`.
+// Unicode Bengali '9' is stored in `BN_NUM_NINE`.
 bool is_bn_num(char32_t c);
 
-// check if `c` is a bengali char
-// including numbers
+// Check if `c` is in Unicode range of Bengali Characters
+// It doesn't check of Reserved code points
 bool is_bn_char(char32_t c);
 
+// Convert each bengali number to it's English counterpart.
+// If `str` is not NULL, it will always return `true`
+// Else returns `false`
 bool conv_bn_to_en_num(char32_t* str, int len);
 
 #ifdef __cplusplus

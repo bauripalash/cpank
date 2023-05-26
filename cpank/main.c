@@ -1,27 +1,27 @@
 /* vim: set fileencoding=utf-8 tabstop=4 shiftwidth=4 expandtab */
 // go:build tmain
 //  +build tmain
-#if !defined (APILIB)
-#include <locale.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
+#if !defined(APILIB)
+ #include <locale.h>
+ #include <stddef.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <wchar.h>
 
-#include "include/common.h"
-#include "include/helper/os.h"
-#include "include/helper/comp.h"
-#include "include/runfile.h"
-#include "include/utils.h"
+ #include "include/common.h"
+ #include "include/helper/comp.h"
+ #include "include/helper/os.h"
+ #include "include/runfile.h"
+ #include "include/utils.h"
 
-#if defined(IS_WIN) || defined(_WIN32)
- #include <fcntl.h>
- #include <io.h>
- #include <windows.h>
+ #if defined(IS_WIN) || defined(_WIN32)
+  #include <fcntl.h>
+  #include <io.h>
+  #include <windows.h>
 
- #define CP_UTF8 65001
+  #define CP_UTF8 65001
 
-#endif
+ #endif
 
 const wchar_t help_msg[] =
     L"Pankti programming language; an interpreted bengali programming "
@@ -39,10 +39,10 @@ const wchar_t version[] = L"v0.1.0";
 int main(int argc, char** argv) {
     setlocale(LC_CTYPE, "");
 
-#if defined (PANK_OS_WIN) && defined (PANK_COMP_MSVC)
+ #if defined(PANK_OS_WIN) && defined(PANK_COMP_MSVC)
     SetConsoleOutputCP(CP_UTF8);
     _setmode(_fileno(stdout), _O_U16TEXT);
-#endif  // _WIN32
+ #endif  // _WIN32
 
     if (argc == 2) {
         char* ag = argv[1];
@@ -53,23 +53,23 @@ int main(int argc, char** argv) {
         } else {
             if (does_file_exist(ag)) {
                 int result = run_file(ag);
-#ifdef DEBUG
+ #ifdef DEBUG
                 cp_println(L"");
-#endif
+ #endif
                 return result;
             } else {
-#ifdef PANK_OS_WIN
+ #ifdef PANK_OS_WIN
 
                 cp_println(L"Error! file '%S' does not exist!", ag);
-#else
+ #else
                 cp_println(L"Error! file '%s' does not exist!", ag);
-#endif
+ #endif
                 return 1;
             }
         }
     } else {
         cp_println(help_msg);
-        
+
         return 0;
     }
 }

@@ -16,11 +16,31 @@ char32_t bn_native_fn_name[] = U"প্রকার";
 char32_t len_ntv_name[] = U"len";
 char32_t bignew_ntv_name[] = U"bignew";
 
+// This builtin function returns the current time in seconds since
+// the program started to execute.
 Value clock_ntv_fn(PankVm *vm, int argc, Value *args);
+
+// This builtin function returns `true` if the 1st and 2nd argument are equal.
+// For now it returns boolean, but in future it would create an error.
 Value asserteq_ntv_fn(PankVm *vm, int argc, Value *args);
+
+// This builtin function returns the type of the first argument.
+// The result will be in `English`
 Value type_ntv_fn(PankVm *vm, int argc, Value *args);
+
+// This builtin function returns the type of the first argument.
+// The result will be in `Bengali`
 Value bn_type_ntv_fn(PankVm *vm, int argc, Value *args);
+
+// This builtin function returns the `length` of the first argument.
+// This function only works on a subset of types available in Pankti.
+// * String -> The number of characters.
+// * Array  -> The number of elements.
+// * Map    -> The number of key-value pairs.
 Value len_ntv_fn(PankVm *vm, int argc, Value *args);
+
+// This builtin function creates a new Big Number.
+// ( `Deprecated`, use the `new` function from `big` standard library.)
 Value bignew_ntv_fn(PankVm *vm, int argc, Value *args);
 #ifdef __cplusplus
 }

@@ -917,9 +917,9 @@ IResult run_vm(PankVm *vm) {
                 vm->last_pop = to_show;
                 if (vm->need_buffer) {
                     char32_t *vl = value_to_string(vm, to_show);
-#if defined (DEBUG)
+#if defined(DEBUG)
                     write_pbuffer(&vm->buffer, "p~~ %ls", vl);
-#else 
+#else
 
                     write_pbuffer(&vm->buffer, "%ls", vl);
 #endif

@@ -6,6 +6,10 @@
 #include "include/utils.h"
 #include "include/vm.h"
 
+// returned result must be freed.
+// each call to `run_code` creates and frees the VM.
+// which makes it very unoptimized
+// we need to make it little more optimized
 char* run_code(char* source) {
     PankVm* vm = boot_vm(true);
     char32_t* src = char_to_32(source);
