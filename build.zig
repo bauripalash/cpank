@@ -2,14 +2,7 @@ const std = @import("std");
 const libiup = @import("cpank/ext/iup/build.zig");
 
 pub fn build(b: *std.Build) void {
-    
-    //const outputDir = "build/";
-    
-
-    const cflags = [_][]const u8{
-        "-Wall",
-        "-std=c11"
-    };
+    const cflags = [_][]const u8{ "-Wall", "-std=c11" };
 
     const sourceToRun = "sample/0.pank";
 
@@ -70,11 +63,9 @@ pub fn build(b: *std.Build) void {
     const exe = b.addExecutable(.{ .name = "pankti", .target = target, .optimize = optimize });
     const lib = b.addStaticLibrary(.{ .name = "pankti", .optimize = optimize, .target = target });
     const guiexe = b.addExecutable(.{ .name = "panktiw", .target = target, .optimize = optimize });
-    
-    
 
     guiexe.addCSourceFiles(&srcGui, &.{});
-    
+
     exe.linkLibC();
     guiexe.linkLibC();
     lib.linkLibC();
@@ -103,8 +94,6 @@ pub fn build(b: *std.Build) void {
     guiexe.linkLibrary(lib);
     const ui = libiup.addIup(b, target, std.builtin.Mode.ReleaseFast);
     guiexe.linkLibrary(ui);
-    
-    
 
     //Build Executable Command
     const exe_build = b.step("x", "Build Executable 'pankti'");
@@ -115,13 +104,12 @@ pub fn build(b: *std.Build) void {
     const install_gui_exe = b.addInstallArtifact(guiexe);
     exe_build.dependOn(&install_exe.step);
     gui_exe_build.dependOn(&install_gui_exe.step);
-    
+
     //Build Static Library
     const lib_build = b.step("lib", "Build Static Library 'libpankti.a'");
 
     const install_lib = b.addInstallArtifact(lib);
     lib_build.dependOn(&install_lib.step);
-    
 
     const run_cmd_run = b.addSystemCommand(&[_][]const u8{
         "zig-out/bin/pankti",
@@ -133,9 +121,4 @@ pub fn build(b: *std.Build) void {
     run_cmd.dependOn(&run_cmd_run.step);
 
     b.installArtifact(exe);
-
-    
-
-    
-
 }

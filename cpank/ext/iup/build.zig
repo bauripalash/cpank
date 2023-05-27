@@ -1,4 +1,3 @@
-
 const std = @import("std");
 
 const srcRoot = struct {
@@ -269,4 +268,3 @@ pub fn addIup(b: *std.Build, target: std.zig.CrossTarget, optimize: std.builtin.
 
     return lib;
 }
-
