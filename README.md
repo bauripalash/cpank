@@ -48,6 +48,7 @@ Output: পলাশ এখন ঘুমোচ্ছে
 ## Android API:
 
 [![Maven Central](https://img.shields.io/maven-central/v/in.palashbauri/panktijapi)](https://central.sonatype.dev/artifact/in.palashbauri/panktijapi/0.1.1-alpha.1)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbauripalash%2Fpankti.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbauripalash%2Fpankti?ref=badge_shield)
 
 
 ## LICENSE
@@ -55,6 +56,9 @@ Output: পলাশ এখন ঘুমোচ্ছে
 
 >Note: Buno the Hedgehog, and all artworks are copyrighted to Me, Palash Bauri, all
 rights are reserved for the Buno the Hedgehog images.
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbauripalash%2Fpankti.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbauripalash%2Fpankti?ref=badge_large)
 
 ## Special Thanks:
 Thorsten Ball for writing these amazing book "Writing An Interpreter In Go" and "Writing A Compiler In Go" and Robert Nystrom for writing his awesome book "Crafting Interpreters"
