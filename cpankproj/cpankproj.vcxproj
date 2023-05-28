@@ -147,6 +147,13 @@
     <ClCompile Include="..\cpank\compiler.c" />
     <ClCompile Include="..\cpank\builtins.c" />
     <ClCompile Include="..\cpank\debug.c" />
+    <ClCompile Include="..\cpank\ext\baurinum\absneg.c" />
+    <ClCompile Include="..\cpank\ext\baurinum\addsub.c" />
+    <ClCompile Include="..\cpank\ext\baurinum\baurinum.c" />
+    <ClCompile Include="..\cpank\ext\baurinum\compare.c" />
+    <ClCompile Include="..\cpank\ext\baurinum\getter.c" />
+    <ClCompile Include="..\cpank\ext\baurinum\setter.c" />
+    <ClCompile Include="..\cpank\ext\baurinum\utility.c" />
     <ClCompile Include="..\cpank\htable.c" />
     <ClCompile Include="..\cpank\instruction.c" />
     <ClCompile Include="..\cpank\lexer.c" />
@@ -155,7 +162,10 @@
     <ClCompile Include="..\cpank\obj.c" />
     <ClCompile Include="..\cpank\openfile.c" />
     <ClCompile Include="..\cpank\runfile.c" />
+    <ClCompile Include="..\cpank\stdlib\big.c" />
     <ClCompile Include="..\cpank\stdlib\bnmath.c" />
+    <ClCompile Include="..\cpank\stdlib\bnos.c" />
+    <ClCompile Include="..\cpank\stdlib\map.c" />
     <ClCompile Include="..\cpank\stdlib\math.c" />
     <ClCompile Include="..\cpank\stdlib\stdlib.c" />
     <ClCompile Include="..\cpank\stdlib\array.c" />
@@ -168,9 +178,9 @@
     <ClCompile Include="..\cpank\vm.c" />
     <ClCompile Include="..\cpank\api.c" />
     <ClCompile Include="..\cpank\errmsg.c" />
-    <ClCompile Include="..\cpank\ext\xxhash\xxhash.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\cpank\ext\baurinum\baurinum.h" />
     <ClInclude Include="..\cpank\include\api.h" />
     <ClInclude Include="..\cpank\include\errmsg.h" />
     <ClInclude Include="..\cpank\include\helper\arch.h" />
@@ -232,7 +242,7 @@
     <ResourceCompile Include="cpankproj.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon.ico" />
+    <Image Include="..\images\icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

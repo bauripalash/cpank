@@ -317,7 +317,12 @@ static inline int ch32_parse_hex(const char32_t *str, int len, int curindex) {
 }
 
 char32_t *unescape_unicode(char32_t *str, int len) {
+    #ifdef PANK_OS_WIN
+    char32_t * result = (char32_t*)calloc(len + 1, sizeof(char32_t));
+    
+    #else 
     char32_t result[len + 1];
+    #endif
     int j = 0;
 
     for (int i = 0; i < len; i++) {

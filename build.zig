@@ -107,9 +107,7 @@ pub fn build(b: *std.Build) void {
     if (target.isWindows()) {
         exe.addObjectFile("cpankproj/cpankproj.res.obj");
         guiexe.addObjectFile("cpankproj/cpankproj.res.obj");
-        guiexe.defineCMacroRaw("RUN -ldflags \"-H=windowsgui\" -mwindows");
     }
-
 
     guiexe.subsystem = .Windows;
 

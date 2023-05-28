@@ -232,7 +232,7 @@ pub fn addIup(b: *std.Build, target: std.zig.CrossTarget, optimize: std.builtin.
     };
 
     const lib = b.addStaticLibrary(.{ .name = "iup", .target = target, .optimize = optimize });
-
+    const includeManifest: bool = false;
     lib.addCSourceFiles(&srcCore, &.{});
 
     if (target.isLinux()) {
@@ -250,10 +250,12 @@ pub fn addIup(b: *std.Build, target: std.zig.CrossTarget, optimize: std.builtin.
         }
     } else if (target.isWindows()) {
         lib.addCSourceFiles(&srcWin, &.{});
-        if (target.getCpuArch().isX86()) {
-            lib.addObjectFile(manifest_32);
-        } else {
-            lib.addObjectFile(manifest_64);
+        if (includeManifest) {
+            if (target.getCpuArch().isX86()) {
+                lib.addObjectFile(manifest_32);
+            } else {
+                lib.addObjectFile(manifest_64);
+            }
         }
         for (winSysLibs) |value| {
             lib.linkSystemLibrary(value);

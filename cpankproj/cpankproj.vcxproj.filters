@@ -25,17 +25,20 @@
     <Filter Include="Header Files\ext\xxhash">
       <UniqueIdentifier>{c9f44fe9-cdb5-4418-bcec-365b7b502211}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\ext">
-      <UniqueIdentifier>{5ea69961-b294-4ebf-80ae-88f0837a8beb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\ext\xxhash">
-      <UniqueIdentifier>{54a7fac1-e2b0-4d3f-a3e2-22219dbf49c6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\include\helper">
       <UniqueIdentifier>{7aed5c2c-4832-4344-b16c-a20599383fba}</UniqueIdentifier>
     </Filter>
     <Filter Include="Samples">
       <UniqueIdentifier>{38bb9222-ef39-4f9c-80c6-1ddb54e0ce44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ext\baurinum">
+      <UniqueIdentifier>{812cb06b-f3f4-4bc5-ab4f-a3c007e0ef7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ext">
+      <UniqueIdentifier>{3a68d1c1-5977-4be6-b502-912419e4b31e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ext\baurinum">
+      <UniqueIdentifier>{784f4db8-cf8c-4914-92d1-97c04a4b8f8f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -114,8 +117,35 @@
     <ClCompile Include="..\cpank\api.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\cpank\ext\xxhash\xxhash.c">
-      <Filter>Source Files\ext\xxhash</Filter>
+    <ClCompile Include="..\cpank\ext\baurinum\absneg.c">
+      <Filter>Source Files\ext\baurinum</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\ext\baurinum\addsub.c">
+      <Filter>Source Files\ext\baurinum</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\ext\baurinum\baurinum.c">
+      <Filter>Source Files\ext\baurinum</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\ext\baurinum\compare.c">
+      <Filter>Source Files\ext\baurinum</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\ext\baurinum\getter.c">
+      <Filter>Source Files\ext\baurinum</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\ext\baurinum\setter.c">
+      <Filter>Source Files\ext\baurinum</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\ext\baurinum\utility.c">
+      <Filter>Source Files\ext\baurinum</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\stdlib\big.c">
+      <Filter>Source Files\stdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\stdlib\bnos.c">
+      <Filter>Source Files\stdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cpank\stdlib\map.c">
+      <Filter>Source Files\stdlib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -193,6 +223,9 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cpank\ext\baurinum\baurinum.h">
+      <Filter>Header Files\ext\baurinum</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -290,7 +323,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon.ico">
+    <Image Include="..\images\icon.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

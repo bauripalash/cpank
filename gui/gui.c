@@ -14,6 +14,7 @@ int run_btn_clicked(Ihandle* self) {
     char* result = run_code(value);
     IupSetAttribute(output, "VALUE", result);
     free(result);
+
     return IUP_DEFAULT;
 }
 
