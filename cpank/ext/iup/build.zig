@@ -7,6 +7,8 @@ const srcRoot = struct {
 }.getSrcDir();
 
 pub fn addIup(b: *std.Build, target: std.zig.CrossTarget, optimize: std.builtin.Mode) *std.Build.Step.Compile {
+    const manifest_32 = srcRoot ++ "/iup.manifest.obj";
+    const manifest_64 = srcRoot ++ "/iup64.manifest.obj";
     const srcdir = srcRoot ++ "/src/";
     var srcCore = [_][]const u8{
         srcdir ++ "/iup_animatedlabel.c",
@@ -248,6 +250,11 @@ pub fn addIup(b: *std.Build, target: std.zig.CrossTarget, optimize: std.builtin.
         }
     } else if (target.isWindows()) {
         lib.addCSourceFiles(&srcWin, &.{});
+        if (target.getCpuArch().isX86()) {
+            lib.addObjectFile(manifest_32);
+        } else {
+            lib.addObjectFile(manifest_64);
+        }
         for (winSysLibs) |value| {
             lib.linkSystemLibrary(value);
         }

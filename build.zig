@@ -57,14 +57,23 @@ pub fn build(b: *std.Build) void {
         "gui/gui.c",
     };
 
+    var guiFlags = [_][]const u8{};
+
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
     const exe = b.addExecutable(.{ .name = "pankti", .target = target, .optimize = optimize });
     const lib = b.addStaticLibrary(.{ .name = "pankti", .optimize = optimize, .target = target });
     const guiexe = b.addExecutable(.{ .name = "panktiw", .target = target, .optimize = optimize });
-
-    guiexe.addCSourceFiles(&srcGui, &.{});
+    // if (target.isWindows()) {
+    //     guiFlags = [2][]const u8{
+    //         "-ldflags \"-H=windowsgui\"",
+    //         "-mwindows",
+    //     };
+    // } else {
+    //     guiFlags = [2][]const u8{ "", "" };
+    // }
+    guiexe.addCSourceFiles(&srcGui, &guiFlags);
 
     exe.linkLibC();
     guiexe.linkLibC();
@@ -94,6 +103,15 @@ pub fn build(b: *std.Build) void {
     guiexe.linkLibrary(lib);
     const ui = libiup.addIup(b, target, std.builtin.Mode.ReleaseFast);
     guiexe.linkLibrary(ui);
+
+    if (target.isWindows()) {
+        exe.addObjectFile("cpankproj/cpankproj.res.obj");
+        guiexe.addObjectFile("cpankproj/cpankproj.res.obj");
+        guiexe.defineCMacroRaw("RUN -ldflags \"-H=windowsgui\" -mwindows");
+    }
+
+
+    guiexe.subsystem = .Windows;
 
     //Build Executable Command
     const exe_build = b.step("x", "Build Executable 'pankti'");

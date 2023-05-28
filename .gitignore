@@ -72,3 +72,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 .vs/
+
+!cpank/ext/iup/iup.manifest.obj 
+!cpank/ext/iup/iup64.manifest.obj
