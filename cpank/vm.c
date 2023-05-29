@@ -328,7 +328,7 @@ void free_vm(PankVm *vm) {
     free_objs(vm);
     if (vm->need_buffer) {
         char32_t *res = get_trimmed(&vm->buffer);
-        cp_print(L"%ls", res);
+        //cp_print(L"%ls", res);
         free(res);
         // print_pbuffer(&vm->buffer);
         free_pbuffer(&vm->buffer);
