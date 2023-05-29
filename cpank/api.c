@@ -6,6 +6,9 @@
 #include "include/utils.h"
 #include "include/vm.h"
 
+#define RUNTIME_ERR U"RUNTIME ERROR OCCURED"
+#define COMPILE_ERR U"COMPILER ERROR OCCURED" 
+
 // returned result must be freed.
 // each call to `run_code` creates and frees the VM.
 // which makes it very unoptimized
@@ -19,13 +22,13 @@ char* run_code(char* source) {
             free_vm(vm);
 
             free(src);
-            return NULL;
+            return c32_to_char(RUNTIME_ERR, strlen32(RUNTIME_ERR)) ;
         }
         case INTRP_COMPILE_ERR:
             free_vm(vm);
 
             free(src);
-            return NULL;
+            return c32_to_char(COMPILE_ERR, strlen32(COMPILE_ERR));
         case INTRP_OK: {
             char32_t* rawres = get_trimmed(&vm->buffer);
             char* buffer_result = c_to_c(rawres, strlen32(rawres));

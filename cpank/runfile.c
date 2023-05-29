@@ -36,6 +36,7 @@ int run_stdin() {
 
     char *result = run_code(buffer);
     if (result == NULL) {
+        cp_print(L"ERR");
         free(buffer);
         return 1;
     }
