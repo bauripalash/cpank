@@ -1,6 +1,8 @@
 /* vim: set fileencoding=utf-8 tabstop=4 shiftwidth=4 expandtab */
 // go:build tmain
 //  +build tmain
+#include <uchar.h>
+#include <unistd.h>
 #if !defined(APILIB)
  #include <locale.h>
  #include <stddef.h>
@@ -50,6 +52,9 @@ int main(int argc, char** argv) {
             cp_println(help_msg);
         } else if (strcmp(ag, "-v") == 0 || strcmp(ag, "--version") == 0) {
             cp_println(L"cpank %ls", version);
+        } else if (strcmp(ag, "-") == 0) {
+            return run_stdin();
+            // cp_println(L"reading from stdin");
         } else {
             if (does_file_exist(ag)) {
                 int result = run_file(ag);

@@ -5,6 +5,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+int run_stdin();
 int run_file(const char *filepath);
 #ifdef __cplusplus
 }

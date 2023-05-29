@@ -139,7 +139,7 @@ int copy_c32(char32_t *str, const char32_t *input, int len) {
 }
 
 int strlen32(const char32_t *strarg) {
-    if (!strarg) return -1;  // strarg is NULL pointer
+    if (strarg == NULL) return -1;  // strarg is NULL pointer
     int len = 0;
     while (strarg[len] != U'\0') {
         len++;

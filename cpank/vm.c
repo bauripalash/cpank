@@ -153,8 +153,8 @@ bool call_val(PankVm *vm, Value calle, int argc);
 bool call(PankVm *vm, ObjClosure *closure, int origin, int argc);
 
 PankVm *boot_vm(bool need_buffer) {
-    PankVm *vm = (PankVm *)malloc(sizeof(PankVm));
-    memset(vm, 0, sizeof(PankVm));
+    PankVm *vm = (PankVm *)calloc(1, sizeof(PankVm));
+    // memset(vm, 0, sizeof(PankVm));
     reset_stack(vm);
     gcon.is_paused = false;
     vm->objs = NULL;
@@ -1104,8 +1104,12 @@ IResult run_vm(PankVm *vm) {
                             s->len - 1, (int)index);
                         return INTRP_RUNTIME_ERR;
                     }
-                    char32_t item = s->chars[(int)index];
-                    ObjString *newobjstring = copy_string(vm, &item, 1);
+                    char32_t *item = (char32_t *)calloc(
+                        2, sizeof(char32_t));  // s->chars[(int)index];
+                    item[0] = s->chars[(int)index];
+                    item[1] = '\0';
+                    ObjString *newobjstring = copy_string(vm, item, 1);
+                    free(item);
                     pop(vm);
                     pop(vm);
                     push(vm, make_obj_val(newobjstring));

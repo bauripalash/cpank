@@ -11,12 +11,41 @@
 #include <uchar.h>
 #include <wchar.h>
 
+#include "include/api.h"
 #include "include/common.h"
 #include "include/helper/os.h"
 #include "include/openfile.h"
 #include "include/pank.h"
 #include "include/utils.h"
 #include "include/vm.h"
+
+#define CHUNK_SIZE 256
+int run_stdin() {
+    char *buffer = (char *)calloc(CHUNK_SIZE, sizeof(char));
+    size_t bufsize = 0;
+    size_t bufread;
+    while ((bufread =
+                fread(buffer + bufsize, sizeof(char), CHUNK_SIZE, stdin)) > 0) {
+        bufsize += bufread;
+        buffer = realloc(buffer, sizeof(char) * (bufsize + CHUNK_SIZE));
+
+        if (!buffer) {
+            return 1;
+        }
+    }
+
+    char *result = run_code(buffer);
+    if (result == NULL) {
+        free(buffer);
+        return 1;
+    }
+    cp_print(L"%s", result);
+    free(result);
+    // cp_println(L"data->%s" , buffer);
+
+    free(buffer);
+    return 0;
+}
 
 int run_file(const char *filepath) {
     setlocale(LC_CTYPE, "");
