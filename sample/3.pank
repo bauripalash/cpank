@@ -1,9 +1,9 @@
 dhori age = 19;
 jodi age > 18 tahole
-	show "sabalok";
+	show("sabalok");
 else 
-	show "nabalok";
+	show("nabalok");
 end
 
-show 1;
-show 0;
+show(1);
+show(0);

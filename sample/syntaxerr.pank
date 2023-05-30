@@ -8,4 +8,4 @@ nach("palash")
 
 dhori x  = 1
 dhori y = [1,2,x]
-show y[x
+show(y[x)

@@ -18,7 +18,7 @@
 #include "include/value.h"
 
 const char32_t EN_KW_LET[] = U"let";
-const char32_t EN_KW_SHOW[] = U"show";
+// const char32_t EN_KW_SHOW[] = U"show";
 const char32_t EN_KW_RETURN[] = U"return";
 const char32_t EN_KW_IF[] = U"if";
 const char32_t EN_KW_THEN[] = U"then";
@@ -36,7 +36,7 @@ const char32_t EN_KW_PANIC[] = U"panic";
 
 const char32_t BN_KW_LET[] = U"\u09a7\u09b0\u09bf";
 
-const char32_t BN_KW_SHOW[] = U"\u09a6\u09c7\u0996\u09be\u0993";
+// const char32_t BN_KW_SHOW[] = U"\u09a6\u09c7\u0996\u09be\u0993";
 const char32_t BN_KW_RETURN[] = U"\u09ab\u09c7\u09b0\u09be\u0993";
 const char32_t BN_KW_IF[] = U"\u09af\u09a6\u09bf";
 const char32_t BN_KW_THEN[] = U"\u09a4\u09be\u09b9\u09b2\u09c7";
@@ -53,7 +53,7 @@ const char32_t BN_KW_IMPORT[] = U"\u0986\u09a8\u09df\u09a8";
 const char32_t BN_KW_PANIC[] = U"\u0997\u09cb\u09b2\u09ae\u09be\u09b2";
 
 const char32_t PHON_KW_LET[] = U"dhori";
-const char32_t PHON_KW_SHOW[] = U"dekhao";
+// const char32_t PHON_KW_SHOW[] = U"dekhao";
 const char32_t PHON_KW_RETURN[] = U"fearo";
 const char32_t PHON_KW_IF[] = U"jodi";
 const char32_t PHON_KW_THEN[] = U"tahole";
@@ -127,8 +127,8 @@ const char *toktype_to_string(TokType t) {
             return "T_ELSE";
         case T_WHILE:
             return "T_WHILE";
-        case T_SHOW:
-            return "T_SHOW";
+        // case T_SHOW:
+        //     return "T_SHOW";
         case T_NIL:
             return "T_NIL";
         case T_TRUE:
@@ -259,9 +259,10 @@ TokType get_ident_tok_type(char32_t *input, int len) {
     if (match_kw(tc, EN_KW_LET, len) || match_kw(tc, BN_KW_LET, len) ||
         match_kw(tc, PHON_KW_LET, len)) {
         tt = T_LET;
-    } else if (match_kw(tc, EN_KW_SHOW, len) || match_kw(tc, BN_KW_SHOW, len) ||
-               match_kw(tc, PHON_KW_SHOW, len)) {
-        tt = T_SHOW;
+        //} else if (match_kw(tc, EN_KW_SHOW, len) || match_kw(tc, BN_KW_SHOW,
+        //len) ||
+        //           match_kw(tc, PHON_KW_SHOW, len)) {
+        //    tt = T_SHOW;
     } else if (match_kw(tc, EN_KW_RETURN, len) ||
                match_kw(tc, BN_KW_RETURN, len) ||
                match_kw(tc, PHON_KW_RETURN, len)) {

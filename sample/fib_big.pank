@@ -27,5 +27,5 @@ kaj fib(n)
 	return bb
 end
 let start = clock()
-show fib(500)
-show clock() - start
+show(fib(500))
+show(clock() - start)

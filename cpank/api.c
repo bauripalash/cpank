@@ -19,16 +19,23 @@ char* run_code(char* source) {
     IResult result = interpret(vm, src);
     switch (result) {
         case INTRP_RUNTIME_ERR: {
+            char32_t* raw_res = get_trimmed(&vm->buffer);
+            char* buffer_result = c32_to_char(raw_res, strlen32(raw_res));
+            free(raw_res);
             free_vm(vm);
 
             free(src);
-            return c32_to_char(RUNTIME_ERR, strlen32(RUNTIME_ERR));
+            return buffer_result;
         }
-        case INTRP_COMPILE_ERR:
+        case INTRP_COMPILE_ERR: {
+            char32_t* raw_res = get_trimmed(&vm->buffer);
+            char* buffer_result = c32_to_char(raw_res, strlen32(raw_res));
+            free(raw_res);
             free_vm(vm);
 
             free(src);
-            return c32_to_char(COMPILE_ERR, strlen32(COMPILE_ERR));
+            return buffer_result;
+        }
         case INTRP_OK: {
             char32_t* rawres = get_trimmed(&vm->buffer);
             char* buffer_result = c_to_c(rawres, strlen32(rawres));

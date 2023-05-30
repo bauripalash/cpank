@@ -1,0 +1,7 @@
+The mascot of the pankti programming language, "Buno the Hedgehog" is copyrighted to
+Palash Bauri <palashbauri [at] gmail [dot] com>, which are housed in the 
+`images` directory plus the icon.ico file in cpankproj directory.
+
+All the libraries housed in cpank/ext/ directories has their own respective
+licenses, the do not fall under the license of Cpank, The Reference 
+implementation of The Pankti Programming Language.

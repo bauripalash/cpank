@@ -1,2 +1,2 @@
 import x "sample/fib_w.txt";
-show x.fib_wrapper(10);
+show(x.fib_wrapper(10))

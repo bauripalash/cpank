@@ -1,19 +1,19 @@
 import h "map"
 
 let a = {"name" : "palash" , "age" : 21}
-show a["name"]
+show(a["name"])
 a["title"] = "bauri"
-show a
-show h.iskey(a , "1")
+show(a)
+show(h.iskey(a , "1"))
 let x = h.keys(a)
-show x[2]
-show len(x)
+show(x[2])
+show(len(x))
 let y = h.values(a)
-show y
-show type(y[0])
-show len(y)
+show(y)
+show(type(y[0]))
+show(len(y))
 
 #import f "file"
 #show f.write("hello.txt" , "palash\n")
 #show f.append("hello.txt" , "bauri")
-show "hello\n"
+show("hello\n")

@@ -1,24 +1,24 @@
 import a "array";
 
 let x = ["hello" , "world"];
-show x;
+show(x)
 a.pop(x);
-show x;
+show(x)
 
 let name = "palash";
 a.push(x  , name);
 a.push(x , "bauri");
-show x;
-show name + " bauri";
+show(x)
+show(name + " bauri");
 
 let y = ["how" , "are" , "you"];
-show y;
+show(y);
 let z = a.join(x,y);
-show z;
+show(z);
 
 let hh = ["my" , "name" , "is" , "palash" , "bauri"]
 hh = a.popat(hh , 4)
-show hh
+show(hh)
 
 fun listsum(list)
 	let index = 0
@@ -31,5 +31,5 @@ fun listsum(list)
 end 
 
 let slist = [1,2,3,4,5]
-show slist 
-show listsum(slist)
+show(slist)
+show(listsum(slist))

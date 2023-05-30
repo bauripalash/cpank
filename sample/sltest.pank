@@ -2,54 +2,54 @@ import m "math";
 
 
 
-show "add";
-show m.add(9,1);
-show "gcd";
-show m.gcd(9 , 3);
-show "lcm";
-show m.lcm(10,10);
-show "sqrt";
-show m.sqrt(11);
-show "log10";
-show m.log10(11);
-show "loge";
-show m.loge(11);
-show "logx";
-show m.logx(10 , 11);
-show "sin 90d";
-show m.sin(m.rad(90));
-show "cos 90d";
-show m.cos(m.rad(90));
-show "tan 90d";
-show m.tan(m.rad(90));
-show "1 degree = ? radians";
-show m.rad(1);
-show "1 radians = ? degree";
-show m.degree(1);
-show "PI = ?";
-show m.pi();
-show "e = ?";
-show m.e();
+show("add");
+show(m.add(9,1));
+show("gcd")
+show(m.gcd(9 , 3))
+show("lcm")
+show(m.lcm(10,10))
+show("sqrt")
+show(m.sqrt(11))
+show("log10")
+show(m.log10(11))
+show("loge")
+show(m.loge(11))
+show("logx")
+show(m.logx(10 , 11))
+show("sin 90d")
+show(m.sin(m.rad(90)))
+show("cos 90d")
+show(m.cos(m.rad(90)))
+show("tan 90d")
+show(m.tan(m.rad(90)))
+show("1 degree = ? radians")
+show(m.rad(1))
+show("1 radians = ? degree")
+show(m.degree(1))
+show("PI = ?")
+show(m.pi())
+show("e = ?")
+show(m.e())
 let str = "1230";
 let num = m.strtonum(str);
-show "m.strtonum(str)| str = " + "1230";
-show "str + str (as string)";
-show str + str;
-show "str + str (as number)";
-show num + num;
-show "m.randnum()";
-show m.randnum() * 2;
-show "m.random(1,5)";
-show m.random(1,5);
-show "m.abs(-10)";
-show m.abs(-10);
-show "m.round(m.pi())";
-show m.round(m.pi());
-show "m.round(12.9234567)";
-show m.round(12.9234567);
-show "m.infinity()";
-show m.infinity();
-show "m.ceil(m.pi())";
-show m.ceil(m.pi());
-show "m.ceil(12.9234567)";
-show m.ceil(12.9234567);
+show("m.strtonum(str)| str = " + "1230")
+show("str + str (as string)")
+show(str + str)
+show("str + str (as number)")
+show(num + num)
+show("m.randnum()")
+show(m.randnum() * 2)
+show("m.random(1,5)")
+show(m.random(1,5))
+show("m.abs(-10)")
+show(m.abs(-10))
+show("m.round(m.pi())")
+show(m.round(m.pi()))
+show("m.round(12.9234567)")
+show(m.round(12.9234567))
+show("m.infinity()")
+show(m.infinity())
+show("m.ceil(m.pi())")
+show(m.ceil(m.pi()))
+show("m.ceil(12.9234567)")
+show(m.ceil(12.9234567))

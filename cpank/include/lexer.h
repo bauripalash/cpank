@@ -77,7 +77,7 @@ typedef enum {
     // while / jotokkhon (see `token.h`)
     T_WHILE,
     // show / dekhao (see `token.h`)
-    T_SHOW,
+    // T_SHOW, -> Removed; use show(...) built-in function
     // nil (see `token.h`)
     T_NIL,
     // true / sotto (see `token.h`)

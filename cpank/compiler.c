@@ -803,7 +803,7 @@ ParseRule parse_rules[] = {
     [T_IF] = {NULL, NULL, PREC_NONE},
     [T_NIL] = {literal, NULL, PREC_NONE},
     [T_OR] = {NULL, read_or, PREC_OR},
-    [T_SHOW] = {NULL, NULL, PREC_NONE},
+    //[T_SHOW] = {NULL, NULL, PREC_NONE},
     [T_RETURN] = {NULL, NULL, PREC_NONE},
     [T_TRUE] = {literal, NULL, PREC_NONE},
     [T_LET] = {NULL, NULL, PREC_NONE},
@@ -846,7 +846,7 @@ static void sync_errors(Compiler *compiler) {
             case T_LET:
             case T_IF:
             case T_WHILE:
-            case T_SHOW:
+            // case T_SHOW:
             case T_RETURN:
             case T_ERR:
                 return;
@@ -916,7 +916,7 @@ static void read_expr_stmt(Compiler *compiler) {
     emit_bt(compiler, OP_POP, false);
 }
 
-static void read_print_stmt(Compiler *compiler) {
+/*static void read_print_stmt(Compiler *compiler) {
     read_expr(compiler);
 
     if (check_tok(compiler, T_SEMICOLON)) {
@@ -924,7 +924,7 @@ static void read_print_stmt(Compiler *compiler) {
     }
     // TODO
     emit_bt(compiler, OP_SHOW, false);
-}
+}*/
 
 static void declare_var(Compiler *compiler) {
     if (compiler->scope_depth == 0) {
@@ -1135,9 +1135,7 @@ static void read_err_stmt(Compiler *compiler) {
 // * Expression statement
 //   example : 1 + 2 + 3;
 static void read_stmt(Compiler *compiler) {
-    if (match_tok(compiler, T_SHOW)) {
-        read_print_stmt(compiler);
-    } else if (match_tok(compiler, T_IF)) {
+    if (match_tok(compiler, T_IF)) {
         read_if_stmt(compiler);
     } else if (match_tok(compiler, T_WHILE)) {
         read_while_stmt(compiler);

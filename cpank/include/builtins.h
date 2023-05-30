@@ -10,12 +10,13 @@ extern "C" {
 #include "value.h"
 
 char32_t clock_ntv_name[] = U"clock";
-char32_t show_ntv_name[] = U"print";
+char32_t show_ntv_name[] = U"show";
 char32_t asserteq_ntv_name[] = U"asserteq";
 char32_t type_ntv_name[] = U"type";
 char32_t bn_native_fn_name[] = U"প্রকার";
 char32_t len_ntv_name[] = U"len";
 char32_t bignew_ntv_name[] = U"bignew";
+char32_t bn_show_ntf_fn[] = U"\u09a6\u09c7\u0996\u09be\u0993";
 
 // This builtin function returns the current time in seconds since
 // the program started to execute.

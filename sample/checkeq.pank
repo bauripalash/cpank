@@ -1,17 +1,17 @@
 fun test_assert(msg , value1 , value2)
-	show "-----";
+	show("-----");
 	if (!asserteq(value1 , value2)) then
-		show msg;
-		show "Failed";
-		show "-----";
+		show(msg);
+		show("Failed");
+		show("-----");
 		return 0;
 	end
 
-	show value1;
-	show value2;
+	show(value1);
+	show(value2);
 
-	show "Assert Passed!";
-	show "-----";
+	show("Assert Passed!");
+	show("-----");
 	return 1;
 end
 

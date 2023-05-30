@@ -28,7 +28,7 @@ typedef enum {
     OP_GTE,
     OP_LT,
     OP_LTE,
-    OP_SHOW,
+    // OP_SHOW, -> Removed use show(...) built-in function
     OP_POP,
     OP_DEF_GLOB,
     OP_SET_GLOB,

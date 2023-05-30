@@ -7,5 +7,5 @@ fun fib(n)
 end
 
 let start = clock();
-show fib(35);
-show clock() - start;
+show(fib(35));
+show(clock() - start);

@@ -121,8 +121,8 @@ int dissm_ins(Instruction *ins, int offset) {
             return simple_ins("OP_GT", offset);
         case OP_LT:
             return simple_ins("OP_LT", offset);
-        case OP_SHOW:
-            return simple_ins("OP_SHOW", offset);
+        // case OP_SHOW:
+        //     return simple_ins("OP_SHOW", offset);
         case OP_POP:
             return simple_ins("OP_POP", offset);
         case OP_DEF_GLOB:
@@ -236,8 +236,8 @@ const char *print_opcode(Op op) {
             return "OP_GT";
         case OP_LT:
             return "OP_LT";
-        case OP_SHOW:
-            return "OP_SHOW";
+        // case OP_SHOW:
+        //     return "OP_SHOW";
         case OP_POP:
             return "OP_POP";
         case OP_DEF_GLOB:

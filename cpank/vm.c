@@ -194,6 +194,7 @@ PankVm *boot_vm(bool need_buffer) {
     define_native(vm, len_ntv_name, len_ntv_fn);
     define_native(vm, bignew_ntv_name, bignew_ntv_fn);
     define_native(vm, show_ntv_name, show_ntv_fn);
+    define_native(vm, bn_show_ntf_fn, show_ntv_fn);
     // write_pbuffer(&vm->buffer, "hello world %ls" , L"how are you\n");
     return vm;
 }
@@ -913,7 +914,7 @@ IResult run_vm(PankVm *vm) {
             case OP_FALSE:
                 if (!push(vm, make_bool(false))) return INTRP_RUNTIME_ERR;
                 break;
-            case OP_SHOW: {
+            /*case OP_SHOW: {
                 Value to_show = pop(vm);
                 vm->last_pop = to_show;
                 if (vm->need_buffer) {
@@ -934,7 +935,7 @@ IResult run_vm(PankVm *vm) {
                     // cp_print(L"\n");
                 }
                 break;
-            }
+            } -> Use show(...) builtin function */
             case OP_DEF_GLOB: {
                 ObjString *nm = read_str_const(frame);
                 table_set(vm, frame->globals, nm, peek_vm(vm, 0));

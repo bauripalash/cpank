@@ -1,15 +1,15 @@
 import s "str";
 
 let m = [1,2,3,"hello" , 1.2];
-show type(m);
-show len(m);
-let z = s.string(m);
-show z;
-show type(z);
-show len(z);
-show z[0];
-import m "math";
-show m.pi();
-import o "os";
-show o.name();
-show o.arch();
+show(type(m))
+show(len(m))
+let z = s.string(m)
+show(z)
+show(type(z))
+show(len(z))
+show(z[0])
+import m "math"
+show(m.pi())
+import o "os"
+show(o.name())
+show(o.arch())

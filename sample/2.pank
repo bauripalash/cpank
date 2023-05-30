@@ -1,6 +1,6 @@
 dhori a = 1;
 jotokkhon (a <= 10) 
-      show a;
+      show(a);
       a = a+1;
     end
-show "hello world";
+show("hello world");

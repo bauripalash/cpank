@@ -1,5 +1,5 @@
 let x = [1,2,3];
 let index = 1;
-show x;
-show x[index - 1];
-show x[2] * x[1] + x[0];
+show(x);
+show(x[index - 1]);
+show(x[2] * x[1] + x[0]);

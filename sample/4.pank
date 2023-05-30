@@ -1,5 +1,5 @@
-fun name(a){
+fun name(a)
 	return "hello" + " " + a;
-}
-show name("world");
-show clock();
+end
+show(name("world"));
+show(clock());

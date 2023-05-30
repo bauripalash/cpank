@@ -1,2 +1,2 @@
-show 1+2;
-show -100;
+show(1+2)
+show(-100)

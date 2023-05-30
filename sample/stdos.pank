@@ -1,5 +1,5 @@
 import o "os";
-show o.name();
-show o.arch();
-show o.user();
-show o.home();
+show(o.name());
+show(o.arch());
+show(o.user());
+show(o.home());
