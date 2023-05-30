@@ -263,13 +263,33 @@ Value _big_const_e(PankVm *vm, int argc, Value *args) {
     return pop(vm);
 }
 
+Value _big_new(PankVm *vm, int argc, Value *args) {
+    if (argc != 1) {
+        return make_error(vm,
+                          U"bignew(value) function takes only one argument");
+    }
+    Value raw_val = args[0];
+    if (is_str_obj(raw_val)) {
+        char32_t *s = get_as_native_string(args[0]);
+        return make_obj_val(new_bignum_with_str(vm, s));
+    } else if (is_num(raw_val)) {
+        double d = get_as_number(raw_val);
+        return make_obj_val(new_bignum_with_double(vm, d));
+    } else {
+        return make_error(vm,
+                          U"bignew(value) function only takes strings and "
+                          U"numbers  as argument");
+    }
+}
+
 void push_stdlib_big(PankVm *vm) {
     SL sls[] = {
         msl(U"add", _big_add),          msl(U"sub", _big_sub),
         msl(U"gt", _big_comp_gt),       msl(U"lt", _big_comp_lt),
         msl(U"noteq", _big_comp_noteq), msl(U"eq", _big_comp_eq),
         msl(U"pi", _big_const_pi),      msl(U"e", _big_const_e),
+        msl(U"new", _big_new),
     };
 
-    _push_stdlib(vm, U"big", sls, 8);
+    _push_stdlib(vm, U"big", sls, 9);
 }

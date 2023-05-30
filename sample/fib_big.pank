@@ -1,8 +1,8 @@
 import b "big"
 kaj fib(n)
-	let a = bignew("0")
+	let a = b.new("0")
 
-	let bb = bignew("1")
+	let bb = b.new("1")
 
 	jodi n < 0 then
 		return 0 

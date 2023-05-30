@@ -18,7 +18,7 @@ pub fn build(b: *std.Build) void {
 
     const cflags = [_][]const u8{ "-Wall", "-std=c11" };
 
-    const sourceToRun = "sample/0.pank";
+    const sourceToRun = "sample/unicode_escape.pank";
 
     //Core of Cpank
     var srcCore = [_][]const u8{

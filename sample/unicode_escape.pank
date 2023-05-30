@@ -1,0 +1,1 @@
+show("This is the hedgehog emoji " , "->" , "\U0001F994<-" , "\n");
