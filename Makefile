@@ -104,8 +104,9 @@ build: baurinum stdlib core
 build: $(TARGET)
 
 
-test: $(TEST_TARGET)
-	./$(TEST_TARGET)
+test: $(TARGET)
+	export CPANK_EXE=./$(TARGET)
+	python -m unittest -v
 
 andapi:
 	mkdir -p $(ANDROID_API_BUILD_DIR)
