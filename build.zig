@@ -111,14 +111,23 @@ pub fn build(b: *std.Build) void {
 
     guiexe.subsystem = .Windows;
 
+ const create_exe_shortcut = b.addSystemCommand(&[_][]const u8{
+        "ln",
+        "-s",
+        "zig-out/bin/pankti",
+        "./"
+    });
+
     //Build Executable Command
-    const exe_build = b.step("x", "Build Executable 'pankti'");
+    var exe_build = b.step("x", "Build Executable 'pankti'");
     const install_exe = b.addInstallArtifact(exe);
     //exe.setOutputDir("build");
     //Build GUI Executable
     const gui_exe_build = b.step("g", "Build Gui 'panktiw'");
     const install_gui_exe = b.addInstallArtifact(guiexe);
     exe_build.dependOn(&install_exe.step);
+
+    exe_build.dependOn(&create_exe_shortcut.step);
     gui_exe_build.dependOn(&install_gui_exe.step);
 
     //Build Static Library
@@ -133,9 +142,13 @@ pub fn build(b: *std.Build) void {
     });
 
     const test_command = b.addSystemCommand(&[_][]const u8{
-        "/usr/bin/python",
-        "-m unittest -v",
+        "python",
+        "-m",
+        "unittest",
+        "-v",
     });
+
+   
 
     const run_cmd = b.step("run", "Build and Run Sample");
     run_cmd.dependOn(&exe.step);
@@ -144,6 +157,8 @@ pub fn build(b: *std.Build) void {
     const test_cmd = b.step("test", "Run test using python");
     test_cmd.dependOn(&exe.step);
     test_cmd.dependOn(&test_command.step);
+    
+    b.default_step = exe_build;
     
 
     b.installArtifact(exe);

@@ -260,7 +260,7 @@ TokType get_ident_tok_type(char32_t *input, int len) {
         match_kw(tc, PHON_KW_LET, len)) {
         tt = T_LET;
         //} else if (match_kw(tc, EN_KW_SHOW, len) || match_kw(tc, BN_KW_SHOW,
-        //len) ||
+        // len) ||
         //           match_kw(tc, PHON_KW_SHOW, len)) {
         //    tt = T_SHOW;
     } else if (match_kw(tc, EN_KW_RETURN, len) ||
