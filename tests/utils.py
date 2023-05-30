@@ -26,7 +26,7 @@ class CpankHandler:
 
 
     def _get_build_command(self, input: str) -> str:
-        return 'echo -e "' + input + '" | ' + self.cpank_exe + " - "
+        return 'echo "' + input + '" | ' + self.cpank_exe + " - "
 
     def get(self, input: str) -> str:
         p = subprocess.Popen(
