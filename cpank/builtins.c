@@ -31,26 +31,7 @@ Value clock_ntv_fn(PankVm *vm, int argc, Value *args) {
     return make_num((double)clock() / CLOCKS_PER_SEC);
 }
 
-// This builtin function creates a new Big Number.
-// ( `Deprecated`, use the `new` function from `big` standard library.)
-Value bignew_ntv_fn(PankVm *vm, int argc, Value *args) {
-    if (argc != 1) {
-        return make_error(vm,
-                          U"bignew(value) function takes only one argument");
-    }
-    Value raw_val = args[0];
-    if (is_str_obj(raw_val)) {
-        char32_t *s = get_as_native_string(args[0]);
-        return make_obj_val(new_bignum_with_str(vm, s));
-    } else if (is_num(raw_val)) {
-        double d = get_as_number(raw_val);
-        return make_obj_val(new_bignum_with_double(vm, d));
-    } else {
-        return make_error(vm,
-                          U"bignew(value) function only takes strings and "
-                          U"numbers  as argument");
-    }
-}
+
 
 // This builtin function returns `true` if the 1st and 2nd argument are equal.
 // For now it returns boolean, but in future it would create an error.
