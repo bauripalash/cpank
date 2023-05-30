@@ -7,7 +7,7 @@
 #include "include/vm.h"
 
 #define RUNTIME_ERR U"RUNTIME ERROR OCCURED"
-#define COMPILE_ERR U"COMPILER ERROR OCCURED" 
+#define COMPILE_ERR U"COMPILER ERROR OCCURED"
 
 // returned result must be freed.
 // each call to `run_code` creates and frees the VM.
@@ -22,7 +22,7 @@ char* run_code(char* source) {
             free_vm(vm);
 
             free(src);
-            return c32_to_char(RUNTIME_ERR, strlen32(RUNTIME_ERR)) ;
+            return c32_to_char(RUNTIME_ERR, strlen32(RUNTIME_ERR));
         }
         case INTRP_COMPILE_ERR:
             free_vm(vm);

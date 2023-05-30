@@ -10,6 +10,7 @@ extern "C" {
 #include "value.h"
 
 char32_t clock_ntv_name[] = U"clock";
+char32_t show_ntv_name[] = U"print";
 char32_t asserteq_ntv_name[] = U"asserteq";
 char32_t type_ntv_name[] = U"type";
 char32_t bn_native_fn_name[] = U"প্রকার";
@@ -19,6 +20,8 @@ char32_t bignew_ntv_name[] = U"bignew";
 // This builtin function returns the current time in seconds since
 // the program started to execute.
 Value clock_ntv_fn(PankVm *vm, int argc, Value *args);
+
+Value show_ntv_fn(PankVm *vm, int argc, Value *args);
 
 // This builtin function returns `true` if the 1st and 2nd argument are equal.
 // For now it returns boolean, but in future it would create an error.

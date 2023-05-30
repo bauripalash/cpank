@@ -1,12 +1,29 @@
 /* vim: set fileencoding=utf-8 tabstop=4 shiftwidth=4 expandtab */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include <time.h>
 #include <uchar.h>
 
 #include "include/obj.h"
 #include "include/value.h"
 #include "include/vm.h"
+
+Value show_ntv_fn(PankVm *vm, int argc, Value *args) {
+    bool n = vm->need_buffer;  // Should we write to vm buffer?
+    for (int i = 0; i < argc; i++) {
+        if (n) {
+            char32_t *v = value_to_string(vm, args[i]);
+
+            write_pbuffer(&vm->buffer, "%ls", v);
+            free(v);
+        } else {
+            print_val(args[i]);
+        }
+    }
+
+    return make_nil;
+}
 
 // This builtin function returns the current time in seconds since
 // the program started to execute.

@@ -134,6 +134,9 @@ zmemcheck: $(ZOUT)
 zdebug: $(ZOUT)
 	gdb --args $(ZOUT) $(STORUN)
 
+t: $(ZOUT)
+	env python3 -m unittest -v
+
 
 fmt:
 	clang-format -i -style=file cpank/*.c cpank/include/*.h cpank/include/helper/*.h cpank/stdlib/*.c web/*.c gui/*.c

@@ -132,9 +132,18 @@ pub fn build(b: *std.Build) void {
         sourceToRun,
     });
 
+    const test_command = b.addSystemCommand(&[_][]const u8{
+        "/usr/bin/python",
+        "-m unittest -v",
+    });
+
     const run_cmd = b.step("run", "Build and Run Sample");
     run_cmd.dependOn(&exe.step);
     run_cmd.dependOn(&run_cmd_run.step);
+
+    const test_cmd = b.step("test", "Run test using python");
+    test_cmd.dependOn(&exe.step);
+    test_cmd.dependOn(&test_command.step);
     
 
     b.installArtifact(exe);
