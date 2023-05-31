@@ -24,6 +24,6 @@ jobs:
         with:
           msystem: UCRT64
           update: true
-          install: git mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make
+          install: base-devel git mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make
       - name: windows make 
         run: make test
