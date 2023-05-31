@@ -7,11 +7,23 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  test_linux:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: make
       run: make test
+  test_windows_msys2:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: git mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make
+      - name: windows make 
+      - run: make test

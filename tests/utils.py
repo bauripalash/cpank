@@ -1,9 +1,13 @@
 import os
 import subprocess
+import sys
 
 CPANK_ENV = "CPANK_EXE"
 CPANK_DEBUG = "CPANK_DEBUG"
 CPANK_EXE_DEFAULT_PATH = "zig-out/bin/pankti"
+
+if sys.platform.startswith("windows") or sys.platform.startswith("cygwin"):
+    CPANK_EXE_DEFAULT_PATH += ".exe"
 
 
 class CpankHandler:
