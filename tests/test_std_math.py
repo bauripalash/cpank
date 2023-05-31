@@ -4,7 +4,7 @@ import math
 
 ch = CpankHandler()
 
-math_import = 'import m \\"math\\"'
+math_import = 'import m \"math\"'
 
 class TestStdMath(unittest.TestCase):
     def test_add(self):
