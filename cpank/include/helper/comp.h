@@ -13,6 +13,11 @@ extern "C" {
     defined(__GNUC_PATCHLEVEL__)
  #define PANK_COMP_GCC
 #endif
+
+#if defined(_ZIG_WIN) || defined(ZIG_WIN)
+ #define PANK_COMP_ZWIN
+#endif
+
 #ifdef __cplusplus
 }
 #endif

@@ -2,7 +2,6 @@
 // go:build tmain
 //  +build tmain
 #include <uchar.h>
-#include <unistd.h>
 #if !defined(APILIB)
  #include <locale.h>
  #include <stddef.h>
@@ -23,6 +22,9 @@
 
   #define CP_UTF8 65001
 
+ #else
+
+  #include <unistd.h>
  #endif
 
 const wchar_t help_msg[] =
@@ -41,9 +43,12 @@ const wchar_t version[] = L"v0.1.0";
 int main(int argc, char** argv) {
     setlocale(LC_CTYPE, "");
 
- #if defined(PANK_OS_WIN) && defined(PANK_COMP_MSVC)
+ #if defined(PANK_OS_WIN)
     SetConsoleOutputCP(CP_UTF8);
+  #if defined(PANK_COMP_MSVC)
     _setmode(_fileno(stdout), _O_U16TEXT);
+  #endif
+
  #endif  // _WIN32
 
     if (argc == 2) {

@@ -16,6 +16,7 @@
 
 #include "ext/baurinum/baurinum.h"
 #include "include/common.h"
+#include "include/helper/comp.h"
 #include "include/helper/os.h"
 #include "include/obj.h"
 #include "include/value.h"
@@ -25,6 +26,10 @@
  #include <unistd.h>
 #else
  #include <direct.h>
+#endif
+
+#if defined(PANK_COMP_ZWIN)
+ #include <windows.h>
 #endif
 
 char32_t *getline_from_c32(char32_t *source, int line) {
@@ -247,6 +252,7 @@ bool str32cmp_gen_n(const char32_t *big, const char32_t *small, int len) {
 }
 
 char32_t *char_to_32(char *input) {
+#if !defined(PANK_COMP_ZWIN)
     mbstate_t state = {0};
     size_t osz = sizeof(char32_t) * (strlen(input) + 1);
     setlocale(LC_ALL, "bn_IN.utf8");
@@ -270,6 +276,21 @@ char32_t *char_to_32(char *input) {
     }
 
     return output;
+#else
+    wchar_t *winput = (wchar_t *)malloc((strlen(input) + 1) * sizeof(wchar_t));
+    MultiByteToWideChar(CP_UTF8, 0, input, -1, winput, strlen(input) + 1);
+    int wlen = wcslen(winput);
+    char32_t *c32input = (char32_t *)calloc(wlen + 1, sizeof(char32_t));
+
+    for (int i = 0; i < wlen; i++) {
+        c32input[i] = winput[i];
+    }
+
+    // c32input[wlen] = U'\0';
+
+    return c32input;
+
+#endif
 }
 
 // Got help from a stackoverflow answer which I asked myself

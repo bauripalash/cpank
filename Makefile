@@ -5,12 +5,12 @@ ifeq ($(RLS),1)
 	LDFLAGS+=-lm -flto
 else
 	BUILD_TYPE:=debug
-	CFLAGS+= -Wall -g3 -DDEBUG -DDEBUG_STRESS_GC
+	CFLAGS+=-std=c11 -Wall -g3 -DDEBUG -DDEBUG_STRESS_GC
 	LDFLAGS+=-lm -flto
 endif
 
 
-CC:=clang
+CC:=gcc
 CXX:=clang++
 BUILD_DIR:=build
 ANDROID_API_BUILD_DIR:=$(BUILD_DIR)/android

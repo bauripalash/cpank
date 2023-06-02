@@ -31,8 +31,6 @@ Value clock_ntv_fn(PankVm *vm, int argc, Value *args) {
     return make_num((double)clock() / CLOCKS_PER_SEC);
 }
 
-
-
 // This builtin function returns `true` if the 1st and 2nd argument are equal.
 // For now it returns boolean, but in future it would create an error.
 Value asserteq_ntv_fn(PankVm *vm, int argc, Value *args) {

@@ -1193,7 +1193,7 @@ ObjFunc *compile(PankVm *vm, char32_t *source) {
 #ifdef DEBUG_LEXER
     Token tk = get_tok(&lexer);
     while (tk.type != T_EOF) {
- #ifdef PANK_OS_WIN
+ #if defined(PANK_OS_WIN) && !defined(PANK_COMP_ZWIN)
         char *tokstr = c_to_c(tk.start, 0);
         cp_println(L"TOK[%S][%.*S]\n", toktype_to_string(tk.type), tk.length,
                    tokstr);
